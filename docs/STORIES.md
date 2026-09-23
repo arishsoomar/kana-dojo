@@ -34,7 +34,8 @@ Done when:
 - [ ] `src/constants/theme.ts` exports the Sumi palette from PROJECT.md
 - [ ] Belt colors are exported as their own map
 - [ ] Both fonts are loaded and usable
-- [ ] No hex value appears anywhere outside this file
+- [ ] No hex value appears anywhere outside this file, except `app.json`
+      (plain JSON can't import; its colors must match `paper` by hand)
 
 ### A3. Custom tab bar
 **As a** learner, **I want** a tab bar that matches the dojo look, **so

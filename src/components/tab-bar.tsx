@@ -20,7 +20,8 @@ export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarP
       {state.routes.map((route, index) => {
         const focused = state.index === index;
         const Icon = icons[route.name];
-        const label = descriptors[route.key].options.title ?? route.name;
+        if (!Icon) throw new Error(`No tab icon for route "${route.name}"`);
+        const label = descriptors[route.key]?.options.title ?? route.name;
         return (
           <Pressable
             key={route.key}

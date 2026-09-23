@@ -19,7 +19,8 @@ export const MAX_BOX = INTERVALS.length - 1;
 
 export function intervalFor(box: number): number {
   const clamped = Math.min(Math.max(box, 0), MAX_BOX);
-  return INTERVALS[clamped];
+  // Safe: clamped is always a valid index into INTERVALS.
+  return INTERVALS[clamped]!;
 }
 
 // Belts from lowest to highest.

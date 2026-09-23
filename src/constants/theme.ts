@@ -11,6 +11,7 @@ export const colors = {
   ink2: '#5E6372',
   card: '#FFFFFF',
   muted: '#A3A9B6',
+  edge: '#CDD2DB',
 } as const;
 
 export const beltColors = {

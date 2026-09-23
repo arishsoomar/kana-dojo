@@ -10,11 +10,11 @@ export type Kana = {
   script: Script;
   row: RowId;
   // First entry is the standard spelling; any others are accepted alternates.
-  romaji: readonly string[];
+  romaji: readonly [string, ...string[]];
 };
 
 // One line per sound: [row, hiragana, katakana, ...romaji]
-const TABLE: readonly [RowId, string, string, ...string[]][] = [
+const TABLE: readonly [RowId, string, string, string, ...string[]][] = [
   ['a', 'あ', 'ア', 'a'], ['a', 'い', 'イ', 'i'], ['a', 'う', 'ウ', 'u'], ['a', 'え', 'エ', 'e'], ['a', 'お', 'オ', 'o'],
   ['ka', 'か', 'カ', 'ka'], ['ka', 'き', 'キ', 'ki'], ['ka', 'く', 'ク', 'ku'], ['ka', 'け', 'ケ', 'ke'], ['ka', 'こ', 'コ', 'ko'],
   ['sa', 'さ', 'サ', 'sa'], ['sa', 'し', 'シ', 'shi', 'si'], ['sa', 'す', 'ス', 'su'], ['sa', 'せ', 'セ', 'se'], ['sa', 'そ', 'ソ', 'so'],
@@ -27,10 +27,13 @@ const TABLE: readonly [RowId, string, string, ...string[]][] = [
   ['wa', 'わ', 'ワ', 'wa'], ['wa', 'を', 'ヲ', 'wo'], ['wa', 'ん', 'ン', 'n'],
 ];
 
-export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, ...romaji]) => [
-  { char: hiragana, script: 'hiragana', row, romaji },
-  { char: katakana, script: 'katakana', row, romaji },
-]);
+export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, first, ...rest]) => {
+  const romaji: Kana['romaji'] = [first, ...rest];
+  return [
+    { char: hiragana, script: 'hiragana', row, romaji },
+    { char: katakana, script: 'katakana', row, romaji },
+  ];
+});
 
 export function matchesRomaji(kana: Kana, input: string): boolean {
   const answer = input.trim().toLowerCase();

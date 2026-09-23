@@ -1,0 +1,91 @@
+import { KANA, LOOKALIKES, ROWS, lookalikesOf, matchesRomaji, type Kana } from './kana';
+
+function kana(char: string): Kana {
+  const found = KANA.find((k) => k.char === char);
+  if (!found) throw new Error(`No kana ${char} in KANA`);
+  return found;
+}
+
+describe('kana data', () => {
+  it('has all 46 basic hiragana', () => {
+    const hiragana = KANA.filter((k) => k.script === 'hiragana');
+    expect(hiragana).toHaveLength(46);
+  });
+
+  it('has all 46 basic katakana', () => {
+    const katakana = KANA.filter((k) => k.script === 'katakana');
+    expect(katakana).toHaveLength(46);
+  });
+
+  it('has no duplicate characters', () => {
+    const chars = KANA.map((k) => k.char);
+    expect(new Set(chars).size).toBe(chars.length);
+  });
+});
+
+describe('matchesRomaji', () => {
+  it('accepts the standard spelling', () => {
+    expect(matchesRomaji(kana('か'), 'ka')).toBe(true);
+  });
+
+  it('accepts alternate spellings, in both scripts', () => {
+    expect(matchesRomaji(kana('し'), 'si')).toBe(true);
+    expect(matchesRomaji(kana('チ'), 'ti')).toBe(true);
+    expect(matchesRomaji(kana('つ'), 'tu')).toBe(true);
+    expect(matchesRomaji(kana('フ'), 'hu')).toBe(true);
+  });
+
+  it('rejects a wrong answer', () => {
+    expect(matchesRomaji(kana('か'), 'ki')).toBe(false);
+  });
+
+  it('ignores capital letters and surrounding spaces', () => {
+    expect(matchesRomaji(kana('し'), ' Shi ')).toBe(true);
+  });
+});
+
+describe('rows', () => {
+  it('lists rows in unlock order', () => {
+    expect(ROWS).toEqual(['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa']);
+  });
+
+  it('puts each kana in its row', () => {
+    expect(kana('し').row).toBe('sa');
+    expect(kana('ツ').row).toBe('ta');
+    expect(kana('ん').row).toBe('wa');
+  });
+
+  it('has the right number of kana in each row', () => {
+    const sizes = ROWS.map(
+      (row) => KANA.filter((k) => k.script === 'hiragana' && k.row === row).length,
+    );
+    expect(sizes).toEqual([5, 5, 5, 5, 5, 5, 5, 3, 5, 3]);
+  });
+});
+
+describe('lookalikes', () => {
+  it('finds the other member of a pair, in both directions', () => {
+    expect(lookalikesOf('シ')).toEqual(['ツ']);
+    expect(lookalikesOf('ツ')).toEqual(['シ']);
+  });
+
+  it('finds both others in a group of three', () => {
+    const result = lookalikesOf('ね');
+    expect(result).toHaveLength(2);
+    expect(result).toContain('わ');
+    expect(result).toContain('れ');
+  });
+
+  it('returns an empty list for a kana with no lookalikes', () => {
+    expect(lookalikesOf('あ')).toEqual([]);
+  });
+
+  it('only lists real kana', () => {
+    const allChars = KANA.map((k) => k.char);
+    for (const group of LOOKALIKES) {
+      for (const char of group) {
+        expect(allChars).toContain(char);
+      }
+    }
+  });
+});

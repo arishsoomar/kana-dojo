@@ -60,8 +60,9 @@ that** the rest of the engine has something to work on.
 
 Done when:
 - [ ] All 46 basic hiragana and 46 basic katakana present
-- [ ] Alternate romaji accepted (shi/si, tsu/tu, fu/hu, ji/zi)
-- [ ] Rows are defined and each kana knows its row
+- [ ] Alternate romaji accepted (shi/si, chi/ti, tsu/tu, fu/hu).
+      ji/zi is for じ, which is not in the basic 46; revisit with dakuten.
+- [ ] Rows are defined and each kana knows its row (ん is in the wa row)
 - [ ] Lookalike sets defined (シ/ツ, ソ/ン, ぬ/め, わ/ね/れ, る/ろ, さ/ち)
 
 ### B2. Boxes and belts

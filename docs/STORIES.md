@@ -81,7 +81,10 @@ Done when:
 Done when:
 - [ ] Correct + due + under 4s → box + 1
 - [ ] Correct but not due → box unchanged
-- [ ] Wrong → box − 2, floor 0, due now
+- [ ] Correct + due but 4s or slower → box unchanged, rescheduled at its
+      current interval
+- [ ] Wrong → box − 2, floor 0, due now (even if it was not due)
+- [ ] A kana with no progress yet starts at box 0, due now
 - [ ] Wrong answers log the confused pair
 - [ ] The input state object is never mutated
 

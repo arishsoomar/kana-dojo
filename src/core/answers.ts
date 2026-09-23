@@ -35,7 +35,7 @@ function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
 }
 
 // Progress for a kana the learner has never answered: lowest box, due now.
-const NEW_KANA: KanaProgress = { box: 0, dueAt: 0 };
+export const NEW_KANA: KanaProgress = { box: 0, dueAt: 0 };
 
 export function recordAnswer(progress: Progress, answer: Answer): Progress {
   const current = progress.kana[answer.char] ?? NEW_KANA;

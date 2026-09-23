@@ -93,10 +93,15 @@ Done when:
 don't have to decide.
 
 Done when:
-- [ ] `pickNext()` favors overdue and low-box kana
-- [ ] `makeChoices()` puts lookalikes in the distractors
-- [ ] No distractor shares the right answer's romaji
-- [ ] `unlockedKana()` opens the next row at 80% green
+- [ ] `pickNext()` favors overdue and low-box kana (not-due kana can
+      still be picked, just rarely)
+- [ ] `makeChoices()` puts lookalikes in the distractors (only lookalikes
+      that are in the pool, i.e. already unlocked)
+- [ ] No distractor shares the right answer's romaji, and no two choices
+      share a romaji
+- [ ] `unlockedKana()` opens the next row at 80% green (green belt or
+      better), separately for hiragana and katakana
+- [ ] Randomness is passed in as `rng`, never read inside the engine
 
 ---
 

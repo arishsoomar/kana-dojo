@@ -53,20 +53,15 @@ to the point where I could rebuild what you wrote without help.
    say what was wrong and why before or when you change it. Never change
    it silently.
 
-7. **Ask me to explain things back.** After we finish a piece, ask me to
-   describe what it does in my own words. Correct me honestly if I'm off.
-   Do not tell me I understand something when my explanation shows I
-   don't.
-
-8. **Be honest about tradeoffs.** If there are two reasonable approaches,
+7. **Be honest about tradeoffs.** If there are two reasonable approaches,
    say so, say which you'd pick, and say why. Don't hide the choice.
 
-9. **Tests are the spec.** For `src/core/`, tests define the behavior.
+8. **Tests are the spec.** For `src/core/`, tests define the behavior.
    Write the test first, show it failing, explain what it asserts and
    why, then write the code that makes it pass.
 
-10. **No motivational filler.** Skip "great question" and "you're doing
-    great". Tell me what's true.
+9. **No motivational filler.** Skip "great question" and "you're doing
+   great". Tell me what's true.
 
 ## Working rhythm
 
@@ -77,8 +72,7 @@ For each story:
 3. You write the first small step and explain it. You stop.
 4. I ask questions or say continue. Repeat until the story is done.
 5. You run lint and typecheck, and check every "Done when" box.
-6. You ask me to explain what we built. You correct me if I'm wrong.
-7. Only then do we move to the next story.
+6. Only then do we move to the next story.
 
 ## Conventions
 

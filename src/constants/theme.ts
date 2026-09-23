@@ -16,6 +16,7 @@ export const colors = {
   pineLight: '#E4F4EA',
   vermilionDark: '#B8341D',
   vermilionLight: '#FDECE8',
+  backdrop: 'rgba(23, 24, 28, 0.5)', // night at 50%, behind dialogs
 } as const;
 
 // Karasu, the crow sensei.
@@ -29,14 +30,21 @@ export const karasuColors = {
   brow: '#6B7185',
   eye: '#FFFFFF',
   beak: '#F2B53A',
+  mouth: '#8C2F22',
   shadow: 'rgba(0, 0, 0, 0.14)',
 } as const;
 
-// The light-bulb icon on memory tips.
-export const bulbColors = {
-  glass: '#FFC93C',
-  glassEdge: '#DDA200',
-  base: '#A9A2BF',
+// Yellow icons: the memory-tip bulb and the XP bolt.
+export const iconColors = {
+  yellow: '#FFC93C',
+  yellowEdge: '#DDA200',
+  bulbBase: '#A9A2BF',
+} as const;
+
+// Outline for belt drawings: a light edge for the white belt, a dark one for the rest.
+export const beltEdges = {
+  light: '#C3C8D2',
+  dark: 'rgba(0, 0, 0, 0.35)',
 } as const;
 
 export const beltColors = {

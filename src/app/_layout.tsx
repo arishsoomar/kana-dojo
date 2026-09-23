@@ -36,7 +36,8 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="lesson" options={{ title: 'Lesson' }} />
+      {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}
+      <Stack.Screen name="lesson" options={{ headerShown: false, gestureEnabled: false }} />
     </Stack>
   );
 }

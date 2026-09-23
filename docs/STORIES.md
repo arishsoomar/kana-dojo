@@ -134,10 +134,12 @@ Done when:
 session has a finish line.
 
 Done when:
-- [ ] A lesson is a fixed number of questions
+- [ ] A lesson is a fixed number of questions (10)
 - [ ] Progress bar fills as questions are answered
-- [ ] X button exits with a confirmation
-- [ ] Completion screen shows XP, accuracy, strike speed, belt changes
+- [ ] X button exits with a confirmation (swipe-back is off on iOS)
+- [ ] Completion screen shows XP, accuracy, strike speed, belt changes.
+      XP: 10 per correct answer, +5 if under 4s. Strike speed is the median
+      time of correct answers only. Only promotions are listed.
 
 ### C4. Progress survives restart
 **As a** learner, **I want** my progress saved, **so that** closing the

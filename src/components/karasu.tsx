@@ -2,20 +2,21 @@ import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 
 import { beltColors, colors, karasuColors as k } from '@/constants/theme';
 
-export type KarasuMood = 'focus' | 'proud' | 'stern';
+export type KarasuMood = 'focus' | 'proud' | 'stern' | 'cheer';
 
 type Props = {
   mood: KarasuMood;
   size?: number;
 };
 
-// Karasu at the first stage (green belt), drawn from the mocks. Only the eyes change with mood.
+// Karasu at the first stage (green belt), drawn from the mocks.
+// Mood changes the eyes; 'cheer' also raises the wings and opens the beak.
 export function Karasu({ mood, size = 58 }: Props) {
   return (
     <Svg width={size} height={size} viewBox="-8 -4 122 122" accessibilityLabel={`Karasu, ${mood}`}>
       {/* Wings, behind the body */}
-      <Path d="M20 64Q8 82 16 98Q26 86 28 72Z" fill={k.wing} stroke={k.outline} strokeWidth={2.5} strokeLinejoin="round" />
-      <Path d="M80 64Q92 82 84 98Q74 86 72 72Z" fill={k.wing} stroke={k.outline} strokeWidth={2.5} strokeLinejoin="round" />
+      <Path d={mood === 'cheer' ? WINGS_UP_LEFT : WINGS_DOWN_LEFT} fill={k.wing} stroke={k.outline} strokeWidth={2.5} strokeLinejoin="round" />
+      <Path d={mood === 'cheer' ? WINGS_UP_RIGHT : WINGS_DOWN_RIGHT} fill={k.wing} stroke={k.outline} strokeWidth={2.5} strokeLinejoin="round" />
       {/* Head tuft */}
       <Path d="M44 20L38 4 48 13 54 2 56 18Z" fill={k.body} stroke={k.outline} strokeWidth={2.5} strokeLinejoin="round" />
       {/* Shadow, body, chest */}
@@ -33,9 +34,7 @@ export function Karasu({ mood, size = 58 }: Props) {
       <Path d="M22 31Q50 21 78 31L78 38Q50 28 22 38Z" fill={colors.vermilion} stroke={k.outline} strokeWidth={2} strokeLinejoin="round" />
       <Path d="M23 33L7 27 10 38ZM23 36L11 45 18 49Z" fill={colors.vermilion} stroke={k.outline} strokeWidth={2} strokeLinejoin="round" />
       <Eyes mood={mood} />
-      {/* Beak */}
-      <Path d="M43 59H57L50 73Z" fill={k.beak} stroke={k.outline} strokeWidth={2} strokeLinejoin="round" />
-      <Path d="M45 62h10" stroke={k.outline} strokeWidth={1.3} />
+      <Beak open={mood === 'cheer'} />
       {/* Belt and feet */}
       <Path d="M19 88Q50 98 81 88L82 95Q50 105 18 95Z" fill={beltColors.green} stroke={k.outline} strokeWidth={1.8} strokeLinejoin="round" />
       <Path d="M47 99l-4 9M53 99l4 9" stroke={beltColors.green} strokeWidth={4.5} strokeLinecap="round" />
@@ -44,8 +43,31 @@ export function Karasu({ mood, size = 58 }: Props) {
   );
 }
 
+const WINGS_DOWN_LEFT = 'M20 64Q8 82 16 98Q26 86 28 72Z';
+const WINGS_DOWN_RIGHT = 'M80 64Q92 82 84 98Q74 86 72 72Z';
+const WINGS_UP_LEFT = 'M24 58Q2 44 2 18Q18 32 32 50Z';
+const WINGS_UP_RIGHT = 'M76 58Q98 44 98 18Q82 32 68 50Z';
+
+function Beak({ open }: { open: boolean }) {
+  if (open) {
+    return (
+      <>
+        <Path d="M43 58H57L50 64Z" fill={k.beak} stroke={k.outline} strokeWidth={2} strokeLinejoin="round" />
+        <Path d="M44 66H56L50 74Z" fill={k.beak} stroke={k.outline} strokeWidth={2} strokeLinejoin="round" />
+        <Path d="M45 64.5h10" stroke={k.mouth} strokeWidth={2.5} />
+      </>
+    );
+  }
+  return (
+    <>
+      <Path d="M43 59H57L50 73Z" fill={k.beak} stroke={k.outline} strokeWidth={2} strokeLinejoin="round" />
+      <Path d="M45 62h10" stroke={k.outline} strokeWidth={1.3} />
+    </>
+  );
+}
+
 function Eyes({ mood }: { mood: KarasuMood }) {
-  if (mood === 'proud') {
+  if (mood === 'proud' || mood === 'cheer') {
     // Closed, smiling eyes.
     return <Path d="M31 55q7-7 14 0M55 55q7-7 14 0" fill="none" stroke={k.eye} strokeWidth={3.4} strokeLinecap="round" />;
   }

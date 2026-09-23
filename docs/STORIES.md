@@ -124,6 +124,8 @@ Done when:
 Done when:
 - [ ] Correct → pine sheet, answer, time taken, any belt change
 - [ ] Wrong → vermilion sheet, correct answer, what was picked, memory tip
+      (hand-written tips for the lookalike pairs; other mix-ups name both
+      sounds. The button says Continue, and belt drops aren't announced.)
 - [ ] Karasu's expression changes between the two
 - [ ] Each answer calls `recordAnswer()`
 

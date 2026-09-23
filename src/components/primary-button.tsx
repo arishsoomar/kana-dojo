@@ -2,20 +2,23 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 
+type Tone = 'sumi' | 'pine' | 'vermilion';
+
 type Props = {
   label: string;
+  tone?: Tone;
   disabled?: boolean;
   onPress: () => void;
 };
 
-export function PrimaryButton({ label, disabled = false, onPress }: Props) {
+export function PrimaryButton({ label, tone = 'sumi', disabled = false, onPress }: Props) {
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      role="button"
+      aria-disabled={disabled}
       disabled={disabled}
       onPress={onPress}
-      style={[styles.button, disabled && styles.buttonDisabled]}>
+      style={[styles.button, { backgroundColor: colors[tone] }, disabled && styles.buttonDisabled]}>
       <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>
     </Pressable>
   );
@@ -26,7 +29,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 8,
-    backgroundColor: colors.sumi,
   },
   buttonDisabled: {
     backgroundColor: colors.line,

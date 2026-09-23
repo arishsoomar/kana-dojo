@@ -1,52 +1,104 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ChoiceTile } from '@/components/choice-tile';
+import { ChoiceTile, type TileState } from '@/components/choice-tile';
+import { FeedbackSheet } from '@/components/feedback-sheet';
 import { KanaFrame } from '@/components/kana-frame';
+import { Karasu, type KarasuMood } from '@/components/karasu';
 import { PrimaryButton } from '@/components/primary-button';
-import { colors } from '@/constants/theme';
-import type { Progress } from '@/core/answers';
+import { colors, fonts } from '@/constants/theme';
 import type { Kana } from '@/core/kana';
-import { useQuestion } from '@/hooks/use-question';
-
-// No saved progress yet (that's C4), so every lesson starts as a new learner.
-const NEW_LEARNER: Progress = { kana: {}, confusions: [] };
+import { useLesson, type Result } from '@/hooks/use-lesson';
 
 export default function LessonScreen() {
   const insets = useSafeAreaInsets();
-  const question = useQuestion(NEW_LEARNER, 'hiragana');
+  const { question, result, check, goToNext } = useLesson('hiragana');
   const [selected, setSelected] = useState<Kana | null>(null);
 
-  return (
-    <View style={[styles.screen, { paddingBottom: insets.bottom + 22 }]}>
-      <KanaFrame char={question.kana.char} />
+  function next() {
+    setSelected(null);
+    goToNext();
+  }
 
-      <View style={styles.choices} accessibilityRole="radiogroup">
-        {question.choices.map((choice) => (
-          <ChoiceTile
-            key={choice.char}
-            label={choice.romaji[0]}
-            selected={choice === selected}
-            onPress={() => setSelected(choice)}
-          />
-        ))}
+  return (
+    <View style={styles.screen}>
+      <View style={styles.body}>
+        <View style={styles.coach}>
+          <Karasu mood={moodFor(result)} />
+          <View style={styles.bubble}>
+            <Text style={styles.bubbleText}>Read this.</Text>
+          </View>
+        </View>
+
+        <KanaFrame char={question.kana.char} />
+
+        <View style={styles.choices} accessibilityRole="radiogroup">
+          {question.choices.map((choice) => (
+            <ChoiceTile
+              key={choice.char}
+              label={choice.romaji[0]}
+              state={tileState(choice, question.kana, selected, result)}
+              disabled={result !== null}
+              onPress={() => setSelected(choice)}
+            />
+          ))}
+        </View>
       </View>
 
-      <View style={styles.footer}>
-        {/* Checking the answer is story C2. */}
-        <PrimaryButton label="Check" disabled={selected === null} onPress={() => {}} />
+      {/* The bottom padding lives here, so the white sheet reaches the bottom edge. */}
+      <View style={[result ? styles.sheetArea : styles.footer, { paddingBottom: insets.bottom + 22 }]}>
+        {result ? (
+          <FeedbackSheet result={result} onContinue={next} />
+        ) : (
+          <PrimaryButton label="Check" disabled={selected === null} onPress={() => selected && check(selected)} />
+        )}
       </View>
     </View>
   );
 }
 
+function moodFor(result: Result | null): KarasuMood {
+  if (!result) return 'focus';
+  return result.correct ? 'proud' : 'stern';
+}
+
+function tileState(choice: Kana, answer: Kana, selected: Kana | null, result: Result | null): TileState {
+  if (!result) return choice === selected ? 'selected' : 'idle';
+  if (choice === result.guess) return result.correct ? 'correct' : 'wrong';
+  if (choice === answer) return 'missed';
+  return 'idle';
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    paddingTop: 18,
-    paddingHorizontal: 18,
     backgroundColor: colors.paper,
+  },
+  body: {
+    flex: 1,
+    paddingTop: 12,
+    paddingHorizontal: 18,
+  },
+  coach: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  bubble: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: colors.edge,
+    backgroundColor: colors.card,
+  },
+  bubbleText: {
+    fontFamily: fonts.uiBold,
+    fontSize: 15,
+    color: colors.sumi,
   },
   choices: {
     flexDirection: 'row',
@@ -55,6 +107,9 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   footer: {
-    marginTop: 'auto',
+    paddingHorizontal: 18,
+  },
+  sheetArea: {
+    backgroundColor: colors.card,
   },
 });

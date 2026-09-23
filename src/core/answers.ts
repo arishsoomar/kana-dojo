@@ -18,7 +18,7 @@ export type Answer = {
 };
 
 // Answers must be faster than this to earn a promotion.
-const FAST_MS = 4000;
+export const FAST_MS = 4000;
 
 function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
   if (!isDue(current, answer.now)) return current;

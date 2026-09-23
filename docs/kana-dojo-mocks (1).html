@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kana Dojo: every screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--ui:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;--jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;
+--sumi:#1F2024;--ink:#1F2024;--ink2:#5E6372;--ink3:#9AA0AD;--line:#DDE1E8;--paper:#EEF0F3;--card:#FFFFFF;
+--verm:#E0492F;--verm-d:#B8341D;--verm-l:#FDECE8;--pine:#2E9E5B;--pine-d:#1E7A43;--pine-l:#E4F4EA;
+--gold:#C9A227;--gold-d:#8A6D0E;--gold-l:#FBF3D9;--wood:#D9B383;--wood-d:#A67C44;--sky:#3B82C4;--sky-l:#E6F0FA;
+--page:#F4F5F7;--page-ink:#1F2024;--page-ink2:#5E6372;--page-line:#DDE1E8;--page-card:#FFFFFF;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#131417;--page-ink:#EDEEF2;--page-ink2:#A0A5B3;--page-line:#2C2F37;--page-card:#1C1D22}}
+:root[data-theme="dark"]{--page:#131417;--page-ink:#EDEEF2;--page-ink2:#A0A5B3;--page-line:#2C2F37;--page-card:#1C1D22}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--page-ink);font-family:var(--ui);line-height:1.55;-webkit-font-smoothing:antialiased}
+.jp{font-family:var(--jp);font-weight:900}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+/* page chrome */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:30px;align-items:center;padding:56px 0 36px}
+.hero h1{font-size:clamp(40px,5.6vw,68px);line-height:1;font-weight:900;letter-spacing:-.025em;margin:0 0 18px}
+.hero p{font-size:18px;color:var(--page-ink2);max-width:34em;margin:0 0 12px}
+.hstage{position:relative;height:360px;border-radius:24px;background:#EEF0F3;overflow:hidden;border:2px solid var(--page-line)}
+.inspo{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px 28px;padding:22px 0 6px;border-top:2px solid var(--page-line)}
+.inspo div{font-size:15px;color:var(--page-ink2)}.inspo b{display:block;color:var(--page-ink);font-size:16px}
+section.chapter{padding:56px 0 20px}
+.chead{display:flex;gap:18px;align-items:center;margin-bottom:28px}
+.chead .k{flex:0 0 auto;width:60px;height:96px;border-radius:5px;background:var(--wood);border:2px solid var(--wood-d);color:var(--sumi);display:grid;place-items:center;font-size:32px;font-family:var(--jp);font-weight:900;position:relative}
+.chead .k::after{content:"";position:absolute;right:-8px;bottom:-8px;width:22px;height:22px;border-radius:50%;background:var(--verm);border:2px solid var(--page)}
+.chead h2{margin:0;font-size:34px;font-weight:900;letter-spacing:-.015em;line-height:1.1}
+.chead p{margin:4px 0 0;color:var(--page-ink2);font-size:16px;max-width:46em}
+.gallery{display:flex;flex-wrap:wrap;gap:44px 30px}
+.cap{width:316px;margin-top:14px;padding:0 6px}
+.cap h3{margin:0;font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cap p{margin:4px 0 6px;font-size:14px;color:var(--page-ink2)}
+.cap code{font-family:var(--ui);font-weight:700;font-size:13px;color:var(--verm)}
+.tag{font-size:12px;font-weight:700;border-radius:5px;padding:1px 7px;border:1.5px solid}
+.tag.mvp{border-color:#9CD3B2;color:#1E7A43;background:#E4F4EA}
+.tag.later{border-color:var(--page-line);color:var(--page-ink2)}
+.lang{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.panel{background:var(--page-card);border:2px solid var(--page-line);border-radius:18px;padding:22px}
+.panel h3{margin:0 0 4px;font-size:19px;font-weight:900}
+.panel>p{margin:0 0 16px;color:var(--page-ink2);font-size:14px}
+.span2{grid-column:span 2}.span3{grid-column:1/-1}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sw div{font-size:12px;color:var(--page-ink2);line-height:1.35}
+.sw i{display:block;height:46px;border-radius:9px;margin-bottom:6px;outline:2px solid var(--page-line)}
+.sw b{display:block;color:var(--page-ink);font-size:13px}
+.row-demo{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
+.row-demo figure{margin:0;text-align:center;font-size:12px;color:var(--page-ink2)}
+.row-demo figure b{display:block;color:var(--page-ink);font-size:13px}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:26px}
+.principles div{font-size:14px;color:var(--page-ink2)}.principles b{display:block;font-size:16px;color:var(--page-ink)}
+footer{padding:40px 0 70px;color:var(--page-ink2);font-size:14px;border-top:2px solid var(--page-line);margin-top:40px}
+@media (max-width:980px){.lang{grid-template-columns:1fr}.span2{grid-column:auto}.span3{grid-column:auto}.hero{grid-template-columns:1fr}.gallery{justify-content:center}}
+
+/* device */
+.phone{flex:0 0 316px}
+.device{background:#111215;border-radius:48px;padding:8px;outline:2px solid var(--page-line)}
+.screen{position:relative;height:652px;border-radius:40px;overflow:hidden;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;font-size:14px;font-family:var(--ui);font-weight:600;line-height:1.35}
+.status{display:flex;justify-content:space-between;align-items:center;padding:13px 28px 6px;font-weight:800;font-size:13px;flex:0 0 auto}
+.status .bat{width:24px;height:11px;border:2px solid currentColor;border-radius:4px;position:relative}
+.status .bat::after{content:"";position:absolute;inset:1px 5px 1px 1px;background:currentColor;border-radius:1px}
+.night{background:#17181C;color:#EDEEF2}
+.pad{padding:0 18px}
+.ic{width:22px;height:22px;flex:0 0 auto;display:inline-block;vertical-align:middle}
+.ic.s{width:16px;height:16px}.ic.l{width:28px;height:28px}
+.stats{display:flex;justify-content:space-between;align-items:center;padding:4px 18px 10px}
+.stat{display:flex;align-items:center;gap:4px;font-weight:800;font-size:15px}
+.title{font-size:25px;font-weight:900;letter-spacing:-.015em;margin:0;line-height:1.12}
+.h{font-size:19px;font-weight:800;margin:0}
+.sub{color:var(--ink2);font-weight:600;font-size:14px;margin:0}
+.muted{color:var(--ink2)}
+.foot{padding:12px 18px 22px;display:grid;gap:10px;margin-top:auto}
+.btn{display:block;width:100%;border-radius:8px;padding:14px;font:700 16px/1.2 var(--ui);text-align:center;color:#fff;background:var(--sumi);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+.btn.verm{background:var(--verm)}.btn.pine{background:var(--pine)}.btn.gold{background:var(--gold);color:#2B2100}
+.btn.ghost{background:#fff;color:var(--sumi);border:1.5px solid #CDD2DB;padding:12.5px 14px;box-shadow:none}
+.btn.white{background:#fff;color:var(--sumi)}
+.btn.sm{display:inline-block;width:auto;padding:7px 13px;font-size:13px;border-radius:6px}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px}
+.tile{background:#fff;border:1.5px solid #CDD2DB;border-radius:8px;padding:14px 6px;text-align:center;font-weight:700;font-size:19px}
+.tile.sel{border:2px solid var(--sumi);padding:13.5px 5.5px;background:#F6F6F7}
+.tile.ok{border:2px solid var(--pine);background:var(--pine-l);color:var(--pine-d);padding:13.5px 5.5px}
+.tile.bad{border:2px solid var(--verm);background:var(--verm-l);color:var(--verm-d);padding:13.5px 5.5px}
+.tile.okline{border:2px dashed var(--pine);color:var(--pine-d);padding:13.5px 5.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pbar{height:6px;border-radius:3px;background:#D3D7DF;overflow:hidden;flex:1}
+.pbar>i{display:block;height:100%;border-radius:3px;background:var(--sumi)}
+.pbar.t{height:8px;border-radius:4px}.pbar.t>i{border-radius:4px}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:700}
+.chip.o{background:#fff;border:1.5px solid #D3D7DF}
+.bubble{background:#fff;border:1.5px solid #D3D7DF;border-radius:8px;padding:10px 12px;font-weight:700;font-size:15px;position:relative}
+.bubble::before{content:"";position:absolute;left:-7px;top:16px;width:12px;height:12px;background:#fff;border-left:1.5px solid #D3D7DF;border-bottom:1.5px solid #D3D7DF;transform:rotate(45deg)}
+.tabs{margin-top:auto;display:flex;justify-content:space-around;padding:10px 8px 22px;background:#fff;border-top:1.5px solid var(--line);position:relative;z-index:3}
+.tabs .t{width:48px;height:38px;display:grid;place-items:center;position:relative;color:#A3A9B6}
+.tabs .t.on{color:var(--sumi)}.tabs .t.on::after{content:"";position:absolute;bottom:-5px;width:6px;height:6px;border-radius:50%;background:var(--verm)}
+.sheet{position:absolute;left:0;right:0;bottom:0;padding:16px 18px 22px;z-index:4;background:#fff;border-top:1.5px solid var(--line)}
+.topq{display:flex;align-items:center;gap:12px;padding:6px 18px 12px}
+.x{color:#A3A9B6}
+.frame{position:relative;color:var(--ink);background:#fff;border:1.5px solid #D3D7DF;border-radius:6px;display:grid;place-items:center}
+.frame::before,.frame::after,.frame>.c1,.frame>.c2{content:"";position:absolute;width:15px;height:15px;border-color:var(--sumi);border-style:solid;z-index:2}
+.frame::before{left:7px;top:7px;border-width:3px 0 0 3px}.frame::after{right:7px;bottom:7px;border-width:0 3px 3px 0}
+.frame>.c1{right:7px;top:7px;border-width:3px 3px 0 0}.frame>.c2{left:7px;bottom:7px;border-width:0 0 3px 3px}
+.plq{position:absolute;width:52px;height:82px;border-radius:4px;background:var(--wood);border:2px solid var(--wood-d);display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-family:var(--jp);font-weight:900;font-size:20px;color:var(--sumi);letter-spacing:2px}
+.plq::before{content:"";position:absolute;top:-16px;left:50%;width:2px;height:14px;background:#6B5236;margin-left:-1px}
+.plq::after{content:"";position:absolute;top:-21px;left:50%;width:8px;height:8px;border-radius:50%;background:#3A2E22;margin-left:-4px}
+.plq.cur{background:var(--sumi);border-color:#000;color:#fff;width:60px;height:94px;font-size:26px}
+.plq.lock{background:#E1E4EA;border-color:#CDD2DB;color:#A3A9B6}
+.plq.boss{background:var(--verm);border-color:var(--verm-d);color:#fff}
+.plq.gold{background:var(--gold-l);border-color:var(--gold);color:var(--gold-d)}
+.hanko{position:absolute;right:-9px;bottom:-9px;width:24px;height:24px;border-radius:50%;background:var(--verm);display:grid;place-items:center;color:#fff;writing-mode:horizontal-tb;border:2px solid var(--paper)}
+.kcell{border-radius:6px;text-align:center;padding:6px 0 0;line-height:1.05;background:#fff;border:1.5px solid #D3D7DF;overflow:hidden;position:relative}
+.kcell .jp{font-size:19px;display:block}
+.kcell small{font-size:10px;font-weight:700;color:var(--ink2);display:block;padding-bottom:5px}
+.kcell i{display:block;height:5px}
+.b-white i{background:#fff;border-top:1.5px solid #D3D7DF}.b-green i{background:var(--pine)}.b-brown i{background:#7A4A26}
+.b-black{background:#1B1D26;border-color:#1B1D26;color:#fff}.b-black small{color:#AEB3C0}.b-black i{background:#E0492F;height:4px}
+.b-none{background:#E6E9EE;border-color:#E6E9EE;color:#A3A9B6}
+.key{background:#fff;border-radius:5px;box-shadow:0 1px 0 #B8BCC6;display:grid;place-items:center;height:36px;font-size:15px;font-weight:600;color:var(--ink)}
+.caret{display:inline-block;width:2px;height:22px;background:var(--sumi);vertical-align:-4px;margin-left:2px}
+.opt{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:800;padding:14px 16px}
+.card.sel{border:2px solid var(--sumi);padding:11.5px}
+.opt.sel{padding:13.5px 15.5px}
+.stile{border:1.5px solid var(--line);border-radius:8px;background:#fff;text-align:center;padding:9px 4px}
+.stile small{display:block;font-size:11px;color:var(--ink2);font-weight:700}
+.stile b{display:flex;align-items:center;justify-content:center;gap:3px;font-size:19px;font-weight:900}
+.gcard{background:#fff;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;position:relative}
+.gcard .art{height:64px;display:flex;align-items:center;justify-content:center;gap:6px}
+.gname{font-weight:800;font-size:15px;padding:7px 10px 0}.gsub{font-size:12px;color:var(--ink2);padding:0 10px 9px}
+.tag2{position:absolute;display:grid;place-items:center;font-family:var(--jp);font-weight:900;color:var(--sumi);background:#FBF6EC;border:1.5px solid #C9B894;border-radius:4px}
+.dtile{background:#26282E;border:1.5px solid #3A3D46;color:#fff;border-radius:8px;padding:13px 6px;text-align:center;font-weight:700;font-size:18px}
+.relic{background:#22242A;border:1.5px solid #3A3D46;border-radius:10px;padding:12px;display:flex;gap:12px;align-items:center;color:#fff}
+.relic .ri{width:50px;height:50px;border-radius:8px;background:#2E3139;display:grid;place-items:center;flex:0 0 auto}
+.relic p{margin:2px 0 0;font-size:12.5px;color:#B5BAC6;font-weight:500}
+.mcard{height:64px;border-radius:8px;display:grid;place-items:center;font-size:24px;font-weight:700}
+.mcard.down{background:var(--sumi);color:#fff}
+.mcard.done{background:transparent;border:1.5px dashed #C3C8D2;color:#B2B7C2}
+.mcard.up{background:#fff;border:2px solid var(--verm);color:var(--sumi)}
+.slot{width:66px;height:66px;border-radius:8px;border:2px dashed #C3C8D2;display:grid;place-items:center;font-size:30px;background:#fff}
+.btile{background:#fff;border:1.5px solid #CDD2DB;border-radius:8px;height:56px;display:grid;place-items:center;font-size:26px}
+.sq{width:30px;height:30px;border-radius:5px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#E1E4EA;border-radius:8px;padding:3px;gap:3px}
+.seg span{text-align:center;padding:7px 0;border-radius:6px;font-weight:700;color:var(--ink2);font-size:14px}
+.seg .on{background:#fff;color:var(--sumi)}
+.mg{display:grid;grid-template-columns:22px repeat(5,1fr);gap:6px;align-items:center}
+.rl{font-size:12px;color:var(--ink3);font-weight:800}
+.metric{background:var(--paper);border-radius:8px;padding:8px 10px}
+.metric small{display:block;font-size:11px;color:var(--ink2)}.metric b{font-size:18px;font-weight:900}
+.qrow{display:flex;align-items:center;gap:12px}
+.qi{width:42px;height:42px;border-radius:8px;display:grid;place-items:center;flex:0 0 auto}
+.lrow{display:flex;align-items:center;gap:10px;padding:7px 18px;font-weight:700}
+.lrow .rk{width:22px;text-align:center;color:var(--ink3);font-weight:900}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800;flex:0 0 auto}
+.dot7{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;margin:auto}
+.conf{position:absolute;width:6px;height:14px;border-radius:2px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2.2c.7 3 4.4 4.7 5.8 8.3 1.7 4.4-.9 10.7-5.8 10.7s-7.6-4.3-6.3-8.5c.6-2.1 2-3.2 2.7-4.4.3 1.6 1.2 2.7 2.2 3-.4-3.2.1-6.4 1.4-9.1z" fill="#FF9B3D"/><path d="M12 12.2c1.6 1.4 3.1 2.8 2.7 5.1-.3 1.8-1.4 2.9-2.7 2.9s-2.5-1-2.7-2.7c-.3-2.1.9-3.3 2.7-5.3z" fill="#FFC93C"/></symbol>
+<symbol id="i-flame-g" viewBox="0 0 24 24"><path d="M12 2.2c.7 3 4.4 4.7 5.8 8.3 1.7 4.4-.9 10.7-5.8 10.7s-7.6-4.3-6.3-8.5c.6-2.1 2-3.2 2.7-4.4.3 1.6 1.2 2.7 2.2 3-.4-3.2.1-6.4 1.4-9.1z" fill="currentColor"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21.2l-1.4-1.3C5.4 15.3 2 12.2 2 8.4 2 5.3 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.3 22 8.4c0 3.8-3.4 6.9-8.6 11.5L12 21.2z" fill="currentColor"/><ellipse cx="7.2" cy="7.6" rx="2.2" ry="1.4" transform="rotate(-35 7.2 7.6)" fill="#fff" opacity=".45"/></symbol>
+<symbol id="i-petal" viewBox="0 0 24 24"><g fill="#FF8FC0"><path id="pt" d="M12 12C9.4 9.4 9.3 5.7 10.9 3.4L12 4.9l1.1-1.5C14.7 5.7 14.6 9.4 12 12z"/><use href="#pt" transform="rotate(72 12 12)"/><use href="#pt" transform="rotate(144 12 12)"/><use href="#pt" transform="rotate(216 12 12)"/><use href="#pt" transform="rotate(288 12 12)"/></g><circle cx="12" cy="12" r="2.1" fill="#FFC93C"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.6 2 4.6 13.4h6.2L9.6 22l9.8-12.6h-6.4L13.6 2z" fill="#FFC93C" stroke="#DDA200" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="5" y="10" width="14" height="11" rx="3.2" fill="currentColor"/><circle cx="12" cy="15.5" r="1.6" fill="#fff"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.6l4.6 4.6L19.2 7.6" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.4.9-4.6 4.5 1.1 6.4L12 17.3l-5.8 3 1.1-6.4-4.6-4.5 6.4-.9z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+<symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 8.6l4.6 4 4.4-7.2 4.4 7.2 4.6-4-1.9 10.6H4.9z" fill="#FFC93C" stroke="#DDA200" stroke-width="1.3" stroke-linejoin="round"/><circle cx="12" cy="14.5" r="1.5" fill="#FF8FC0"/></symbol>
+<symbol id="i-chest" viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="10.5" rx="2.2" fill="#C98A4B"/><path d="M3 12a5.5 5.5 0 0 1 5.5-5.5h7A5.5 5.5 0 0 1 21 12v.8H3z" fill="#E4A962"/><rect x="3" y="12" width="18" height="2.2" fill="#FFC93C"/><rect x="10.3" y="11.2" width="3.4" height="4.6" rx="1.1" fill="#FFC93C" stroke="#A86B2E" stroke-width=".9"/></symbol>
+<symbol id="i-chest-open" viewBox="0 0 24 24"><path d="M4 7.5l16-3.2.6 3.4L4.6 10.9z" fill="#E4A962"/><rect x="3" y="11" width="18" height="9.5" rx="2.2" fill="#C98A4B"/><rect x="3" y="11" width="18" height="2.2" fill="#FFC93C"/><circle cx="9" cy="9.8" r="1.6" fill="#FFC93C"/><circle cx="13.5" cy="9.3" r="1.4" fill="#FF8FC0"/></symbol>
+<symbol id="i-speaker" viewBox="0 0 24 24"><path d="M3.5 9.3h3.6L12 5.2v13.6l-4.9-4.1H3.5z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18.3 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M12 3 3 10.4V20a1.2 1.2 0 0 0 1.2 1.2H9.5v-6h5v6h5.3A1.2 1.2 0 0 0 21 20v-9.6z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+<symbol id="i-game" viewBox="0 0 24 24"><path d="M7 7h10a5 5 0 0 1 4.9 6l-.9 4.3a2.6 2.6 0 0 1-4.5 1.2L14.3 16H9.7l-2.2 2.5A2.6 2.6 0 0 1 3 17.3L2.1 13A5 5 0 0 1 7 7z" fill="currentColor"/><path d="M7.5 10v4M5.5 12h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="11" r="1.2" fill="#fff"/><circle cx="18" cy="13.2" r="1.2" fill="#fff"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M2.5 5.4c3.2-1.4 6.4-1.3 9.5.9 3.1-2.2 6.3-2.3 9.5-.9V19.6c-3.2-1.4-6.4-1.3-9.5.9-3.1-2.2-6.3-2.3-9.5-.9z" fill="currentColor"/><path d="M12 6.4v13.8" stroke="#fff" stroke-width="1.6"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6.5 3h11v5.5a5.5 5.5 0 0 1-11 0z" fill="currentColor"/><path d="M6.5 5H3.5v1.5a3.5 3.5 0 0 0 3.8 3.4M17.5 5h3v1.5a3.5 3.5 0 0 1-3.8 3.4" fill="none" stroke="currentColor" stroke-width="2"/><rect x="10.5" y="13" width="3" height="4" fill="currentColor"/><rect x="7" y="17" width="10" height="3.5" rx="1.2" fill="currentColor"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5" fill="currentColor"/><path d="M3.5 21a8.5 8 0 0 1 17 0z" fill="currentColor"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="#FF5B5B"/><circle cx="12" cy="12" r="6.5" fill="#fff"/><circle cx="12" cy="12" r="3.5" fill="#FF5B5B"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v11M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12v6.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M8 8H14a5.5 5.5 0 0 1 0 11H9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M11 4.5 7.5 8l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 2.5a7 7 0 0 0-4.2 12.6c.8.6 1.2 1.4 1.2 2.4h6c0-1 .4-1.8 1.2-2.4A7 7 0 0 0 12 2.5z" fill="#FFC93C" stroke="#DDA200" stroke-width="1.2"/><rect x="9" y="18.5" width="6" height="3" rx="1.2" fill="#A9A2BF"/></symbol>
+<symbol id="i-snow" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#3DB5FF"/><path d="M12 5.5v13M6.4 8.8l11.2 6.4M17.6 8.8 6.4 15.2" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M10 6.8l2 1.6 2-1.6M10 17.2l2-1.6 2 1.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 14a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 17.8 6.5 4 4 0 0 1 17 14z" fill="currentColor"/><path d="M8 17l-1 3M12.5 17l-1 3M17 17l-1 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+<symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V10a7 7 0 0 1 14 0v11z" fill="currentColor"/><path d="M12 5v16M8 12h1.5M14.5 12H16" stroke="#231B3B" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-horns" viewBox="0 0 24 24"><path d="M5.5 9.5C3 7 3.3 3.5 4.4 2c.6 3 2.5 4.5 4.6 5.3M18.5 9.5C21 7 20.7 3.5 19.6 2c-.6 3-2.5 4.5-4.6 5.3" fill="#FFF1D6" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="14" r="8" fill="currentColor"/><path d="M8 12.5l2.5 1M16 12.5l-2.5 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M9 17.5h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="5" width="11" height="15" rx="2.5" transform="rotate(-10 8.5 12.5)" fill="currentColor" opacity=".55"/><rect x="10" y="4" width="11" height="15" rx="2.5" transform="rotate(8 15.5 11.5)" fill="currentColor"/></symbol>
+<symbol id="i-blocks" viewBox="0 0 24 24"><rect x="3" y="12" width="8.5" height="8.5" rx="2.2" fill="currentColor"/><rect x="12.5" y="12" width="8.5" height="8.5" rx="2.2" fill="currentColor" opacity=".6"/><rect x="7.8" y="2.8" width="8.5" height="8.5" rx="2.2" fill="currentColor" opacity=".85"/></symbol>
+<symbol id="i-brush" viewBox="0 0 24 24"><path d="M20.5 3.5 11 13l-1.5-1.5L19 2z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.5 12.5c-2.4-.3-4.4 1.4-4.6 3.7-.2 1.8-1 3-2.4 3.8 3.6 1.4 8.2.4 8.9-3.5z" fill="currentColor"/></symbol>
+<symbol id="i-music" viewBox="0 0 24 24"><path d="M9 17.5V5.5l11-2.5v12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><ellipse cx="6.3" cy="17.8" rx="3.2" ry="2.6" fill="currentColor"/><ellipse cx="17.3" cy="15.3" rx="3.2" ry="2.6" fill="currentColor"/></symbol>
+<symbol id="i-ghost" viewBox="0 0 24 24"><path d="M4.5 21V11a7.5 7.5 0 0 1 15 0v10l-2.5-2-2.5 2-2.5-2-2.5 2-2.5-2z" fill="currentColor"/><circle cx="9.5" cy="11" r="1.5" fill="#fff"/><circle cx="14.5" cy="11" r="1.5" fill="#fff"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="currentColor"/><rect x="3" y="5" width="18" height="5" rx="2" fill="#fff" opacity=".35"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="7" y="13" width="3" height="3" rx=".8" fill="#fff"/><rect x="14" y="13" width="3" height="3" rx=".8" fill="#fff"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4.5L15.5 5l3.5 3.5L8.5 19z" fill="currentColor"/><path d="M14 6.5l3.5 3.5" stroke="#fff" stroke-width="1.4"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M5 4h13l-3 4 3 4H5z" fill="currentColor"/></symbol>
+<symbol id="i-sword" viewBox="0 0 24 24"><path d="M20 3.5l-9.5 9.5 1.5 1.5L21.5 5V3.5z" fill="#E9E6F2" stroke="#8C86A3" stroke-width="1.2"/><path d="M7 14l3 3M5.5 18.5l3-3" stroke="#FFC93C" stroke-width="2.6" stroke-linecap="round"/></symbol>
+<symbol id="i-lantern" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="2.5" rx="1" fill="#5B4300"/><ellipse cx="12" cy="12.5" rx="7" ry="8" fill="#FF7A5C"/><path d="M5.5 10h13M5.3 13.5h13.4M6 17h12" stroke="#E4533A" stroke-width="1.2"/><rect x="9" y="20" width="6" height="2.5" rx="1" fill="#5B4300"/></symbol>
+<symbol id="i-scroll" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2" fill="#FFF1D6" stroke="#C98A4B" stroke-width="1.4"/><rect x="3" y="3" width="18" height="3" rx="1.5" fill="#C98A4B"/><rect x="3" y="18" width="18" height="3" rx="1.5" fill="#C98A4B"/><path d="M8.5 10h7M8.5 13h5" stroke="#C98A4B" stroke-width="1.4" stroke-linecap="round"/></symbol>
+<symbol id="i-charm" viewBox="0 0 24 24"><path d="M12 1.8v3" stroke="#FFC93C" stroke-width="1.6"/><path d="M6.5 7.5L12 4.5l5.5 3V20a1.8 1.8 0 0 1-1.8 1.8H8.3A1.8 1.8 0 0 1 6.5 20z" fill="#FF8FC0" stroke="#E2689F" stroke-width="1.2"/><rect x="9" y="10" width="6" height="8" rx="1" fill="#FFF1D6"/><path d="M10.5 12.3h3M10.5 14.3h3M10.5 16.3h2" stroke="#E2689F" stroke-width="1"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24"><rect x="3.5" y="9" width="17" height="12" rx="2" fill="currentColor"/><rect x="2.5" y="7" width="19" height="4" rx="1.5" fill="currentColor"/><path d="M12 7v14" stroke="#fff" stroke-width="2"/><path d="M12 7c-1.5-3.5-5.5-4-5.5-1.5S10 7 12 7zm0 0c1.5-3.5 5.5-4 5.5-1.5S14 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+<symbol id="i-medal" viewBox="0 0 24 24"><path d="M7 2h4l2 6H9zM13 2h4l-2 6h-4z" fill="#3DB5FF"/><circle cx="12" cy="15" r="7" fill="currentColor"/><path d="M12 11l1.2 2.5 2.7.3-2 1.9.6 2.7-2.5-1.4-2.5 1.4.6-2.7-2-1.9 2.7-.3z" fill="#fff"/></symbol>
+<symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 1c.8 5.6 5.4 10.2 11 11-5.6.8-10.2 5.4-11 11-.8-5.6-5.4-10.2-11-11 5.6-.8 10.2-5.4 11-11z" fill="currentColor"/></symbol>
+<symbol id="i-mon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#C9A227" stroke="#7A5A22" stroke-width="1.5"/><circle cx="12" cy="12" r="7.2" fill="none" stroke="#E8CF7A" stroke-width="1"/><rect x="9" y="9" width="6" height="6" fill="#EEF0F3" stroke="#7A5A22" stroke-width="1.2"/></symbol>
+<symbol id="i-drum" viewBox="0 0 24 24"><ellipse cx="12" cy="8" rx="8" ry="3.2" fill="#F3E6CF" stroke="currentColor" stroke-width="1.6"/><path d="M4 8v8c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V8" fill="currentColor"/><path d="M2 2l7 6M22 2l-7 6" stroke="#C9A77A" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-bokken" viewBox="0 0 24 24"><path d="M5 19L19.5 4.5" stroke="#C9A77A" stroke-width="3.2" stroke-linecap="round"/><path d="M4 16l4 4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M3.5 20.5l2-2" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+<symbol id="i-rest" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#3B82C4"/><path d="M15 6.5a6 6 0 1 0 2.5 10.3A5 5 0 0 1 15 6.5z" fill="#fff"/><path d="M16.5 5.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#FBE7A0"/></symbol>
+<symbol id="i-belt" viewBox="0 0 24 24"><rect x="1" y="7" width="22" height="5" rx="1" fill="currentColor"/><rect x="9.5" y="5.5" width="5" height="8" rx="1.2" fill="currentColor" stroke="#fff" stroke-width="1"/><path d="M10.5 13l-3 7h3l2-5.5M13.5 13l3 7h-3l-2-5.5" fill="currentColor"/></symbol>
+<symbol id="i-plaque" viewBox="0 0 24 24"><path d="M12 1.5v3" stroke="currentColor" stroke-width="1.6"/><rect x="6.5" y="4.5" width="11" height="18" rx="1.5" fill="currentColor"/><path d="M10 9h4M10 13h4M10 17h3" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></symbol>
+</defs>
+</svg>
+<div class="wrap">
+<header class="hero">
+  <div>
+    <h1>Kana Dojo</h1>
+    <p>Thirty-one screens, from the first time you open the app to your black belt. Charcoal ink and vermilion, wooden plaques, and a crow sensei who grows alongside you. Every reward comes from real learning the engine can measure.</p>
+    <p>Each screen is tagged <span class="tag mvp">MVP</span> if it's in the first version or <span class="tag later">Later</span> if it comes after.</p>
+  </div>
+  <div class="hstage" aria-hidden="true">
+    <div style="position:absolute;left:0;right:0;top:0;height:14px;background:#6B4E35"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:96px;background:#CFC79A;background-image:linear-gradient(90deg,rgba(0,0,0,.07) 2px,transparent 2px);background-size:80px 100%;border-top:6px solid #8A6A43"></div>
+    <span class="plq" style="left:34px;top:34px">あいう<span class="hanko" style="border-color:#EEF0F3"><span data-i="check" class="ic s"></span></span></span>
+    <span class="plq cur" style="left:120px;top:28px">かき</span>
+    <span class="plq lock" style="left:212px;top:34px">さし</span>
+    <span style="position:absolute;right:26px;bottom:52px" data-crow="proud" data-stage="2" data-size="150" data-extra="bokken"></span>
+    <span style="position:absolute;left:40px;bottom:56px;display:flex;flex-direction:column;align-items:center;gap:6px"><span data-belt="#7A4A26" data-w="76"></span><span style="font-size:12px;font-weight:700;color:#5E6372">Brown belt</span></span>
+  </div>
+</header>
+
+<h2 style="font-size:22px;font-weight:900;margin:8px 0 4px">What we borrowed, and from where</h2>
+<div class="inspo">
+  <div><b>Duolingo</b>The lesson path, streaks, quests, leagues, and a mascot whose face reacts to your answers. Everything else is rebuilt.</div>
+  <div><b>Martial arts ranking</b>Belts for every kana, belt exams with a ceremony, and dan ranks that continue past black belt.</div>
+  <div><b>Wordle</b>One shared daily puzzle, with a spoiler-free result grid you can post.</div>
+  <div><b>Slay the Spire and Hades</b>Short dungeon runs where you pick one of three relics between floors.</div>
+  <div><b>Monkeytype</b>Speed as the reward. Kana Rain and strike speed are about how fast you read, not only whether you can.</div>
+  <div><b>Animal Crossing</b>A room that slowly fills with things you earned, and that friends can visit.</div>
+</div>
+
+<section class="chapter" id="language">
+  <div class="chead"><span class="k">道</span><div><h2>Design language</h2><p>The shared pieces every screen is built from. When you start building components, these become your theme file.</p></div></div>
+  <div class="lang">
+    <div class="panel">
+      <h3>Color: Sumi</h3><p>Charcoal ink, vermilion, and paper. Each color has exactly one job.</p>
+      <div class="sw">
+        <div><i style="background:#1F2024"></i><b>Sumi ink</b>Text, main actions</div>
+        <div><i style="background:#E0492F"></i><b>Vermilion</b>Seals, streaks, bosses</div>
+        <div><i style="background:#2E9E5B"></i><b>Pine</b>Correct answers</div>
+        <div><i style="background:#C9A227"></i><b>Gold</b>Mon coins, top rank</div>
+        <div><i style="background:#D9B383"></i><b>Hinoki wood</b>Plaques, shelves</div>
+        <div><i style="background:#3B82C4"></i><b>Indigo</b>Audio and hints</div>
+        <div><i style="background:#EEF0F3"></i><b>Paper</b>Backgrounds</div>
+        <div><i style="background:#17181C"></i><b>Night</b>Dungeon, rhythm</div>
+      </div>
+      <p style="margin:14px 0 0;font-size:13px">Wrong answers use vermilion, the same red as the seals, so red always means "pay attention" rather than "you failed".</p>
+    </div>
+    <div class="panel">
+      <h3>Type</h3><p>Archivo for English and Zen Kaku Gothic for kana. Both are sturdy and geometric, so they look like one voice.</p>
+      <div style="display:flex;gap:16px;align-items:center">
+        <div class="jp" style="font-size:66px;line-height:1;white-space:nowrap">かカ</div>
+        <div><div style="font-size:21px;font-weight:900;line-height:1.15">The か row</div><div style="font-size:15px;font-weight:500;color:var(--page-ink2)">Heavy weights for headings, regular for help text. Plaques read top to bottom, like real Japanese signs.</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Buttons and tiles</h3><p>Flat, with a thin border and sharp-ish corners. No 3D edges, no bubbles. Selection is shown by a thicker border, not a fill.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <span class="btn">Continue</span><span class="btn verm">Boss</span>
+        <span class="btn ghost">Skip</span><span class="btn gold">Claim</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px">
+        <span class="tile">nu</span><span class="tile sel">nu</span><span class="tile ok">nu</span><span class="tile bad">me</span>
+      </div>
+    </div>
+    <div class="panel span3">
+      <h3>Belts: the whole progression</h3><p>Each kana's belt is the engine's mastery tier from <code style="font-family:var(--ui);font-weight:700;color:var(--verm)">tierOf()</code>. Row belts take the lowest belt in the row, so one weak kana holds the row back. Dan stripes come later from keeping your speed up over months.</p>
+      <div class="row-demo" style="gap:22px">
+        <figure><span data-belt="#FFFFFF" data-w="84"></span><b>White</b>Learning, box 0 to 2</figure>
+        <figure><span data-belt="#2E9E5B" data-w="84"></span><b>Green</b>Bronze, box 3 to 4</figure>
+        <figure><span data-belt="#7A4A26" data-w="84"></span><b>Brown</b>Silver, box 5 to 6</figure>
+        <figure><span data-belt="#1B1D26" data-w="84"></span><b>Black</b>Gold, box 7</figure>
+        <figure><span data-belt="#1B1D26" data-w="84" data-dan="1"></span><b>1st dan</b>Speed held 30 days</figure>
+        <figure><span data-belt="#1B1D26" data-w="84" data-dan="3"></span><b>3rd dan</b>Both scripts, months of form</figure>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Karasu, your sensei</h3><p>A crow in a headband. Its expression is feedback, so you feel the result before you read it.</p>
+      <div class="row-demo" style="gap:10px">
+        <figure><span data-crow="focus" data-stage="1" data-size="76"></span><b>Watching</b></figure>
+        <figure><span data-crow="proud" data-stage="1" data-size="76"></span><b>Proud</b></figure>
+        <figure><span data-crow="stern" data-stage="1" data-size="76"></span><b>Stern</b></figure>
+        <figure><span data-crow="sleepy" data-stage="1" data-size="76"></span><b>Sleepy</b></figure>
+      </div>
+    </div>
+    <div class="panel span2">
+      <h3>Karasu grows with your rank</h3><p>The crow's form is your overall belt, so your profile shows how far you've come at a glance. At black belt it becomes a karasu-tengu, the crow-winged mountain spirit that folklore says teaches martial arts.</p>
+      <div class="row-demo" style="gap:26px">
+        <figure><span data-crow="focus" data-stage="0" data-size="84"></span><b>Fledgling</b>White belt</figure>
+        <figure><span data-crow="focus" data-stage="1" data-size="92"></span><b>Student</b>Green belt</figure>
+        <figure><span data-crow="focus" data-stage="2" data-size="100" data-extra="bokken"></span><b>Adept</b>Brown belt</figure>
+        <figure><span data-crow="proud" data-stage="3" data-size="170"></span><b>Karasu-tengu</b>Black belt</figure>
+      </div>
+    </div>
+  </div>
+  <div class="principles">
+    <div><b>Earned, not given</b>Every unlock is tied to something the engine measured: accuracy, speed, or memory held over time.</div>
+    <div><b>Mistakes are correction</b>No lives in lessons. A wrong answer gets a memory tip, and the mix-up is saved for a boss later.</div>
+    <div><b>Nothing is decoration</b>Belts, plaques, and scrolls are all real progress data drawn as objects.</div>
+    <div><b>Games count as training</b>Every answer in every mode goes through the same engine, so playing is practicing.</div>
+  </div>
+</section>
+<section class="chapter" id="first">
+  <div class="chead"><span class="k">入</span><div><h2>Entering the dojo</h2><p>The first minute decides whether someone comes back. Three quick screens: meet Karasu, pick how often you'll train, and choose where to start.</p></div></div>
+  <div class="gallery">
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div style="flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 26px;text-align:center">
+      <div style="position:absolute;left:0;right:0;top:0;height:14px;background:#6B4E35"></div>
+      <span class="plq" style="left:22px;top:38px;transform:rotate(-2deg)">かき</span>
+      <span class="plq lock" style="right:24px;top:44px;transform:rotate(2deg)">さし</span>
+      <span data-crow="focus" data-stage="1" data-size="170"></span>
+      <h1 class="title" style="margin-top:10px;font-size:28px">I'm Karasu.</h1>
+      <p class="sub" style="margin-top:8px;font-size:15px">Train with me a few minutes a day and you'll read every hiragana and katakana. We'll start with five.</p>
+    </div>
+    <div class="foot"><span class="btn">Enter the dojo</span><span class="btn ghost">I have an account</span></div>
+  </div></div><div class="cap"><h3>Welcome <span class="tag later">Later</span></h3><p>First impression. Karasu sets the tone: this is training, and the goal is stated plainly so the app feels finishable.</p><code>WelcomeScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="back" class="ic x"></span><div class="pbar"><i style="width:33%"></i></div></div>
+    <div class="pad" style="display:flex;gap:10px;align-items:flex-start;margin:6px 0 18px"><span data-crow="gentle" data-stage="1" data-size="72"></span><div class="bubble" style="margin-top:8px;flex:1">How long will you train each day?</div></div>
+    <div class="pad" style="display:grid;gap:10px">
+      <div class="card opt"><span>5 minutes</span><span class="muted" style="font-size:14px">Casual</span></div>
+      <div class="card sel opt sel"><span>10 minutes</span><span style="font-size:14px">Regular</span></div>
+      <div class="card opt"><span>15 minutes</span><span class="muted" style="font-size:14px">Serious</span></div>
+      <div class="card opt"><span>20 minutes</span><span class="muted" style="font-size:14px">Intense</span></div>
+      <p class="sub" style="text-align:center;font-size:13px">You can change this anytime.</p>
+    </div>
+    <div class="foot"><span class="btn">Continue</span></div>
+  </div></div><div class="cap"><h3>Daily goal <span class="tag later">Later</span></h3><p>A small commitment up front makes the streak feel like your goal rather than the app's. It sets how much XP fills the daily ring.</p><code>DailyGoalScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="back" class="ic x"></span><div class="pbar"><i style="width:66%"></i></div></div>
+    <div class="pad" style="display:flex;gap:10px;align-items:flex-start;margin:6px 0 16px"><span data-crow="gentle" data-stage="1" data-size="72"></span><div class="bubble" style="margin-top:8px;flex:1">Do you know any kana already?</div></div>
+    <div class="pad" style="display:grid;gap:10px">
+      <div class="card" style="display:flex;gap:12px;align-items:center"><span data-belt="#FFFFFF" data-w="50"></span><div><div style="font-size:16px;font-weight:800">I'm brand new</div><div class="sub" style="font-size:13px">Start at white belt, the あ row</div></div></div>
+      <div class="card sel" style="display:flex;gap:12px;align-items:center"><span data-belt="#2E9E5B" data-w="50"></span><div><div style="font-size:16px;font-weight:800">I know some hiragana</div><div style="font-size:13px;font-weight:500">Take a 2-minute grading test and skip what you know</div></div></div>
+      <div class="card" style="display:flex;gap:12px;align-items:center"><span data-belt="#7A4A26" data-w="50"></span><div><div style="font-size:16px;font-weight:800">I know all hiragana</div><div class="sub" style="font-size:13px">Go straight to katakana</div></div></div>
+    </div>
+    <div class="foot"><span class="btn">Continue</span></div>
+  </div></div><div class="cap"><h3>Starting point <span class="tag later">Later</span></h3><p>The grading test marks kana you already know as green belt, so those rows unlock immediately instead of making you replay them.</p><code>PlacementScreen</code></div></div>
+
+  </div>
+</section>
+
+<section class="chapter" id="train">
+  <div class="chead"><span class="k">稽</span><div><h2>Training</h2><p>Where most of your time goes: pick a plaque off the wall, answer, get corrected, and earn the row's belt. This is the upgraded version of the site you use now.</p></div></div>
+  <div class="gallery">
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="stats">
+      <span class="chip o jp" style="font-size:12px">ひらがな<span data-i="down" class="ic s" style="color:var(--ink3);width:13px;height:13px"></span></span>
+      <span class="stat" style="color:var(--verm)"><span data-i="flame" class="ic"></span>6</span>
+      <span class="stat"><span data-i="mon" class="ic"></span>240</span>
+      <span class="stat"><svg width="22" height="22" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" fill="none" stroke="#D3D7DF" stroke-width="5"/><circle cx="18" cy="18" r="14" fill="none" stroke="#1F2024" stroke-width="5" stroke-linecap="round" stroke-dasharray="66 88" transform="rotate(-90 18 18)"/></svg>15/20</span>
+    </div>
+    <div class="pad"><div style="background:var(--sumi);border-radius:8px;color:#fff;padding:11px 14px;display:flex;align-items:center;gap:12px">
+      <div style="flex:1"><div style="font-size:12px;color:#A8AEBC">Unit 2</div><div style="font-size:20px;font-weight:900;line-height:1.2">The か row</div><div style="display:flex;align-items:center;gap:7px;margin-top:4px"><span data-belt="#FFFFFF" data-w="40"></span><span style="font-size:12px;color:#A8AEBC">White belt, 2 of 4 done</span></div></div>
+      <span data-i="plaque" class="ic l" style="color:#fff"></span>
+    </div></div>
+    <div style="position:relative;flex:1;overflow:hidden">
+      <div style="position:absolute;left:0;right:0;top:16px;height:8px;background:#6B4E35"></div>
+      <span class="plq" style="left:32px;top:40px">かき<span class="hanko"><span data-i="check" class="ic s"></span></span></span>
+      <span class="plq" style="left:122px;top:40px">くけ<span class="hanko"><span data-i="check" class="ic s"></span></span></span>
+      <span class="plq cur" style="left:208px;top:34px">こ</span>
+      <span class="chip" style="position:absolute;left:206px;top:142px;background:var(--sumi);color:#fff">Begin</span>
+      <div style="position:absolute;left:0;right:0;top:188px;height:8px;background:#6B4E35"></div>
+      <span class="plq lock" style="left:32px;top:212px;writing-mode:horizontal-tb;font-family:var(--ui);font-size:13px;font-weight:800">Mixed</span>
+      <span class="plq boss" style="left:122px;top:212px">きさ</span>
+      <span class="plq lock" style="left:208px;top:212px;writing-mode:horizontal-tb"><span data-i="chest" class="ic l" style="opacity:.5"></span></span>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:78px;background:#CFC79A;background-image:linear-gradient(90deg,rgba(0,0,0,.07) 2px,transparent 2px);background-size:74px 100%;border-top:5px solid #8A6A43"></div>
+      <span style="position:absolute;left:14px;bottom:20px" data-crow="focus" data-stage="1" data-size="96"></span>
+      <div style="position:absolute;left:104px;bottom:28px;right:14px;font-size:13.5px" class="bubble">One more plaque, then the green belt exam.</div>
+    </div>
+    <div class="tabs"><span class="t on"><span data-i="home" class="ic"></span></span><span class="t"><span data-i="game" class="ic"></span></span><span class="t"><span data-i="book" class="ic"></span></span><span class="t"><span data-i="trophy" class="ic"></span></span><span class="t"><span data-i="user" class="ic"></span></span></div>
+  </div></div><div class="cap"><h3>Learn path <span class="tag mvp">MVP</span></h3><p>Home base. Lessons hang as plaques on the dojo wall and finished ones get a red seal. The row's belt sits in the header so the goal is always visible.</p><code>LearnPathScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><div class="pbar"><i style="width:38%"></i></div><span class="chip" style="background:var(--verm-l);color:var(--verm-d)"><span data-i="flame-g" class="ic s"></span>3</span></div>
+    <div class="pad" style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span data-crow="focus" data-stage="1" data-size="58"></span><div class="bubble" style="flex:1">Read this.</div></div>
+    <div class="frame" style="margin:0 18px;height:158px"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:98px;line-height:1">ぬ</span><span style="position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:6px;background:var(--sky);display:grid;place-items:center;color:#fff"><span data-i="speaker" class="ic"></span></span></div>
+    <div class="pad grid2" style="margin-top:18px"><span class="tile">ne</span><span class="tile sel">nu</span><span class="tile">me</span><span class="tile">ru</span></div>
+    <div class="foot"><span class="btn">Check</span></div>
+  </div></div><div class="cap"><h3>Lesson question <span class="tag mvp">MVP</span></h3><p>The core drill. The kana sits in a mounted frame like a hanging scroll. Options come from <code>makeChoices()</code>, so a lookalike like め is always in the mix.</p><code>LessonScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><div class="pbar"><i style="width:43%"></i></div><span class="chip" style="background:var(--verm-l);color:var(--verm-d)"><span data-i="flame-g" class="ic s"></span>4</span></div>
+    <div class="pad" style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span data-crow="focus" data-stage="1" data-size="58"></span><div class="bubble" style="flex:1">Read this.</div></div>
+    <div class="frame" style="margin:0 18px;height:158px"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:98px;line-height:1">ぬ</span></div>
+    <div class="pad grid2" style="margin-top:18px"><span class="tile">ne</span><span class="tile ok">nu</span><span class="tile">me</span><span class="tile">ru</span></div>
+    <div class="sheet">
+      <div style="display:flex;gap:12px;align-items:center">
+        <span style="width:5px;align-self:stretch;background:var(--pine);border-radius:3px"></span>
+        <div style="flex:1"><div style="font-size:19px;font-weight:900;color:var(--pine-d)">Clean hit, that's nu</div><div style="font-size:13px;color:var(--ink2)">0.9 seconds. <span class="jp">ぬ</span> earned its green belt.</div></div>
+        <span data-crow="proud" data-stage="1" data-size="54"></span>
+      </div>
+      <span class="btn pine" style="margin-top:14px">Continue</span>
+    </div>
+  </div></div><div class="cap"><h3>Correct answer <span class="tag mvp">MVP</span></h3><p>Specific feedback: the answer, your speed, and what it changed. "Earned its green belt" is the engine promoting ぬ to bronze.</p><code>FeedbackSheet</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><div class="pbar"><i style="width:43%"></i></div><span class="chip o" style="color:var(--ink3)"><span data-i="flame-g" class="ic s"></span>0</span></div>
+    <div class="pad" style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span data-crow="stern" data-stage="1" data-size="58"></span><div class="bubble" style="flex:1">Read this.</div></div>
+    <div class="frame" style="margin:0 18px;height:116px"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:76px;line-height:1">ぬ</span></div>
+    <div class="pad grid2" style="margin-top:14px"><span class="tile">ne</span><span class="tile okline">nu</span><span class="tile bad">me</span><span class="tile">ru</span></div>
+    <div class="sheet">
+      <div style="display:flex;gap:12px;align-items:center">
+        <span style="width:5px;align-self:stretch;background:var(--verm);border-radius:3px"></span>
+        <div style="flex:1"><div style="font-size:20px;font-weight:900;color:var(--verm-d)">That's nu</div><div style="font-size:13px;color:var(--ink2)">You picked me, which is <span class="jp">め</span></div></div>
+      </div>
+      <div style="background:var(--paper);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;gap:8px;font-size:13px;font-weight:500"><span data-i="bulb" class="ic"></span><span><span class="jp">ぬ</span> ends in a little loop, like a noodle curling up. <span class="jp">め</span> has no loop.</span></div>
+      <span class="btn verm" style="margin-top:12px">Again</span>
+    </div>
+  </div></div><div class="cap"><h3>Wrong answer <span class="tag mvp">MVP</span></h3><p>A correction, not a penalty. The engine logs ぬ and め as a mix-up, which boss fights and quests pull from later.</p><code>FeedbackSheet</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><div class="pbar"><i style="width:60%"></i></div><span class="chip" style="background:var(--verm-l);color:var(--verm-d)"><span data-i="flame-g" class="ic s"></span>5</span></div>
+    <div class="pad"><h2 class="h">Write the sound</h2></div>
+    <div class="frame" style="margin:12px 18px 0;height:146px"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:94px;line-height:1">ツ</span></div>
+    <div style="margin:16px 18px 0;border:2px solid var(--sumi);border-radius:8px;padding:11px 14px;font-size:20px;font-weight:800">tsu<span class="caret"></span></div>
+    <div class="pad" style="margin-top:10px;color:var(--sky);font-size:13px;display:flex;align-items:center;gap:4px;font-weight:700"><span data-i="bulb" class="ic s"></span>Ask for a hint</div>
+    <div class="pad" style="margin-top:12px"><span class="btn">Check</span></div>
+    <div style="margin-top:auto;background:#DFE2E8;padding:8px 5px 22px;display:grid;gap:8px">
+      <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px"><span class="key">q</span><span class="key">w</span><span class="key">e</span><span class="key">r</span><span class="key">t</span><span class="key">y</span><span class="key">u</span><span class="key">i</span><span class="key">o</span><span class="key">p</span></div>
+      <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;padding:0 14px"><span class="key">a</span><span class="key">s</span><span class="key">d</span><span class="key">f</span><span class="key">g</span><span class="key">h</span><span class="key">j</span><span class="key">k</span><span class="key">l</span></div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 42px"><span class="key">z</span><span class="key">x</span><span class="key">c</span><span class="key">v</span><span class="key">b</span><span class="key">n</span><span class="key">m</span></div>
+    </div>
+  </div></div><div class="cap"><h3>Typing question <span class="tag mvp">MVP</span></h3><p>Recall instead of recognition, and harder than choosing, so it mixes in once a kana reaches green belt. Accepts "tsu" or "tu".</p><code>TypingQuestion</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <span class="conf" style="left:42px;top:64px;background:#E0492F;transform:rotate(25deg)"></span><span class="conf" style="left:96px;top:38px;background:#C9A227;transform:rotate(-30deg)"></span><span class="conf" style="left:244px;top:58px;background:#2E9E5B;transform:rotate(40deg)"></span><span class="conf" style="left:206px;top:104px;background:#3B82C4;transform:rotate(-12deg)"></span><span class="conf" style="left:30px;top:160px;background:#1F2024;transform:rotate(60deg)"></span><span class="conf" style="left:262px;top:172px;background:#E0492F;transform:rotate(-50deg)"></span>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-top:24px"><span data-crow="cheer" data-stage="1" data-size="146"></span>
+      <h1 class="title" style="margin-top:6px">Lesson complete</h1>
+      <p class="sub" style="margin-top:2px"><span class="jp">か</span> row, 3 of 4</p></div>
+    <div class="pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:16px">
+      <div class="stile"><small>XP</small><b><span data-i="bolt" class="ic s"></span>15</b></div>
+      <div class="stile"><small>Accuracy</small><b style="color:var(--pine-d)">95%</b></div>
+      <div class="stile"><small>Strike speed</small><b style="color:var(--sky)">1.3s</b></div>
+    </div>
+    <div class="card" style="margin:14px 18px 0;display:flex;align-items:center;gap:12px"><span data-belt="#2E9E5B" data-w="52"></span><div style="flex:1"><div style="font-size:15px;font-weight:800"><span class="jp">こ</span> reached green belt</div><div class="sub" style="font-size:12px">2 more kana and you can test for the row</div></div></div>
+    <div class="foot"><span class="btn">Continue</span></div>
+  </div></div><div class="cap"><h3>Lesson complete <span class="tag mvp">MVP</span></h3><p>A short celebration showing what changed: XP, accuracy, strike speed, and any belt promotion. The same layout is reused after games.</p><code>LessonCompleteScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><span style="flex:1;font-weight:800;font-size:16px">Belt exam</span><span class="chip" style="background:var(--sumi);color:#fff"><span data-i="clock" class="ic s"></span>0:42</span></div>
+    <div class="pad" style="display:flex;justify-content:space-between;align-items:center"><div><div class="sub" style="font-size:13px"><span class="jp">か</span> row, green belt</div><div style="font-size:17px;font-weight:800">14 of 20 correct</div></div><span data-belt="#2E9E5B" data-w="62"></span></div>
+    <div class="pad" style="margin-top:10px"><div class="pbar t"><i style="width:70%;background:var(--pine)"></i></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-top:5px"><span>Pass mark: 18 of 20</span><span>2 misses left</span></div></div>
+    <div class="frame" style="margin:14px 18px 0;height:150px"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:94px;line-height:1">け</span></div>
+    <div class="pad grid2" style="margin-top:16px"><span class="tile">ke</span><span class="tile">ka</span><span class="tile">ko</span><span class="tile">ku</span></div>
+    <div class="pad" style="margin-top:14px;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink2)"><span data-i="bulb" class="ic s"></span>No hints during an exam. Fail and you can retake it right away.</div>
+  </div></div><div class="cap"><h3>Belt exam <span class="tag later">Later</span></h3><p>You don't get a row belt automatically. A timed 20-question test with no hints makes the belt mean something, and failing costs nothing but a retry.</p><code>BeltExamScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen night">
+    <div class="status"></div>
+    <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 24px">
+      <div style="position:absolute;left:50%;top:40px;transform:translateX(-50%);width:230px;height:230px;border-radius:50%;background:radial-gradient(rgba(224,73,47,.3),transparent 70%)"></div>
+      <span style="position:relative" data-crow="proud" data-stage="2" data-size="160"></span>
+      <div style="position:relative;margin-top:10px" data-belt="#2E9E5B" data-w="150"></div>
+      <h1 class="title" style="color:#fff;margin-top:16px;font-size:27px">Green belt, <span class="jp">か</span> row</h1>
+      <p style="margin:8px 0 0;color:#B5BAC6;font-size:15px;font-weight:500">Nineteen of twenty. Karasu ties the belt on. Your whole <span class="jp">か</span> row is green now, and the <span class="jp">さ</span> row is open.</p>
+      <div style="display:flex;gap:8px;margin-top:16px"><span class="chip" style="background:#26282E;color:#F2C14E"><span data-i="mon" class="ic s"></span>+50 mon</span><span class="chip" style="background:#26282E;color:#fff"><span data-i="plaque" class="ic s"></span>Plaque added</span></div>
+    </div>
+    <div class="foot"><span class="btn white">Hang the plaque</span></div>
+  </div></div><div class="cap"><h3>Belt ceremony <span class="tag later">Later</span></h3><p>The payoff for an exam. It only lasts a few seconds, but turning a statistic into a small ceremony is what makes people remember the moment.</p><code>BeltCeremonyScreen</code></div></div>
+
+  </div>
+</section>
+<section class="chapter" id="arcade">
+  <div class="chead"><span class="k">武</span><div><h2>The training hall</h2><p>Every game asks the same question a different way: what sound is this kana? All of them call the same engine, so a round of Kana Rain counts as much as a lesson.</p></div></div>
+  <div class="gallery">
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="pad" style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px"><h1 class="title">Training hall</h1><span class="stat"><span data-i="mon" class="ic"></span>240</span></div>
+    <div style="margin:0 18px 14px;background:var(--sumi);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;color:#fff">
+      <span style="width:42px;height:42px;border-radius:6px;background:#2E3139;display:grid;place-items:center;color:var(--verm)"><span data-i="cal" class="ic l"></span></span>
+      <div style="flex:1"><div style="font-size:16px;font-weight:800">Daily kata #142</div><div style="font-size:12.5px;color:#A8AEBC">20 kana, one attempt. Resets in 6h</div></div>
+      <span style="width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--sumi)"><span data-i="play" class="ic"></span></span>
+    </div>
+    <div class="pad grid2" style="gap:10px">
+      <div class="gcard"><div class="art" style="background:var(--sky-l);color:var(--sky)"><span class="tag2" style="position:static;width:30px;height:30px;font-size:15px">カ</span><span data-i="rain" class="ic" style="width:30px;height:30px"></span><span class="tag2" style="position:static;width:26px;height:26px;font-size:13px;margin-top:12px">し</span></div><div class="gname">Kana Rain</div><div class="gsub">Best 1,840</div></div>
+      <div class="gcard"><div class="art" style="background:#17181C"><span data-yokai="ね" data-size="52"></span></div><div class="gname">Yokai dungeon</div><div class="gsub">Deepest: floor 7</div></div>
+      <div class="gcard"><div class="art" style="background:var(--verm-l)"><span class="jp" style="font-size:24px;color:var(--verm-d)">シ</span><span data-i="horns" class="ic" style="width:30px;height:30px;color:#B8341D"></span><span class="jp" style="font-size:24px;color:var(--verm-d)">ツ</span></div><div class="gname">Duels</div><div class="gsub" style="color:var(--verm-d);font-weight:800">2 rivals waiting</div></div>
+      <div class="gcard"><div class="art" style="background:#F1EDE4"><span data-i="cards" class="ic" style="width:36px;height:36px;color:var(--wood-d)"></span></div><div class="gname">Memory match</div><div class="gsub">Best: 14 moves</div></div>
+      <div class="gcard"><div class="art" style="background:var(--pine-l)"><span class="btile jp" style="width:32px;height:32px;font-size:17px;border-color:#9CD3B2">ね</span><span class="btile jp" style="width:32px;height:32px;font-size:17px;border-color:#9CD3B2">こ</span></div><div class="gname">Word forge</div><div class="gsub">12 words found</div></div>
+      <div class="gcard"><div class="art" style="background:var(--gold-l);color:var(--gold-d)"><span class="jp" style="font-size:28px;color:#E2D3A4">か</span><span data-i="brush" class="ic" style="width:28px;height:28px"></span></div><div class="gname">Calligraphy</div><div class="gsub">Stroke practice</div></div>
+      <div class="gcard"><div class="art" style="background:#F1EDE4;color:var(--verm-d)"><span data-i="drum" class="ic" style="width:34px;height:34px"></span></div><div class="gname">Taiko drill</div><div class="gsub" style="display:flex;align-items:center;gap:3px"><span data-i="lock" class="ic s" style="width:12px;height:12px"></span>Opens at the <span class="jp">た</span> row</div></div>
+      <div class="gcard"><div class="art" style="background:var(--paper);color:var(--ink2)"><span data-i="ghost" class="ic" style="width:32px;height:32px"></span></div><div class="gname">Shadow match</div><div class="gsub">Race a past run</div></div>
+    </div>
+    <div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><span class="t"><span data-i="home" class="ic"></span></span><span class="t on"><span data-i="game" class="ic"></span></span><span class="t"><span data-i="book" class="ic"></span></span><span class="t"><span data-i="trophy" class="ic"></span></span><span class="t"><span data-i="user" class="ic"></span></span></div>
+  </div></div><div class="cap"><h3>Training hall <span class="tag mvp">MVP</span></h3><p>Every game in one place with the daily puzzle on top. Each card shows your record, so there's always something to beat. The MVP ships with Kana Rain only.</p><code>ArcadeScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen" style="background:#DCE6EF">
+    <div class="status"></div>
+    <div class="stats" style="padding-bottom:4px">
+      <span class="stat" style="font-size:19px"><span data-i="bolt" class="ic"></span>1,240</span>
+      <span class="chip" style="background:var(--verm);color:#fff;font-size:14px;padding:4px 10px"><span data-i="flame-g" class="ic s"></span>x4</span>
+      <span style="color:var(--verm);display:flex;gap:3px"><span data-i="heart" class="ic"></span><span data-i="heart" class="ic"></span><span data-i="heart" class="ic" style="color:#B9BFCB"></span></span>
+    </div>
+    <div style="position:relative;flex:1;overflow:hidden">
+      <div style="position:absolute;left:-12px;top:14px;width:120px;height:26px;border-radius:14px;background:#EDF2F7"></div><div style="position:absolute;left:24px;top:2px;width:60px;height:34px;border-radius:18px;background:#EDF2F7"></div>
+      <div style="position:absolute;right:-16px;top:40px;width:120px;height:24px;border-radius:14px;background:#EDF2F7"></div>
+      <span class="chip" style="position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#fff;color:var(--ink2)">Wave 3</span>
+      <span class="tag2" style="left:34px;top:64px;width:50px;height:50px;font-size:24px"></span><span class="jp" style="position:absolute;left:47px;top:76px;font-size:24px">カ</span>
+      <span class="tag2" style="right:52px;top:98px;width:50px;height:50px;font-size:24px"></span><span class="jp" style="position:absolute;right:65px;top:110px;font-size:24px">し</span>
+      <span class="chip" style="position:absolute;left:124px;top:156px;background:#fff;border:1.5px solid var(--sumi)">ts</span>
+      <span class="tag2" style="left:116px;top:186px;width:62px;height:62px;background:var(--sumi);border-color:#000"></span><span class="jp" style="position:absolute;left:132px;top:199px;font-size:32px;color:#fff">ツ</span>
+      <span class="tag2" style="left:42px;top:250px;width:50px;height:50px"></span><span class="jp" style="position:absolute;left:55px;top:262px;font-size:24px">ね</span>
+      <span style="position:absolute;right:34px;top:222px;font-weight:900;font-size:17px;color:var(--gold-d)">+40</span>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:42px;background:#CFC79A;border-top:5px solid #8A6A43"></div>
+      <span style="position:absolute;left:92px;bottom:20px" data-crow="focus" data-stage="1" data-size="106" data-extra="strawhat"></span>
+    </div>
+    <div style="background:#fff;padding:12px 18px 22px;border-top:1.5px solid var(--line)">
+      <div style="border:2px solid var(--sumi);border-radius:8px;padding:10px 14px;display:flex;align-items:center;font-size:20px;font-weight:800">ts<span class="caret"></span><span style="margin-left:auto;font-size:13px;color:var(--ink2);font-weight:600">locked on <span class="jp" style="font-size:16px;color:var(--sumi)">ツ</span></span></div>
+    </div>
+  </div></div><div class="cap"><h3>Kana Rain <span class="tag mvp">MVP</span></h3><p>Type the romaji before a kana lands. Whatever matches what you've typed so far lights up. Every hit and miss runs through <code>recordAnswer()</code>.</p><code>KanaRainScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen night">
+    <div class="status"></div>
+    <div class="stats">
+      <span class="chip" style="background:#26282E;color:#fff;font-size:13px;padding:4px 10px"><span data-i="door" class="ic s" style="color:#A8AEBC"></span>Floor 4</span>
+      <span style="display:flex;gap:6px"><span style="width:30px;height:30px;border-radius:6px;background:#26282E;display:grid;place-items:center"><span data-i="lantern" class="ic s"></span></span><span style="width:30px;height:30px;border-radius:6px;background:#26282E;display:grid;place-items:center"><span data-i="scroll" class="ic s"></span></span></span>
+      <span class="stat" style="color:#F2C14E"><span data-i="mon" class="ic"></span>62</span>
+    </div>
+    <div style="position:relative;height:244px">
+      <span style="position:absolute;left:16px;top:22px;width:5px;height:56px;background:#3A3D46"></span><span style="position:absolute;left:8px;top:2px"><span data-i="flame" class="ic l"></span></span>
+      <span style="position:absolute;right:16px;top:22px;width:5px;height:56px;background:#3A3D46"></span><span style="position:absolute;right:8px;top:2px"><span data-i="flame" class="ic l"></span></span>
+      <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center">
+        <div style="font-size:13px;color:#A8AEBC"><span class="jp">ね</span> oni</div>
+        <div style="display:flex;gap:4px;margin:5px 0 4px"><span style="width:34px;height:8px;border-radius:4px;background:var(--verm)"></span><span style="width:34px;height:8px;border-radius:4px;background:var(--verm)"></span><span style="width:34px;height:8px;border-radius:4px;background:#3A3D46"></span></div>
+        <span data-yokai="ね" data-size="146"></span>
+      </div>
+      <span style="position:absolute;right:36px;top:88px;font-size:19px;font-weight:900;color:#F2C14E;transform:rotate(8deg)">Clean!</span>
+    </div>
+    <div class="pad" style="display:flex;align-items:flex-end;gap:10px;margin-top:-4px">
+      <span data-crow="focus" data-stage="2" data-size="86" data-extra="bokken"></span>
+      <div style="flex:1;padding-bottom:10px">
+        <div style="display:flex;gap:2px;color:var(--verm);margin-bottom:8px"><span data-i="heart" class="ic s"></span><span data-i="heart" class="ic s"></span><span data-i="heart" class="ic s"></span><span data-i="heart" class="ic s"></span><span data-i="heart" class="ic s" style="color:#3A3D46"></span></div>
+        <div style="font-size:12px;color:#A8AEBC;margin-bottom:4px">It attacks in 3 seconds</div>
+        <div class="pbar" style="background:#3A3D46"><i style="width:60%;background:var(--verm)"></i></div>
+      </div>
+    </div>
+    <div class="pad grid2" style="margin-top:14px"><span class="dtile">re</span><span class="dtile">ne</span><span class="dtile">wa</span><span class="dtile">nu</span></div>
+  </div></div><div class="cap"><h3>Yokai dungeon <span class="tag later">Later</span></h3><p>A roguelike run. Each enemy is a kana and a correct answer is a strike. Answer too slowly and it attacks, so speed matters as much as accuracy.</p><code>DungeonBattleScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen night">
+    <div class="status"></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:4px 20px 0">
+      <span data-crow="proud" data-stage="2" data-size="94" data-extra="bokken"></span>
+      <h1 class="title" style="color:#fff;margin-top:6px">Floor 4 cleared</h1>
+      <p style="margin:4px 0 0;color:#A8AEBC;font-size:14px;font-weight:500">Take one charm before going deeper</p>
+    </div>
+    <div class="pad" style="display:grid;gap:10px;margin-top:16px">
+      <div class="relic"><span class="ri"><span data-i="lantern" class="ic l"></span></span><div><div style="display:flex;gap:6px;align-items:center;font-size:15px;font-weight:800">Paper lantern <span class="chip" style="background:#2E3139;color:#A8AEBC;font-size:11px">Common</span></div><p>Enemies attack 20% slower.</p></div></div>
+      <div class="relic"><span class="ri"><span data-i="scroll" class="ic l"></span></span><div><div style="display:flex;gap:6px;align-items:center;font-size:15px;font-weight:800">Hint scroll <span class="chip" style="background:#233A56;color:#9EC8F0;font-size:11px">Rare</span></div><p>Reveal the first letter of an answer, three times per floor.</p></div></div>
+      <div class="relic" style="border-color:var(--gold)"><span class="ri" style="background:#3A3320"><span data-i="charm" class="ic l"></span></span><div><div style="display:flex;gap:6px;align-items:center;font-size:15px;font-weight:800">Lucky omamori <span class="chip" style="background:var(--gold);color:#2B2100;font-size:11px">Epic</span></div><p>Your first mistake on each floor doesn't cost a heart.</p></div></div>
+    </div>
+    <div class="foot"><span class="btn gold">Take the omamori</span></div>
+  </div></div><div class="cap"><h3>Charm pick <span class="tag later">Later</span></h3><p>Between floors you pick one of three charms. Small choices make each run feel different, which is what keeps a repetitive drill fresh.</p><code>RelicPickScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen" style="background:#2A1512;color:#fff">
+    <div class="status"></div>
+    <div class="pad" style="display:flex;justify-content:space-between;align-items:center"><span class="chip" style="background:var(--verm);color:#fff"><span data-i="horns" class="ic s" style="color:#fff"></span>Duel</span><span style="font-size:13px;color:#E4B6AC">Point 6 of 10</span></div>
+    <div class="pad" style="margin-top:8px"><div style="font-size:18px;font-weight:800;margin-bottom:6px">The shadow twins</div><div class="pbar" style="background:#54302A"><i style="width:40%;background:var(--verm)"></i></div></div>
+    <div style="display:flex;justify-content:center;margin-top:8px;height:124px">
+      <span style="margin-right:-24px;transform:rotate(-6deg)" data-yokai="シ" data-size="126" data-hue="verm"></span>
+      <span style="transform:rotate(6deg)" data-yokai="ツ" data-size="126" data-hue="verm"></span>
+    </div>
+    <div class="frame" style="margin:14px auto 0;width:112px;height:112px"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:72px;line-height:1">ツ</span></div>
+    <div class="pad grid2" style="margin-top:20px"><span class="tile" style="font-size:21px;padding:15px 6px;color:var(--ink)">shi</span><span class="tile" style="font-size:21px;padding:15px 6px;color:var(--ink)">tsu</span></div>
+    <div style="margin:16px 18px 0;background:rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;display:flex;gap:8px;font-size:13px;font-weight:500"><span data-i="bulb" class="ic"></span><span><span class="jp">シ</span>'s marks stack down the left side. <span class="jp">ツ</span>'s sit along the top.</span></div>
+    <p style="margin:10px 18px 0;font-size:12px;color:#E4B6AC;font-weight:500">You've mixed these up 7 times. Win 10 points to settle it.</p>
+  </div></div><div class="cap"><h3>Duel <span class="tag later">Later</span></h3><p>Built from your own mistakes through <code>weakPairs()</code>. Two lookalikes, fast rounds, and the tip for telling them apart. Everyone's duels are different.</p><code>DuelScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen" style="background:#F1EDE4">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><span style="flex:1;font-weight:800;font-size:15px">3 of 8 pairs</span><span class="chip o"><span data-i="clock" class="ic s"></span>0:48</span></div>
+    <div class="pad"><h2 class="h">Match the pairs</h2><p class="sub" style="font-size:13px">Hiragana, katakana, and romaji all match each other</p></div>
+    <div class="pad" style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px">
+      <span class="mcard done jp">あ</span><span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span><span class="mcard up jp">キ</span><span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span>
+      <span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span><span class="mcard done">ka</span><span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span><span class="mcard done jp">ア</span>
+      <span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span><span class="mcard up">ki</span><span class="mcard done jp">か</span><span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span>
+      <span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span><span class="mcard down"><span data-i="plaque" class="ic" style="color:#6E727E"></span></span><span class="mcard done jp">す</span><span class="mcard done jp">ス</span>
+    </div>
+    <div class="pad" style="display:flex;align-items:center;gap:10px;margin-top:auto;padding-bottom:26px"><span data-crow="proud" data-stage="1" data-size="74"></span><div class="bubble" style="flex:1"><span class="jp">キ</span> and ki. That's a pair.</div></div>
+  </div></div><div class="cap"><h3>Memory match <span class="tag later">Later</span></h3><p>Pairs across scripts: あ matches ア or a. It links hiragana and katakana to each other, not only to English letters.</p><code>MemoryMatchScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><div class="pbar"><i style="width:40%"></i></div><span style="font-size:13px;color:var(--ink2);font-weight:700">4/10</span></div>
+    <div class="pad"><h2 class="h">Forge the word</h2></div>
+    <div class="card" style="margin:12px 18px 0;height:154px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+      <svg width="112" height="94" viewBox="0 0 120 100" aria-hidden="true"><path d="M24 44L28 8 52 30Z" fill="#D9B383" stroke="#1F2024" stroke-width="3.2" stroke-linejoin="round"/><path d="M96 44L92 8 68 30Z" fill="#D9B383" stroke="#1F2024" stroke-width="3.2" stroke-linejoin="round"/><path d="M30 34L31 18 43 29Z" fill="#E8CBB0"/><path d="M90 34L89 18 77 29Z" fill="#E8CBB0"/><ellipse cx="60" cy="60" rx="42" ry="34" fill="#D9B383" stroke="#1F2024" stroke-width="3.2"/><path d="M54 29l2 8M60 27v9M66 29l-2 8" stroke="#A67C44" stroke-width="3" stroke-linecap="round"/><ellipse cx="60" cy="72" rx="17" ry="12" fill="#F6EFE4"/><ellipse cx="44" cy="56" rx="4.3" ry="5.6" fill="#1F2024"/><ellipse cx="76" cy="56" rx="4.3" ry="5.6" fill="#1F2024"/><circle cx="45.6" cy="54" r="1.6" fill="#fff"/><circle cx="77.6" cy="54" r="1.6" fill="#fff"/><path d="M56.5 66h7l-3.5 4z" fill="#E0492F" stroke="#1F2024" stroke-width="1.6" stroke-linejoin="round"/><path d="M60 70q-4 5-8 2M60 70q4 5 8 2" fill="none" stroke="#1F2024" stroke-width="2.4" stroke-linecap="round"/><path d="M36 68L14 64M36 73L15 76M84 68l22-4M84 73l21 3" stroke="#1F2024" stroke-width="2" stroke-linecap="round"/></svg>
+      <span style="display:flex;gap:6px"><span class="chip" style="background:var(--paper)">cat</span><span class="chip" style="background:var(--sky-l);color:var(--sky)"><span data-i="speaker" class="ic s"></span>neko</span></span>
+    </div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:18px"><span class="slot jp" style="border:2px solid var(--sumi);border-style:solid">ね</span><span class="slot"></span></div>
+    <div class="pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:20px">
+      <span class="btile jp">こ</span><span class="btile jp">ぬ</span><span class="btile" style="background:var(--paper);border-style:dashed"></span>
+      <span class="btile jp">め</span><span class="btile jp">ろ</span><span class="btile jp">そ</span>
+    </div>
+    <div class="foot"><span class="btn">Check</span></div>
+  </div></div><div class="cap"><h3>Word forge <span class="tag later">Later</span></h3><p>Spell real words from kana tiles, where the wrong tiles are lookalikes of the right ones. This is the bridge from knowing characters to actually reading.</p><code>WordForgeScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span><div class="pbar"><i style="width:55%"></i></div><span class="chip o">Stroke 2 of 3</span></div>
+    <div class="pad" style="display:flex;align-items:center;justify-content:space-between"><div><h2 class="h">Write <span class="jp">か</span></h2><p class="sub">ka</p></div><span data-crow="focus" data-stage="1" data-size="68" data-extra="brush"></span></div>
+    <div class="frame" style="margin:6px 18px 0;padding:0;height:262px"><span class="c1"></span><span class="c2"></span>
+      <svg width="100%" height="100%" viewBox="0 0 260 260" aria-hidden="true">
+        <path d="M130 14v232M14 130h232" stroke="#E4E7EC" stroke-width="2" stroke-dasharray="8 8"/>
+        <g fill="none" stroke="#EDEFF3" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"><path d="M56 110C94 101 130 95 153 99C172 103 170 130 161 162C154 185 146 198 132 202C123 204 115 198 110 191"/><path d="M118 56C116 110 104 160 70 210"/><path d="M188 88C202 102 211 119 215 138"/></g>
+        <path d="M56 110C94 101 130 95 153 99C172 103 170 130 161 162C154 185 146 198 132 202C123 204 115 198 110 191" fill="none" stroke="#2E9E5B" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M118 56C116 110 104 160 70 210" pathLength="100" stroke-dasharray="58 100" fill="none" stroke="#1F2024" stroke-width="11" stroke-linecap="round"/>
+        <circle cx="111" cy="137" r="9" fill="#1F2024" stroke="#fff" stroke-width="3"/>
+        <g font-family="Archivo,sans-serif" font-weight="900" font-size="13" text-anchor="middle"><circle cx="40" cy="104" r="11" fill="#E4F4EA"/><text x="40" y="108.5" fill="#1E7A43">1</text><circle cx="118" cy="38" r="11" fill="#E4E7EC"/><text x="118" y="42.5" fill="#1F2024">2</text><circle cx="186" cy="68" r="11" fill="#F1F2F5"/><text x="186" y="72.5" fill="#A3A9B6">3</text></g>
+      </svg>
+    </div>
+    <div class="pad" style="margin-top:12px"><span class="chip" style="background:var(--pine-l);color:var(--pine-d);font-size:13px;padding:5px 10px"><span data-i="check" class="ic s"></span>Stroke 1 was clean</span></div>
+    <div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;padding-bottom:22px"><span class="btn ghost" style="display:flex;align-items:center;justify-content:center;gap:6px"><span data-i="undo" class="ic s"></span>Undo</span><span class="btn ghost">Show order</span></div>
+  </div></div><div class="cap"><h3>Calligraphy <span class="tag later">Later</span></h3><p>Trace each kana stroke by stroke with your finger. The faint guide shows where strokes go and numbered dots show the order. Writing locks in recognition.</p><code>CalligraphyScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen night">
+    <div class="status"></div>
+    <div class="stats"><span class="chip" style="background:#26282E;color:#F2C14E"><span data-i="drum" class="ic s"></span>Tanuki matsuri</span><span class="stat" style="font-size:18px">8,420</span><span class="chip" style="background:var(--verm);color:#fff">x23</span></div>
+    <div style="position:relative;flex:1;overflow:hidden">
+      <div style="position:absolute;left:74px;right:74px;top:0;bottom:0;background:#1D1F24;border-left:2px solid #3A3D46;border-right:2px solid #3A3D46"></div>
+      <div style="position:absolute;left:74px;right:74px;top:68px;border-top:1.5px solid #2A2D34"></div><div style="position:absolute;left:74px;right:74px;top:156px;border-top:1.5px solid #2A2D34"></div><div style="position:absolute;left:74px;right:74px;top:244px;border-top:1.5px solid #2A2D34"></div>
+      <span style="position:absolute;left:12px;top:10px"><span data-i="lantern" class="ic l"></span></span><span style="position:absolute;right:12px;top:10px"><span data-i="lantern" class="ic l"></span></span>
+      <span class="tag2" style="left:50%;margin-left:-20px;top:20px;width:40px;height:40px;font-size:18px;border-color:var(--pine);opacity:.65">せ</span>
+      <span class="tag2" style="left:50%;margin-left:-26px;top:108px;width:52px;height:52px;font-size:24px;border-color:var(--verm)">さ</span>
+      <span class="tag2" style="left:50%;margin-left:-26px;top:194px;width:52px;height:52px;font-size:24px;border-color:var(--pine)">す</span>
+      <div style="position:absolute;left:50%;top:272px;width:76px;height:76px;margin-left:-38px;border-radius:50%;border:3px solid var(--sky);box-shadow:0 0 0 6px rgba(59,130,196,.2)"></div>
+      <span class="tag2" style="left:50%;margin-left:-26px;top:284px;width:52px;height:52px;font-size:24px;border-color:var(--sky)">し</span>
+      <span style="position:absolute;right:8px;top:262px;font-size:18px;font-weight:900;color:#F2C14E">Perfect</span>
+      <span style="position:absolute;left:4px;top:268px" data-crow="cheer" data-stage="1" data-size="66" data-extra="bachi"></span>
+    </div>
+    <div class="pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:14px;padding-bottom:24px">
+      <span class="btn verm" style="font-size:18px">sa</span><span class="btn" style="background:var(--sky);font-size:18px">shi</span><span class="btn pine" style="font-size:18px">su</span>
+    </div>
+  </div></div><div class="cap"><h3>Taiko drill <span class="tag later">Later</span></h3><p>Kana ride down the track to a festival drumbeat. Hit the right sound as each reaches the ring. Timing pressure pushes reading toward automatic.</p><code>TaikoScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="x" class="ic x"></span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center">
+      <span data-crow="proud" data-stage="1" data-size="98"></span>
+      <div style="font-size:14px;color:var(--ink2);margin-top:4px;font-weight:700">Daily kata #142</div>
+      <div style="font-size:38px;font-weight:900;line-height:1.1">18 / 20</div>
+      <div class="sub">in 41.2 seconds</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,30px);gap:7px;justify-content:center;margin-top:14px">
+      <span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#C9A227"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span>
+      <span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#E0492F"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#C9A227"></span>
+      <span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#E0492F"></span>
+      <span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#2E9E5B"></span><span class="sq" style="background:#C9A227"></span><span class="sq" style="background:#2E9E5B"></span>
+    </div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:10px;font-size:12px;color:var(--ink2);font-weight:600"><span><i class="sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2E9E5B"></i> fast</span><span><i class="sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#C9A227"></i> slow</span><span><i class="sq" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#E0492F"></i> missed</span></div>
+    <div class="pad" style="display:flex;justify-content:center;gap:8px;margin-top:14px"><span class="chip o">Faster than 72% today</span><span class="chip" style="background:var(--verm-l);color:var(--verm-d)"><span data-i="flame-g" class="ic s"></span>9 days</span></div>
+    <div class="foot"><span class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px"><span data-i="share" class="ic s"></span>Share result</span><span class="btn ghost">Back to the hall</span></div>
+  </div></div><div class="cap"><h3>Daily kata <span class="tag later">Later</span></h3><p>Everyone gets the same 20 kana each day, seeded with <code>seededRng()</code>. The grid shows how you did without spoiling the answers, so it's safe to post.</p><code>DailyResultScreen</code></div></div>
+
+  </div>
+</section>
+<section class="chapter" id="grow">
+  <div class="chead"><span class="k">段</span><div><h2>Ranking up</h2><p>The motivation layer: reasons to come back tomorrow. Almost every screen here is engine data drawn as an object, so the rewards track real learning instead of time spent tapping.</p></div></div>
+  <div class="gallery">
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="pad" style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px"><h1 class="title">Your kana</h1><span class="chip o jp" style="font-size:12px">ひらがな<span data-i="down" class="ic s" style="color:var(--ink3);width:13px;height:13px"></span></span></div>
+    <div class="pad"><div class="seg"><span class="on">Grid</span><span>Dojo</span></div></div>
+    <div class="card" style="margin:12px 18px 0;display:flex;align-items:center;gap:14px">
+      <div style="position:relative;width:58px;height:58px;flex:0 0 auto"><svg width="58" height="58" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="24" fill="none" stroke="#E4E7EC" stroke-width="8"/><circle cx="29" cy="29" r="24" fill="none" stroke="#1F2024" stroke-width="8" stroke-linecap="round" stroke-dasharray="46 151" transform="rotate(-90 29 29)"/></svg><span style="position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:16px">14</span></div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:800">14 of 46 past white</div><div style="display:flex;gap:10px;margin-top:6px;align-items:center"><span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700"><span data-belt="#1B1D26" data-w="30"></span>3</span><span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700"><span data-belt="#7A4A26" data-w="30"></span>5</span><span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700"><span data-belt="#2E9E5B" data-w="30"></span>6</span></div></div>
+    </div>
+    <div class="pad" style="display:grid;gap:8px;margin-top:14px">
+      <div class="mg"><span class="rl">a</span><span class="kcell b-black"><span class="jp">あ</span><small>a</small><i></i></span><span class="kcell b-black"><span class="jp">い</span><small>i</small><i></i></span><span class="kcell b-brown"><span class="jp">う</span><small>u</small><i></i></span><span class="kcell b-brown"><span class="jp">え</span><small>e</small><i></i></span><span class="kcell b-black"><span class="jp">お</span><small>o</small><i></i></span></div>
+      <div class="mg"><span class="rl">ka</span><span class="kcell b-brown"><span class="jp">か</span><small>ka</small><i></i></span><span class="kcell b-green"><span class="jp">き</span><small>ki</small><i></i></span><span class="kcell b-green"><span class="jp">く</span><small>ku</small><i></i></span><span class="kcell b-white"><span class="jp">け</span><small>ke</small><i></i></span><span class="kcell b-brown"><span class="jp">こ</span><small>ko</small><i></i></span></div>
+      <div class="mg"><span class="rl">sa</span><span class="kcell b-green"><span class="jp">さ</span><small>sa</small><i></i></span><span class="kcell b-brown"><span class="jp">し</span><small>shi</small><i></i></span><span class="kcell b-white"><span class="jp">す</span><small>su</small><i></i></span><span class="kcell b-green"><span class="jp">せ</span><small>se</small><i></i></span><span class="kcell b-white"><span class="jp">そ</span><small>so</small><i></i></span></div>
+      <div class="mg"><span class="rl">ta</span><span class="kcell b-green"><span class="jp">た</span><small>ta</small><i></i></span><span class="kcell b-white"><span class="jp">ち</span><small>chi</small><i></i></span><span class="kcell b-green"><span class="jp">つ</span><small>tsu</small><i></i></span><span class="kcell b-white"><span class="jp">て</span><small>te</small><i></i></span><span class="kcell b-white"><span class="jp">と</span><small>to</small><i></i></span></div>
+      <div class="mg"><span class="rl">na</span><span class="kcell b-none" style="padding:12px 0"><span data-i="lock" class="ic s"></span></span><span class="kcell b-none" style="padding:12px 0"><span data-i="lock" class="ic s"></span></span><span class="kcell b-none" style="padding:12px 0"><span data-i="lock" class="ic s"></span></span><span class="kcell b-none" style="padding:12px 0"><span data-i="lock" class="ic s"></span></span><span class="kcell b-none" style="padding:12px 0"><span data-i="lock" class="ic s"></span></span></div>
+    </div>
+    <div class="tabs"><span class="t"><span data-i="home" class="ic"></span></span><span class="t"><span data-i="game" class="ic"></span></span><span class="t on"><span data-i="book" class="ic"></span></span><span class="t"><span data-i="trophy" class="ic"></span></span><span class="t"><span data-i="user" class="ic"></span></span></div>
+  </div></div><div class="cap"><h3>Belt grid <span class="tag mvp">MVP</span></h3><p>Every kana at a glance with a belt stripe under it. This is <code>masteryGrid()</code> drawn as a grid, and the row label shows the row's belt, which is always its weakest kana.</p><code>MasteryChartScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen" style="background:#83868E">
+    <div class="status" style="color:#fff"></div>
+    <div class="pad" style="opacity:.5;display:grid;gap:8px;margin-top:8px"><div style="height:26px"></div><div class="mg"><span></span><span class="kcell b-black"><span class="jp">あ</span><small>&nbsp;</small><i></i></span><span class="kcell b-black"><span class="jp">い</span><small>&nbsp;</small><i></i></span><span class="kcell b-brown"><span class="jp">う</span><small>&nbsp;</small><i></i></span><span class="kcell b-brown"><span class="jp">え</span><small>&nbsp;</small><i></i></span><span class="kcell b-black"><span class="jp">お</span><small>&nbsp;</small><i></i></span></div><div class="mg"><span></span><span class="kcell b-brown"><span class="jp">か</span><small>&nbsp;</small><i></i></span><span class="kcell b-green"><span class="jp">き</span><small>&nbsp;</small><i></i></span><span class="kcell b-green"><span class="jp">く</span><small>&nbsp;</small><i></i></span><span class="kcell b-white"><span class="jp">け</span><small>&nbsp;</small><i></i></span><span class="kcell b-brown"><span class="jp">こ</span><small>&nbsp;</small><i></i></span></div></div>
+    <div class="sheet" style="border-radius:16px 16px 0 0;padding-top:10px;top:122px">
+      <div style="width:42px;height:4px;border-radius:2px;background:#D3D7DF;margin:0 auto 14px"></div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="frame" style="width:88px;height:88px;flex:0 0 auto"><span class="c1"></span><span class="c2"></span><span class="jp" style="font-size:52px;line-height:1">し</span></div>
+        <div><div style="font-size:21px;font-weight:900">shi</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span data-belt="#7A4A26" data-w="54"></span><span style="font-size:13px;font-weight:700">Brown belt</span></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px">
+        <div class="metric"><small>Accuracy</small><b>88%</b></div>
+        <div class="metric"><small>Strike speed</small><b>1.4s</b></div>
+        <div class="metric"><small>Next drill</small><b>2 days</b></div>
+      </div>
+      <div style="background:var(--sky-l);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;gap:8px;font-size:13px;color:#1D5B8C;font-weight:500"><span data-i="bulb" class="ic"></span><span><span class="jp">し</span> is a fishing hook. <i>She</i> went fishing.</span></div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:12px;font-weight:600">Often mixed up with</div>
+      <div style="display:flex;gap:6px;margin-top:6px"><span class="chip" style="background:var(--verm-l);color:var(--verm-d);font-size:14px"><span class="jp">ち</span> 3 times</span><span class="chip" style="background:var(--verm-l);color:var(--verm-d);font-size:14px"><span class="jp">つ</span> 2 times</span></div>
+      <span class="btn" style="margin-top:14px">Drill <span class="jp">し</span></span>
+    </div>
+  </div></div><div class="cap"><h3>Kana details <span class="tag mvp">MVP</span></h3><p>Everything the engine knows about one kana: accuracy, speed, when it's due again, and what you confuse it with. Opens from the grid or the dojo shelf.</p><code>KanaDetailSheet</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="pad" style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 10px"><h1 class="title">Your dojo</h1><span class="chip o">Visit a friend</span></div>
+    <div style="position:relative;flex:1;margin:0 14px;border:2px solid #6B4E35;border-radius:8px;overflow:hidden;background:#ECE7DE">
+      <div style="position:absolute;left:0;right:0;top:0;height:10px;background:#6B4E35"></div>
+      <span class="plq" style="left:12px;top:22px;width:40px;height:62px;font-size:10px;letter-spacing:0">あいうえお<span class="hanko" style="width:18px;height:18px;right:-6px;bottom:-6px;border-color:#ECE7DE"><span data-i="check" class="ic s" style="width:11px;height:11px"></span></span></span>
+      <span class="plq" style="left:60px;top:22px;width:40px;height:62px;font-size:10px;letter-spacing:0">かきくけこ<span class="hanko" style="width:18px;height:18px;right:-6px;bottom:-6px;border-color:#ECE7DE"><span data-i="check" class="ic s" style="width:11px;height:11px"></span></span></span>
+      <span class="plq lock" style="left:108px;top:22px;width:40px;height:62px;writing-mode:horizontal-tb;font-family:var(--ui);font-size:20px;font-weight:800">+</span>
+      <span class="plq lock" style="left:156px;top:22px;width:40px;height:62px;writing-mode:horizontal-tb;font-family:var(--ui);font-size:20px;font-weight:800">+</span>
+      <div style="position:absolute;right:12px;top:16px;width:64px;height:112px;background:#F8F4EC;border:2px solid #6B4E35;border-top-width:7px;border-bottom-width:7px;display:flex;flex-direction:column;align-items:center;justify-content:center"><span class="jp" style="font-size:24px">シ</span><span class="jp" style="font-size:24px">ツ</span><span data-hanko="勝" data-size="22" style="margin-top:3px"></span></div>
+      <span style="position:absolute;right:14px;top:132px;font-size:10px;font-weight:700;color:#6B5A44;width:60px;text-align:center">Shadow twins</span>
+      <div style="position:absolute;left:12px;top:106px;width:150px;height:7px;background:#6B4E35;border-radius:2px"></div>
+      <i style="position:absolute;left:20px;top:98px;width:106px;height:5px;background:#C9A77A;border:1px solid #8A6A43;border-radius:3px;transform:rotate(-3deg)"></i>
+      <div style="position:absolute;left:12px;top:142px;width:150px;height:7px;background:#6B4E35;border-radius:2px"></div>
+      <span style="position:absolute;left:22px;top:124px;width:130px;height:18px;border:1.5px dashed #B9B2A4;border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:700;color:#9A927F">Dungeon record</span>
+      <span style="position:absolute;left:14px;top:154px;font-size:10px;font-weight:700;color:#6B5A44">Weapon rack</span>
+      <div style="position:absolute;left:0;right:0;top:236px;bottom:0;background:#CFC79A;background-image:linear-gradient(90deg,rgba(0,0,0,.07) 2px,transparent 2px);background-size:70px 100%;border-top:5px solid #8A6A43"></div>
+      <div style="position:absolute;right:16px;top:176px;width:24px;height:38px;background:var(--verm);border-radius:8px;border:2px solid var(--verm-d)"></div><i style="position:absolute;right:26px;top:170px;width:3px;height:8px;background:#3A2E22"></i>
+      <div style="position:absolute;right:52px;top:182px;width:24px;height:32px;border:1.5px dashed #B9B2A4;border-radius:8px"></div>
+      <div style="position:absolute;left:18px;top:200px">
+        <svg width="54" height="54" viewBox="0 0 60 60" aria-hidden="true"><path d="M12 44h36l-4 12H16z" fill="#6E4B35" stroke="#23302F" stroke-width="1.8"/><rect x="9" y="40" width="42" height="5" rx="1.5" fill="#6E4B35" stroke="#23302F" stroke-width="1.8"/><path d="M30 40v-18M30 30l-7-6M30 26l6-5" stroke="#7A5234" stroke-width="2.6" stroke-linecap="round"/><circle cx="22" cy="22" r="6" fill="#6BA35B"/><circle cx="37" cy="19" r="7" fill="#6BA35B"/><circle cx="30" cy="16" r="6" fill="#7DB86B"/></svg>
+      </div>
+      <div style="position:absolute;left:96px;top:222px;width:40px;height:26px;background:#6B4E35;border-radius:2px"></div><div style="position:absolute;left:103px;top:200px;width:26px;height:24px;background:var(--gold);border-radius:3px 3px 11px 11px;border:2px solid var(--gold-d)"></div>
+      <div style="position:absolute;left:96px;top:276px" data-crow="focus" data-stage="1" data-size="130"></div>
+      <div style="position:absolute;left:18px;top:300px;width:54px;height:16px;border-radius:4px;background:#8C2F22;border:1.5px solid #5E1E14"></div><span style="position:absolute;left:18px;top:322px;font-size:10px;font-weight:700;color:#6B5A44">Cushion</span>
+      <div style="position:absolute;right:26px;top:268px;width:30px;height:58px;border-radius:10px;background:#D9B383;border:2px solid #A67C44"></div><div style="position:absolute;right:30px;top:258px;width:22px;height:14px;border-radius:6px;background:#6B4E35"></div><span style="position:absolute;right:14px;top:330px;font-size:10px;font-weight:700;color:#6B5A44">Dummy</span>
+    </div>
+    <div style="display:flex;justify-content:space-around;padding:12px 18px 14px;font-size:12px;color:var(--ink2);text-align:center"><div><b style="display:block;font-size:17px;color:var(--ink)">2 / 10</b>Plaques</div><div><b style="display:block;font-size:17px;color:var(--ink)">1</b>Scroll</div><div><b style="display:block;font-size:17px;color:var(--ink)">6</b>Day streak</div></div>
+  </div></div><div class="cap"><h3>Your dojo <span class="tag later">Later</span></h3><p>A room that fills with what you earned: plaques for finished rows, boss scrolls, a weapon rack of arcade records, a bonsai that grows with your streak. Friends can visit.</p><code>DojoRoomScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="back" class="ic x"></span><span style="flex:1;font-weight:800;font-size:16px">Technique scrolls</span><span class="chip o">1 of 9</span></div>
+    <div style="margin:4px 18px 0;background:#F8F4EC;border:2px solid #6B4E35;border-top-width:8px;border-bottom-width:8px;border-radius:4px;padding:16px 14px">
+      <div style="display:flex;justify-content:center;gap:18px"><span class="jp" style="font-size:52px">シ</span><span class="jp" style="font-size:52px">ツ</span></div>
+      <div style="text-align:center;font-size:17px;font-weight:800;margin-top:6px">Shadow twins</div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:8px;font-weight:500"><span class="jp">シ</span>'s two marks stack down the left side and its sweep goes bottom to top. <span class="jp">ツ</span>'s marks sit along the top and its sweep goes top to bottom.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1.5px solid #E0D8C6"><span style="font-size:12px;color:var(--ink2);font-weight:600">Won 10 to 3 on Sept 14</span><span data-hanko="勝" data-size="34"></span></div>
+    </div>
+    <div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px">
+      <div class="card" style="display:flex;align-items:center;gap:8px;padding:10px"><span class="jp" style="font-size:20px">ぬ</span><span class="jp" style="font-size:20px">め</span><span style="flex:1;font-size:12px;color:var(--verm-d);font-weight:700;text-align:right">Ready</span></div>
+      <div class="card" style="display:flex;align-items:center;gap:8px;padding:10px;opacity:.55"><span class="jp" style="font-size:20px">わ</span><span class="jp" style="font-size:20px">ね</span><span style="flex:1;font-size:12px;color:var(--ink2);text-align:right">Locked</span></div>
+    </div>
+    <p class="sub" style="margin:14px 18px 0;font-size:13px">You earn a scroll by winning a duel. Each one keeps the trick for telling that pair apart, so your trophies double as a reference.</p>
+  </div></div><div class="cap"><h3>Scroll <span class="tag later">Later</span></h3><p>The reward for beating a duel. Useful and collectible at once, and each locked slot names a pair you're still mixing up.</p><code>ScrollDetailScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div style="background:var(--verm-l);padding-bottom:20px">
+      <div class="status"></div>
+      <div class="topq"><span data-i="x" class="ic x"></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:2px">
+        <div style="text-align:left"><div style="font-size:60px;font-weight:900;line-height:1;color:var(--verm-d)">6</div><div style="font-size:17px;font-weight:800;color:var(--verm-d)">days training</div></div>
+        <svg width="96" height="96" aria-hidden="true"><use href="#i-flame"/></svg>
+      </div>
+      <p class="sub" style="text-align:center;margin-top:4px">Train today to reach seven</p>
+    </div>
+    <div class="card" style="margin:-12px 18px 0;position:relative">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;color:var(--ink2);gap:4px;font-weight:700">
+        <span>W</span><span>T</span><span>F</span><span>S</span><span>S</span><span>M</span><span style="color:var(--verm-d)">T</span>
+        <span class="dot7" style="background:var(--verm)"><span data-i="check" class="ic s"></span></span><span class="dot7" style="background:var(--verm)"><span data-i="check" class="ic s"></span></span><span class="dot7" style="background:var(--verm)"><span data-i="check" class="ic s"></span></span><span class="dot7" style="background:var(--verm)"><span data-i="check" class="ic s"></span></span><span class="dot7" style="background:var(--verm)"><span data-i="check" class="ic s"></span></span><span class="dot7" style="background:var(--verm)"><span data-i="check" class="ic s"></span></span><span class="dot7" style="border:2px dashed var(--verm)"></span>
+      </div>
+    </div>
+    <div class="card qrow" style="margin:12px 18px 0"><span data-i="rest" class="ic l"></span><div style="flex:1"><div style="font-weight:800">Rest day</div><div class="sub" style="font-size:12px">Keeps your streak if you miss a day</div></div><span class="chip o">1 of 2</span></div>
+    <div class="card qrow" style="margin:10px 18px 0"><span class="qi" style="background:var(--verm-l);color:var(--verm)"><span data-i="medal" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800">Unbroken, level 1</div><div class="sub" style="font-size:12px;margin-bottom:6px">Train seven days straight</div><div class="pbar"><i style="width:86%;background:var(--verm)"></i></div></div><span style="font-size:13px;color:var(--ink2)">6/7</span></div>
+    <div style="margin:14px 18px 0;display:flex;gap:10px;align-items:center"><span data-crow="gentle" data-stage="1" data-size="66"></span><div class="bubble" style="flex:1;font-size:13.5px">Six days. A rest day is there if you need it, no shame in that.</div></div>
+    <div class="foot"><span class="btn">Start a lesson</span></div>
+  </div></div><div class="cap"><h3>Streak <span class="tag mvp">MVP</span></h3><p>Your streak, the last week, and what protects it. A rest day makes one missed day forgivable, so a busy Tuesday doesn't erase weeks of work.</p><code>StreakScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="pad" style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 12px"><h1 class="title" style="font-size:23px">Assignments</h1><span class="chip o"><span data-i="clock" class="ic s"></span>6h left</span></div>
+    <div style="margin:0 18px;background:var(--sumi);border-radius:8px;padding:12px 14px;color:#fff;display:flex;gap:12px;align-items:center">
+      <div style="flex:1"><div style="font-size:12px;color:#A8AEBC">September challenge</div><div style="font-size:15px;font-weight:800;line-height:1.3;margin-bottom:8px">Finish 30 for the moon badge</div><div class="pbar" style="background:#3A3D46"><i style="width:60%;background:var(--gold)"></i></div><div style="font-size:12px;margin-top:4px;color:#A8AEBC">18 of 30</div></div>
+      <span style="width:48px;height:48px;border-radius:50%;background:#2E3139;display:grid;place-items:center;color:var(--gold)"><span data-i="medal" class="ic" style="width:32px;height:32px"></span></span>
+    </div>
+    <div class="pad" style="margin-top:12px"><h2 class="h" style="font-size:16px">Today</h2></div>
+    <div class="pad" style="display:grid;gap:8px;margin-top:8px">
+      <div class="card qrow" style="padding:10px"><span class="qi" style="background:var(--gold-l)"><span data-i="bolt" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800;font-size:14px;margin-bottom:6px">Earn 30 XP</div><div class="pbar"><i style="width:66%;background:var(--gold)"></i></div></div><span style="font-size:12px;color:var(--ink2)">20/30</span><span data-i="chest" class="ic l"></span></div>
+      <div class="card qrow" style="border:2px solid var(--pine);padding:10.5px"><span class="qi" style="background:var(--pine-l)"><span data-i="target" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800;font-size:14px;margin-bottom:6px">Ten clean hits in a row</div><div class="pbar"><i style="width:100%;background:var(--pine)"></i></div></div><span class="btn gold sm">Claim</span></div>
+      <div class="card qrow" style="padding:10px"><span class="qi" style="background:var(--verm-l);color:var(--verm-d)"><span data-i="horns" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800;font-size:14px">Settle 3 mix-ups</div><div class="sub" style="font-size:12px;margin-bottom:6px">Like <span class="jp">ぬ</span> and <span class="jp">め</span></div><div class="pbar"><i style="width:33%;background:var(--verm)"></i></div></div><span style="font-size:12px;color:var(--ink2)">1/3</span><span data-i="chest" class="ic l"></span></div>
+      <div class="card qrow" style="padding:10px"><span style="display:flex;flex:0 0 auto"><span class="av" style="background:var(--sumi)">B</span><span class="av" style="background:var(--sky);margin-left:-10px;border:2px solid #fff">K</span></span><div style="flex:1"><div style="font-weight:800;font-size:14px;margin-bottom:6px">You and Kenji: 500 XP</div><div class="pbar"><i style="width:64%;background:var(--sky)"></i></div></div><span data-i="gift" class="ic l" style="color:var(--verm)"></span></div>
+    </div>
+    <div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><span class="t"><span data-i="home" class="ic"></span></span><span class="t"><span data-i="game" class="ic"></span></span><span class="t"><span data-i="book" class="ic"></span></span><span class="t on"><span data-i="trophy" class="ic"></span></span><span class="t"><span data-i="user" class="ic"></span></span></div>
+  </div></div><div class="cap"><h3>Assignments <span class="tag later">Later</span></h3><p>Daily goals that point you at useful practice. "Settle 3 mix-ups" pulls straight from <code>weakPairs()</code>, and partner assignments add a little teamwork.</p><code>QuestsScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-top:8px">
+      <span data-belt="#2E9E5B" data-w="46"></span><span data-belt="#7A4A26" data-w="72"></span><span data-belt="#1B1D26" data-w="46" style="opacity:.3"></span>
+    </div>
+    <div style="text-align:center;margin-top:6px"><h1 class="title">Brown division</h1><p class="sub" style="font-size:13px">Top 7 move up to black. 4 days left.</p></div>
+    <div style="margin-top:12px;border-top:1.5px solid var(--line);padding-top:6px">
+      <div class="lrow"><span class="rk" style="color:var(--gold-d)">1</span><span class="av" style="background:#8A6D0E">H</span><span style="flex:1">Hana</span><span class="muted">1,420</span></div>
+      <div class="lrow"><span class="rk">2</span><span class="av" style="background:var(--sky)">K</span><span style="flex:1">Kenji</span><span class="muted">1,310</span></div>
+      <div class="lrow"><span class="rk">3</span><span class="av" style="background:var(--pine)">M</span><span style="flex:1">Maya</span><span class="muted">1,180</span></div>
+      <div class="lrow"><span class="rk">4</span><span class="av" style="background:#7A4A26">S</span><span style="flex:1">Sam</span><span class="muted">990</span></div>
+      <div class="lrow" style="background:var(--paper);border-left:4px solid var(--verm)"><span class="rk" style="color:var(--verm-d)">5</span><span class="av" style="background:var(--sumi)">B</span><span style="flex:1">Blue</span><span>940</span></div>
+      <div class="lrow"><span class="rk">6</span><span class="av" style="background:#6E727E">L</span><span style="flex:1">Leo</span><span class="muted">870</span></div>
+      <div class="lrow"><span class="rk">7</span><span class="av" style="background:var(--verm)">A</span><span style="flex:1">Aiko</span><span class="muted">860</span></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 18px;color:var(--pine-d);font-size:12px;font-weight:700"><span style="flex:1;border-top:1.5px dashed #9CD3B2"></span>Promotion line<span style="flex:1;border-top:1.5px dashed #9CD3B2"></span></div>
+      <div class="lrow"><span class="rk">8</span><span class="av" style="background:#A3A9B6">O</span><span style="flex:1">Omar</span><span class="muted">640</span></div>
+    </div>
+    <div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><span class="t"><span data-i="home" class="ic"></span></span><span class="t"><span data-i="game" class="ic"></span></span><span class="t"><span data-i="book" class="ic"></span></span><span class="t on"><span data-i="trophy" class="ic"></span></span><span class="t"><span data-i="user" class="ic"></span></span></div>
+  </div></div><div class="cap"><h3>Tournament <span class="tag later">Later</span></h3><p>A weekly XP bracket against about 30 people who started around the same time. Divisions are named after belts, so the ladder matches everything else.</p><code>LeaguesScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="back" class="ic x"></span><span style="font-weight:800;font-size:15px;flex:1;white-space:nowrap">Shadow match</span><span class="chip o">Kana Rain</span></div>
+    <div style="margin:4px 18px 0;background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:14px 12px 10px;position:relative">
+      <div style="position:relative;height:54px;border-bottom:1.5px dashed #C3C8D2"><span style="position:absolute;left:142px;bottom:-2px" data-crow="focus" data-stage="1" data-size="52"></span><span style="position:absolute;left:0;top:4px;font-size:12px;color:var(--ink2);font-weight:700">You</span></div>
+      <div style="position:relative;height:54px"><span style="position:absolute;left:100px;bottom:-2px;opacity:.35;filter:grayscale(1)" data-crow="focus" data-stage="1" data-size="52"></span><span style="position:absolute;left:0;top:10px;font-size:12px;color:var(--ink2);font-weight:700">Kenji's best</span></div>
+      <span style="position:absolute;right:12px;top:16px"><span data-i="flag" class="ic l"></span></span>
+    </div>
+    <p class="sub" style="text-align:center;margin:10px 24px 0;font-size:13px">Race a replay of someone's best run in real time. Beat their score before the clock runs out.</p>
+    <div class="pad" style="margin-top:14px"><h2 class="h" style="font-size:16px">Pick a shadow</h2></div>
+    <div class="pad" style="display:grid;gap:9px;margin-top:9px">
+      <div class="card qrow"><span class="qi" style="background:var(--paper);color:var(--ink2)"><span data-i="ghost" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800">Your best run</div><div class="sub" style="font-size:12px">1,840 points</div></div><span class="btn sm">Race</span></div>
+      <div class="card qrow"><span class="av" style="background:var(--sky);width:42px;height:42px">K</span><div style="flex:1"><div style="font-weight:800">Kenji</div><div class="sub" style="font-size:12px">2,110 points</div></div><span class="btn sm">Race</span></div>
+      <div class="card qrow"><span class="av" style="background:var(--pine);width:42px;height:42px">M</span><div style="flex:1"><div style="font-weight:800">Maya</div><div class="sub" style="font-size:12px">1,530 points</div></div><span class="btn sm">Race</span></div>
+      <div class="card qrow"><span class="qi" style="background:var(--gold-l)"><span data-i="crown" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800">Today's best</div><div class="sub" style="font-size:12px">4,980 points</div></div><span class="btn sm">Race</span></div>
+    </div>
+  </div></div><div class="cap"><h3>Shadow match <span class="tag later">Later</span></h3><p>Race a recording of a past run, yours or a friend's. You get competition without anyone needing to be online at the same time.</p><code>GhostRaceScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div style="background:var(--sumi);padding-bottom:14px;color:#fff">
+      <div class="status"></div>
+      <div style="display:flex;justify-content:flex-end;padding:0 18px"><span style="width:32px;height:32px;border-radius:6px;background:#2E3139;display:grid;place-items:center"><span data-i="pencil" class="ic s" style="color:#fff"></span></span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;margin-top:-18px"><span data-crow="focus" data-stage="2" data-size="98" data-extra="haori"></span>
+        <div style="font-size:23px;font-weight:900;margin-top:2px">Blue</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span data-belt="#7A4A26" data-w="52"></span><span style="font-size:13px;color:#A8AEBC;font-weight:600;white-space:nowrap">Brown belt, since Sept 2026</span></div></div>
+    </div>
+    <div class="pad" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <div class="card qrow" style="padding:9px;gap:8px"><span data-i="flame" class="ic l"></span><div><div style="font-weight:900;font-size:17px;line-height:1.1">6</div><div class="sub" style="font-size:12px">Day streak</div></div></div>
+      <div class="card qrow" style="padding:10px;gap:8px"><span data-i="bolt" class="ic l"></span><div><div style="font-weight:900;font-size:17px;line-height:1.1">1,240</div><div class="sub" style="font-size:12px">Total XP</div></div></div>
+      <div class="card qrow" style="padding:10px;gap:8px"><span data-i="clock" class="ic l"></span><div><div style="font-weight:900;font-size:17px;line-height:1.1">1.3s</div><div class="sub" style="font-size:12px">Strike speed</div></div></div>
+      <div class="card qrow" style="padding:10px;gap:8px"><span data-i="scroll" class="ic l"></span><div><div style="font-weight:900;font-size:17px;line-height:1.1">1</div><div class="sub" style="font-size:12px">Scrolls</div></div></div>
+    </div>
+    <div class="pad" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center"><h2 class="h" style="font-size:16px">Badges</h2><span style="color:var(--verm-d);font-size:13px;font-weight:700">See all</span></div>
+    <div class="pad" style="display:grid;gap:8px;margin-top:8px">
+      <div class="card qrow" style="padding:10px"><span class="qi" style="background:var(--verm);color:#fff"><span data-i="flame-g" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800;font-size:14px">Unbroken <span class="muted" style="font-size:12px">Level 1</span></div><div class="pbar" style="margin-top:6px"><i style="width:86%;background:var(--verm)"></i></div></div><span style="font-size:12px;color:var(--ink2)">6/7</span></div>
+      <div class="card qrow" style="padding:10px"><span class="qi" style="background:var(--sumi);color:#fff"><span data-i="belt" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800;font-size:14px">Graded <span class="muted" style="font-size:12px">Level 2</span></div><div class="pbar" style="margin-top:6px"><i style="width:40%;background:var(--sumi)"></i></div></div><span style="font-size:12px;color:var(--ink2)">4/10</span></div>
+    </div>
+    <div class="tabs" style="position:absolute;left:0;right:0;bottom:0"><span class="t"><span data-i="home" class="ic"></span></span><span class="t"><span data-i="game" class="ic"></span></span><span class="t"><span data-i="book" class="ic"></span></span><span class="t"><span data-i="trophy" class="ic"></span></span><span class="t on"><span data-i="user" class="ic"></span></span></div>
+  </div></div><div class="cap"><h3>Profile <span class="tag later">Later</span></h3><p>Your rank, stats, and badges, with Karasu in whatever gear you've picked. Strike speed sits alongside XP because speed is the thing to chase once everything is black.</p><code>ProfileScreen</code></div></div>
+
+  <div class="phone"><div class="device"><div class="screen">
+    <div class="status"></div>
+    <div class="topq"><span data-i="back" class="ic x"></span><span style="font-weight:800;font-size:16px;flex:1">Supply shed</span><span class="stat"><span data-i="mon" class="ic"></span>240</span></div>
+    <div class="pad"><h2 class="h" style="font-size:16px">Supplies</h2></div>
+    <div class="pad" style="display:grid;gap:9px;margin-top:9px">
+      <div class="card qrow"><span data-i="rest" class="ic" style="width:40px;height:40px"></span><div style="flex:1"><div style="font-weight:800">Rest day</div><div class="sub" style="font-size:12px">1 of 2 held</div></div><span class="chip o" style="padding:6px 10px;font-size:14px"><span data-i="mon" class="ic s"></span>50</span></div>
+      <div class="card qrow"><span class="qi" style="background:var(--gold-l)"><span data-i="bolt" class="ic l"></span></span><div style="flex:1"><div style="font-weight:800">Double XP</div><div class="sub" style="font-size:12px">15 minutes</div></div><span class="chip o" style="padding:6px 10px;font-size:14px"><span data-i="mon" class="ic s"></span>100</span></div>
+    </div>
+    <div class="pad" style="margin-top:16px"><h2 class="h" style="font-size:16px">Karasu's gear</h2></div>
+    <div class="pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:9px">
+      <div class="card" style="text-align:center;padding:8px 4px;border:2px solid var(--pine)"><span data-crow="focus" data-stage="1" data-size="66"></span><small style="display:block;font-size:11px;font-weight:800;color:var(--pine-d);margin-top:2px">Wearing</small></div>
+      <div class="card" style="text-align:center;padding:8px 4px"><span data-crow="focus" data-stage="1" data-size="66" data-extra="haori"></span><small style="display:flex;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:800;margin-top:2px"><span data-i="mon" class="ic s" style="width:13px;height:13px"></span>150</small></div>
+      <div class="card" style="text-align:center;padding:8px 4px"><span data-crow="focus" data-stage="1" data-size="66" data-extra="mask"></span><small style="display:flex;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:800;margin-top:2px"><span data-i="mon" class="ic s" style="width:13px;height:13px"></span>200</small></div>
+    </div>
+    <div style="margin:16px 18px 0;background:var(--paper);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--ink2);display:flex;gap:8px;font-weight:500"><span data-i="mon" class="ic"></span><span>Mon come from assignments, chests, and streaks. They can't be bought with money, and nothing here makes the training easier.</span></div>
+  </div></div><div class="cap"><h3>Supply shed <span class="tag later">Later</span></h3><p>Spend mon, the old square-holed coin, on rest days and gear for Karasu. Everything is cosmetic or a small safety net, never an advantage.</p><code>ShopScreen</code></div></div>
+
+  </div>
+</section>
+<footer>
+  <p style="margin:0 0 6px"><b style="color:var(--page-ink)">How to read these.</b> Screens tagged MVP are the first build and match phases 1 to 5 of the roadmap: the learn path, lessons and feedback, the belt grid and kana details, Kana Rain, and the streak. Everything tagged Later is added one piece at a time afterward, reusing the same engine and the same components.</p>
+  <p style="margin:0">Names like Kenji and Hana are placeholders. Fonts load from Google Fonts, and every illustration here is drawn in code, so nothing depends on image files.</p>
+</footer>
+</div>
+<script>
+(function(){
+const JP="'Zen Kaku Gothic New','Noto Sans CJK JP',sans-serif";
+const svg=(vb,w,h,s)=>`<svg viewBox="${vb}" width="${w}" height="${h}" style="display:block;overflow:visible" aria-hidden="true">${s}</svg>`;
+const BELT=["#FFFFFF","#2E9E5B","#7A4A26","#1B1D26"];
+function crow(mood,stage,extra,size){
+  mood=mood||"focus";stage=+(stage??1);extra=extra||"";
+  const D="#0E0F15",B=stage===0?"#343949":"#232634";
+  const has=k=>extra.split(" ").includes(k);
+  let back="",front="",hat=false;
+  if(stage===3){back+=`<path d="M24 62C4 44-14 42-26 50c8 2 12 6 14 10-8 0-14 4-16 10 8-2 14 0 18 4-6 2-9 7-9 12 12-6 24-6 36-2z" fill="#1A1C27" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/><path d="M76 62c20-18 38-20 50-12-8 2-12 6-14 10 8 0 14 4 16 10-8-2-14 0-18 4 6 2 9 7 9 12-12-6-24-6-36-2z" fill="#1A1C27" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/><path d="M108 8v104" stroke="#8A6A43" stroke-width="3.5" stroke-linecap="round"/><circle cx="108" cy="10" r="7" fill="none" stroke="#C9A227" stroke-width="2.5"/>`}
+  else if(mood==="cheer"){back+=`<path d="M24 58Q2 44 2 18Q18 32 32 50Z" fill="#1A1C27" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/><path d="M76 58Q98 44 98 18Q82 32 68 50Z" fill="#1A1C27" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/>`}
+  else{back+=`<path d="M20 64Q8 82 16 98Q26 86 28 72Z" fill="#1A1C27" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/><path d="M80 64Q92 82 84 98Q74 86 72 72Z" fill="#1A1C27" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/>`}
+  if(has("bokken"))back+=`<path d="M86 104L108 26" stroke="#C9A77A" stroke-width="5.5" stroke-linecap="round"/><path d="M86 104L108 26" stroke="#8A6A43" stroke-width="1.2"/><path d="M85 86l11 3.5" stroke="#1B1D26" stroke-width="3.5" stroke-linecap="round"/>`;
+  if(has("brush"))back+=`<path d="M84 96L104 44" stroke="#C9A77A" stroke-width="4.5" stroke-linecap="round"/><path d="M102 48c3-6 6-10 9-11-.5 4-2.5 9-6 13z" fill="${D}"/>`;
+  if(has("bachi"))back+=`<path d="M22 60L4 26M78 60L96 26" stroke="#C9A77A" stroke-width="4.5" stroke-linecap="round"/><circle cx="4" cy="26" r="4" fill="#C9A77A"/><circle cx="96" cy="26" r="4" fill="#C9A77A"/>`;
+  const tuft=stage===0?`<path d="M42 20L34 2 46 12 52 0 56 12 66 4 58 20Z" fill="#3A3F52" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/>`:`<path d="M44 20L38 4 48 13 54 2 56 18Z" fill="${B}" stroke="${D}" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const body=`<ellipse cx="50" cy="112" rx="28" ry="3.5" fill="rgba(0,0,0,.14)"/><path d="M50 16C68 16 78 30 78 46C86 60 86 78 80 90C74 102 62 106 50 106C38 106 26 102 20 90C14 78 14 60 22 46C22 30 32 16 50 16Z" fill="${B}" stroke="${D}" stroke-width="3"/><ellipse cx="50" cy="84" rx="17" ry="14" fill="#3A3F52"/><path d="M42 80l8 5 8-5M44 88l6 4 6-4" fill="none" stroke="#2A2E3C" stroke-width="2" stroke-linecap="round"/><ellipse cx="36" cy="28" rx="6" ry="3" transform="rotate(-30 36 28)" fill="#3E4357"/>`;
+  let haori="";
+  if(has("haori"))haori=`<path d="M22 58Q14 84 22 104L42 106L46 64Z" fill="#8C2F22" stroke="${D}" stroke-width="2.2" stroke-linejoin="round"/><path d="M78 58Q86 84 78 104L58 106L54 64Z" fill="#8C2F22" stroke="${D}" stroke-width="2.2" stroke-linejoin="round"/><circle cx="30" cy="80" r="3" fill="#F2C14E"/><circle cx="70" cy="80" r="3" fill="#F2C14E"/>`;
+  const bandC=has("goldband")?"#C9A227":"#E0492F";
+  let band="";
+  if(has("strawhat")){hat=true;front+=`<path d="M4 34L50 6 96 34Q50 44 4 34Z" fill="#D9B383" stroke="${D}" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 6L28 38M50 6L50 40M50 6L72 38" stroke="#A67C44" stroke-width="1.5"/><path d="M34 41q-2 14 4 18M66 41q2 14-4 18" stroke="${D}" stroke-width="1.5" fill="none"/>`}
+  else if(stage>=1&&stage<3)band=`<path d="M22 31Q50 21 78 31L78 38Q50 28 22 38Z" fill="${bandC}" stroke="${D}" stroke-width="2" stroke-linejoin="round"/><path d="M23 33L7 27 10 38ZM23 36L11 45 18 49Z" fill="${bandC}" stroke="${D}" stroke-width="2" stroke-linejoin="round"/>`;
+  const tokin=stage===3&&!hat?`<path d="M42 30L50 17 58 30 55 36H45Z" fill="#151515" stroke="#4A4F62" stroke-width="1.5" stroke-linejoin="round"/>`:"";
+  const er=stage===0?8:7;
+  const dots=`<circle cx="38" cy="53" r="${er}" fill="#fff"/><circle cx="62" cy="53" r="${er}" fill="#fff"/><circle cx="39.5" cy="54" r="${stage===0?4:3.4}" fill="${D}"/><circle cx="60.5" cy="54" r="${stage===0?4:3.4}" fill="${D}"/>`;
+  let eyes="";
+  if(mood==="proud"||mood==="cheer")eyes=`<path d="M31 55q7-7 14 0M55 55q7-7 14 0" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>`;
+  else if(mood==="sleepy")eyes=`<path d="M31 54q7 3 14 0M55 54q7 3 14 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><text x="84" y="28" font-family="Archivo,sans-serif" font-weight="900" font-size="14" fill="#8C93A6">z</text><text x="93" y="16" font-family="Archivo,sans-serif" font-weight="900" font-size="10" fill="#8C93A6">z</text>`;
+  else if(mood==="gentle")eyes=dots+`<path d="M29 46l14-4M71 46l-14-4" stroke="#6B7185" stroke-width="3.2" stroke-linecap="round"/>`;
+  else if(mood==="stern")eyes=dots+`<path d="M29 40l16 7M71 40l-16 7" stroke="#6B7185" stroke-width="3.8" stroke-linecap="round"/>`;
+  else eyes=dots+(stage===0?`<circle cx="41.5" cy="51.5" r="1.6" fill="#fff"/><circle cx="62.5" cy="51.5" r="1.6" fill="#fff"/>`:`<path d="M30 44l14 3M70 44l-14 3" stroke="#6B7185" stroke-width="3.2" stroke-linecap="round"/>`);
+  const beak=mood==="cheer"?`<path d="M43 58H57L50 64Z" fill="#F2B53A" stroke="${D}" stroke-width="2" stroke-linejoin="round"/><path d="M44 66H56L50 74Z" fill="#F2B53A" stroke="${D}" stroke-width="2" stroke-linejoin="round"/><path d="M45 64.5h10" stroke="#8C2F22" stroke-width="2.5"/>`:`<path d="M${stage===0?45:43} 59H${stage===0?55:57}L50 ${stage===0?70:73}Z" fill="#F2B53A" stroke="${D}" stroke-width="2" stroke-linejoin="round"/><path d="M45 62h10" stroke="${D}" stroke-width="1.3"/>`;
+  const bc=BELT[stage],be=stage===0?"#B9BFCB":D;
+  const belt=`<path d="M19 88Q50 98 81 88L82 95Q50 105 18 95Z" fill="${bc}" stroke="${be}" stroke-width="1.8" stroke-linejoin="round"/><rect x="45" y="91" width="10" height="9" rx="2" fill="${bc}" stroke="${be}" stroke-width="1.8"/><path d="M47 99l-4 9M53 99l4 9" stroke="${bc}" stroke-width="4.5" stroke-linecap="round"/>${stage===0?`<path d="M47 99l-4 9M53 99l4 9" stroke="#B9BFCB" stroke-width="1" opacity=".7"/>`:""}${stage===3?`<path d="M55.5 103l2-.8" stroke="#E0492F" stroke-width="2.2"/>`:""}`;
+  const pom=stage===3?`<circle cx="36" cy="74" r="4" fill="#fff" stroke="${D}" stroke-width="1.2"/><circle cx="50" cy="72" r="4" fill="#fff" stroke="${D}" stroke-width="1.2"/><circle cx="64" cy="74" r="4" fill="#fff" stroke="${D}" stroke-width="1.2"/>`:"";
+  if(has("mask"))front+=`<g transform="rotate(22 78 26)"><path d="M69 22L67 10 74 16H84L91 10 89 22Q91 33 79 36Q67 33 69 22Z" fill="#fff" stroke="${D}" stroke-width="2" stroke-linejoin="round"/><path d="M72 24l5 1.5M86 24l-5 1.5" stroke="${D}" stroke-width="1.8" stroke-linecap="round"/><path d="M75 17l2.5 3M83 17l-2.5 3M79 29v3" stroke="#E0492F" stroke-width="1.8" stroke-linecap="round"/></g>`;
+  const s=`${back}${tuft}${body}${haori}${band}${tokin}${eyes}${beak}${pom}${belt}<path d="M40 106v6M36 112h8M60 106v6M56 112h8" stroke="#F2B53A" stroke-width="2.6" stroke-linecap="round"/>${front}`;
+  const wide=stage===3;const vb=wide?"-32 -4 164 122":"-8 -4 122 122";const w=wide?164:122;
+  return svg(vb,size,size*122/w,s);
+}
+function belt(color,w,dan){w=w||56;dan=+dan||0;const edge=color.toUpperCase()==="#FFFFFF"?"#C3C8D2":"rgba(0,0,0,.35)";let ds="";for(let i=0;i<dan;i++)ds+=`<rect x="${51-i*3.2}" y="4" width="1.8" height="8" fill="#E0492F"/>`;
+  return svg("0 0 56 22",w,w*22/56,`<rect x="0" y="4" width="56" height="8" rx="1.5" fill="${color}" stroke="${edge}" stroke-width="1.2"/><path d="M24 11L18 21H23L27 13ZM32 11L38 21H33L29 13Z" fill="${color}" stroke="${edge}" stroke-width="1.2" stroke-linejoin="round"/>${ds}<rect x="23" y="2" width="10" height="12" rx="2" fill="${color}" stroke="${edge}" stroke-width="1.2"/>`)}
+function yokai(ch,size,hue){const body=hue==="verm"?"#B8341D":"#3A3F52",dk="#0E0F15";
+  const s=`<ellipse cx="50" cy="95" rx="30" ry="4" fill="rgba(0,0,0,.3)"/><path d="M28 34C17 22 19 7 26 0C28 13 35 21 41 27Z" fill="#EFE6D2" stroke="${dk}" stroke-width="3" stroke-linejoin="round"/><path d="M72 34C83 22 81 7 74 0C72 13 65 21 59 27Z" fill="#EFE6D2" stroke="${dk}" stroke-width="3" stroke-linejoin="round"/><path d="M50 20C76 20 90 42 90 63C90 83 73 91 50 91C27 91 10 83 10 63C10 42 24 20 50 20Z" fill="${body}" stroke="${dk}" stroke-width="3.5"/><path d="M28 38l14 5M72 38l-14 5" stroke="${dk}" stroke-width="4" stroke-linecap="round"/><ellipse cx="38" cy="50" rx="7" ry="6" fill="#F2C14E" stroke="${dk}" stroke-width="2.2"/><ellipse cx="62" cy="50" rx="7" ry="6" fill="#F2C14E" stroke="${dk}" stroke-width="2.2"/><circle cx="39.5" cy="51.5" r="3" fill="${dk}"/><circle cx="60.5" cy="51.5" r="3" fill="${dk}"/><path d="M41 60q9 6 18 0" fill="none" stroke="${dk}" stroke-width="3" stroke-linecap="round"/><path d="M44.5 61.8l2.2 5 2-4.4z" fill="#fff" stroke="${dk}" stroke-width="1.2" stroke-linejoin="round"/><ellipse cx="50" cy="78" rx="21" ry="12" fill="#F4EFE4" stroke="${dk}" stroke-width="2.2"/><text x="50" y="86" text-anchor="middle" font-family="${JP}" font-weight="900" font-size="22" fill="${dk}">${ch}</text>`;
+  return svg("-6 -6 112 106",size,size*106/112,s)}
+function hanko(t,size){return svg("0 0 40 40",size,size,`<circle cx="20" cy="20" r="18" fill="none" stroke="#E0492F" stroke-width="3"/><circle cx="20" cy="20" r="14" fill="#E0492F" opacity=".12"/><text x="20" y="${t.length>2?24:26}" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="900" font-size="${t.length>2?9:15}" fill="#E0492F">${t}</text>`)}
+document.querySelectorAll("[data-crow]").forEach(e=>e.innerHTML=crow(e.dataset.crow,e.dataset.stage,e.dataset.extra,+e.dataset.size||90));
+document.querySelectorAll("[data-belt]").forEach(e=>e.innerHTML=belt(e.dataset.belt,+e.dataset.w||56,e.dataset.dan));
+document.querySelectorAll("[data-yokai]").forEach(e=>e.innerHTML=yokai(e.dataset.yokai,+e.dataset.size||120,e.dataset.hue));
+document.querySelectorAll("[data-hanko]").forEach(e=>e.innerHTML=hanko(e.dataset.hanko,+e.dataset.size||40));
+document.querySelectorAll("[data-i]").forEach(e=>{const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.setAttribute("class",e.getAttribute("class")||"ic");if(e.getAttribute("style"))s.setAttribute("style",e.getAttribute("style"));s.setAttribute("aria-hidden","true");const u=document.createElementNS("http://www.w3.org/2000/svg","use");u.setAttribute("href","#i-"+e.dataset.i);s.appendChild(u);e.replaceWith(s)});
+document.querySelectorAll(".status:empty").forEach(e=>e.innerHTML='<span>9:41</span><span class="bat"></span>');
+})();
+</script>
+</body></html>

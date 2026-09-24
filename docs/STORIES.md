@@ -253,6 +253,8 @@ training hall card.)
 
 ### F1. Row belts
 A row's belt is the lowest belt among its kana.
+(Shown next to each row label on the belt grid, and in the Learn header.
+This is the belt a row has qualified for; F2's exam makes it official.)
 
 ### F2. Belt exam
 Timed 20-question test, no hints, 18 to pass, unlimited retries.

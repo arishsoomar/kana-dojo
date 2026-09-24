@@ -60,9 +60,13 @@ export default function KanaScreen() {
       </View>
 
       <View style={styles.rows}>
-        {grid.rows.map(({ row, cells }) => (
+        {grid.rows.map(({ row, belt, cells }) => (
           <View key={row} style={styles.row}>
-            <Text style={styles.rowLabel}>{row}</Text>
+            {/* The row's name and its belt: the belt of its weakest kana. */}
+            <View style={styles.rowLabel} aria-label={`${row} row, ${belt} belt`}>
+              <Text style={styles.rowName}>{row}</Text>
+              <BeltIcon belt={belt} width={24} />
+            </View>
             {cells.map((cell) => (
               <KanaCell key={cell.kana.char} cell={cell} onPress={() => setOpen(cell.kana)} />
             ))}
@@ -150,7 +154,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   rowLabel: {
-    width: 22,
+    alignItems: 'center',
+    gap: 2,
+    width: 26,
+  },
+  rowName: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 12,
     color: colors.muted,

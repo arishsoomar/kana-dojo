@@ -41,3 +41,21 @@ describe('masteryGrid', () => {
     expect(masteryGrid(progress, 'katakana').pastWhite).toBe(0);
   });
 });
+
+describe('masteryGrid: row belts', () => {
+  it("gives each row the lowest belt among its kana", () => {
+    const progress: Progress = {
+      ...EMPTY_PROGRESS,
+      kana: {
+        あ: { box: 7, dueAt: 0 },
+        い: { box: 7, dueAt: 0 },
+        う: { box: 5, dueAt: 0 },
+        え: { box: 3, dueAt: 0 },
+        お: { box: 7, dueAt: 0 },
+      },
+    };
+    const [aRow, kaRow] = masteryGrid(progress, 'hiragana').rows;
+    expect(aRow?.belt).toBe('green');
+    expect(kaRow?.belt).toBe('white');
+  });
+});

@@ -1,6 +1,7 @@
 import { NEW_KANA, type Progress } from './answers';
 import { BELTS, tierOf, type Belt } from './boxes';
 import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
+import { rowBelt } from './path';
 import { unlockedKana } from './unlock';
 
 export type GridCell = {
@@ -11,6 +12,7 @@ export type GridCell = {
 
 export type GridRow = {
   row: RowId;
+  belt: Belt; // the row's belt: its weakest kana's belt
   cells: GridCell[];
 };
 
@@ -27,6 +29,7 @@ export function masteryGrid(progress: Progress, script: Script): MasteryGrid {
 
   const rows = ROWS.map((row) => ({
     row,
+    belt: rowBelt(progress, script, row),
     cells: KANA.filter((k) => k.script === script && k.row === row).map((kana) => ({
       kana,
       belt: tierOf((progress.kana[kana.char] ?? NEW_KANA).box),

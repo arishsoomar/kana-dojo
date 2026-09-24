@@ -327,6 +327,14 @@ Done when:
 
 ---
 
+## Built outside the stories
+
+- Profile tab: rank, training-since date, streak, kana learned, strike
+  speed, accuracy, and two levelled badges (Unbroken: streak days 7/30/100;
+  Graded: row belts earned 5/10/20). No name or XP total until accounts.
+- Ranks tab: your division (named after your rank) and lessons this week.
+  The weekly league itself needs accounts (Epic G).
+
 ## Later
 
 Yokai dungeon and charms, duels and scrolls, memory match, word forge,

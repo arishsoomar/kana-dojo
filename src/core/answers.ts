@@ -12,14 +12,21 @@ export type KanaStats = {
   recentMs: readonly number[]; // times of the most recent correct answers, oldest first
 };
 
+// A finished lesson: which one, and when (a timestamp in milliseconds).
+export type Completion = {
+  lesson: string;
+  at: number;
+};
+
 export type Progress = {
   kana: Readonly<Record<string, KanaProgress>>;
   confusions: readonly Confusion[];
   stats: Readonly<Record<string, KanaStats>>;
+  completed: readonly Completion[];
 };
 
 // A learner who hasn't answered anything yet.
-export const EMPTY_PROGRESS: Progress = { kana: {}, confusions: [], stats: {} };
+export const EMPTY_PROGRESS: Progress = { kana: {}, confusions: [], stats: {}, completed: [] };
 
 export type Answer = {
   char: string; // the kana that was shown
@@ -83,4 +90,9 @@ export function recordAnswer(progress: Progress, answer: Answer): Progress {
     stats,
     confusions: [...progress.confusions, { shown: answer.char, guessed: answer.guess }],
   };
+}
+
+// Records that a lesson was finished at `now`.
+export function completeLesson(progress: Progress, lesson: string, now: number): Progress {
+  return { ...progress, completed: [...progress.completed, { lesson, at: now }] };
 }

@@ -185,11 +185,17 @@ Done when:
 that** I never wonder where to start.
 
 Done when:
-- [ ] Lessons render as plaques on the dojo wall
-- [ ] Finished plaques get a vermilion seal
+- [ ] Lessons render as plaques on the dojo wall: each row introduces its
+      kana two at a time, then a Mixed review of the whole row
+- [ ] Finished plaques get a vermilion seal (and can be replayed)
 - [ ] Current plaque is visually distinct
-- [ ] Locked plaques appear but can't be tapped
-- [ ] Header shows the row's belt
+- [ ] Locked plaques appear but can't be tapped. Plaques open one at a
+      time, and only in unlocked rows
+- [ ] Header shows the row's belt (its weakest kana)
+- [ ] When every open plaque is done, the screen offers Practice and says
+      how many more kana need green to open the next row
+- [ ] Hiragana / Katakana toggle; progress now records every finished
+      lesson with its time (save format v3)
 
 ### D4. Streak
 **As a** learner, **I want** a streak, **so that** I have a reason to come

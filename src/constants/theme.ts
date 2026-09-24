@@ -19,6 +19,7 @@ export const colors = {
   backdrop: 'rgba(23, 24, 28, 0.5)', // night at 50%, behind dialogs
   indigoLight: '#E6F0FA',
   indigoDark: '#1D5B8C',
+  woodDark: '#A67C44',
 } as const;
 
 // Karasu, the crow sensei.
@@ -34,6 +35,13 @@ export const karasuColors = {
   beak: '#F2B53A',
   mouth: '#8C2F22',
   shadow: 'rgba(0, 0, 0, 0.14)',
+} as const;
+
+// The dojo wall on the Learn path: the rail plaques hang from, and their cords and pegs.
+export const wallColors = {
+  rail: '#6B4E35',
+  cord: '#6B5236',
+  peg: '#3A2E22',
 } as const;
 
 // Yellow icons: the memory-tip bulb and the XP bolt.

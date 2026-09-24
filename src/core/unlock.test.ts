@@ -1,13 +1,12 @@
-import type { Progress } from './answers';
+import { EMPTY_PROGRESS, type Progress } from './answers';
 import type { Script } from './kana';
-import { unlockedKana } from './unlock';
+import { greenNeeded, unlockedKana } from './unlock';
 
 // Progress where every listed kana is in `box`.
 function withBox(chars: string[], box: number): Progress {
   return {
+    ...EMPTY_PROGRESS,
     kana: Object.fromEntries(chars.map((char) => [char, { box, dueAt: 0 }])),
-    confusions: [],
-    stats: {},
   };
 }
 
@@ -32,5 +31,17 @@ describe('unlockedKana', () => {
 
   it('unlocks each script separately', () => {
     expect(charsOf(withBox(['あ', 'い', 'う', 'え', 'お'], 3), 'katakana')).toHaveLength(5);
+  });
+});
+
+describe('greenNeeded', () => {
+  it('counts how many more kana in a row must reach green to open the next row', () => {
+    expect(greenNeeded(withBox([], 0), 'hiragana', 'a')).toBe(4);
+    expect(greenNeeded(withBox(['あ', 'い'], 3), 'hiragana', 'a')).toBe(2);
+    expect(greenNeeded(withBox(['あ', 'い', 'う', 'え'], 3), 'hiragana', 'a')).toBe(0);
+  });
+
+  it('needs all 3 in a 3-kana row', () => {
+    expect(greenNeeded(withBox([], 0), 'hiragana', 'ya')).toBe(3);
   });
 });

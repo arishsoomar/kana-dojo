@@ -1,8 +1,8 @@
-import type { Progress } from './answers';
+import { EMPTY_PROGRESS, type Progress } from './answers';
 import { makeDrillQuestion, makeQuestion } from './question';
 import { unlockedKana } from './unlock';
 
-const NEW_LEARNER: Progress = { kana: {}, confusions: [], stats: {} };
+const NEW_LEARNER: Progress = { ...EMPTY_PROGRESS, kana: {} };
 const NOW = 1_000_000;
 const rngs = [() => 0, () => 0.5, () => 0.99];
 
@@ -32,9 +32,9 @@ describe('makeQuestion', () => {
 describe('makeDrillQuestion', () => {
   const KANA_ROW = { あ: { box: 3, dueAt: 0 }, い: { box: 3, dueAt: 0 }, う: { box: 3, dueAt: 0 }, え: { box: 3, dueAt: 0 } };
   const progress: Progress = {
+    ...EMPTY_PROGRESS,
     kana: KANA_ROW,
     confusions: [{ shown: 'あ', guessed: 'お' }],
-    stats: {},
   };
   const focus = unlockedKana(progress, 'hiragana').find((k) => k.char === 'あ');
 

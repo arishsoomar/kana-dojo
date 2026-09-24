@@ -1,8 +1,8 @@
-import type { Progress } from './answers';
+import { EMPTY_PROGRESS, type Progress } from './answers';
 import { LESSON_LENGTH, median, summarizeLesson } from './lesson';
 
 const NOW = 1_000_000;
-const empty: Progress = { kana: {}, confusions: [], stats: {} };
+const empty: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
 describe('LESSON_LENGTH', () => {
   it('is a fixed number of questions', () => {
@@ -45,14 +45,12 @@ describe('summarizeLesson', () => {
 
   it('lists kana that reached a higher belt, once each, and ignores drops', () => {
     const before: Progress = {
+      ...EMPTY_PROGRESS,
       kana: { あ: { box: 2, dueAt: NOW }, い: { box: 3, dueAt: NOW } },
-      confusions: [],
-      stats: {},
     };
     const after: Progress = {
+      ...EMPTY_PROGRESS,
       kana: { あ: { box: 3, dueAt: NOW }, い: { box: 1, dueAt: NOW } },
-      confusions: [],
-      stats: {},
     };
     const repeated = [...answers, { char: 'あ', correct: true, ms: 800 }];
     expect(summarizeLesson(before, after, repeated).promotions).toEqual([{ char: 'あ', belt: 'green' }]);

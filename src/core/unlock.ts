@@ -1,6 +1,6 @@
 import type { Progress } from './answers';
 import { tierOf } from './boxes';
-import { KANA, ROWS, type Kana, type Script } from './kana';
+import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
 
 // Share of a row that must be green belt or better to open the next row.
 const UNLOCK_SHARE = 0.8;
@@ -22,4 +22,11 @@ export function unlockedKana(progress: Progress, script: Script): Kana[] {
   }
 
   return unlocked;
+}
+
+// How many more kana in `row` must reach green belt before the next row opens (0 if none).
+export function greenNeeded(progress: Progress, script: Script, row: RowId): number {
+  const rowKana = KANA.filter((k) => k.script === script && k.row === row);
+  const green = rowKana.filter((k) => isGreenOrBetter(progress, k)).length;
+  return Math.max(Math.ceil(rowKana.length * UNLOCK_SHARE) - green, 0);
 }

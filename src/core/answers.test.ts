@@ -1,4 +1,4 @@
-import { recordAnswer, type Progress } from './answers';
+import { completeLesson, EMPTY_PROGRESS, recordAnswer, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -6,9 +6,8 @@ const NOW = 1_000_000;
 // Progress where シ is in `box` and due at `dueAt` (right now by default).
 function progressWith(box: number, dueAt = NOW): Progress {
   return {
+    ...EMPTY_PROGRESS,
     kana: { シ: { box, dueAt } },
-    confusions: [],
-    stats: {},
   };
 }
 
@@ -73,7 +72,7 @@ describe('recordAnswer: wrong', () => {
   });
 
   it('adds to earlier confusions instead of replacing them', () => {
-    const before = { ...progressWith(5), confusions: [{ shown: 'ぬ', guessed: 'め' }], stats: {} };
+    const before = { ...progressWith(5), confusions: [{ shown: 'ぬ', guessed: 'め' }] };
     const next = recordAnswer(before, wrong);
     expect(next.confusions).toEqual([
       { shown: 'ぬ', guessed: 'め' },
@@ -83,7 +82,7 @@ describe('recordAnswer: wrong', () => {
 });
 
 describe('recordAnswer: a kana with no progress yet', () => {
-  const empty: Progress = { kana: {}, confusions: [], stats: {} };
+  const empty: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
   it('treats it as box 0 and due, so a fast correct answer promotes it', () => {
     const next = recordAnswer(empty, { char: 'ア', guess: 'ア', ms: 1500, now: NOW });
@@ -99,9 +98,9 @@ describe('recordAnswer: a kana with no progress yet', () => {
 describe('recordAnswer: immutability', () => {
   it('never changes the progress it was given', () => {
     const before: Progress = {
+      ...EMPTY_PROGRESS,
       kana: { シ: { box: 4, dueAt: NOW } },
       confusions: [{ shown: 'ぬ', guessed: 'め' }],
-      stats: {},
     };
     const snapshot = structuredClone(before);
 
@@ -113,7 +112,7 @@ describe('recordAnswer: immutability', () => {
 });
 
 describe('recordAnswer: stats', () => {
-  const empty: Progress = { kana: {}, confusions: [], stats: {} };
+  const empty: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
   it('counts every answer and every correct one, due or not', () => {
     let progress = recordAnswer(empty, { char: 'シ', guess: 'シ', ms: 900, now: NOW });
@@ -128,5 +127,17 @@ describe('recordAnswer: stats', () => {
       progress = recordAnswer(progress, { char: 'シ', guess: 'シ', ms, now: NOW });
     }
     expect(progress.stats['シ']?.recentMs).toEqual([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+  });
+});
+
+describe('completeLesson', () => {
+  it('records which lesson was finished and when, keeping earlier records', () => {
+    const once = completeLesson(EMPTY_PROGRESS, 'hiragana:a:0', 1000);
+    const twice = completeLesson(once, 'review:hiragana', 2000);
+    expect(twice.completed).toEqual([
+      { lesson: 'hiragana:a:0', at: 1000 },
+      { lesson: 'review:hiragana', at: 2000 },
+    ]);
+    expect(EMPTY_PROGRESS.completed).toEqual([]);
   });
 });

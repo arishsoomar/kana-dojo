@@ -1,4 +1,4 @@
-import type { Progress } from './answers';
+import { EMPTY_PROGRESS, type Progress } from './answers';
 import { formatWait, kanaDetails } from './details';
 import { KANA, type Kana } from './kana';
 
@@ -15,6 +15,7 @@ const DAY = 24 * HOUR;
 
 describe('kanaDetails', () => {
   const progress: Progress = {
+    ...EMPTY_PROGRESS,
     kana: { し: { box: 5, dueAt: NOW + 2 * DAY } },
     confusions: [
       { shown: 'し', guessed: 'ち' },

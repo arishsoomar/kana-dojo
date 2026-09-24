@@ -1,4 +1,4 @@
-import type { Progress } from './answers';
+import { EMPTY_PROGRESS, type Progress } from './answers';
 import { KANA, type Kana } from './kana';
 import { pickNext } from './pick';
 
@@ -25,9 +25,8 @@ function countPicks(progress: Progress, candidates: Kana[]): Record<string, numb
 describe('pickNext', () => {
   it('strongly favors a due kana over one that is not due', () => {
     const progress: Progress = {
+      ...EMPTY_PROGRESS,
       kana: { あ: { box: 3, dueAt: NOW - 1 }, い: { box: 3, dueAt: NOW + 60_000 } },
-      confusions: [],
-      stats: {},
     };
     const counts = countPicks(progress, [kana('あ'), kana('い')]);
     expect(counts['あ']).toBeGreaterThan(85);
@@ -36,22 +35,21 @@ describe('pickNext', () => {
 
   it('favors a low box over a high box when both are due', () => {
     const progress: Progress = {
+      ...EMPTY_PROGRESS,
       kana: { あ: { box: 0, dueAt: NOW }, い: { box: 6, dueAt: NOW } },
-      confusions: [],
-      stats: {},
     };
     const counts = countPicks(progress, [kana('あ'), kana('い')]);
     expect(counts['あ']).toBeGreaterThan(70);
   });
 
   it('treats a never-seen kana as box 0 and due', () => {
-    const progress: Progress = { kana: { い: { box: 6, dueAt: NOW } }, confusions: [], stats: {} };
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { い: { box: 6, dueAt: NOW } } };
     const counts = countPicks(progress, [kana('あ'), kana('い')]);
     expect(counts['あ']).toBeGreaterThan(70);
   });
 
   it('only ever picks from the candidates', () => {
-    const counts = countPicks({ kana: {}, confusions: [], stats: {} }, [kana('か'), kana('き')]);
+    const counts = countPicks({ ...EMPTY_PROGRESS, kana: {} }, [kana('か'), kana('き')]);
     expect(Object.keys(counts).sort()).toEqual(['か', 'き']);
   });
 });

@@ -1,4 +1,4 @@
-import { recordAnswer, type Progress } from './answers';
+import { EMPTY_PROGRESS, recordAnswer, type Progress } from './answers';
 import { beltChange, pairTipFor, tipFor } from './feedback';
 import { KANA, type Kana } from './kana';
 
@@ -11,7 +11,7 @@ function kana(char: string): Kana {
 const NOW = 1_000_000;
 
 function withBox(box: number): Progress {
-  return { kana: { ぬ: { box, dueAt: NOW } }, confusions: [], stats: {} };
+  return { ...EMPTY_PROGRESS, kana: { ぬ: { box, dueAt: NOW } } };
 }
 
 describe('beltChange', () => {

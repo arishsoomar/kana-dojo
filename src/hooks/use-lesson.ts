@@ -1,9 +1,10 @@
 import { useState } from 'react';
 
-import { FAST_MS, recordAnswer, type Progress } from '@/core/answers';
+import { completeLesson, FAST_MS, recordAnswer, type Progress } from '@/core/answers';
 import { beltChange, tipFor, type BeltChange } from '@/core/feedback';
 import type { Kana, Script } from '@/core/kana';
 import { LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
+import { makePlaqueQuestion, type Plaque } from '@/core/path';
 import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question';
 
 import { useProgress } from './use-progress';
@@ -19,13 +20,22 @@ export type Result = {
   tip: string | null;
 };
 
-// A normal lesson in one script, or a drill focused on one kana.
-export type LessonMode = { script: Script } | { drill: Kana };
+// A plaque from the Learn path, a practice lesson in one script, or a drill on one kana.
+export type LessonMode = { plaque: Plaque } | { script: Script } | { drill: Kana };
 
 function newQuestion(progress: Progress, mode: LessonMode): Question {
-  return 'drill' in mode
-    ? makeDrillQuestion(progress, mode.drill, Date.now(), Math.random)
-    : makeQuestion(progress, mode.script, Date.now(), Math.random);
+  const now = Date.now();
+  if ('plaque' in mode) return makePlaqueQuestion(progress, mode.plaque, now, Math.random);
+  if ('drill' in mode) return makeDrillQuestion(progress, mode.drill, now, Math.random);
+  return makeQuestion(progress, mode.script, now, Math.random);
+}
+
+// The name a finished lesson is recorded under. Plaque ids mark plaques as done;
+// every finished lesson counts toward the streak (D4).
+export function lessonId(mode: LessonMode): string {
+  if ('plaque' in mode) return mode.plaque.id;
+  if ('drill' in mode) return `drill:${mode.drill.char}`;
+  return `practice:${mode.script}`;
 }
 
 // Holds the lesson's state and connects the screen to the engine.
@@ -62,6 +72,7 @@ export function useLesson(mode: LessonMode) {
 
   function goToNext() {
     if (answers.length >= LESSON_LENGTH) {
+      updateProgress(completeLesson(progress, lessonId(mode), Date.now()));
       setSummary(summarizeLesson(startProgress, progress, answers));
       return;
     }

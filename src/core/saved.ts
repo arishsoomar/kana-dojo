@@ -1,10 +1,11 @@
-import { EMPTY_PROGRESS, type Confusion, type KanaStats, type Progress } from './answers';
+import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Progress } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
-// Version 1 had no stats; it is still read, with empty stats.
-const SAVE_VERSION = 2;
-const READABLE_VERSIONS: readonly unknown[] = [1, 2];
+// Version 1 had no stats and version 2 had no finished lessons; both are still read,
+// with those parts empty.
+const SAVE_VERSION = 3;
+const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3];
 
 const EMPTY = EMPTY_PROGRESS;
 
@@ -26,11 +27,12 @@ export function parseProgress(text: string | null): Progress {
   }
   if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions, stats } = data.progress;
+  const { kana, confusions, stats, completed } = data.progress;
   return {
     kana: isObject(kana) ? validEntries(kana, isKanaProgress) : {},
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
     stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
+    completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
   };
 }
 
@@ -75,4 +77,8 @@ function isKanaStats(value: unknown): value is KanaStats {
 
 function isConfusion(value: unknown): value is Confusion {
   return isObject(value) && typeof value.shown === 'string' && typeof value.guessed === 'string';
+}
+
+function isCompletion(value: unknown): value is Completion {
+  return isObject(value) && typeof value.lesson === 'string' && typeof value.at === 'number';
 }

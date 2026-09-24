@@ -12,6 +12,7 @@ import { LessonComplete } from '@/components/lesson-complete';
 import { LessonTopBar } from '@/components/lesson-top-bar';
 import { colors, fonts } from '@/constants/theme';
 import { KANA, type Kana } from '@/core/kana';
+import { plaqueById } from '@/core/path';
 import { useLesson, type LessonMode, type Result } from '@/hooks/use-lesson';
 
 // Back to where the lesson was opened from. If the lesson was opened directly
@@ -21,16 +22,34 @@ function leaveLesson() {
   else router.replace('/');
 }
 
-// `/lesson?drill=し` drills one kana; plain `/lesson` is a hiragana lesson.
-function modeFrom(drill: string | undefined): LessonMode {
+type Params = { plaque?: string; drill?: string; script?: string };
+
+// `/lesson?plaque=hiragana:ka:0` plays a plaque, `/lesson?drill=し` drills one kana,
+// `/lesson?script=katakana` is a practice lesson. Anything else is hiragana practice.
+function modeFrom({ plaque, drill, script }: Params): LessonMode {
+  const found = plaque ? plaqueById(plaque) : null;
+  if (found) return { plaque: found };
   const kana = KANA.find((k) => k.char === drill);
-  return kana ? { drill: kana } : { script: 'hiragana' };
+  if (kana) return { drill: kana };
+  return { script: script === 'katakana' ? 'katakana' : 'hiragana' };
+}
+
+// What Karasu says above each question.
+function coachLine(mode: LessonMode): string {
+  if ('drill' in mode) return `Drilling ${mode.drill.char}.`;
+  if ('plaque' in mode) {
+    const { plaque } = mode;
+    return plaque.kind === 'mixed'
+      ? `Reviewing the ${plaque.kana[0]?.char ?? ''} row.`
+      : `Learning ${plaque.kana.map((k) => k.char).join(' ')}.`;
+  }
+  return 'Read this.';
 }
 
 export default function LessonScreen() {
   const insets = useSafeAreaInsets();
-  const { drill } = useLocalSearchParams<{ drill?: string }>();
-  const [mode] = useState(() => modeFrom(drill));
+  const params = useLocalSearchParams<Params>();
+  const [mode] = useState(() => modeFrom(params));
   const { question, result, summary, fraction, check, goToNext } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
 
@@ -50,7 +69,7 @@ export default function LessonScreen() {
         <View style={styles.coach}>
           <Karasu mood={moodFor(result)} />
           <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>{'drill' in mode ? `Drilling ${mode.drill.char}.` : 'Read this.'}</Text>
+            <Text style={styles.bubbleText}>{coachLine(mode)}</Text>
           </View>
         </View>
 

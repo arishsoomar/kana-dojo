@@ -141,3 +141,12 @@ describe('completeLesson', () => {
     expect(EMPTY_PROGRESS.completed).toEqual([]);
   });
 });
+
+describe('recordAnswer: no answer given', () => {
+  it('counts as wrong but logs no mix-up, since nothing was confused', () => {
+    const next = recordAnswer(progressWith(5), { char: 'シ', guess: null, ms: 9000, now: NOW });
+    expect(next.kana['シ']).toEqual({ box: 3, dueAt: NOW });
+    expect(next.confusions).toEqual([]);
+    expect(next.stats['シ']).toEqual({ seen: 1, correct: 0, recentMs: [] });
+  });
+});

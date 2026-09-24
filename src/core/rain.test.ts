@@ -16,49 +16,51 @@ import {
 
 const pool = KANA.filter((k) => k.row === 'a' && k.script === 'hiragana');
 const rng = () => 0.5;
+// Picks the next kana to drop; the app uses the learning engine's pickNext here.
+const pick = () => pool[0] ?? null;
 
 describe('Kana Rain', () => {
   it('starts with nothing falling, then drops the first kana at the top', () => {
     const start = startRain();
     expect(start.drops).toEqual([]);
-    const { state } = stepRain(start, 16, pool, rng);
+    const { state } = stepRain(start, 16, pick, rng);
     expect(state.drops).toHaveLength(1);
     expect(state.drops[0]?.y).toBeCloseTo(0);
-    expect(pool).toContain(state.drops[0]?.kana);
+    expect(state.drops[0]?.kana).toBe(pool[0]);
   });
 
   it('moves kana down at a steady rate: the full height in RAIN_FALL_MS', () => {
-    let { state } = stepRain(startRain(), 0, pool, rng);
-    ({ state } = stepRain(state, RAIN_FALL_MS / 4, pool, rng));
+    let { state } = stepRain(startRain(), 0, pick, rng);
+    ({ state } = stepRain(state, RAIN_FALL_MS / 4, pick, rng));
     expect(state.drops[0]?.y).toBeCloseTo(0.25);
   });
 
   it('removes a kana when it reaches the ground and reports it as landed', () => {
-    let { state } = stepRain(startRain(), 0, pool, rng);
+    let { state } = stepRain(startRain(), 0, pick, rng);
     const first = state.drops[0];
-    const result = stepRain(state, RAIN_FALL_MS, pool, rng);
+    const result = stepRain(state, RAIN_FALL_MS, pick, rng);
     expect(result.landed).toEqual([expect.objectContaining({ id: first?.id })]);
     expect(result.state.drops.some((d) => d.id === first?.id)).toBe(false);
   });
 
   it('drops a new kana every RAIN_SPAWN_MS', () => {
-    let { state } = stepRain(startRain(), 0, pool, rng);
-    for (let i = 0; i < 3; i++) ({ state } = stepRain(state, RAIN_SPAWN_MS, pool, rng));
+    let { state } = stepRain(startRain(), 0, pick, rng);
+    for (let i = 0; i < 3; i++) ({ state } = stepRain(state, RAIN_SPAWN_MS, pick, rng));
     expect(state.drops).toHaveLength(4);
   });
 
   it('never starts a kana in a lane where another is still near the top', () => {
-    let { state } = stepRain(startRain(), 0, pool, () => 0);
-    ({ state } = stepRain(state, RAIN_SPAWN_MS, pool, () => 0));
+    let { state } = stepRain(startRain(), 0, pick, () => 0);
+    ({ state } = stepRain(state, RAIN_SPAWN_MS, pick, () => 0));
     const lanes = state.drops.map((d) => d.lane);
     expect(new Set(lanes).size).toBe(lanes.length);
     expect(lanes.every((lane) => lane >= 0 && lane < RAIN_LANES)).toBe(true);
   });
 
   it('does not change the state it was given', () => {
-    const { state } = stepRain(startRain(), 0, pool, rng);
+    const { state } = stepRain(startRain(), 0, pick, rng);
     const snapshot = structuredClone(state);
-    stepRain(state, RAIN_SPAWN_MS, pool, rng);
+    stepRain(state, RAIN_SPAWN_MS, pick, rng);
     expect(state).toEqual(snapshot);
   });
 });
@@ -74,7 +76,7 @@ describe('typing in Kana Rain', () => {
   function raining(...chars: string[]): RainState {
     return {
       ...startRain(),
-      drops: chars.map((char, i) => ({ id: i, kana: kana(char), lane: i % RAIN_LANES, y: 0.1 + i * 0.1 })),
+      drops: chars.map((char, i) => ({ id: i, kana: kana(char), lane: i % RAIN_LANES, y: 0.1 + i * 0.1, age: 0 })),
       nextId: chars.length,
       sinceSpawn: 0,
     };
@@ -137,7 +139,7 @@ describe('scoring, lives and waves', () => {
   }
 
   function oneDrop(y: number, extra: Partial<RainState> = {}): RainState {
-    return { ...startRain(), drops: [{ id: 0, kana: kana('か'), lane: 0, y }], nextId: 1, sinceSpawn: 0, ...extra };
+    return { ...startRain(), drops: [{ id: 0, kana: kana('か'), lane: 0, y, age: 0 }], nextId: 1, sinceSpawn: 0, ...extra };
   }
 
   it('gives more points the higher a kana is caught: 40 at the top, 10 at the ground', () => {
@@ -155,19 +157,19 @@ describe('scoring, lives and waves', () => {
   it('starts with three lives and loses one for each kana that lands', () => {
     expect(startRain().lives).toBe(RAIN_LIVES);
     expect(RAIN_LIVES).toBe(3);
-    const { state } = stepRain(oneDrop(0.99), 1000, pool, rng);
+    const { state } = stepRain(oneDrop(0.99), 1000, pick, rng);
     expect(state.lives).toBe(2);
     expect(state.over).toBe(false);
   });
 
   it('ends the game when the last life is lost, and then nothing moves or clears', () => {
-    const { state } = stepRain(oneDrop(0.99, { lives: 1 }), 1000, pool, rng);
+    const { state } = stepRain(oneDrop(0.99, { lives: 1 }), 1000, pick, rng);
     expect(state.lives).toBe(0);
     expect(state.over).toBe(true);
-    const later = stepRain(state, 5000, pool, rng);
+    const later = stepRain(state, 5000, pick, rng);
     expect(later.state).toEqual(state);
     expect(later.landed).toEqual([]);
-    const frozen = { ...state, drops: [{ id: 5, kana: kana('か'), lane: 0, y: 0.5 }] };
+    const frozen = { ...state, drops: [{ id: 5, kana: kana('か'), lane: 0, y: 0.5, age: 0 }] };
     expect(typeKey(frozen, 'k', 'a').cleared).toBeNull();
   });
 
@@ -186,8 +188,28 @@ describe('scoring, lives and waves', () => {
   });
 
   it('makes kana fall faster in a later wave', () => {
-    const wave1 = stepRain(oneDrop(0), 1000, pool, rng).state.drops[0]?.y ?? 0;
-    const wave2 = stepRain(oneDrop(0, { cleared: 10 }), 1000, pool, rng).state.drops[0]?.y ?? 0;
+    const wave1 = stepRain(oneDrop(0), 1000, pick, rng).state.drops[0]?.y ?? 0;
+    const wave2 = stepRain(oneDrop(0, { cleared: 10 }), 1000, pick, rng).state.drops[0]?.y ?? 0;
     expect(wave2).toBeGreaterThan(wave1);
+  });
+});
+
+describe('timing for the learning engine', () => {
+  it('tracks how long each kana has been falling', () => {
+    let { state } = stepRain(startRain(), 0, pick, rng);
+    ({ state } = stepRain(state, 1200, pick, rng));
+    expect(state.drops[0]?.age).toBe(1200);
+  });
+
+  it('reports the age of a cleared kana, to time the answer', () => {
+    let { state } = stepRain(startRain(), 0, pick, rng);
+    ({ state } = stepRain(state, 1500, pick, rng));
+    const cleared = typeKey(state, '', 'a').cleared;
+    expect(cleared?.age).toBe(1500);
+  });
+
+  it('skips a spawn when the picker has nothing to give', () => {
+    const { state } = stepRain(startRain(), 0, () => null, rng);
+    expect(state.drops).toEqual([]);
   });
 });

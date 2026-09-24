@@ -10,6 +10,7 @@ export type Drop = {
   kana: Kana;
   lane: number; // 0 to RAIN_LANES - 1, left to right
   y: number; // 0 at the top, 1 at the ground
+  age: number; // milliseconds since it appeared; times the answer when it's cleared
 };
 
 export type RainState = {
@@ -63,19 +64,20 @@ export function startRain(): RainState {
   return { drops: [], nextId: 0, sinceSpawn: RAIN_SPAWN_MS, score: 0, lives: RAIN_LIVES, cleared: 0, over: false };
 }
 
-// Moves the rain forward by `ms` milliseconds. Returns the new state and the kana
-// that reached the ground during this step. Each landing costs a life; once the game
-// is over, nothing changes.
+// Moves the rain forward by `ms` milliseconds. `nextKana` chooses each new kana (the app
+// passes the learning engine's pickNext; null means none right now). Returns the new state
+// and the kana that reached the ground during this step. Each landing costs a life; once
+// the game is over, nothing changes.
 export function stepRain(
   state: RainState,
   ms: number,
-  pool: readonly Kana[],
+  nextKana: () => Kana | null,
   rng: Rng,
 ): { state: RainState; landed: Drop[] } {
   if (state.over) return { state, landed: [] };
 
   const { fallMs, spawnMs } = rainPace(waveOf(state.cleared));
-  const moved = state.drops.map((drop) => ({ ...drop, y: drop.y + ms / fallMs }));
+  const moved = state.drops.map((drop) => ({ ...drop, y: drop.y + ms / fallMs, age: drop.age + ms }));
   const landed = moved.filter((drop) => drop.y >= 1);
   let drops = moved.filter((drop) => drop.y < 1);
 
@@ -86,16 +88,18 @@ export function stepRain(
 
   let { nextId, sinceSpawn } = state;
   sinceSpawn += ms;
-  while (sinceSpawn >= spawnMs && pool.length > 0) {
+  while (sinceSpawn >= spawnMs) {
     sinceSpawn -= spawnMs;
     const busy = new Set(drops.filter((d) => d.y < LANE_CLEAR_Y).map((d) => d.lane));
     const free = Array.from({ length: RAIN_LANES }, (_, lane) => lane).filter((lane) => !busy.has(lane));
     if (free.length === 0) continue;
 
-    // Safe: both indexes are within their (non-empty) lists.
+    const kana = nextKana();
+    if (!kana) continue;
+
+    // Safe: the index is within the (non-empty) list of free lanes.
     const lane = free[Math.floor(rng() * free.length)]!;
-    const kana = pool[Math.floor(rng() * pool.length)]!;
-    drops = [...drops, { id: nextId, kana, lane, y: 0 }];
+    drops = [...drops, { id: nextId, kana, lane, y: 0, age: 0 }];
     nextId += 1;
   }
 

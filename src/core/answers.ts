@@ -30,7 +30,7 @@ export const EMPTY_PROGRESS: Progress = { kana: {}, confusions: [], stats: {}, c
 
 export type Answer = {
   char: string; // the kana that was shown
-  guess: string; // the kana the learner picked
+  guess: string | null; // the kana the learner picked, or null if they gave no answer
   ms: number; // how long they took to answer
   now: number; // timestamp of the answer
 };
@@ -84,11 +84,17 @@ export function recordAnswer(progress: Progress, answer: Answer): Progress {
     };
   }
 
+  // No guess (a kana left to land in Kana Rain) is wrong, but nothing was confused with it.
+  const confusions =
+    answer.guess === null
+      ? progress.confusions
+      : [...progress.confusions, { shown: answer.char, guessed: answer.guess }];
+
   return {
     ...progress,
     kana: { ...progress.kana, [answer.char]: afterWrong(current, answer) },
     stats,
-    confusions: [...progress.confusions, { shown: answer.char, guessed: answer.guess }],
+    confusions,
   };
 }
 

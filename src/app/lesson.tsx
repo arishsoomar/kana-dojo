@@ -10,7 +10,6 @@ import { Karasu, type KarasuMood } from '@/components/karasu';
 import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { LessonTopBar } from '@/components/lesson-top-bar';
-import { PrimaryButton } from '@/components/primary-button';
 import { colors, fonts } from '@/constants/theme';
 import type { Kana } from '@/core/kana';
 import { useLesson, type Result } from '@/hooks/use-lesson';
@@ -25,13 +24,7 @@ function leaveLesson() {
 export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const { question, result, summary, fraction, check, goToNext } = useLesson('hiragana');
-  const [selected, setSelected] = useState<Kana | null>(null);
   const [leaving, setLeaving] = useState(false);
-
-  function next() {
-    setSelected(null);
-    goToNext();
-  }
 
   if (summary) {
     return (
@@ -53,28 +46,25 @@ export default function LessonScreen() {
           </View>
         </View>
 
+        {/* The frame grows to fill the middle; the answers sit at the bottom, near the thumb. */}
         <KanaFrame char={question.kana.char} />
 
-        <View style={styles.choices} accessibilityRole="radiogroup">
+        <View style={styles.choices}>
           {question.choices.map((choice) => (
             <ChoiceTile
               key={choice.char}
               label={choice.romaji[0]}
-              state={tileState(choice, question.kana, selected, result)}
+              state={tileState(choice, question.kana, result)}
               disabled={result !== null}
-              onPress={() => setSelected(choice)}
+              onPress={() => check(choice)}
             />
           ))}
         </View>
       </View>
 
       {/* The bottom padding lives here, so the white sheet reaches the bottom edge. */}
-      <View style={[result ? styles.sheetArea : styles.footer, { paddingBottom: insets.bottom + 22 }]}>
-        {result ? (
-          <FeedbackSheet result={result} onContinue={next} />
-        ) : (
-          <PrimaryButton label="Check" disabled={selected === null} onPress={() => selected && check(selected)} />
-        )}
+      <View style={[result && styles.sheetArea, { paddingBottom: insets.bottom + (result ? 22 : 12) }]}>
+        {result && <FeedbackSheet result={result} onContinue={goToNext} />}
       </View>
 
       <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={leaveLesson} />
@@ -87,8 +77,8 @@ function moodFor(result: Result | null): KarasuMood {
   return result.correct ? 'proud' : 'stern';
 }
 
-function tileState(choice: Kana, answer: Kana, selected: Kana | null, result: Result | null): TileState {
-  if (!result) return choice === selected ? 'selected' : 'idle';
+function tileState(choice: Kana, answer: Kana, result: Result | null): TileState {
+  if (!result) return 'idle';
   if (choice === result.guess) return result.correct ? 'correct' : 'wrong';
   if (choice === answer) return 'missed';
   return 'idle';
@@ -128,9 +118,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
     marginTop: 18,
-  },
-  footer: {
-    paddingHorizontal: 18,
+    marginBottom: 12,
   },
   sheetArea: {
     backgroundColor: colors.card,

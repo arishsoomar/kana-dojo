@@ -114,8 +114,9 @@ I can practice.
 Done when:
 - [ ] Kana renders in the framed card from the mocks
 - [ ] Four options, one correct
-- [ ] Selecting shows the thicker-border state
-- [ ] Check button is disabled until something is selected
+- [ ] Tapping an option answers straight away (no separate Check button)
+- [ ] Options sit at the bottom, within thumb reach; the kana frame grows
+      to fill the space above them
 
 ### C2. Feedback
 **As a** learner, **I want** to know immediately whether I was right,

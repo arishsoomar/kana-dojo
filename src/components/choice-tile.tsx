@@ -2,10 +2,10 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 
-// idle: not picked. selected: picked, not checked yet.
-// After checking: correct (the right answer, picked), wrong (picked, but not the answer),
+// idle: before answering, or not involved in the answer.
+// After answering: correct (the right answer, picked), wrong (picked, but not the answer),
 // missed (the right answer, when something else was picked).
-export type TileState = 'idle' | 'selected' | 'correct' | 'wrong' | 'missed';
+export type TileState = 'idle' | 'correct' | 'wrong' | 'missed';
 
 type Props = {
   label: string;
@@ -14,12 +14,12 @@ type Props = {
   onPress: () => void;
 };
 
-// One answer option. Selection is shown with a thicker border, not a fill.
+// One answer option. Tapping it answers the question.
 export function ChoiceTile({ label, state, disabled, onPress }: Props) {
   return (
     <Pressable
-      role="radio"
-      aria-checked={state !== 'idle' && state !== 'missed'}
+      role="button"
+      aria-label={`Answer ${label}`}
       disabled={disabled}
       onPress={onPress}
       style={[styles.tile, state !== 'idle' && styles.thick, styles[state]]}>
@@ -37,6 +37,8 @@ const styles = StyleSheet.create({
     flexBasis: '45%',
     flexGrow: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 64,
     padding: PADDING,
     backgroundColor: colors.card,
     borderWidth: BORDER,
@@ -49,7 +51,6 @@ const styles = StyleSheet.create({
     padding: PADDING - (THICK_BORDER - BORDER),
   },
   idle: {},
-  selected: { borderColor: colors.sumi },
   correct: { borderColor: colors.pine, backgroundColor: colors.pineLight },
   wrong: { borderColor: colors.vermilion, backgroundColor: colors.vermilionLight },
   missed: { borderColor: colors.pine, borderStyle: 'dashed' },
@@ -62,7 +63,6 @@ const styles = StyleSheet.create({
 
 const labelStyles = StyleSheet.create({
   idle: {},
-  selected: {},
   correct: { color: colors.pineDark },
   wrong: { color: colors.vermilionDark },
   missed: { color: colors.pineDark },

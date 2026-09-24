@@ -6,6 +6,8 @@ import type { Kana, Script } from '@/core/kana';
 import { LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { makeQuestion, type Question } from '@/core/question';
 
+import { useProgress } from './use-progress';
+
 // What happened on the last answer, for the feedback sheet.
 export type Result = {
   kana: Kana;
@@ -17,9 +19,6 @@ export type Result = {
   tip: string | null;
 };
 
-// No saved progress yet (that's C4), so every lesson starts as a new learner.
-const NEW_LEARNER: Progress = { kana: {}, confusions: [] };
-
 function newQuestion(progress: Progress, script: Script): Question {
   return makeQuestion(progress, script, Date.now(), Math.random);
 }
@@ -27,11 +26,12 @@ function newQuestion(progress: Progress, script: Script): Question {
 // Holds the lesson's state and connects the screen to the engine.
 // The real clock and Math.random are used here, never inside src/core.
 export function useLesson(script: Script) {
-  const [startProgress] = useState(NEW_LEARNER);
-  const [progress, setProgress] = useState(NEW_LEARNER);
+  const { progress, updateProgress } = useProgress();
+  // Progress as it was when the lesson began, to compare against at the end.
+  const [startProgress] = useState(progress);
   const [answers, setAnswers] = useState<LessonAnswer[]>([]);
   const [summary, setSummary] = useState<LessonSummary | null>(null);
-  const [question, setQuestion] = useState(() => newQuestion(NEW_LEARNER, script));
+  const [question, setQuestion] = useState(() => newQuestion(progress, script));
   const [shownAt, setShownAt] = useState(() => Date.now());
   const [result, setResult] = useState<Result | null>(null);
 
@@ -42,7 +42,7 @@ export function useLesson(script: Script) {
     const correct = guess === kana;
     const next = recordAnswer(progress, { char: kana.char, guess: guess.char, ms, now });
 
-    setProgress(next);
+    updateProgress(next);
     setAnswers([...answers, { char: kana.char, correct, ms }]);
     setResult({
       kana,

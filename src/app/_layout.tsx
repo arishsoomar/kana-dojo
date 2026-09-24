@@ -11,10 +11,12 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { ProgressProvider, useSavedProgress } from '@/hooks/use-progress';
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Archivo_500Medium,
     Archivo_600SemiBold,
     Archivo_700Bold,
@@ -23,21 +25,28 @@ export default function RootLayout() {
     ZenKakuGothicNew_900Black,
   });
 
+  const saved = useSavedProgress();
+  const fontsDone = fontsLoaded || fontError !== null;
+  const ready = fontsDone && saved !== null;
+
+  // Keep the splash screen up until fonts and saved progress have both loaded.
   useEffect(() => {
-    if (loaded || error) {
+    if (ready) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [ready]);
 
-  if (!loaded && !error) {
+  if (!ready) {
     return null;
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}
-      <Stack.Screen name="lesson" options={{ headerShown: false, gestureEnabled: false }} />
-    </Stack>
+    <ProgressProvider initial={saved}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}
+        <Stack.Screen name="lesson" options={{ headerShown: false, gestureEnabled: false }} />
+      </Stack>
+    </ProgressProvider>
   );
 }

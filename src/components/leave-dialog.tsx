@@ -17,7 +17,7 @@ export function LeaveDialog({ visible, onStay, onLeave }: Props) {
       <View style={styles.backdrop}>
         <View style={styles.card}>
           <Text style={styles.title}>Leave this lesson?</Text>
-          <Text style={styles.body}>Answers in this lesson won&apos;t be saved yet.</Text>
+          <Text style={styles.body}>Your answers so far are already saved.</Text>
           <View style={styles.buttons}>
             <PrimaryButton label="Keep training" onPress={onStay} />
             <PrimaryButton label="Leave" tone="vermilion" onPress={onLeave} />

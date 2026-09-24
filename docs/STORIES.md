@@ -294,7 +294,7 @@ the device first; the server is a copy that keeps devices in step.
 my progress isn't tied to one device.
 
 Done when:
-- [ ] Sign in with email using a 6-digit code (Supabase). Sign in with
+- [ ] Sign in with a code sent by email (Supabase; 6 to 10 digits). Sign in with
       Apple comes later, before App Store release.
 - [ ] Signing in is optional; everything works signed out, and without
       Supabase keys the account option doesn't appear at all

@@ -85,7 +85,7 @@ export default function ProfileScreen() {
         <Pressable role="button" onPress={() => router.push('/account')} style={styles.goal}>
           <View style={styles.goalText}>
             <Text style={styles.goalTitle}>{auth.email ? 'Account' : 'Save your progress to an account'}</Text>
-            <Text style={styles.goalSub}>{auth.email ? `Signed in as ${auth.email}` : 'Optional. Sign in with an email code.'}</Text>
+            <Text style={styles.goalSub}>{auth.email ? `Signed in as ${auth.email}` : 'Optional. Sign in with a code sent to your email.'}</Text>
           </View>
           <Text style={styles.goalChange}>{auth.email ? 'Manage' : 'Sign in'}</Text>
         </Pressable>

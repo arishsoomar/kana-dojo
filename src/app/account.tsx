@@ -9,7 +9,10 @@ import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import { useAuth } from '@/hooks/use-auth';
 
-const CODE_LENGTH = 6;
+// Supabase sends codes of 6 to 10 digits, depending on the project's settings
+// (this project's are 8), so accept any length in that range.
+const CODE_MIN = 6;
+const CODE_MAX = 10;
 
 function close() {
   if (router.canGoBack()) router.back();
@@ -69,8 +72,7 @@ export default function AccountScreen() {
           <>
             <Text style={styles.heading}>Sign in</Text>
             <Text style={styles.text}>
-              Enter your email and we&apos;ll send you a {CODE_LENGTH}-digit code. New here? The same code creates your
-              account.
+              Enter your email and we&apos;ll send you a code. New here? The same code creates your account.
             </Text>
             <TextField
               value={email}
@@ -94,15 +96,15 @@ export default function AccountScreen() {
             </Text>
             <TextField
               value={code}
-              onChangeText={(text) => setCode(text.replace(/\D/g, '').slice(0, CODE_LENGTH))}
-              placeholder="123456"
+              onChangeText={(text) => setCode(text.replace(/\D/g, '').slice(0, CODE_MAX))}
+              placeholder="Code"
               keyboardType="number-pad"
               autoComplete="one-time-code"
               aria-label="Code"
               style={styles.code}
             />
             <View style={styles.button}>
-              <PrimaryButton label={busy ? 'Checking…' : 'Sign in'} disabled={busy || code.length !== CODE_LENGTH} onPress={verify} />
+              <PrimaryButton label={busy ? 'Checking…' : 'Sign in'} disabled={busy || code.length < CODE_MIN} onPress={verify} />
             </View>
             <Pressable role="button" onPress={() => setSent(false)} style={styles.link}>
               <Text style={styles.linkText}>Use a different email</Text>

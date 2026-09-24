@@ -1,4 +1,4 @@
-import { completeLesson, EMPTY_PROGRESS, recordAnswer, type Progress } from './answers';
+import { completeLesson, EMPTY_PROGRESS, markDue, recordAnswer, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -148,5 +148,27 @@ describe('recordAnswer: no answer given', () => {
     expect(next.kana['シ']).toEqual({ box: 3, dueAt: NOW });
     expect(next.confusions).toEqual([]);
     expect(next.stats['シ']).toEqual({ seen: 1, correct: 0, recentMs: [] });
+  });
+});
+
+describe('markDue', () => {
+  it('makes a kana due now without changing its box, stats or mix-ups', () => {
+    const before = { ...progressWith(5, NOW + 60_000), stats: { シ: { seen: 4, correct: 4, recentMs: [900] } } };
+    const next = markDue(before, 'シ', NOW);
+    expect(next.kana['シ']).toEqual({ box: 5, dueAt: NOW });
+    expect(next.stats).toEqual(before.stats);
+    expect(next.confusions).toEqual(before.confusions);
+  });
+
+  it('leaves a kana that is already due alone', () => {
+    const before = progressWith(5, NOW - 1000);
+    expect(markDue(before, 'シ', NOW).kana['シ']).toEqual({ box: 5, dueAt: NOW - 1000 });
+  });
+
+  it('never changes the progress it was given', () => {
+    const before = progressWith(5, NOW + 60_000);
+    const snapshot = structuredClone(before);
+    markDue(before, 'シ', NOW);
+    expect(before).toEqual(snapshot);
   });
 });

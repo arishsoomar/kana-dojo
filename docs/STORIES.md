@@ -234,9 +234,11 @@ faster, down to 3.5s falls and a kana every 0.7s. No combo multiplier.)
 
 ### E4. Feeding the engine
 Every hit and miss calls `recordAnswer()` like a lesson answer would.
-(A cleared kana is correct, timed by how long it was falling. A landed kana
-is wrong with no guess: it drops boxes but logs no mix-up. The engine's
-pickNext chooses which kana fall.)
+(A cleared kana is correct, timed by how long it was falling. A kana that
+lands while the player is locked on to it is wrong, with no mix-up logged. A
+kana that lands before the player started on it only becomes due again: box
+and stats unchanged, since it most likely landed because they were busy.
+The engine's pickNext chooses which kana fall.)
 
 ### E5. Results
 Reuses the lesson completion layout. High score persists.

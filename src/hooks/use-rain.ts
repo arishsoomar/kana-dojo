@@ -1,9 +1,9 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
-import { recordAnswer } from '@/core/answers';
+import { markDue, recordAnswer } from '@/core/answers';
 import type { Kana } from '@/core/kana';
 import { pickNext } from '@/core/pick';
-import { pointsFor, startRain, stepRain, typeKey, type Drop, type RainState, type TypeResult } from '@/core/rain';
+import { pointsFor, startRain, stepRain, targetOf, typeKey, type Drop, type RainState, type TypeResult } from '@/core/rain';
 
 import { useProgress } from './use-progress';
 
@@ -22,8 +22,9 @@ export type Pop = {
 };
 
 // Runs Kana Rain: once per screen refresh, moves the rain forward by the time that passed,
-// and applies what the player types. Every kana cleared or landed is recorded as an answer,
-// exactly like a lesson answer, and the learning engine chooses which kana fall.
+// and applies what the player types. The learning engine chooses which kana fall, and sees
+// how each one went: cleared is a correct answer; landing while locked on is a wrong answer;
+// landing before the player started on it just makes it due again (see `landed` below).
 export function useRain(pool: readonly Kana[]) {
   const { changeProgress, currentProgress } = useProgress();
   // The live game. Both the frame loop and the keyboard change it, so it lives in a ref
@@ -36,11 +37,11 @@ export function useRain(pool: readonly Kana[]) {
   // One frame of the game. It's an "effect event": the loop below calls it, and it always
   // sees the latest values (like `pool`) without the loop having to restart when they change.
   const onFrame = useEffectEvent((time: number, ms: number) => {
+    const locked = targetOf(game.current.drops, typed);
     const pick = () => pickNext(currentProgress(), pool, Date.now(), Math.random);
     const result = stepRain(game.current, ms, pick, Math.random);
     game.current = result.state;
-    // A kana that lands is a wrong answer with no guess.
-    for (const drop of result.landed) record(drop, false);
+    for (const drop of result.landed) landed(drop, drop.id === locked?.id);
     setRain(game.current);
     setPops((current) => (current.some((p) => p.until <= time) ? current.filter((p) => p.until > time) : current));
   });
@@ -59,6 +60,14 @@ export function useRain(pool: readonly Kana[]) {
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  // A kana reached the ground. If the player was locked on to it, they tried and didn't get
+  // it: a wrong answer. If they never started on it, it most likely landed because they were
+  // busy with others, which says nothing about knowing it, so it's only made due again.
+  function landed(drop: Drop, wasLockedOn: boolean) {
+    if (wasLockedOn) record(drop, false);
+    else changeProgress((current) => markDue(current, drop.kana.char, Date.now()));
+  }
 
   // Records a kana as an answer: cleared means correct, timed by how long it had been falling.
   function record(drop: Drop, cleared: boolean) {

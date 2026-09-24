@@ -102,3 +102,11 @@ export function recordAnswer(progress: Progress, answer: Answer): Progress {
 export function completeLesson(progress: Progress, lesson: string, now: number): Progress {
   return { ...progress, completed: [...progress.completed, { lesson, at: now }] };
 }
+
+// Makes a kana due now, without scoring anything: its box, stats and mix-ups stay the same.
+// Used when a kana went unanswered for a reason that says nothing about knowing it
+// (in Kana Rain, one that landed before the player had started on it).
+export function markDue(progress: Progress, char: string, now: number): Progress {
+  const current = progress.kana[char] ?? NEW_KANA;
+  return { ...progress, kana: { ...progress.kana, [char]: { ...current, dueAt: Math.min(current.dueAt, now) } } };
+}

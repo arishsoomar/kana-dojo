@@ -222,6 +222,9 @@ overlap near the top. Opened from the Games tab, which lists Kana Rain only.)
 
 ### E2. Typing to match
 Typed romaji highlights the matching kana; a complete match clears it.
+(Locks on to the lowest matching kana. Alternate spellings and capitals
+work. Keys that can't match anything are ignored. "n" waits while な etc.
+could still be meant; Enter or space takes ん.)
 
 ### E3. Scoring and lives
 Points for speed, three lives, wave difficulty ramp.

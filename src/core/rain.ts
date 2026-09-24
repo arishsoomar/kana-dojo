@@ -60,3 +60,57 @@ export function stepRain(
 
   return { state: { drops, nextId, sinceSpawn }, landed };
 }
+
+// Keys that mean "take what I've typed as my answer", for "n" when な could still be meant.
+const SUBMIT_KEYS = new Set(['Enter', ' ']);
+
+function spellings(drop: Drop): readonly string[] {
+  return drop.kana.romaji;
+}
+
+// The lowest (closest to landing) of `drops`, or null if there are none.
+function lowest(drops: readonly Drop[]): Drop | null {
+  return drops.reduce<Drop | null>((low, drop) => (low === null || drop.y > low.y ? drop : low), null);
+}
+
+// The kana the player is locked on to: the lowest one whose romaji starts with `typed`.
+export function targetOf(drops: readonly Drop[], typed: string): Drop | null {
+  const text = typed.toLowerCase();
+  if (text === '') return null;
+  return lowest(drops.filter((d) => spellings(d).some((r) => r.startsWith(text))));
+}
+
+export type TypeResult = {
+  state: RainState;
+  typed: string; // what the typing bar should now show
+  cleared: Drop | null; // the kana this key cleared, if any
+  rejected: boolean; // the key couldn't match anything, so it was ignored
+};
+
+function clear(state: RainState, drop: Drop): RainState {
+  return { ...state, drops: state.drops.filter((d) => d.id !== drop.id) };
+}
+
+// Applies one key press. `typed` is what was typed before this key.
+export function typeKey(state: RainState, typed: string, key: string): TypeResult {
+  const before = typed.toLowerCase();
+
+  if (SUBMIT_KEYS.has(key)) {
+    const exact = lowest(state.drops.filter((d) => spellings(d).includes(before)));
+    return exact
+      ? { state: clear(state, exact), typed: '', cleared: exact, rejected: false }
+      : { state, typed: before, cleared: null, rejected: false };
+  }
+
+  const text = before + key.toLowerCase();
+  const matching = state.drops.filter((d) => spellings(d).some((r) => r.startsWith(text)));
+  if (matching.length === 0) return { state, typed: before, cleared: null, rejected: true };
+
+  const exact = lowest(matching.filter((d) => spellings(d).includes(text)));
+  // Wait if a longer spelling could still be meant ("n" when な is falling).
+  const longerPossible = matching.some((d) => spellings(d).some((r) => r.length > text.length && r.startsWith(text)));
+  if (exact && !longerPossible) {
+    return { state: clear(state, exact), typed: '', cleared: exact, rejected: false };
+  }
+  return { state, typed: text, cleared: null, rejected: false };
+}

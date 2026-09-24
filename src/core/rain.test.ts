@@ -1,5 +1,5 @@
 import { KANA } from './kana';
-import { RAIN_FALL_MS, RAIN_LANES, RAIN_SPAWN_MS, startRain, stepRain } from './rain';
+import { RAIN_FALL_MS, RAIN_LANES, RAIN_SPAWN_MS, startRain, stepRain, targetOf, typeKey, type RainState } from './rain';
 
 const pool = KANA.filter((k) => k.row === 'a' && k.script === 'hiragana');
 const rng = () => 0.5;
@@ -47,5 +47,70 @@ describe('Kana Rain', () => {
     const snapshot = structuredClone(state);
     stepRain(state, RAIN_SPAWN_MS, pool, rng);
     expect(state).toEqual(snapshot);
+  });
+});
+
+describe('typing in Kana Rain', () => {
+  function kana(char: string) {
+    const found = KANA.find((k) => k.char === char);
+    if (!found) throw new Error(`No kana ${char}`);
+    return found;
+  }
+
+  // A rain with these kana falling, in order, each lower than the one before.
+  function raining(...chars: string[]): RainState {
+    return {
+      drops: chars.map((char, i) => ({ id: i, kana: kana(char), lane: i % RAIN_LANES, y: 0.1 + i * 0.1 })),
+      nextId: chars.length,
+      sinceSpawn: 0,
+    };
+  }
+
+  it('locks on to the lowest kana that matches what has been typed', () => {
+    const rain = raining('か', 'き', 'か');
+    expect(targetOf(rain.drops, 'k')?.id).toBe(2);
+    expect(targetOf(rain.drops, 'ki')?.id).toBe(1);
+    expect(targetOf(rain.drops, '')).toBeNull();
+  });
+
+  it('keeps a partial match as typed, without clearing anything', () => {
+    const result = typeKey(raining('し'), '', 's');
+    expect(result.typed).toBe('s');
+    expect(result.cleared).toBeNull();
+    expect(result.state.drops).toHaveLength(1);
+  });
+
+  it('clears the lowest kana on a complete match and empties the input', () => {
+    const rain = raining('え', 'か', 'え');
+    const result = typeKey(rain, '', 'e');
+    expect(result.cleared?.id).toBe(2);
+    expect(result.typed).toBe('');
+    expect(result.state.drops.map((d) => d.id)).toEqual([0, 1]);
+  });
+
+  it('accepts alternate spellings and capital letters', () => {
+    expect(typeKey(raining('し'), 's', 'i').cleared?.kana.char).toBe('し');
+    expect(typeKey(raining('つ'), 'T', 'U').cleared?.kana.char).toBe('つ');
+  });
+
+  it('ignores a key that could not match anything falling', () => {
+    const result = typeKey(raining('か'), 'k', 'x');
+    expect(result.typed).toBe('k');
+    expect(result.rejected).toBe(true);
+    expect(result.cleared).toBeNull();
+  });
+
+  it('waits on "n" while な could still be meant, and Enter takes ん', () => {
+    const rain = raining('な', 'ん');
+    const waiting = typeKey(rain, '', 'n');
+    expect(waiting.cleared).toBeNull();
+    expect(waiting.typed).toBe('n');
+    const submitted = typeKey(rain, 'n', 'Enter');
+    expect(submitted.cleared?.kana.char).toBe('ん');
+    expect(submitted.typed).toBe('');
+  });
+
+  it('clears ん straight away when nothing longer could match', () => {
+    expect(typeKey(raining('ん', 'か'), '', 'n').cleared?.kana.char).toBe('ん');
   });
 });

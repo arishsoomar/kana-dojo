@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2 } };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana' } };
 
 const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
@@ -11,7 +11,7 @@ const sample: Progress = {
     { lesson: 'hiragana:a:0', at: 1_000_000 },
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
   ],
-  settings: { onboarded: true, dailyGoal: 3 },
+  settings: { onboarded: true, dailyGoal: 3, script: 'katakana' },
 };
 
 describe('saving progress', () => {
@@ -42,7 +42,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2 },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana' },
     });
   });
 
@@ -56,7 +56,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2 },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana' },
     });
   });
 
@@ -84,7 +84,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true, dailyGoal: 2 },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana' },
     });
   });
 
@@ -109,5 +109,15 @@ describe('saving the daily goal', () => {
     expect(parseProgress(save({ onboarded: true })).settings.dailyGoal).toBe(2);
     expect(parseProgress(save({ onboarded: true, dailyGoal: 9 })).settings.dailyGoal).toBe(2);
     expect(parseProgress(save({ onboarded: true, dailyGoal: 'lots' })).settings.dailyGoal).toBe(2);
+  });
+});
+
+describe('saving the chosen script', () => {
+  it('keeps a valid script and otherwise starts on hiragana', () => {
+    const save = (settings: unknown) =>
+      JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings } });
+    expect(parseProgress(save({ onboarded: true, script: 'katakana' })).settings.script).toBe('katakana');
+    expect(parseProgress(save({ onboarded: true })).settings.script).toBe('hiragana');
+    expect(parseProgress(save({ onboarded: true, script: 'klingon' })).settings.script).toBe('hiragana');
   });
 });

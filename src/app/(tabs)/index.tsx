@@ -1,5 +1,4 @@
 import { Redirect, router } from 'expo-router';
-import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,6 +11,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ProgressRing } from '@/components/progress-ring';
 import { SegmentedControl } from '@/components/segmented-control';
 import { colors, fonts, wallColors } from '@/constants/theme';
+import { setScript } from '@/core/answers';
 import type { Script } from '@/core/kana';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
@@ -27,11 +27,13 @@ const SCRIPTS = [
 
 export default function LearnScreen() {
   const insets = useSafeAreaInsets();
-  const { progress } = useProgress();
+  const { progress, updateProgress } = useProgress();
   const streak = useStreak();
   const daily = useDailyGoal();
   const rank = useRank();
-  const [script, setScript] = useState<Script>('hiragana');
+  // The script shown here is remembered, and chosen during onboarding.
+  const script = progress.settings.script;
+  const chooseScript = (next: Script) => updateProgress(setScript(progress, next));
   const path = learnPath(progress, script);
   const unit = path.currentUnit;
   const needed = greenNeeded(progress, script, unit.row);
@@ -57,7 +59,7 @@ export default function LearnScreen() {
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
       <View style={styles.topRow}>
         <View style={styles.toggle}>
-          <SegmentedControl options={SCRIPTS} value={script} onChange={setScript} />
+          <SegmentedControl options={SCRIPTS} value={script} onChange={chooseScript} />
         </View>
         <Pressable
           role="button"

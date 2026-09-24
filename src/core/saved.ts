@@ -40,7 +40,8 @@ export function parseProgress(text: string | null): Progress {
   const hasProgress = Object.keys(progress.kana).length > 0 || progress.completed.length > 0 || Object.keys(progress.stats).length > 0;
   const onboarded = isObject(settings) && typeof settings.onboarded === 'boolean' ? settings.onboarded : hasProgress;
   const dailyGoal = isObject(settings) && isDailyGoal(settings.dailyGoal) ? settings.dailyGoal : DEFAULT_DAILY_GOAL;
-  return { ...progress, settings: { onboarded, dailyGoal } };
+  const script = isObject(settings) && settings.script === 'katakana' ? 'katakana' : 'hiragana';
+  return { ...progress, settings: { onboarded, dailyGoal, script } };
 }
 
 // Keeps the entries whose value passes `isValid`.

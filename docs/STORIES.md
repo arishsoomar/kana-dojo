@@ -357,8 +357,11 @@ know, **so that** I don't start from the あ row.
 Done when:
 - [ ] Brand new: start at the あ row
 - [ ] Know some hiragana: a short grading test; kana answered quickly and
-      correctly start at green belt, so their rows unlock
-- [ ] Know all hiragana: start on katakana
+      correctly start at green belt, so their rows unlock. It goes row by
+      row, stops at the first row under 80%, and marks known rows' plaques
+      done. It never awards row belts (exams still do). X stops early.
+- [ ] Know all hiragana: start on katakana (the Learn screen remembers its
+      script); hiragana still has to be earned
 - [ ] Every grading answer goes through `recordAnswer()`
 
 ---

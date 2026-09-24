@@ -49,6 +49,8 @@ export default function RootLayout() {
         <Stack.Screen name="streak" options={{ headerShown: false }} />
         <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="goal" options={{ headerShown: false }} />
+        <Stack.Screen name="start" options={{ headerShown: false }} />
+        <Stack.Screen name="placement" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="exam" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="games/rain" options={{ headerShown: false, gestureEnabled: false }} />
       </Stack>

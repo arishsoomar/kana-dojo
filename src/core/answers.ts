@@ -1,5 +1,6 @@
 import { intervalFor, isDue, MAX_BOX, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
+import type { Script } from './kana';
 
 export type Confusion = {
   shown: string;
@@ -25,6 +26,7 @@ export type Completion = {
 export type Settings = {
   onboarded: boolean; // has been through the welcome and chosen a goal
   dailyGoal: number; // lessons per day
+  script: Script; // the script the Learn screen shows
 };
 
 export type Progress = {
@@ -41,7 +43,7 @@ export const EMPTY_PROGRESS: Progress = {
   confusions: [],
   stats: {},
   completed: [],
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana' },
 };
 
 export type Answer = {
@@ -137,4 +139,9 @@ export function markDue(progress: Progress, char: string, now: number): Progress
 // Marks the welcome as seen, so it isn't shown again.
 export function finishOnboarding(progress: Progress): Progress {
   return { ...progress, settings: { ...progress.settings, onboarded: true } };
+}
+
+// Sets which script the Learn screen shows.
+export function setScript(progress: Progress, script: Script): Progress {
+  return { ...progress, settings: { ...progress.settings, script } };
 }

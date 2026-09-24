@@ -4,81 +4,81 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
+import { BeltIcon } from '@/components/belt-icon';
 import { Karasu } from '@/components/karasu';
 import { PrimaryButton } from '@/components/primary-button';
-import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
-import { DAILY_GOALS, setDailyGoal } from '@/core/goal';
+import { finishOnboarding, setScript } from '@/core/answers';
+import type { Belt } from '@/core/boxes';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 
-function goBack() {
-  if (router.canGoBack()) router.back();
-  else router.replace('/');
-}
+type Start = 'new' | 'some' | 'all';
 
-// Choose how much to train each day. Part of onboarding for a new learner (after the
-// welcome); from Profile, the same screen changes the goal.
-export default function GoalScreen() {
+const STARTS: readonly { value: Start; belt: Belt; title: string; sub: string }[] = [
+  { value: 'new', belt: 'white', title: "I'm brand new", sub: 'Start at white belt, the あ row' },
+  { value: 'some', belt: 'green', title: 'I know some hiragana', sub: 'Take a short grading test and skip what you know' },
+  { value: 'all', belt: 'brown', title: 'I know all hiragana', sub: 'Start with katakana' },
+];
+
+// The last onboarding step: where to start. A grading test, if chosen, finishes onboarding
+// itself; otherwise onboarding finishes here.
+export default function StartScreen() {
   const insets = useSafeAreaInsets();
   const { progress, updateProgress } = useProgress();
   const rank = useRank();
-  const onboarding = !progress.settings.onboarded;
-  const [choice, setChoice] = useState(progress.settings.dailyGoal);
+  const [choice, setChoice] = useState<Start>('new');
 
-  function done() {
-    const withGoal = setDailyGoal(progress, choice);
-    if (onboarding) {
-      updateProgress(withGoal);
-      router.push('/start');
-    } else {
-      updateProgress(withGoal);
-      goBack();
+  function next() {
+    if (choice === 'some') {
+      router.push('/placement');
+      return;
     }
+    const start = choice === 'all' ? setScript(progress, 'katakana') : progress;
+    updateProgress(finishOnboarding(start));
+    router.replace('/');
   }
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
       <View style={styles.top}>
-        <Pressable role="button" aria-label={onboarding ? 'Back' : 'Close'} onPress={goBack} hitSlop={10}>
-          {onboarding ? <BackIcon color={colors.ink2} /> : <XIcon color={colors.ink2} />}
+        <Pressable role="button" aria-label="Back" onPress={() => router.back()} hitSlop={10}>
+          <BackIcon color={colors.ink2} />
         </Pressable>
-        {onboarding && (
-          <View style={styles.track}>
-            <View style={styles.fill} />
-          </View>
-        )}
+        <View style={styles.track}>
+          <View style={styles.fill} />
+        </View>
       </View>
 
       <View style={styles.coach}>
         <Karasu mood="gentle" rank={rank} size={72} />
         <View style={styles.bubble}>
-          <Text style={styles.bubbleText}>How long will you train each day?</Text>
+          <Text style={styles.bubbleText}>Do you know any kana already?</Text>
         </View>
       </View>
 
       <View style={styles.options} role="radiogroup">
-        {DAILY_GOALS.map((goal) => {
-          const selected = goal.lessons === choice;
+        {STARTS.map((start) => {
+          const selected = start.value === choice;
           return (
             <Pressable
-              key={goal.lessons}
+              key={start.value}
               role="radio"
               aria-checked={selected}
-              onPress={() => setChoice(goal.lessons)}
+              onPress={() => setChoice(start.value)}
               style={[styles.option, selected && styles.optionSelected]}>
-              <Text style={styles.minutes}>{goal.minutes} minutes</Text>
-              <Text style={[styles.name, selected && styles.nameSelected]}>
-                {goal.name} · {goal.lessons} {goal.lessons === 1 ? 'lesson' : 'lessons'}
-              </Text>
+              <BeltIcon belt={start.belt} width={50} />
+              <View style={styles.optionText}>
+                <Text style={styles.optionTitle}>{start.title}</Text>
+                <Text style={styles.optionSub}>{start.sub}</Text>
+              </View>
             </Pressable>
           );
         })}
-        <Text style={styles.note}>You can change this anytime.</Text>
       </View>
 
       <View style={styles.footer}>
-        <PrimaryButton label={onboarding ? 'Continue' : 'Save'} onPress={done} />
+        <PrimaryButton label="Continue" onPress={next} />
       </View>
     </View>
   );
@@ -107,9 +107,9 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: colors.edge,
   },
-  // Onboarding has three steps (welcome, this, starting point); this is the first third.
+  // The second of onboarding's three steps.
   fill: {
-    width: '33%',
+    width: '66%',
     height: '100%',
     borderRadius: 3,
     backgroundColor: colors.sumi,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 10,
     marginTop: 6,
-    marginBottom: 18,
+    marginBottom: 16,
     paddingHorizontal: 18,
   },
   bubble: {
@@ -144,35 +144,28 @@ const styles = StyleSheet.create({
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 14,
+    gap: 12,
+    padding: 12,
     borderRadius: 10,
     borderWidth: BORDER,
     borderColor: colors.line,
     backgroundColor: colors.card,
   },
-  // Selection is a thicker border, never a fill; padding shrinks so the card doesn't grow.
+  // Selection is a thicker border, never a fill.
   optionSelected: {
-    padding: 14 - (SELECTED_BORDER - BORDER),
+    padding: 12 - (SELECTED_BORDER - BORDER),
     borderWidth: SELECTED_BORDER,
     borderColor: colors.sumi,
   },
-  minutes: {
+  optionText: {
+    flex: 1,
+  },
+  optionTitle: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 16,
     color: colors.sumi,
   },
-  name: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 14,
-    color: colors.muted,
-  },
-  nameSelected: {
-    color: colors.sumi,
-  },
-  note: {
-    marginTop: 4,
-    textAlign: 'center',
+  optionSub: {
     fontFamily: fonts.uiSemiBold,
     fontSize: 13,
     color: colors.ink2,

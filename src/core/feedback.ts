@@ -1,6 +1,7 @@
 import { NEW_KANA, type Progress } from './answers';
 import { tierOf, type Belt } from './boxes';
 import type { Kana } from './kana';
+import { kanaTip } from './tips';
 
 export type BeltChange = { from: Belt; to: Belt };
 
@@ -40,9 +41,12 @@ export function pairTipFor(char: string, others: readonly string[]): string | nu
   return null;
 }
 
-// A memory tip for mixing up `shown` with `guessed`.
+// A memory tip for mixing up `shown` with `guessed`: how to tell the two apart if there's a
+// written tip for that pair, otherwise the shown kana's own tip.
 export function tipFor(shown: Kana, guessed: Kana): string {
-  const match = pairTip(shown.char, guessed.char);
-  if (match) return match;
-  return `${shown.char} is "${shown.romaji[0]}". ${guessed.char} is "${guessed.romaji[0]}".`;
+  return (
+    pairTip(shown.char, guessed.char) ??
+    kanaTip(shown.char) ??
+    `${shown.char} is "${shown.romaji[0]}". ${guessed.char} is "${guessed.romaji[0]}".`
+  );
 }

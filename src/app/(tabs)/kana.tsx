@@ -14,6 +14,7 @@ import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
 import { lookalikesOf, type Kana, type Script } from '@/core/kana';
+import { kanaTip } from '@/core/tips';
 import { useProgress } from '@/hooks/use-progress';
 
 const SCRIPTS = [
@@ -90,8 +91,9 @@ function DetailSheet({ kana, onDrill, onClose }: { kana: Kana; onDrill: () => vo
   // The time when the sheet opened; reading the clock during every render isn't allowed.
   const [now] = useState(() => Date.now());
   const details = kanaDetails(progress, kana, now);
-  // Tip: the written one for its most common mix-up, else for a lookalike.
-  const tip = pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]);
+  // Tip: how to tell it from its most common mix-up or a lookalike, else its own memory tip.
+  const tip =
+    pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]) ?? kanaTip(kana.char);
   return <KanaDetailSheet kana={kana} details={details} tip={tip} onDrill={onDrill} onClose={onClose} />;
 }
 

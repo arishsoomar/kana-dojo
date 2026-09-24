@@ -1,6 +1,7 @@
 import { EMPTY_PROGRESS, recordAnswer, type Progress } from './answers';
 import { beltChange, pairTipFor, tipFor } from './feedback';
 import { KANA, type Kana } from './kana';
+import { kanaTip } from './tips';
 
 function kana(char: string): Kana {
   const found = KANA.find((k) => k.char === char);
@@ -41,8 +42,8 @@ describe('tipFor', () => {
     expect(tipFor(kana('め'), kana('ぬ'))).toBe(tip);
   });
 
-  it('falls back to naming both sounds for other mix-ups', () => {
-    expect(tipFor(kana('か'), kana('き'))).toBe('か is "ka". き is "ki".');
+  it("falls back to the shown kana's own memory tip for other mix-ups", () => {
+    expect(tipFor(kana('か'), kana('き'))).toBe(kanaTip('か'));
   });
 });
 

@@ -1,5 +1,6 @@
 import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Progress } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
+import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
 // Version 1 had no stats and version 2 had no finished lessons; both are still read,
@@ -38,7 +39,8 @@ export function parseProgress(text: string | null): Progress {
   // has clearly been using the app, so they count as onboarded.
   const hasProgress = Object.keys(progress.kana).length > 0 || progress.completed.length > 0 || Object.keys(progress.stats).length > 0;
   const onboarded = isObject(settings) && typeof settings.onboarded === 'boolean' ? settings.onboarded : hasProgress;
-  return { ...progress, settings: { onboarded } };
+  const dailyGoal = isObject(settings) && isDailyGoal(settings.dailyGoal) ? settings.dailyGoal : DEFAULT_DAILY_GOAL;
+  return { ...progress, settings: { onboarded, dailyGoal } };
 }
 
 // Keeps the entries whose value passes `isValid`.

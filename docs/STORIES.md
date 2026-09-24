@@ -344,9 +344,11 @@ Done when:
 that** the daily target feels like mine.
 
 Done when:
-- [ ] Choose 5, 10, 15 or 20 minutes (a number of lessons per day)
-- [ ] The Learn screen shows today's progress toward the goal
-- [ ] The goal can be changed later
+- [ ] Choose 5, 10, 15 or 20 minutes (1, 2, 3 or 4 lessons per day; the
+      app counts lessons, never time). Onboarding finishes here.
+- [ ] The Learn screen shows today's progress toward the goal (a small ring
+      next to the streak; any lesson, game or exam counts)
+- [ ] The goal can be changed later, from the Profile tab
 
 ### H3. Starting point
 **As a** learner who already knows some kana, **I want** to skip what I

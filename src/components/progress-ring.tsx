@@ -8,19 +8,18 @@ type Props = {
   fraction: number;
   label: string;
   size?: number;
+  stroke?: number;
 };
 
-const STROKE = 8;
-
-export function ProgressRing({ fraction, label, size = 58 }: Props) {
-  const radius = (size - STROKE) / 2;
+export function ProgressRing({ fraction, label, size = 58, stroke = 8 }: Props) {
+  const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const center = size / 2;
 
   return (
     <View style={{ width: size, height: size }}>
       <Svg width={size} height={size}>
-        <Circle cx={center} cy={center} r={radius} fill="none" stroke={colors.line} strokeWidth={STROKE} />
+        <Circle cx={center} cy={center} r={radius} fill="none" stroke={colors.line} strokeWidth={stroke} />
         {/* A dash as long as the filled share of the circle, starting from the top.
             Skipped at 0, where the rounded line ends would still draw a dot. */}
         {fraction > 0 && <Circle
@@ -29,7 +28,7 @@ export function ProgressRing({ fraction, label, size = 58 }: Props) {
           r={radius}
           fill="none"
           stroke={colors.sumi}
-          strokeWidth={STROKE}
+          strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={`${fraction * circumference} ${circumference}`}
           transform={`rotate(-90 ${center} ${center})`}

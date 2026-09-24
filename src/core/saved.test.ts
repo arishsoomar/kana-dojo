@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false } };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2 } };
 
 const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
@@ -11,7 +11,7 @@ const sample: Progress = {
     { lesson: 'hiragana:a:0', at: 1_000_000 },
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
   ],
-  settings: { onboarded: true },
+  settings: { onboarded: true, dailyGoal: 3 },
 };
 
 describe('saving progress', () => {
@@ -42,7 +42,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true },
+      settings: { onboarded: true, dailyGoal: 2 },
     });
   });
 
@@ -56,7 +56,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true },
+      settings: { onboarded: true, dailyGoal: 2 },
     });
   });
 
@@ -84,7 +84,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true },
+      settings: { onboarded: true, dailyGoal: 2 },
     });
   });
 
@@ -98,5 +98,16 @@ describe('saving progress', () => {
   it('keeps the saved onboarding setting', () => {
     const saved = JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: true } } });
     expect(parseProgress(saved).settings.onboarded).toBe(true);
+  });
+});
+
+describe('saving the daily goal', () => {
+  it('keeps a valid goal and replaces a missing or broken one with the default', () => {
+    const save = (settings: unknown) =>
+      JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings } });
+    expect(parseProgress(save({ onboarded: true, dailyGoal: 4 })).settings.dailyGoal).toBe(4);
+    expect(parseProgress(save({ onboarded: true })).settings.dailyGoal).toBe(2);
+    expect(parseProgress(save({ onboarded: true, dailyGoal: 9 })).settings.dailyGoal).toBe(2);
+    expect(parseProgress(save({ onboarded: true, dailyGoal: 'lots' })).settings.dailyGoal).toBe(2);
   });
 });

@@ -5,20 +5,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Karasu } from '@/components/karasu';
 import { PrimaryButton } from '@/components/primary-button';
 import { colors, fonts, wallColors } from '@/constants/theme';
-import { finishOnboarding } from '@/core/answers';
-import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 
 // The first thing a new learner sees. Karasu introduces himself and says plainly what
-// the app is for, so it feels finishable. It's shown once.
+// the app is for, so it feels finishable. It's shown until onboarding is finished.
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
-  const { progress, updateProgress } = useProgress();
   const rank = useRank();
 
+  // On to choosing a daily goal, which finishes onboarding.
   function enter() {
-    updateProgress(finishOnboarding(progress));
-    router.replace('/');
+    router.push('/goal');
   }
 
   return (

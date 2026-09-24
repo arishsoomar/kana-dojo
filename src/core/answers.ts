@@ -1,4 +1,5 @@
 import { intervalFor, isDue, MAX_BOX, type KanaProgress } from './boxes';
+import { DEFAULT_DAILY_GOAL } from './goal';
 
 export type Confusion = {
   shown: string;
@@ -22,7 +23,8 @@ export type Completion = {
 
 // The learner's choices, as opposed to their training record.
 export type Settings = {
-  onboarded: boolean; // has seen the welcome
+  onboarded: boolean; // has been through the welcome and chosen a goal
+  dailyGoal: number; // lessons per day
 };
 
 export type Progress = {
@@ -39,7 +41,7 @@ export const EMPTY_PROGRESS: Progress = {
   confusions: [],
   stats: {},
   completed: [],
-  settings: { onboarded: false },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL },
 };
 
 export type Answer = {

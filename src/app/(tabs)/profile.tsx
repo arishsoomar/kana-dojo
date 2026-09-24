@@ -1,5 +1,6 @@
+import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
@@ -9,6 +10,7 @@ import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
+import { DAILY_GOALS } from '@/core/goal';
 import {
   badgeLevel,
   kanaLearned,
@@ -34,6 +36,7 @@ export default function ProfileScreen() {
   const since = trainingSince(progress);
   const accuracy = overallAccuracy(progress);
   const speed = overallStrikeSpeed(progress);
+  const goal = DAILY_GOALS.find((g) => g.lessons === progress.settings.dailyGoal);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -64,6 +67,16 @@ export default function ProfileScreen() {
           label="Accuracy"
         />
       </View>
+
+      <Pressable role="button" onPress={() => router.push('/goal')} style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>Daily goal</Text>
+          <Text style={styles.goalSub}>
+            {goal ? `${goal.name} · ${goal.minutes} minutes, ${goal.lessons} ${goal.lessons === 1 ? 'lesson' : 'lessons'} a day` : ''}
+          </Text>
+        </View>
+        <Text style={styles.goalChange}>Change</Text>
+      </Pressable>
 
       <Text style={styles.heading}>Badges</Text>
       <Badge
@@ -187,6 +200,35 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiSemiBold,
     fontSize: 12,
     color: colors.ink2,
+  },
+  goal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginHorizontal: 18,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.card,
+  },
+  goalText: {
+    flex: 1,
+  },
+  goalTitle: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 14,
+    color: colors.sumi,
+  },
+  goalSub: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12,
+    color: colors.ink2,
+  },
+  goalChange: {
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.vermilionDark,
   },
   heading: {
     marginTop: 16,

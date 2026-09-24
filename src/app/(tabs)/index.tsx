@@ -9,11 +9,13 @@ import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { PlaqueTile } from '@/components/plaque-tile';
 import { PrimaryButton } from '@/components/primary-button';
+import { ProgressRing } from '@/components/progress-ring';
 import { SegmentedControl } from '@/components/segmented-control';
 import { colors, fonts, wallColors } from '@/constants/theme';
 import type { Script } from '@/core/kana';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
+import { useDailyGoal } from '@/hooks/use-daily-goal';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
@@ -27,6 +29,7 @@ export default function LearnScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const streak = useStreak();
+  const daily = useDailyGoal();
   const rank = useRank();
   const [script, setScript] = useState<Script>('hiragana');
   const path = learnPath(progress, script);
@@ -64,6 +67,12 @@ export default function LearnScreen() {
           <FlameIcon />
           <Text style={[styles.streakCount, streak.current === 0 && styles.streakCountZero]}>{streak.current}</Text>
         </Pressable>
+        <View style={styles.daily} aria-label={`Daily goal: ${daily.done} of ${daily.goal} ${daily.goal === 1 ? 'lesson' : 'lessons'} today`}>
+          <ProgressRing fraction={Math.min(daily.done / daily.goal, 1)} label="" size={22} stroke={4} />
+          <Text style={styles.dailyText}>
+            {daily.done}/{daily.goal}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.unitCard}>
@@ -187,6 +196,16 @@ const styles = StyleSheet.create({
   },
   streakCountZero: {
     color: colors.muted,
+  },
+  daily: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  dailyText: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    color: colors.sumi,
   },
   unitCard: {
     paddingVertical: 11,

@@ -1,10 +1,12 @@
-import type { Confusion, Progress } from './answers';
+import { EMPTY_PROGRESS, type Confusion, type KanaStats, type Progress } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
-const SAVE_VERSION = 1;
+// Version 1 had no stats; it is still read, with empty stats.
+const SAVE_VERSION = 2;
+const READABLE_VERSIONS: readonly unknown[] = [1, 2];
 
-const EMPTY: Progress = { kana: {}, confusions: [] };
+const EMPTY = EMPTY_PROGRESS;
 
 // Progress as text, ready to store on the device.
 export function serializeProgress(progress: Progress): string {
@@ -22,19 +24,21 @@ export function parseProgress(text: string | null): Progress {
   } catch {
     return EMPTY;
   }
-  if (!isObject(data) || data.version !== SAVE_VERSION || !isObject(data.progress)) return EMPTY;
+  if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions } = data.progress;
+  const { kana, confusions, stats } = data.progress;
   return {
-    kana: isObject(kana) ? validKana(kana) : {},
+    kana: isObject(kana) ? validEntries(kana, isKanaProgress) : {},
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
+    stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
   };
 }
 
-function validKana(saved: Record<string, unknown>): Record<string, KanaProgress> {
-  const result: Record<string, KanaProgress> = {};
+// Keeps the entries whose value passes `isValid`.
+function validEntries<T>(saved: Record<string, unknown>, isValid: (value: unknown) => value is T): Record<string, T> {
+  const result: Record<string, T> = {};
   for (const [char, value] of Object.entries(saved)) {
-    if (isKanaProgress(value)) result[char] = value;
+    if (isValid(value)) result[char] = value;
   }
   return result;
 }
@@ -52,6 +56,20 @@ function isKanaProgress(value: unknown): value is KanaProgress {
     value.box >= 0 &&
     value.box <= MAX_BOX &&
     typeof value.dueAt === 'number'
+  );
+}
+
+function isCount(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
+}
+
+function isKanaStats(value: unknown): value is KanaStats {
+  return (
+    isObject(value) &&
+    isCount(value.seen) &&
+    isCount(value.correct) &&
+    Array.isArray(value.recentMs) &&
+    value.recentMs.every((ms) => typeof ms === 'number')
   );
 }
 

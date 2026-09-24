@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,8 +11,8 @@ import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { LessonTopBar } from '@/components/lesson-top-bar';
 import { colors, fonts } from '@/constants/theme';
-import type { Kana } from '@/core/kana';
-import { useLesson, type Result } from '@/hooks/use-lesson';
+import { KANA, type Kana } from '@/core/kana';
+import { useLesson, type LessonMode, type Result } from '@/hooks/use-lesson';
 
 // Back to where the lesson was opened from. If the lesson was opened directly
 // (a refreshed or bookmarked web page), there's nothing to go back to, so go to Learn.
@@ -21,9 +21,17 @@ function leaveLesson() {
   else router.replace('/');
 }
 
+// `/lesson?drill=し` drills one kana; plain `/lesson` is a hiragana lesson.
+function modeFrom(drill: string | undefined): LessonMode {
+  const kana = KANA.find((k) => k.char === drill);
+  return kana ? { drill: kana } : { script: 'hiragana' };
+}
+
 export default function LessonScreen() {
   const insets = useSafeAreaInsets();
-  const { question, result, summary, fraction, check, goToNext } = useLesson('hiragana');
+  const { drill } = useLocalSearchParams<{ drill?: string }>();
+  const [mode] = useState(() => modeFrom(drill));
+  const { question, result, summary, fraction, check, goToNext } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
 
   if (summary) {
@@ -42,7 +50,7 @@ export default function LessonScreen() {
         <View style={styles.coach}>
           <Karasu mood={moodFor(result)} />
           <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>Read this.</Text>
+            <Text style={styles.bubbleText}>{'drill' in mode ? `Drilling ${mode.drill.char}.` : 'Read this.'}</Text>
           </View>
         </View>
 

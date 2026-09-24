@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { beltColors, colors, fonts } from '@/constants/theme';
 import type { GridCell } from '@/core/grid';
@@ -7,7 +7,7 @@ import { LockIcon } from './lock-icon';
 
 // One kana in the belt grid: character, romaji, and a stripe in its belt color.
 // Black belts are drawn inverted, with a vermilion stripe.
-export function KanaCell({ cell }: { cell: GridCell }) {
+export function KanaCell({ cell, onPress }: { cell: GridCell; onPress: () => void }) {
   const { kana, belt, locked } = cell;
 
   if (locked) {
@@ -20,7 +20,11 @@ export function KanaCell({ cell }: { cell: GridCell }) {
 
   const black = belt === 'black';
   return (
-    <View style={[styles.cell, black && styles.blackCell]} aria-label={`${kana.char}, ${kana.romaji[0]}, ${belt} belt`}>
+    <Pressable
+      role="button"
+      onPress={onPress}
+      style={[styles.cell, black && styles.blackCell]}
+      aria-label={`${kana.char}, ${kana.romaji[0]}, ${belt} belt`}>
       <Text style={[styles.kana, black && styles.onBlack]}>{kana.char}</Text>
       <Text style={[styles.romaji, black && styles.romajiOnBlack]}>{kana.romaji[0]}</Text>
       <View
@@ -31,7 +35,7 @@ export function KanaCell({ cell }: { cell: GridCell }) {
           black && styles.blackStripe,
         ]}
       />
-    </View>
+    </Pressable>
   );
 }
 

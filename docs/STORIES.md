@@ -171,10 +171,14 @@ Done when:
 understand why it's weak.
 
 Done when:
-- [ ] Sheet shows accuracy, strike speed, next drill time
-- [ ] Shows the pairs this kana is confused with, and how often
-- [ ] Memory tip shown
-- [ ] A button drills this kana specifically
+- [ ] Sheet shows accuracy, strike speed, next drill time (progress now
+      keeps per-kana stats; save format v2, v1 saves are upgraded)
+- [ ] Shows the pairs this kana is confused with, and how often (both
+      directions)
+- [ ] Memory tip shown. Only the lookalike pair tips exist so far; kana
+      without one show no tip. Needs a written tip for every kana.
+- [ ] A button drills this kana specifically: a 10-question lesson, about
+      half on the kana itself and half on what it's mixed up with
 
 ### D3. Learn path
 **As a** learner, **I want** a home screen showing what to do next, **so

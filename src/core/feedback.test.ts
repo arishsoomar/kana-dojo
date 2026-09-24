@@ -1,5 +1,5 @@
 import { recordAnswer, type Progress } from './answers';
-import { beltChange, tipFor } from './feedback';
+import { beltChange, pairTipFor, tipFor } from './feedback';
 import { KANA, type Kana } from './kana';
 
 function kana(char: string): Kana {
@@ -11,7 +11,7 @@ function kana(char: string): Kana {
 const NOW = 1_000_000;
 
 function withBox(box: number): Progress {
-  return { kana: { ぬ: { box, dueAt: NOW } }, confusions: [] };
+  return { kana: { ぬ: { box, dueAt: NOW } }, confusions: [], stats: {} };
 }
 
 describe('beltChange', () => {
@@ -43,5 +43,15 @@ describe('tipFor', () => {
 
   it('falls back to naming both sounds for other mix-ups', () => {
     expect(tipFor(kana('か'), kana('き'))).toBe('か is "ka". き is "ki".');
+  });
+});
+
+describe('pairTipFor', () => {
+  it('uses the first kana in the list that has a written tip with this one', () => {
+    expect(pairTipFor('ね', ['か', 'れ', 'わ'])).toContain('kicks out');
+  });
+
+  it('is null when no pair tip exists', () => {
+    expect(pairTipFor('か', ['き'])).toBeNull();
   });
 });

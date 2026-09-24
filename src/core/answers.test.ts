@@ -8,6 +8,7 @@ function progressWith(box: number, dueAt = NOW): Progress {
   return {
     kana: { シ: { box, dueAt } },
     confusions: [],
+    stats: {},
   };
 }
 
@@ -72,7 +73,7 @@ describe('recordAnswer: wrong', () => {
   });
 
   it('adds to earlier confusions instead of replacing them', () => {
-    const before = { ...progressWith(5), confusions: [{ shown: 'ぬ', guessed: 'め' }] };
+    const before = { ...progressWith(5), confusions: [{ shown: 'ぬ', guessed: 'め' }], stats: {} };
     const next = recordAnswer(before, wrong);
     expect(next.confusions).toEqual([
       { shown: 'ぬ', guessed: 'め' },
@@ -82,7 +83,7 @@ describe('recordAnswer: wrong', () => {
 });
 
 describe('recordAnswer: a kana with no progress yet', () => {
-  const empty: Progress = { kana: {}, confusions: [] };
+  const empty: Progress = { kana: {}, confusions: [], stats: {} };
 
   it('treats it as box 0 and due, so a fast correct answer promotes it', () => {
     const next = recordAnswer(empty, { char: 'ア', guess: 'ア', ms: 1500, now: NOW });
@@ -100,6 +101,7 @@ describe('recordAnswer: immutability', () => {
     const before: Progress = {
       kana: { シ: { box: 4, dueAt: NOW } },
       confusions: [{ shown: 'ぬ', guessed: 'め' }],
+      stats: {},
     };
     const snapshot = structuredClone(before);
 
@@ -107,5 +109,24 @@ describe('recordAnswer: immutability', () => {
     recordAnswer(before, { char: 'シ', guess: 'ツ', ms: 1500, now: NOW });
 
     expect(before).toEqual(snapshot);
+  });
+});
+
+describe('recordAnswer: stats', () => {
+  const empty: Progress = { kana: {}, confusions: [], stats: {} };
+
+  it('counts every answer and every correct one, due or not', () => {
+    let progress = recordAnswer(empty, { char: 'シ', guess: 'シ', ms: 900, now: NOW });
+    progress = recordAnswer(progress, { char: 'シ', guess: 'ツ', ms: 1200, now: NOW });
+    progress = recordAnswer(progress, { char: 'シ', guess: 'シ', ms: 1100, now: NOW });
+    expect(progress.stats['シ']).toEqual({ seen: 3, correct: 2, recentMs: [900, 1100] });
+  });
+
+  it('keeps only the last 10 correct answer times', () => {
+    let progress = empty;
+    for (let ms = 1; ms <= 12; ms++) {
+      progress = recordAnswer(progress, { char: 'シ', guess: 'シ', ms, now: NOW });
+    }
+    expect(progress.stats['シ']?.recentMs).toEqual([3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
 });

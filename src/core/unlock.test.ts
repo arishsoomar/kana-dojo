@@ -7,6 +7,7 @@ function withBox(chars: string[], box: number): Progress {
   return {
     kana: Object.fromEntries(chars.map((char) => [char, { box, dueAt: 0 }])),
     confusions: [],
+    stats: {},
   };
 }
 

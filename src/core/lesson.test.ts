@@ -2,7 +2,7 @@ import type { Progress } from './answers';
 import { LESSON_LENGTH, median, summarizeLesson } from './lesson';
 
 const NOW = 1_000_000;
-const empty: Progress = { kana: {}, confusions: [] };
+const empty: Progress = { kana: {}, confusions: [], stats: {} };
 
 describe('LESSON_LENGTH', () => {
   it('is a fixed number of questions', () => {
@@ -47,10 +47,12 @@ describe('summarizeLesson', () => {
     const before: Progress = {
       kana: { あ: { box: 2, dueAt: NOW }, い: { box: 3, dueAt: NOW } },
       confusions: [],
+      stats: {},
     };
     const after: Progress = {
       kana: { あ: { box: 3, dueAt: NOW }, い: { box: 1, dueAt: NOW } },
       confusions: [],
+      stats: {},
     };
     const repeated = [...answers, { char: 'あ', correct: true, ms: 800 }];
     expect(summarizeLesson(before, after, repeated).promotions).toEqual([{ char: 'あ', belt: 'green' }]);

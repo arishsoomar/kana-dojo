@@ -17,6 +17,8 @@ export const colors = {
   vermilionDark: '#B8341D',
   vermilionLight: '#FDECE8',
   backdrop: 'rgba(23, 24, 28, 0.5)', // night at 50%, behind dialogs
+  indigoLight: '#E6F0FA',
+  indigoDark: '#1D5B8C',
 } as const;
 
 // Karasu, the crow sensei.

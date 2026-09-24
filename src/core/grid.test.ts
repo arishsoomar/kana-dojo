@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { masteryGrid } from './grid';
 
-const NEW_LEARNER: Progress = { kana: {}, confusions: [] };
+const NEW_LEARNER: Progress = { kana: {}, confusions: [], stats: {} };
 
 describe('masteryGrid', () => {
   it('has every row in order, with 46 kana in total', () => {
@@ -29,6 +29,7 @@ describe('masteryGrid', () => {
     const progress: Progress = {
       kana: { あ: { box: 7, dueAt: 0 }, い: { box: 5, dueAt: 0 }, う: { box: 3, dueAt: 0 }, え: { box: 4, dueAt: 0 } },
       confusions: [],
+      stats: {},
     };
     const grid = masteryGrid(progress, 'hiragana');
     expect(grid.rows[0]?.cells.map((c) => c.belt)).toEqual(['black', 'brown', 'green', 'green', 'white']);
@@ -37,7 +38,7 @@ describe('masteryGrid', () => {
   });
 
   it('keeps each script separate', () => {
-    const progress: Progress = { kana: { あ: { box: 7, dueAt: 0 } }, confusions: [] };
+    const progress: Progress = { kana: { あ: { box: 7, dueAt: 0 } }, confusions: [], stats: {} };
     expect(masteryGrid(progress, 'katakana').pastWhite).toBe(0);
   });
 });

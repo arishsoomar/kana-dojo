@@ -1,15 +1,19 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
 import { KanaCell } from '@/components/kana-cell';
+import { KanaDetailSheet } from '@/components/kana-detail-sheet';
 import { ProgressRing } from '@/components/progress-ring';
 import { SegmentedControl } from '@/components/segmented-control';
 import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
+import { kanaDetails } from '@/core/details';
+import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
-import type { Script } from '@/core/kana';
+import { lookalikesOf, type Kana, type Script } from '@/core/kana';
 import { useProgress } from '@/hooks/use-progress';
 
 const SCRIPTS = [
@@ -24,7 +28,13 @@ export default function KanaScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const [script, setScript] = useState<Script>('hiragana');
+  const [open, setOpen] = useState<Kana | null>(null);
   const grid = masteryGrid(progress, script);
+
+  function drill(kana: Kana) {
+    setOpen(null);
+    router.push({ pathname: '/lesson', params: { drill: kana.char } });
+  }
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
@@ -54,7 +64,7 @@ export default function KanaScreen() {
           <View key={row} style={styles.row}>
             <Text style={styles.rowLabel}>{row}</Text>
             {cells.map((cell) => (
-              <KanaCell key={cell.kana.char} cell={cell} />
+              <KanaCell key={cell.kana.char} cell={cell} onPress={() => setOpen(cell.kana)} />
             ))}
             {/* Short rows (ya, wa) keep the same column widths as the rest. */}
             {Array.from({ length: 5 - cells.length }, (_, i) => (
@@ -63,8 +73,22 @@ export default function KanaScreen() {
           </View>
         ))}
       </View>
+
+      {open && (
+        <DetailSheet kana={open} onDrill={() => drill(open)} onClose={() => setOpen(null)} />
+      )}
     </ScrollView>
   );
+}
+
+function DetailSheet({ kana, onDrill, onClose }: { kana: Kana; onDrill: () => void; onClose: () => void }) {
+  const { progress } = useProgress();
+  // The time when the sheet opened; reading the clock during every render isn't allowed.
+  const [now] = useState(() => Date.now());
+  const details = kanaDetails(progress, kana, now);
+  // Tip: the written one for its most common mix-up, else for a lookalike.
+  const tip = pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]);
+  return <KanaDetailSheet kana={kana} details={details} tip={tip} onDrill={onDrill} onClose={onClose} />;
 }
 
 const styles = StyleSheet.create({

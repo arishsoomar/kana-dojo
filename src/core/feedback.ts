@@ -27,9 +27,22 @@ const PAIR_TIPS: readonly { pair: readonly [string, string]; tip: string }[] = [
   { pair: ['さ', 'ち'], tip: 'ち curves out to the right, like the bottom of a 5. さ is the mirror image: its curve bulges to the left.' },
 ];
 
+function pairTip(a: string, b: string): string | null {
+  return PAIR_TIPS.find(({ pair }) => pair.includes(a) && pair.includes(b))?.tip ?? null;
+}
+
+// The written tip for `char` and the first kana in `others` that has one, or null.
+export function pairTipFor(char: string, others: readonly string[]): string | null {
+  for (const other of others) {
+    const tip = pairTip(char, other);
+    if (tip) return tip;
+  }
+  return null;
+}
+
 // A memory tip for mixing up `shown` with `guessed`.
 export function tipFor(shown: Kana, guessed: Kana): string {
-  const match = PAIR_TIPS.find(({ pair }) => pair.includes(shown.char) && pair.includes(guessed.char));
-  if (match) return match.tip;
+  const match = pairTip(shown.char, guessed.char);
+  if (match) return match;
   return `${shown.char} is "${shown.romaji[0]}". ${guessed.char} is "${guessed.romaji[0]}".`;
 }

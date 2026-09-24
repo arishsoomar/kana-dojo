@@ -1,11 +1,12 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [] };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {} };
 
 const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
   confusions: [{ shown: 'シ', guessed: 'ツ' }],
+  stats: { あ: { seen: 4, correct: 3, recentMs: [900, 1200, 800] } },
 };
 
 describe('saving progress', () => {
@@ -26,9 +27,21 @@ describe('saving progress', () => {
     expect(parseProgress(future)).toEqual(EMPTY);
   });
 
+  it('upgrades a version 1 save, which had no stats', () => {
+    const v1 = JSON.stringify({
+      version: 1,
+      progress: { kana: { あ: { box: 3, dueAt: 1_000_000 } }, confusions: [{ shown: 'シ', guessed: 'ツ' }] },
+    });
+    expect(parseProgress(v1)).toEqual({
+      kana: { あ: { box: 3, dueAt: 1_000_000 } },
+      confusions: [{ shown: 'シ', guessed: 'ツ' }],
+      stats: {},
+    });
+  });
+
   it('keeps valid entries and drops damaged ones', () => {
     const damaged = JSON.stringify({
-      version: 1,
+      version: 2,
       progress: {
         kana: {
           あ: { box: 3, dueAt: 1_000_000 },
@@ -37,11 +50,17 @@ describe('saving progress', () => {
           え: { box: 2 },
         },
         confusions: [{ shown: 'シ', guessed: 'ツ' }, { shown: 'シ' }, 'oops'],
+        stats: {
+          あ: { seen: 2, correct: 1, recentMs: [900] },
+          い: { seen: 'two', correct: 1, recentMs: [] },
+          う: { seen: 2, correct: 1, recentMs: ['fast'] },
+        },
       },
     });
     expect(parseProgress(damaged)).toEqual({
       kana: { あ: { box: 3, dueAt: 1_000_000 } },
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
+      stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
     });
   });
 });

@@ -1,4 +1,5 @@
-import { EMPTY_PROGRESS, type Progress } from './answers';
+import { completeLesson, EMPTY_PROGRESS, type Progress } from './answers';
+import { EXAM_PASS, examId } from './exam';
 import { masteryGrid } from './grid';
 
 const NEW_LEARNER: Progress = { ...EMPTY_PROGRESS, kana: {} };
@@ -43,7 +44,7 @@ describe('masteryGrid', () => {
 });
 
 describe('masteryGrid: row belts', () => {
-  it("gives each row the lowest belt among its kana", () => {
+  it("says which belt each row qualifies for: the lowest among its kana", () => {
     const progress: Progress = {
       ...EMPTY_PROGRESS,
       kana: {
@@ -55,7 +56,17 @@ describe('masteryGrid: row belts', () => {
       },
     };
     const [aRow, kaRow] = masteryGrid(progress, 'hiragana').rows;
-    expect(aRow?.belt).toBe('green');
-    expect(kaRow?.belt).toBe('white');
+    expect(aRow?.qualified).toBe('green');
+    expect(kaRow?.qualified).toBe('white');
+  });
+
+  it('shows white until the belt exam is passed', () => {
+    const progress: Progress = {
+      ...EMPTY_PROGRESS,
+      kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, dueAt: 0 }])),
+    };
+    expect(masteryGrid(progress, 'hiragana').rows[0]?.belt).toBe('white');
+    const passed = completeLesson(progress, examId('hiragana', 'a', 'green'), 1000, EXAM_PASS);
+    expect(masteryGrid(passed, 'hiragana').rows[0]?.belt).toBe('green');
   });
 });

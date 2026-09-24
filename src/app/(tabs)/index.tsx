@@ -29,6 +29,8 @@ export default function LearnScreen() {
   const path = learnPath(progress, script);
   const unit = path.currentUnit;
   const needed = greenNeeded(progress, script, unit.row);
+  // A belt exam that's ready takes priority in Karasu's suggestion.
+  const examReady = path.units.find((u) => u.exam) ?? null;
 
   function openPlaque(plaque: Plaque) {
     router.push({ pathname: '/lesson', params: { plaque: plaque.id } });
@@ -36,6 +38,10 @@ export default function LearnScreen() {
 
   function practice() {
     router.push({ pathname: '/lesson', params: { script } });
+  }
+
+  function takeExam(u: PathUnit) {
+    router.push({ pathname: '/exam', params: { script, row: u.row } });
   }
 
   return (
@@ -73,7 +79,9 @@ export default function LearnScreen() {
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>{coachLine(path, needed)}</Text>
           </View>
-          {path.current ? (
+          {examReady ? (
+            <PrimaryButton label="Take exam" tone="vermilion" onPress={() => takeExam(examReady)} />
+          ) : path.current ? (
             <PrimaryButton label="Begin" onPress={() => path.current && openPlaque(path.current)} />
           ) : (
             <PrimaryButton label="Practice" onPress={practice} />
@@ -95,6 +103,18 @@ export default function LearnScreen() {
               <PlaqueTile key={plaque.id} plaque={plaque} state={state} onPress={() => openPlaque(plaque)} />
             ))}
           </View>
+          {u.exam && (
+            <View style={styles.examCard}>
+              <BeltIcon belt={u.exam} width={44} />
+              <View style={styles.examText}>
+                <Text style={styles.examTitle}>{capitalize(u.exam)} belt exam ready</Text>
+                <Text style={styles.examSub}>20 questions, 60 seconds, 18 to pass</Text>
+              </View>
+              <Pressable role="button" onPress={() => takeExam(u)} style={styles.examButton}>
+                <Text style={styles.examButtonText}>Take exam</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
       ))}
     </ScrollView>
@@ -108,6 +128,10 @@ function rowKana(unit: PathUnit): string {
 
 function coachLine(path: LearnPath, needed: number): string {
   const { current } = path;
+  const ready = path.units.find((u) => u.exam);
+  if (ready?.exam) {
+    return `Your ${rowKana(ready)} row is ready for its ${ready.exam} belt exam. Take it when you're ready.`;
+  }
   if (current) {
     return current.kind === 'mixed'
       ? 'Next: review the whole row.'
@@ -227,6 +251,41 @@ const styles = StyleSheet.create({
     height: 8,
     marginHorizontal: -18,
     backgroundColor: wallColors.rail,
+  },
+  examCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.vermilion,
+    backgroundColor: colors.vermilionLight,
+  },
+  examText: {
+    flex: 1,
+  },
+  examTitle: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 14,
+    color: colors.vermilionDark,
+  },
+  examSub: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12,
+    color: colors.ink2,
+  },
+  examButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: colors.vermilion,
+  },
+  examButtonText: {
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.card,
   },
   plaques: {
     flexDirection: 'row',

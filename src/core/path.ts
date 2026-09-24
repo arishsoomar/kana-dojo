@@ -1,6 +1,7 @@
-import { NEW_KANA, type Progress } from './answers';
-import { BELTS, tierOf, type Belt } from './boxes';
+import type { Progress } from './answers';
+import type { Belt } from './boxes';
 import { makeChoices } from './choices';
+import { awardedBelt, examDue } from './exam';
 import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
 import { pickNext } from './pick';
 import type { Question } from './question';
@@ -23,7 +24,8 @@ export type PathUnit = {
   row: RowId;
   number: number; // 1 for the a row, 2 for ka, ...
   open: boolean; // the row is unlocked
-  belt: Belt; // the lowest belt among the row's kana
+  belt: Belt; // the row's awarded belt (from exams)
+  exam: Belt | null; // a belt exam the row can take now, if any
   plaques: { plaque: Plaque; state: PlaqueState }[];
   done: number;
 };
@@ -60,14 +62,6 @@ export function plaqueById(id: string): Plaque | null {
   return null;
 }
 
-// A row's belt is its weakest kana's belt.
-export function rowBelt(progress: Progress, script: Script, row: RowId): Belt {
-  const rowKana = KANA.filter((k) => k.script === script && k.row === row);
-  const lowest = Math.min(...rowKana.map((k) => BELTS.indexOf(tierOf((progress.kana[k.char] ?? NEW_KANA).box))));
-  // Safe: every index came from BELTS.indexOf on a real belt.
-  return BELTS[lowest]!;
-}
-
 // The whole path for a script: every row's plaques, which are done, and which one is next.
 // Plaques open one at a time, in order, and only in unlocked rows.
 export function learnPath(progress: Progress, script: Script): LearnPath {
@@ -92,7 +86,8 @@ export function learnPath(progress: Progress, script: Script): LearnPath {
       row,
       number: index + 1,
       open,
-      belt: rowBelt(progress, script, row),
+      belt: awardedBelt(progress, script, row),
+      exam: open ? examDue(progress, script, row) : null,
       plaques,
       done: plaques.filter((p) => p.state === 'done').length,
     };

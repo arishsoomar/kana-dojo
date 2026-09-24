@@ -258,6 +258,13 @@ This is the belt a row has qualified for; F2's exam makes it official.)
 
 ### F2. Belt exam
 Timed 20-question test, no hints, 18 to pass, unlimited retries.
+(Offered when a row qualifies for a belt it hasn't passed; the exam is for
+that belt. 60 seconds, only the row's kana, wrong options from the same row.
+Ends early at the third miss. Only the picked answer shows right or wrong.
+Answers go through recordAnswer. Results are saved as finished-lesson
+records with the number correct; a row shows the highest belt passed,
+never above what its kana qualify for. Offered from a card on the row's
+shelf and by Karasu on the Learn screen.)
 
 ### F3. Belt ceremony
 Karasu ties on the belt. Plaque added to the dojo.

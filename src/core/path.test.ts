@@ -1,6 +1,7 @@
 import { completeLesson, EMPTY_PROGRESS, type Progress } from './answers';
 import { KANA, type Kana } from './kana';
-import { learnPath, makePlaqueQuestion, plaqueById, plaquesFor, rowBelt } from './path';
+import { rowBelt } from './belts';
+import { learnPath, makePlaqueQuestion, plaqueById, plaquesFor } from './path';
 
 const NOW = 1_000_000;
 
@@ -106,5 +107,18 @@ describe('plaqueById', () => {
 
   it('is null for an unknown id', () => {
     expect(plaqueById('hiragana:zz:0')).toBeNull();
+  });
+});
+
+describe('learnPath: belt exams', () => {
+  it('shows the awarded belt, and an exam once the row qualifies', () => {
+    const green = { ...EMPTY_PROGRESS, kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, dueAt: 0 }])) };
+    const unit = learnPath(green, 'hiragana').units[0];
+    expect(unit?.belt).toBe('white');
+    expect(unit?.exam).toBe('green');
+  });
+
+  it('offers no exam in a locked row', () => {
+    expect(learnPath(EMPTY_PROGRESS, 'hiragana').units[1]?.exam).toBeNull();
   });
 });

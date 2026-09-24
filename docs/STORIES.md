@@ -233,6 +233,49 @@ Mascot form changes with overall rank.
 
 ---
 
+## Epic G — Accounts and sync
+
+The app stays fully usable without an account. Progress is always saved on
+the device first; the server is a copy that keeps devices in step.
+
+### G1. Sign in
+**As a** learner, **I want** to create an account and sign in, **so that**
+my progress isn't tied to one device.
+
+Done when:
+- [ ] Sign in with email (magic link) and Sign in with Apple
+- [ ] Signing in is optional; everything works signed out
+- [ ] Sign out returns to local-only progress on that device
+
+### G2. Cloud save
+**As a** learner, **I want** my progress saved to my account, **so that**
+losing my phone doesn't lose my training.
+
+Done when:
+- [ ] Each save goes to the device first, then to the server
+- [ ] Works offline; unsent saves go up when the connection returns
+- [ ] Server data is checked with `parseProgress` like local data
+
+### G3. Merging devices
+**As a** learner, **I want** practice on any device to count, **so that**
+switching between phone and web never throws away a session.
+
+Done when:
+- [ ] `mergeProgress(a, b)` in `src/core/`, test-first
+- [ ] Per kana, the copy with the later `dueAt` wins
+- [ ] Confusion logs are combined without duplicates
+- [ ] Merging is the same whichever order the two copies arrive in
+
+### G4. First sign-in keeps local progress
+**As a** learner, **I want** the progress I made before signing up to
+carry over, **so that** creating an account never resets me.
+
+Done when:
+- [ ] On first sign-in, device progress is merged into the account
+- [ ] Signing in on a second device merges, never overwrites
+
+---
+
 ## Later
 
 Yokai dungeon and charms, duels and scrolls, memory match, word forge,

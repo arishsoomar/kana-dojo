@@ -11,6 +11,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { AuthProvider } from '@/hooks/use-auth';
 import { ProgressProvider, useSavedProgress } from '@/hooks/use-progress';
 
 SplashScreen.preventAutoHideAsync();
@@ -41,19 +42,22 @@ export default function RootLayout() {
   }
 
   return (
-    <ProgressProvider initial={saved}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}
-        <Stack.Screen name="lesson" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="streak" options={{ headerShown: false }} />
-        <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="goal" options={{ headerShown: false }} />
-        <Stack.Screen name="start" options={{ headerShown: false }} />
-        <Stack.Screen name="placement" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="exam" options={{ headerShown: false, gestureEnabled: false }} />
-        <Stack.Screen name="games/rain" options={{ headerShown: false, gestureEnabled: false }} />
-      </Stack>
-    </ProgressProvider>
+    <AuthProvider>
+      <ProgressProvider initial={saved}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}
+          <Stack.Screen name="lesson" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="streak" options={{ headerShown: false }} />
+          <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="goal" options={{ headerShown: false }} />
+          <Stack.Screen name="account" options={{ headerShown: false }} />
+          <Stack.Screen name="start" options={{ headerShown: false }} />
+          <Stack.Screen name="placement" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="exam" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="games/rain" options={{ headerShown: false, gestureEnabled: false }} />
+        </Stack>
+      </ProgressProvider>
+    </AuthProvider>
   );
 }

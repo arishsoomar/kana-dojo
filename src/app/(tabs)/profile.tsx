@@ -20,6 +20,7 @@ import {
   trainingSince,
   type BadgeProgress,
 } from '@/core/profile';
+import { useAuth } from '@/hooks/use-auth';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
@@ -37,6 +38,7 @@ export default function ProfileScreen() {
   const accuracy = overallAccuracy(progress);
   const speed = overallStrikeSpeed(progress);
   const goal = DAILY_GOALS.find((g) => g.lessons === progress.settings.dailyGoal);
+  const auth = useAuth();
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -77,6 +79,17 @@ export default function ProfileScreen() {
         </View>
         <Text style={styles.goalChange}>Change</Text>
       </Pressable>
+
+      {/* Only shown when this build has accounts set up. */}
+      {auth.available && (
+        <Pressable role="button" onPress={() => router.push('/account')} style={styles.goal}>
+          <View style={styles.goalText}>
+            <Text style={styles.goalTitle}>{auth.email ? 'Account' : 'Save your progress to an account'}</Text>
+            <Text style={styles.goalSub}>{auth.email ? `Signed in as ${auth.email}` : 'Optional. Sign in with an email code.'}</Text>
+          </View>
+          <Text style={styles.goalChange}>{auth.email ? 'Manage' : 'Sign in'}</Text>
+        </Pressable>
+      )}
 
       <Text style={styles.heading}>Badges</Text>
       <Badge

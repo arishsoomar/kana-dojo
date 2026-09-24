@@ -294,8 +294,10 @@ the device first; the server is a copy that keeps devices in step.
 my progress isn't tied to one device.
 
 Done when:
-- [ ] Sign in with email (magic link) and Sign in with Apple
-- [ ] Signing in is optional; everything works signed out
+- [ ] Sign in with email using a 6-digit code (Supabase). Sign in with
+      Apple comes later, before App Store release.
+- [ ] Signing in is optional; everything works signed out, and without
+      Supabase keys the account option doesn't appear at all
 - [ ] Sign out returns to local-only progress on that device
 
 ### G2. Cloud save

@@ -268,6 +268,10 @@ shelf and by Karasu on the Learn screen.)
 
 ### F3. Belt ceremony
 Karasu ties on the belt. Plaque added to the dojo.
+(Shown instead of the results screen when an exam is passed: the new belt
+drops onto Karasu, he switches to it, and the words fade in. The plaque is
+a gold belt plaque on that row's shelf on the Learn path, until the dojo
+room exists. No "+50 mon": coins aren't in any story yet.)
 
 ### F4. Karasu evolves
 Mascot form changes with overall rank.

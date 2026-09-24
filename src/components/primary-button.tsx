@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 
-type Tone = 'sumi' | 'pine' | 'vermilion';
+// 'light' is a white button, for dark backgrounds.
+type Tone = 'sumi' | 'pine' | 'vermilion' | 'light';
 
 type Props = {
   label: string;
@@ -18,8 +19,8 @@ export function PrimaryButton({ label, tone = 'sumi', disabled = false, onPress 
       aria-disabled={disabled}
       disabled={disabled}
       onPress={onPress}
-      style={[styles.button, { backgroundColor: colors[tone] }, disabled && styles.buttonDisabled]}>
-      <Text style={[styles.label, disabled && styles.labelDisabled]}>{label}</Text>
+      style={[styles.button, { backgroundColor: tone === 'light' ? colors.card : colors[tone] }, disabled && styles.buttonDisabled]}>
+      <Text style={[styles.label, tone === 'light' && styles.labelOnLight, disabled && styles.labelDisabled]}>{label}</Text>
     </Pressable>
   );
 }
@@ -37,6 +38,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBold,
     fontSize: 16,
     color: colors.card,
+  },
+  labelOnLight: {
+    color: colors.sumi,
   },
   labelDisabled: {
     color: colors.muted,

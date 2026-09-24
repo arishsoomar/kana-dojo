@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BeltCeremony } from '@/components/belt-ceremony';
 import { BeltIcon } from '@/components/belt-icon';
 import { BulbIcon } from '@/components/bulb-icon';
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
@@ -12,8 +13,9 @@ import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
-import { EXAM_LENGTH, EXAM_PASS, examDue } from '@/core/exam';
+import { awardedBelt, EXAM_LENGTH, EXAM_PASS, examDue } from '@/core/exam';
 import { KANA, ROWS, type Kana, type RowId, type Script } from '@/core/kana';
+import { unlockedKana } from '@/core/unlock';
 import { useExam } from '@/hooks/use-exam';
 import { useProgress } from '@/hooks/use-progress';
 
@@ -43,22 +45,50 @@ export default function ExamScreen() {
   return <Exam script={script} row={row} belt={belt} />;
 }
 
+// The first kana of a row in a script, e.g. "か" for the ka row, or null if there's no such row.
+function rowChar(script: Script, row: RowId | undefined): string | null {
+  return KANA.find((k) => k.script === script && k.row === row)?.char ?? null;
+}
+
 function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt }) {
   const insets = useSafeAreaInsets();
+  const { progress } = useProgress();
   const exam = useExam(script, row, belt);
-  const rowName = KANA.find((k) => k.script === script && k.row === row)?.char ?? row;
+  const rowName = rowChar(script, row) ?? row;
   const beltName = `${belt} belt`;
+  const nextRow = ROWS[ROWS.indexOf(row) + 1];
+  // Remembered from before the exam, for the ceremony: the belt the row had, and whether
+  // the next row was already open.
+  const [before] = useState(() => ({
+    belt: awardedBelt(progress, script, row),
+    nextOpen: unlockedKana(progress, script).some((k) => k.row === nextRow),
+  }));
 
+  if (exam.result?.status === 'passed') {
+    const nextOpenNow = unlockedKana(progress, script).some((k) => k.row === nextRow);
+    return (
+      <BeltCeremony
+        belt={belt}
+        from={before.belt}
+        rowChar={rowName}
+        correct={exam.result.correct}
+        total={EXAM_LENGTH}
+        nextRowChar={nextOpenNow && !before.nextOpen ? rowChar(script, nextRow) : null}
+        onDone={close}
+      />
+    );
+  }
+
+  // Not passed: no ceremony, just the result and a retake.
   if (exam.result) {
-    const passed = exam.result.status === 'passed';
     return (
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
         <LessonComplete
-          title={passed ? `${capitalize(belt)} belt earned` : 'Not this time'}
+          title="Not this time"
           headline={{ label: 'Correct', value: `${exam.result.correct}/${EXAM_LENGTH}` }}
-          note={passed ? `The ${rowName} row is now a ${beltName}.` : `You need ${EXAM_PASS}. Retake it right away; nothing is lost.`}
+          note={`You need ${EXAM_PASS}. Retake it right away; nothing is lost.`}
           summary={exam.result.summary}
-          secondary={passed ? undefined : { label: 'Retake', onPress: exam.retake }}
+          secondary={{ label: 'Retake', onPress: exam.retake }}
           onContinue={close}
         />
       </View>
@@ -134,10 +164,6 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
 function tileState(choice: Kana, flash: { guess: Kana; correct: boolean } | null): TileState {
   if (!flash || flash.guess !== choice) return 'idle';
   return flash.correct ? 'correct' : 'wrong';
-}
-
-function capitalize(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 const styles = StyleSheet.create({

@@ -1,17 +1,19 @@
 import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 
 import { beltColors, colors, karasuColors as k } from '@/constants/theme';
+import type { Belt } from '@/core/boxes';
 
 export type KarasuMood = 'focus' | 'proud' | 'stern' | 'cheer' | 'gentle';
 
 type Props = {
   mood: KarasuMood;
   size?: number;
+  belt?: Belt; // the belt he's wearing
 };
 
 // Karasu at the first stage (green belt), drawn from the mocks.
 // Mood changes the eyes; 'cheer' also raises the wings and opens the beak.
-export function Karasu({ mood, size = 58 }: Props) {
+export function Karasu({ mood, size = 58, belt = 'green' }: Props) {
   return (
     <Svg width={size} height={size} viewBox="-8 -4 122 122" accessibilityLabel={`Karasu, ${mood}`}>
       {/* Wings, behind the body */}
@@ -36,8 +38,8 @@ export function Karasu({ mood, size = 58 }: Props) {
       <Eyes mood={mood} />
       <Beak open={mood === 'cheer'} />
       {/* Belt and feet */}
-      <Path d="M19 88Q50 98 81 88L82 95Q50 105 18 95Z" fill={beltColors.green} stroke={k.outline} strokeWidth={1.8} strokeLinejoin="round" />
-      <Path d="M47 99l-4 9M53 99l4 9" stroke={beltColors.green} strokeWidth={4.5} strokeLinecap="round" />
+      <Path d="M19 88Q50 98 81 88L82 95Q50 105 18 95Z" fill={beltColors[belt]} stroke={k.outline} strokeWidth={1.8} strokeLinejoin="round" />
+      <Path d="M47 99l-4 9M53 99l4 9" stroke={beltColors[belt]} strokeWidth={4.5} strokeLinecap="round" />
       <Path d="M40 106v6M36 112h8M60 106v6M56 112h8" stroke={k.beak} strokeWidth={2.6} strokeLinecap="round" />
     </Svg>
   );

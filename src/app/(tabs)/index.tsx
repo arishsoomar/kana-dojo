@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
+import { BeltPlaque } from '@/components/belt-plaque';
 import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { PlaqueTile } from '@/components/plaque-tile';
@@ -102,6 +103,7 @@ export default function LearnScreen() {
             {u.plaques.map(({ plaque, state }) => (
               <PlaqueTile key={plaque.id} plaque={plaque} state={state} onPress={() => openPlaque(plaque)} />
             ))}
+            {u.belt !== 'white' && <BeltPlaque belt={u.belt} />}
           </View>
           {u.exam && (
             <View style={styles.examCard}>
@@ -290,7 +292,7 @@ const styles = StyleSheet.create({
   plaques: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 14,
+    gap: 10,
     marginTop: -4,
     paddingLeft: 6,
   },

@@ -21,6 +21,8 @@ export const colors = {
   indigoDark: '#1D5B8C',
   woodDark: '#A67C44',
   goldDark: '#8A6D0E',
+  goldLight: '#FBF3D9',
+  nightRaised: '#26282E', // chips and cards on the night background
 } as const;
 
 // Karasu, the crow sensei.

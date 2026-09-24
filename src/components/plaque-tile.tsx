@@ -58,7 +58,7 @@ export function PlaqueTile({ plaque, state, onPress }: Props) {
 const styles = StyleSheet.create({
   hanger: {
     alignItems: 'center',
-    width: 64,
+    width: 60,
   },
   peg: {
     width: 8,

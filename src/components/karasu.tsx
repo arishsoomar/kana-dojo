@@ -2,7 +2,7 @@ import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 
 import { beltColors, colors, karasuColors as k } from '@/constants/theme';
 
-export type KarasuMood = 'focus' | 'proud' | 'stern' | 'cheer';
+export type KarasuMood = 'focus' | 'proud' | 'stern' | 'cheer' | 'gentle';
 
 type Props = {
   mood: KarasuMood;
@@ -73,7 +73,8 @@ function Eyes({ mood }: { mood: KarasuMood }) {
   }
 
   // Open eyes; the brows set the expression.
-  const brows = mood === 'stern' ? 'M29 40l16 7M71 40l-16 7' : 'M30 44l14 3M70 44l-14 3';
+  const brows =
+    mood === 'stern' ? 'M29 40l16 7M71 40l-16 7' : mood === 'gentle' ? 'M29 46l14-4M71 46l-14-4' : 'M30 44l14 3M70 44l-14 3';
   return (
     <>
       <Circle cx={38} cy={53} r={7} fill={k.eye} />

@@ -44,11 +44,13 @@ export const wallColors = {
   peg: '#3A2E22',
 } as const;
 
-// Yellow icons: the memory-tip bulb and the XP bolt.
+// Icon fills: the memory-tip bulb, the XP bolt, the streak flame, and the rest-day star.
 export const iconColors = {
   yellow: '#FFC93C',
   yellowEdge: '#DDA200',
   bulbBase: '#A9A2BF',
+  flame: '#FF9B3D',
+  star: '#FBE7A0',
 } as const;
 
 // Outline for belt drawings: a light edge for the white belt, a dark one for the rest.

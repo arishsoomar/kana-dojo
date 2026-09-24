@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
+import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { PlaqueTile } from '@/components/plaque-tile';
 import { PrimaryButton } from '@/components/primary-button';
@@ -13,6 +14,7 @@ import type { Script } from '@/core/kana';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
 import { useProgress } from '@/hooks/use-progress';
+import { useStreak } from '@/hooks/use-streak';
 
 const SCRIPTS = [
   { value: 'hiragana', label: 'Hiragana' },
@@ -22,6 +24,7 @@ const SCRIPTS = [
 export default function LearnScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
+  const streak = useStreak();
   const [script, setScript] = useState<Script>('hiragana');
   const path = learnPath(progress, script);
   const unit = path.currentUnit;
@@ -37,7 +40,19 @@ export default function LearnScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
-      <SegmentedControl options={SCRIPTS} value={script} onChange={setScript} />
+      <View style={styles.topRow}>
+        <View style={styles.toggle}>
+          <SegmentedControl options={SCRIPTS} value={script} onChange={setScript} />
+        </View>
+        <Pressable
+          role="button"
+          aria-label={`Streak: ${streak.current} ${streak.current === 1 ? 'day' : 'days'}`}
+          onPress={() => router.push('/streak')}
+          style={styles.streak}>
+          <FlameIcon />
+          <Text style={[styles.streakCount, streak.current === 0 && styles.streakCountZero]}>{streak.current}</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.unitCard}>
         <Text style={styles.unitNumber}>Unit {unit.number}</Text>
@@ -120,6 +135,27 @@ const styles = StyleSheet.create({
   },
   kana: {
     fontFamily: fonts.jp,
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  toggle: {
+    flex: 1,
+  },
+  streak: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  streakCount: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    color: colors.vermilion,
+  },
+  streakCountZero: {
+    color: colors.muted,
   },
   unitCard: {
     paddingVertical: 11,

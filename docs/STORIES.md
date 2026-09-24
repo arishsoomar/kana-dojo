@@ -202,10 +202,14 @@ Done when:
 back tomorrow.
 
 Done when:
-- [ ] Counts consecutive days with at least one completed lesson
+- [ ] Counts consecutive days with at least one completed lesson (any
+      kind; days are the learner's local calendar days; today can't be missed)
 - [ ] Last seven days shown
-- [ ] Rest day protects one missed day
-- [ ] Breaking a streak shows encouragement, never guilt
+- [ ] Rest day protects one missed day. Start with 1, earn 1 per 7 days in
+      a row, hold at most 2; used automatically
+- [ ] Breaking a streak shows encouragement, never guilt (missed days are
+      grey, not red; Karasu welcomes you back)
+- [ ] Opened from the flame counter on the Learn screen
 
 ---
 

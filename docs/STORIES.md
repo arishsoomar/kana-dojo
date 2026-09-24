@@ -228,6 +228,9 @@ could still be meant; Enter or space takes ん.)
 
 ### E3. Scoring and lives
 Points for speed, three lives, wave difficulty ramp.
+(10 points plus up to 30 more the higher a kana is caught. A landing costs a
+life; at zero the game stops. A new wave every 10 kana cleared, each 10%
+faster, down to 3.5s falls and a kana every 0.7s. No combo multiplier.)
 
 ### E4. Feeding the engine
 Every hit and miss calls `recordAnswer()` like a lesson answer would.

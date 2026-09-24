@@ -20,6 +20,7 @@ export const colors = {
   indigoLight: '#E6F0FA',
   indigoDark: '#1D5B8C',
   woodDark: '#A67C44',
+  goldDark: '#8A6D0E',
 } as const;
 
 // Karasu, the crow sensei.

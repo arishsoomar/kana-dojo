@@ -1,5 +1,18 @@
 import { KANA } from './kana';
-import { RAIN_FALL_MS, RAIN_LANES, RAIN_SPAWN_MS, startRain, stepRain, targetOf, typeKey, type RainState } from './rain';
+import {
+  pointsFor,
+  RAIN_FALL_MS,
+  RAIN_LANES,
+  RAIN_LIVES,
+  RAIN_SPAWN_MS,
+  rainPace,
+  startRain,
+  stepRain,
+  targetOf,
+  typeKey,
+  waveOf,
+  type RainState,
+} from './rain';
 
 const pool = KANA.filter((k) => k.row === 'a' && k.script === 'hiragana');
 const rng = () => 0.5;
@@ -60,6 +73,7 @@ describe('typing in Kana Rain', () => {
   // A rain with these kana falling, in order, each lower than the one before.
   function raining(...chars: string[]): RainState {
     return {
+      ...startRain(),
       drops: chars.map((char, i) => ({ id: i, kana: kana(char), lane: i % RAIN_LANES, y: 0.1 + i * 0.1 })),
       nextId: chars.length,
       sinceSpawn: 0,
@@ -112,5 +126,68 @@ describe('typing in Kana Rain', () => {
 
   it('clears ん straight away when nothing longer could match', () => {
     expect(typeKey(raining('ん', 'か'), '', 'n').cleared?.kana.char).toBe('ん');
+  });
+});
+
+describe('scoring, lives and waves', () => {
+  function kana(char: string) {
+    const found = KANA.find((k) => k.char === char);
+    if (!found) throw new Error(`No kana ${char}`);
+    return found;
+  }
+
+  function oneDrop(y: number, extra: Partial<RainState> = {}): RainState {
+    return { ...startRain(), drops: [{ id: 0, kana: kana('か'), lane: 0, y }], nextId: 1, sinceSpawn: 0, ...extra };
+  }
+
+  it('gives more points the higher a kana is caught: 40 at the top, 10 at the ground', () => {
+    expect(pointsFor(0)).toBe(40);
+    expect(pointsFor(1)).toBe(10);
+    expect(pointsFor(0.5)).toBe(25);
+  });
+
+  it('adds the points and counts the kana when one is cleared', () => {
+    const result = typeKey(oneDrop(0.1), 'k', 'a');
+    expect(result.state.score).toBe(pointsFor(0.1));
+    expect(result.state.cleared).toBe(1);
+  });
+
+  it('starts with three lives and loses one for each kana that lands', () => {
+    expect(startRain().lives).toBe(RAIN_LIVES);
+    expect(RAIN_LIVES).toBe(3);
+    const { state } = stepRain(oneDrop(0.99), 1000, pool, rng);
+    expect(state.lives).toBe(2);
+    expect(state.over).toBe(false);
+  });
+
+  it('ends the game when the last life is lost, and then nothing moves or clears', () => {
+    const { state } = stepRain(oneDrop(0.99, { lives: 1 }), 1000, pool, rng);
+    expect(state.lives).toBe(0);
+    expect(state.over).toBe(true);
+    const later = stepRain(state, 5000, pool, rng);
+    expect(later.state).toEqual(state);
+    expect(later.landed).toEqual([]);
+    const frozen = { ...state, drops: [{ id: 5, kana: kana('か'), lane: 0, y: 0.5 }] };
+    expect(typeKey(frozen, 'k', 'a').cleared).toBeNull();
+  });
+
+  it('moves to the next wave every 10 kana cleared', () => {
+    expect(waveOf(0)).toBe(1);
+    expect(waveOf(9)).toBe(1);
+    expect(waveOf(10)).toBe(2);
+    expect(waveOf(25)).toBe(3);
+  });
+
+  it('gets 10% faster each wave, down to a limit', () => {
+    expect(rainPace(1)).toEqual({ fallMs: RAIN_FALL_MS, spawnMs: RAIN_SPAWN_MS });
+    expect(rainPace(2).fallMs).toBeCloseTo(RAIN_FALL_MS * 0.9);
+    expect(rainPace(2).spawnMs).toBeCloseTo(RAIN_SPAWN_MS * 0.9);
+    expect(rainPace(50)).toEqual({ fallMs: 3500, spawnMs: 700 });
+  });
+
+  it('makes kana fall faster in a later wave', () => {
+    const wave1 = stepRain(oneDrop(0), 1000, pool, rng).state.drops[0]?.y ?? 0;
+    const wave2 = stepRain(oneDrop(0, { cleared: 10 }), 1000, pool, rng).state.drops[0]?.y ?? 0;
+    expect(wave2).toBeGreaterThan(wave1);
   });
 });

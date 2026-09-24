@@ -16,11 +16,43 @@ export type RainState = {
   drops: Drop[];
   nextId: number;
   sinceSpawn: number; // milliseconds since the last kana appeared
+  score: number;
+  lives: number;
+  cleared: number; // kana cleared so far; sets the wave
+  over: boolean; // true once the last life is lost
 };
 
-export const RAIN_FALL_MS = 9000; // how long a kana takes to fall the whole way
-export const RAIN_SPAWN_MS = 1600; // a new kana appears this often
+export const RAIN_FALL_MS = 9000; // how long a kana takes to fall the whole way, in wave 1
+export const RAIN_SPAWN_MS = 1600; // how often a new kana appears, in wave 1
 export const RAIN_LANES = 5;
+export const RAIN_LIVES = 3;
+
+// Every KANA_PER_WAVE kana cleared starts a new wave. Each wave falls and spawns
+// WAVE_SPEEDUP times as long as the last (so 10% faster), but never faster than the limits.
+const KANA_PER_WAVE = 10;
+const WAVE_SPEEDUP = 0.9;
+const FASTEST_FALL_MS = 3500;
+const FASTEST_SPAWN_MS = 700;
+
+export function waveOf(cleared: number): number {
+  return 1 + Math.floor(cleared / KANA_PER_WAVE);
+}
+
+export function rainPace(wave: number): { fallMs: number; spawnMs: number } {
+  const factor = WAVE_SPEEDUP ** (wave - 1);
+  return {
+    fallMs: Math.max(RAIN_FALL_MS * factor, FASTEST_FALL_MS),
+    spawnMs: Math.max(RAIN_SPAWN_MS * factor, FASTEST_SPAWN_MS),
+  };
+}
+
+// Points for clearing a kana at height y: 10, plus up to 30 more the higher it still was.
+const BASE_POINTS = 10;
+const HEIGHT_POINTS = 30;
+
+export function pointsFor(y: number): number {
+  return BASE_POINTS + Math.round(HEIGHT_POINTS * (1 - Math.min(Math.max(y, 0), 1)));
+}
 
 // A new kana won't start in a lane where another is still above this height,
 // so two kana never overlap.
@@ -28,25 +60,34 @@ const LANE_CLEAR_Y = 0.2;
 
 export function startRain(): RainState {
   // Starts "due" to spawn, so the first kana appears straight away.
-  return { drops: [], nextId: 0, sinceSpawn: RAIN_SPAWN_MS };
+  return { drops: [], nextId: 0, sinceSpawn: RAIN_SPAWN_MS, score: 0, lives: RAIN_LIVES, cleared: 0, over: false };
 }
 
 // Moves the rain forward by `ms` milliseconds. Returns the new state and the kana
-// that reached the ground during this step.
+// that reached the ground during this step. Each landing costs a life; once the game
+// is over, nothing changes.
 export function stepRain(
   state: RainState,
   ms: number,
   pool: readonly Kana[],
   rng: Rng,
 ): { state: RainState; landed: Drop[] } {
-  const moved = state.drops.map((drop) => ({ ...drop, y: drop.y + ms / RAIN_FALL_MS }));
+  if (state.over) return { state, landed: [] };
+
+  const { fallMs, spawnMs } = rainPace(waveOf(state.cleared));
+  const moved = state.drops.map((drop) => ({ ...drop, y: drop.y + ms / fallMs }));
   const landed = moved.filter((drop) => drop.y >= 1);
   let drops = moved.filter((drop) => drop.y < 1);
 
+  const lives = Math.max(state.lives - landed.length, 0);
+  if (lives === 0) {
+    return { state: { ...state, drops, lives, over: true }, landed };
+  }
+
   let { nextId, sinceSpawn } = state;
   sinceSpawn += ms;
-  while (sinceSpawn >= RAIN_SPAWN_MS && pool.length > 0) {
-    sinceSpawn -= RAIN_SPAWN_MS;
+  while (sinceSpawn >= spawnMs && pool.length > 0) {
+    sinceSpawn -= spawnMs;
     const busy = new Set(drops.filter((d) => d.y < LANE_CLEAR_Y).map((d) => d.lane));
     const free = Array.from({ length: RAIN_LANES }, (_, lane) => lane).filter((lane) => !busy.has(lane));
     if (free.length === 0) continue;
@@ -58,7 +99,7 @@ export function stepRain(
     nextId += 1;
   }
 
-  return { state: { drops, nextId, sinceSpawn }, landed };
+  return { state: { ...state, drops, nextId, sinceSpawn, lives }, landed };
 }
 
 // Keys that mean "take what I've typed as my answer", for "n" when な could still be meant.
@@ -87,13 +128,20 @@ export type TypeResult = {
   rejected: boolean; // the key couldn't match anything, so it was ignored
 };
 
+// Removes a cleared kana and scores it.
 function clear(state: RainState, drop: Drop): RainState {
-  return { ...state, drops: state.drops.filter((d) => d.id !== drop.id) };
+  return {
+    ...state,
+    drops: state.drops.filter((d) => d.id !== drop.id),
+    score: state.score + pointsFor(drop.y),
+    cleared: state.cleared + 1,
+  };
 }
 
 // Applies one key press. `typed` is what was typed before this key.
 export function typeKey(state: RainState, typed: string, key: string): TypeResult {
   const before = typed.toLowerCase();
+  if (state.over) return { state, typed: before, cleared: null, rejected: true };
 
   if (SUBMIT_KEYS.has(key)) {
     const exact = lowest(state.drops.filter((d) => spellings(d).includes(before)));

@@ -13,12 +13,15 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BoltIcon } from '@/components/bolt-icon';
+import { HeartIcon } from '@/components/heart-icon';
+import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts, rainColors } from '@/constants/theme';
-import { RAIN_LANES, targetOf, type Drop } from '@/core/rain';
+import { RAIN_LANES, RAIN_LIVES, targetOf, waveOf, type Drop } from '@/core/rain';
 import { unlockedKana } from '@/core/unlock';
 import { useProgress } from '@/hooks/use-progress';
-import { useRain } from '@/hooks/use-rain';
+import { useRain, type Pop } from '@/hooks/use-rain';
 
 // The box around the input already shows focus, so hide the browser's own focus ring on web.
 // React Native's style types don't list outlineStyle 'none' (it only exists on web), hence the cast.
@@ -39,7 +42,7 @@ export default function KanaRainScreen() {
   const { progress } = useProgress();
   // The kana to rain down: everything unlocked, fixed for this game.
   const [pool] = useState(() => unlockedKana(progress, 'hiragana'));
-  const { rain, typed, onType, onSubmit } = useRain(pool);
+  const { rain, typed, pops, onType, onSubmit, restart } = useRain(pool);
   const target = targetOf(rain.drops, typed);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -56,12 +59,23 @@ export default function KanaRainScreen() {
         <Pressable role="button" aria-label="Leave Kana Rain" onPress={close} hitSlop={10}>
           <XIcon color={colors.ink2} />
         </Pressable>
-        <Text style={styles.title}>Kana Rain</Text>
+        <View style={styles.score} aria-label={`Score ${rain.score}`}>
+          <BoltIcon size={22} />
+          <Text style={styles.scoreText}>{rain.score.toLocaleString('en-US')}</Text>
+        </View>
+        <View style={styles.hearts} aria-label={`${rain.lives} of ${RAIN_LIVES} lives`}>
+          {Array.from({ length: RAIN_LIVES }, (_, i) => (
+            <HeartIcon key={i} color={i < rain.lives ? colors.vermilion : colors.edge} />
+          ))}
+        </View>
       </View>
 
       <View style={styles.field} onLayout={onLayout}>
         <View style={[styles.cloud, styles.cloudLeft]} />
         <View style={[styles.cloud, styles.cloudRight]} />
+        <View style={styles.wave}>
+          <Text style={styles.waveText}>Wave {waveOf(rain.cleared)}</Text>
+        </View>
         {size.width > 0 &&
           rain.drops.map((drop) => (
             <FallingKana
@@ -72,6 +86,7 @@ export default function KanaRainScreen() {
               typed={drop.id === target?.id ? typed : ''}
             />
           ))}
+        {size.width > 0 && pops.map((pop) => <ScorePop key={pop.id} pop={pop} field={size} />)}
         <View style={styles.ground} />
       </View>
 
@@ -99,7 +114,37 @@ export default function KanaRainScreen() {
           )}
         </View>
       </View>
+
+      {rain.over && (
+        <View style={styles.overlay}>
+          <View style={styles.overCard}>
+            <Text style={styles.overTitle}>Game over</Text>
+            <Text style={styles.overScore}>{rain.score.toLocaleString('en-US')} points</Text>
+            <Text style={styles.overSub}>
+              {rain.cleared} kana cleared · reached wave {waveOf(rain.cleared)}
+            </Text>
+            <View style={styles.overButtons}>
+              <PrimaryButton label="Play again" onPress={restart} />
+              <PrimaryButton label="Leave" tone="vermilion" onPress={close} />
+            </View>
+          </View>
+        </View>
+      )}
     </KeyboardAvoidingView>
+  );
+}
+
+// A "+40" where a kana was just cleared.
+function ScorePop({ pop, field }: { pop: Pop; field: { width: number; height: number } }) {
+  const laneWidth = field.width / RAIN_LANES;
+  return (
+    <Text
+      style={[
+        styles.pop,
+        { left: pop.lane * laneWidth, width: laneWidth, top: pop.y * (field.height - GROUND - TAG) + TAG / 3 },
+      ]}>
+      +{pop.points}
+    </Text>
   );
 }
 
@@ -146,10 +191,74 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 18,
   },
-  title: {
+  score: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  scoreText: {
     fontFamily: fonts.uiExtraBold,
-    fontSize: 16,
+    fontSize: 19,
     color: colors.sumi,
+  },
+  hearts: {
+    flexDirection: 'row',
+    gap: 3,
+    marginLeft: 'auto',
+  },
+  wave: {
+    position: 'absolute',
+    top: 12,
+    alignSelf: 'center',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    backgroundColor: colors.card,
+  },
+  waveText: {
+    fontFamily: fonts.uiBold,
+    fontSize: 12,
+    color: colors.ink2,
+  },
+  pop: {
+    position: 'absolute',
+    textAlign: 'center',
+    fontFamily: fonts.uiBlack,
+    fontSize: 17,
+    color: colors.goldDark,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: colors.backdrop,
+  },
+  overCard: {
+    gap: 4,
+    padding: 18,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.card,
+  },
+  overTitle: {
+    fontFamily: fonts.uiBlack,
+    fontSize: 22,
+    color: colors.sumi,
+  },
+  overScore: {
+    fontFamily: fonts.uiBlack,
+    fontSize: 32,
+    color: colors.sumi,
+  },
+  overSub: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 14,
+    color: colors.ink2,
+  },
+  overButtons: {
+    gap: 10,
+    marginTop: 12,
   },
   field: {
     flex: 1,

@@ -1,4 +1,4 @@
-import { bestScore, completeLesson, EMPTY_PROGRESS, markDue, recordAnswer, type Progress } from './answers';
+import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, markDue, recordAnswer, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -186,5 +186,14 @@ describe('game scores', () => {
     progress = completeLesson(progress, 'game:rain', 3000, 300);
     progress = completeLesson(progress, 'hiragana:a:0', 4000);
     expect(bestScore(progress, 'game:rain')).toBe(1240);
+  });
+});
+
+describe('onboarding', () => {
+  it('starts not onboarded, and finishOnboarding marks it done', () => {
+    expect(EMPTY_PROGRESS.settings.onboarded).toBe(false);
+    const done = finishOnboarding(EMPTY_PROGRESS);
+    expect(done.settings.onboarded).toBe(true);
+    expect(EMPTY_PROGRESS.settings.onboarded).toBe(false);
   });
 });

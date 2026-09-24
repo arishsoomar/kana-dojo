@@ -20,15 +20,27 @@ export type Completion = {
   score?: number;
 };
 
+// The learner's choices, as opposed to their training record.
+export type Settings = {
+  onboarded: boolean; // has seen the welcome
+};
+
 export type Progress = {
   kana: Readonly<Record<string, KanaProgress>>;
   confusions: readonly Confusion[];
   stats: Readonly<Record<string, KanaStats>>;
   completed: readonly Completion[];
+  settings: Settings;
 };
 
 // A learner who hasn't answered anything yet.
-export const EMPTY_PROGRESS: Progress = { kana: {}, confusions: [], stats: {}, completed: [] };
+export const EMPTY_PROGRESS: Progress = {
+  kana: {},
+  confusions: [],
+  stats: {},
+  completed: [],
+  settings: { onboarded: false },
+};
 
 export type Answer = {
   char: string; // the kana that was shown
@@ -118,4 +130,9 @@ export function bestScore(progress: Progress, lesson: string): number | null {
 export function markDue(progress: Progress, char: string, now: number): Progress {
   const current = progress.kana[char] ?? NEW_KANA;
   return { ...progress, kana: { ...progress.kana, [char]: { ...current, dueAt: Math.min(current.dueAt, now) } } };
+}
+
+// Marks the welcome as seen, so it isn't shown again.
+export function finishOnboarding(progress: Progress): Progress {
+  return { ...progress, settings: { ...progress.settings, onboarded: true } };
 }

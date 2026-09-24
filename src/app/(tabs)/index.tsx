@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -34,6 +34,9 @@ export default function LearnScreen() {
   const needed = greenNeeded(progress, script, unit.row);
   // A belt exam that's ready takes priority in Karasu's suggestion.
   const examReady = path.units.find((u) => u.exam) ?? null;
+
+  // A new learner meets Karasu first.
+  if (!progress.settings.onboarded) return <Redirect href="/welcome" />;
 
   function openPlaque(plaque: Plaque) {
     router.push({ pathname: '/lesson', params: { plaque: plaque.id } });

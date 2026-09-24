@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [] };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false } };
 
 const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
@@ -11,6 +11,7 @@ const sample: Progress = {
     { lesson: 'hiragana:a:0', at: 1_000_000 },
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
   ],
+  settings: { onboarded: true },
 };
 
 describe('saving progress', () => {
@@ -41,6 +42,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
+      settings: { onboarded: true },
     });
   });
 
@@ -54,6 +56,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
+      settings: { onboarded: true },
     });
   });
 
@@ -81,6 +84,19 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
+      settings: { onboarded: true },
     });
+  });
+
+  it('counts a save from before onboarding existed as onboarded only if it has progress', () => {
+    const used = JSON.stringify({ version: 3, progress: { kana: { あ: { box: 1, dueAt: 0 } }, confusions: [], stats: {}, completed: [] } });
+    const blank = JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [] } });
+    expect(parseProgress(used).settings.onboarded).toBe(true);
+    expect(parseProgress(blank).settings.onboarded).toBe(false);
+  });
+
+  it('keeps the saved onboarding setting', () => {
+    const saved = JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: true } } });
+    expect(parseProgress(saved).settings.onboarded).toBe(true);
   });
 });

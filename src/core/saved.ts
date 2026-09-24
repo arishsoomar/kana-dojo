@@ -27,13 +27,18 @@ export function parseProgress(text: string | null): Progress {
   }
   if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions, stats, completed } = data.progress;
-  return {
+  const { kana, confusions, stats, completed, settings } = data.progress;
+  const progress = {
     kana: isObject(kana) ? validEntries(kana, isKanaProgress) : {},
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
     stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
     completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
   };
+  // Saves from before onboarding existed have no settings. Anyone with saved progress
+  // has clearly been using the app, so they count as onboarded.
+  const hasProgress = Object.keys(progress.kana).length > 0 || progress.completed.length > 0 || Object.keys(progress.stats).length > 0;
+  const onboarded = isObject(settings) && typeof settings.onboarded === 'boolean' ? settings.onboarded : hasProgress;
+  return { ...progress, settings: { onboarded } };
 }
 
 // Keeps the entries whose value passes `isValid`.

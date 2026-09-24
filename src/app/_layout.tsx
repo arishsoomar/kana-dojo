@@ -47,6 +47,7 @@ export default function RootLayout() {
         {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}
         <Stack.Screen name="lesson" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="streak" options={{ headerShown: false }} />
+        <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="exam" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="games/rain" options={{ headerShown: false, gestureEnabled: false }} />
       </Stack>

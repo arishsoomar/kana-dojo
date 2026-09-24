@@ -327,6 +327,40 @@ Done when:
 
 ---
 
+## Epic H — Onboarding
+
+### H1. Welcome
+**As a** new learner, **I want** a welcome from Karasu the first time I open
+the app, **so that** I know what I'm here to do.
+
+Done when:
+- [ ] First launch shows Karasu: "I'm Karasu", and the goal stated plainly
+- [ ] "Enter the dojo" leads into the app, and the welcome never shows again
+- [ ] Existing learners with saved lessons never see it
+- [ ] No "I have an account" button until accounts exist (Epic G)
+
+### H2. Daily goal
+**As a** new learner, **I want** to choose how much to train each day, **so
+that** the daily target feels like mine.
+
+Done when:
+- [ ] Choose 5, 10, 15 or 20 minutes (a number of lessons per day)
+- [ ] The Learn screen shows today's progress toward the goal
+- [ ] The goal can be changed later
+
+### H3. Starting point
+**As a** learner who already knows some kana, **I want** to skip what I
+know, **so that** I don't start from the あ row.
+
+Done when:
+- [ ] Brand new: start at the あ row
+- [ ] Know some hiragana: a short grading test; kana answered quickly and
+      correctly start at green belt, so their rows unlock
+- [ ] Know all hiragana: start on katakana
+- [ ] Every grading answer goes through `recordAnswer()`
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike
@@ -339,7 +373,6 @@ Done when:
 
 Yokai dungeon and charms, duels and scrolls, memory match, word forge,
 calligraphy, taiko drill, daily kata, the dojo room, assignments,
-tournaments, shadow match, supply shed, onboarding (welcome, daily goal,
-placement test).
+tournaments, shadow match, supply shed.
 
 Each gets expanded into full stories when its epic comes up. Not before.

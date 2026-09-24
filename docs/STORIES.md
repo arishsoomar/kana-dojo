@@ -217,6 +217,8 @@ Done when:
 
 ### E1. Falling kana
 Kana fall from the top at a steady rate and are removed at the bottom.
+(Unlocked hiragana; a new kana every 1.6s, 9s to fall, 5 lanes that never
+overlap near the top. Opened from the Games tab, which lists Kana Rain only.)
 
 ### E2. Typing to match
 Typed romaji highlights the matching kana; a complete match clears it.

@@ -44,6 +44,16 @@ export const wallColors = {
   peg: '#3A2E22',
 } as const;
 
+// Kana Rain: the sky, clouds, the paper tags the kana fall on, and the ground.
+export const rainColors = {
+  sky: '#DCE6EF',
+  cloud: '#EDF2F7',
+  tag: '#FBF6EC',
+  tagEdge: '#C9B894',
+  ground: '#CFC79A',
+  groundEdge: '#8A6A43',
+} as const;
+
 // Icon fills: the memory-tip bulb, the XP bolt, the streak flame, and the rest-day star.
 export const iconColors = {
   yellow: '#FFC93C',

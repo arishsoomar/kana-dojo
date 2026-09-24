@@ -22,6 +22,7 @@ import { RAIN_LANES, RAIN_LIVES, targetOf, waveOf, type Drop } from '@/core/rain
 import { unlockedKana } from '@/core/unlock';
 import { useProgress } from '@/hooks/use-progress';
 import { useRain, type Pop, type RainResult } from '@/hooks/use-rain';
+import { useRank } from '@/hooks/use-rank';
 
 // The box around the input already shows focus, so hide the browser's own focus ring on web.
 // React Native's style types don't list outlineStyle 'none' (it only exists on web), hence the cast.
@@ -44,6 +45,7 @@ export default function KanaRainScreen() {
   const [pool] = useState(() => unlockedKana(progress, 'hiragana'));
   const { rain, typed, pops, result, onType, onSubmit, restart } = useRain(pool);
   const target = targetOf(rain.drops, typed);
+  const rank = useRank();
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   function onLayout(event: LayoutChangeEvent) {
@@ -61,6 +63,7 @@ export default function KanaRainScreen() {
           summary={result.summary}
           secondary={{ label: 'Play again', onPress: restart }}
           onContinue={close}
+          rank={rank}
         />
       </View>
     );

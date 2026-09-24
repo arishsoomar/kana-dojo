@@ -15,6 +15,7 @@ import type { Script } from '@/core/kana';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
 import { useProgress } from '@/hooks/use-progress';
+import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
 
 const SCRIPTS = [
@@ -26,6 +27,7 @@ export default function LearnScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const streak = useStreak();
+  const rank = useRank();
   const [script, setScript] = useState<Script>('hiragana');
   const path = learnPath(progress, script);
   const unit = path.currentUnit;
@@ -75,7 +77,7 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.coach}>
-        <Karasu mood="focus" size={64} />
+        <Karasu mood="focus" size={64} rank={rank} />
         <View style={styles.coachBody}>
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>{coachLine(path, needed)}</Text>

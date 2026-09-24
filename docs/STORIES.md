@@ -275,6 +275,11 @@ room exists. No "+50 mon": coins aren't in any story yet.)
 
 ### F4. Karasu evolves
 Mascot form changes with overall rank.
+(Overall rank comes from row belts earned by exam, across all 20 rows:
+green at 3 rows, brown at 10, black when all 20 are black. Forms: white-belt
+fledgling, green student with red headband, brown with gold headband, black
+master with spread wings, staff and hat. Karasu shows the rank everywhere;
+the belt ceremony says when an exam raised it.)
 
 ---
 

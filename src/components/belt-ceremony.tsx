@@ -16,6 +16,8 @@ type Props = {
   correct: number;
   total: number;
   nextRowChar: string | null; // set if passing opened the next row
+  rank: Belt; // the learner's overall rank now, which sets Karasu's form
+  grew: boolean; // passing this exam raised the overall rank
   onDone: () => void;
 };
 
@@ -24,7 +26,7 @@ const useNativeDriver = Platform.OS !== 'web';
 
 // The payoff for passing a belt exam. The new belt drops onto Karasu, he puts it on,
 // and the words appear. It takes about a second and a half.
-export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar, onDone }: Props) {
+export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar, rank, grew, onDone }: Props) {
   const insets = useSafeAreaInsets();
   // Animated values are created once. (useState keeps them between renders without
   // reading a ref during render.)
@@ -54,7 +56,7 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
         <View style={styles.glow} />
         {/* Wrapped in a View so he's layered above the glow on web too. */}
         <View>
-          <Karasu mood={tied ? 'proud' : 'focus'} belt={tied ? belt : from} size={160} />
+          <Karasu mood={tied ? 'proud' : 'focus'} rank={rank} belt={tied ? belt : from} size={160} />
         </View>
         <Animated.View style={[styles.belt, beltStyle]}>
           <BeltIcon belt={belt} width={150} />
@@ -75,6 +77,7 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
               '.'
             )}
           </Text>
+          {grew && <Text style={styles.grew}>Karasu has grown into a {rank} belt.</Text>}
           <View style={styles.chip}>
             <Text style={styles.chipText}>Plaque added</Text>
           </View>
@@ -132,6 +135,13 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     textAlign: 'center',
     color: colors.muted,
+  },
+  grew: {
+    marginTop: 10,
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    textAlign: 'center',
+    color: colors.gold,
   },
   chip: {
     marginTop: 16,

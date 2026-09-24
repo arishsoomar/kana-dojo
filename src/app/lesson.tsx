@@ -14,6 +14,7 @@ import { colors, fonts } from '@/constants/theme';
 import { KANA, type Kana } from '@/core/kana';
 import { plaqueById } from '@/core/path';
 import { useLesson, type LessonMode, type Result } from '@/hooks/use-lesson';
+import { useRank } from '@/hooks/use-rank';
 
 // Back to where the lesson was opened from. If the lesson was opened directly
 // (a refreshed or bookmarked web page), there's nothing to go back to, so go to Learn.
@@ -52,11 +53,12 @@ export default function LessonScreen() {
   const [mode] = useState(() => modeFrom(params));
   const { question, result, summary, fraction, check, goToNext } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
+  const rank = useRank();
 
   if (summary) {
     return (
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
-        <LessonComplete summary={summary} onContinue={leaveLesson} />
+        <LessonComplete summary={summary} onContinue={leaveLesson} rank={rank} />
       </View>
     );
   }
@@ -67,7 +69,7 @@ export default function LessonScreen() {
 
       <View style={styles.body}>
         <View style={styles.coach}>
-          <Karasu mood={moodFor(result)} />
+          <Karasu mood={moodFor(result)} rank={rank} />
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>{coachLine(mode)}</Text>
           </View>

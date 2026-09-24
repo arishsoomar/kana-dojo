@@ -14,10 +14,12 @@ import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 import { awardedBelt, EXAM_LENGTH, EXAM_PASS, examDue } from '@/core/exam';
+import { overallRank } from '@/core/rank';
 import { KANA, ROWS, type Kana, type RowId, type Script } from '@/core/kana';
 import { unlockedKana } from '@/core/unlock';
 import { useExam } from '@/hooks/use-exam';
 import { useProgress } from '@/hooks/use-progress';
+import { useRank } from '@/hooks/use-rank';
 
 function close() {
   if (router.canGoBack()) router.back();
@@ -54,6 +56,7 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const exam = useExam(script, row, belt);
+  const rank = useRank();
   const rowName = rowChar(script, row) ?? row;
   const beltName = `${belt} belt`;
   const nextRow = ROWS[ROWS.indexOf(row) + 1];
@@ -62,6 +65,7 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
   const [before] = useState(() => ({
     belt: awardedBelt(progress, script, row),
     nextOpen: unlockedKana(progress, script).some((k) => k.row === nextRow),
+    rank: overallRank(progress),
   }));
 
   if (exam.result?.status === 'passed') {
@@ -74,6 +78,8 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
         correct={exam.result.correct}
         total={EXAM_LENGTH}
         nextRowChar={nextOpenNow && !before.nextOpen ? rowChar(script, nextRow) : null}
+        rank={rank}
+        grew={rank !== before.rank}
         onDone={close}
       />
     );
@@ -90,6 +96,7 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
           summary={exam.result.summary}
           secondary={{ label: 'Retake', onPress: exam.retake }}
           onContinue={close}
+          rank={rank}
         />
       </View>
     );

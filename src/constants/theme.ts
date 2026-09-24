@@ -37,6 +37,11 @@ export const karasuColors = {
   eye: '#FFFFFF',
   beak: '#F2B53A',
   mouth: '#8C2F22',
+  fledglingBody: '#343949', // white-belt Karasu is a lighter, younger crow
+  staff: '#8A6A43', // black-belt Karasu's staff
+  hat: '#151515',
+  hatEdge: '#4A4F62',
+  lightBeltEdge: '#B9BFCB', // outline of a white belt
   shadow: 'rgba(0, 0, 0, 0.14)',
 } as const;
 

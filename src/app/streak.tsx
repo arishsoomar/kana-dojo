@@ -10,6 +10,7 @@ import { RestIcon } from '@/components/rest-icon';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import type { Streak, StreakDay } from '@/core/streak';
+import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
 
 function close() {
@@ -20,6 +21,7 @@ function close() {
 export default function StreakScreen() {
   const insets = useSafeAreaInsets();
   const streak = useStreak();
+  const rank = useRank();
 
   return (
     <View style={[styles.screen, { paddingBottom: insets.bottom + 22 }]}>
@@ -58,7 +60,7 @@ export default function StreakScreen() {
         </View>
 
         <View style={styles.coach}>
-          <Karasu mood="gentle" size={66} />
+          <Karasu mood="gentle" size={66} rank={rank} />
           <View style={styles.bubble}>
             <Text style={styles.bubbleText}>{coachLine(streak)}</Text>
           </View>

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
+import type { Belt } from '@/core/boxes';
 import type { LessonSummary } from '@/core/lesson';
 
 import { BeltIcon } from './belt-icon';
@@ -19,6 +20,7 @@ type Props = {
   note?: string;
   // A second button under Continue, like "Play again".
   secondary?: { label: string; onPress: () => void };
+  rank: Belt; // sets Karasu's form
 };
 
 // The end-of-lesson (or end-of-game) screen: Karasu cheering, three stats, and any belts earned.
@@ -29,13 +31,14 @@ export function LessonComplete({
   headline = { label: 'XP', value: String(summary.xp) },
   note,
   secondary,
+  rank,
 }: Props) {
   const speed = summary.strikeSpeedMs === null ? '–' : `${(summary.strikeSpeedMs / 1000).toFixed(1)}s`;
 
   return (
     <View style={styles.screen}>
       <View style={styles.hero}>
-        <Karasu mood="cheer" size={146} />
+        <Karasu mood="cheer" size={146} rank={rank} />
         <Text style={styles.title}>{title}</Text>
         {note && <Text style={styles.note}>{note}</Text>}
       </View>

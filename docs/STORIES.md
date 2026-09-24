@@ -163,7 +163,8 @@ Done when:
 - [ ] Grid of rows with a belt stripe under each kana
 - [ ] Locked kana show a lock
 - [ ] Header shows the count past white belt
-- [ ] Script toggle between hiragana and katakana
+- [ ] Script toggle between hiragana and katakana (each has its own
+      progress and its own unlocks)
 
 ### D2. Kana details
 **As a** learner, **I want** to tap a kana and see its stats, **so that** I

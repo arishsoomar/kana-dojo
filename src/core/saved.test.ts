@@ -7,7 +7,10 @@ const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
   confusions: [{ shown: 'シ', guessed: 'ツ' }],
   stats: { あ: { seen: 4, correct: 3, recentMs: [900, 1200, 800] } },
-  completed: [{ lesson: 'hiragana:a:0', at: 1_000_000 }],
+  completed: [
+    { lesson: 'hiragana:a:0', at: 1_000_000 },
+    { lesson: 'game:rain', at: 2_000_000, score: 640 },
+  ],
 };
 
 describe('saving progress', () => {
@@ -70,7 +73,7 @@ describe('saving progress', () => {
           い: { seen: 'two', correct: 1, recentMs: [] },
           う: { seen: 2, correct: 1, recentMs: ['fast'] },
         },
-        completed: [{ lesson: 'hiragana:a:0', at: 5 }, { lesson: 'hiragana:a:1' }, 7],
+        completed: [{ lesson: 'hiragana:a:0', at: 5 }, { lesson: 'hiragana:a:1' }, 7, { lesson: 'game:rain', at: 6, score: 'lots' }],
       },
     });
     expect(parseProgress(damaged)).toEqual({

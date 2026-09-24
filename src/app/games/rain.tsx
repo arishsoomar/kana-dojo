@@ -15,13 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BoltIcon } from '@/components/bolt-icon';
 import { HeartIcon } from '@/components/heart-icon';
-import { PrimaryButton } from '@/components/primary-button';
+import { LessonComplete } from '@/components/lesson-complete';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts, rainColors } from '@/constants/theme';
 import { RAIN_LANES, RAIN_LIVES, targetOf, waveOf, type Drop } from '@/core/rain';
 import { unlockedKana } from '@/core/unlock';
 import { useProgress } from '@/hooks/use-progress';
-import { useRain, type Pop } from '@/hooks/use-rain';
+import { useRain, type Pop, type RainResult } from '@/hooks/use-rain';
 
 // The box around the input already shows focus, so hide the browser's own focus ring on web.
 // React Native's style types don't list outlineStyle 'none' (it only exists on web), hence the cast.
@@ -42,13 +42,28 @@ export default function KanaRainScreen() {
   const { progress } = useProgress();
   // The kana to rain down: everything unlocked, fixed for this game.
   const [pool] = useState(() => unlockedKana(progress, 'hiragana'));
-  const { rain, typed, pops, onType, onSubmit, restart } = useRain(pool);
+  const { rain, typed, pops, result, onType, onSubmit, restart } = useRain(pool);
   const target = targetOf(rain.drops, typed);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   function onLayout(event: LayoutChangeEvent) {
     const { width, height } = event.nativeEvent.layout;
     setSize({ width, height });
+  }
+
+  if (result) {
+    return (
+      <View style={[styles.results, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
+        <LessonComplete
+          title="Kana Rain"
+          headline={{ label: 'Score', value: formatScore(result.score) }}
+          note={bestLine(result)}
+          summary={result.summary}
+          secondary={{ label: 'Play again', onPress: restart }}
+          onContinue={close}
+        />
+      </View>
+    );
   }
 
   return (
@@ -61,7 +76,7 @@ export default function KanaRainScreen() {
         </Pressable>
         <View style={styles.score} aria-label={`Score ${rain.score}`}>
           <BoltIcon size={22} />
-          <Text style={styles.scoreText}>{rain.score.toLocaleString('en-US')}</Text>
+          <Text style={styles.scoreText}>{formatScore(rain.score)}</Text>
         </View>
         <View style={styles.hearts} aria-label={`${rain.lives} of ${RAIN_LIVES} lives`}>
           {Array.from({ length: RAIN_LIVES }, (_, i) => (
@@ -115,23 +130,18 @@ export default function KanaRainScreen() {
         </View>
       </View>
 
-      {rain.over && (
-        <View style={styles.overlay}>
-          <View style={styles.overCard}>
-            <Text style={styles.overTitle}>Game over</Text>
-            <Text style={styles.overScore}>{rain.score.toLocaleString('en-US')} points</Text>
-            <Text style={styles.overSub}>
-              {rain.cleared} kana cleared · reached wave {waveOf(rain.cleared)}
-            </Text>
-            <View style={styles.overButtons}>
-              <PrimaryButton label="Play again" onPress={restart} />
-              <PrimaryButton label="Leave" tone="vermilion" onPress={close} />
-            </View>
-          </View>
-        </View>
-      )}
     </KeyboardAvoidingView>
   );
+}
+
+function formatScore(score: number): string {
+  return score.toLocaleString('en-US');
+}
+
+// "New best!" if this game beat every earlier one, otherwise the score to beat.
+function bestLine({ score, best }: RainResult): string {
+  if (best === null || score > best) return 'New best!';
+  return `Best ${formatScore(best)}`;
 }
 
 // A "+40" where a kana was just cleared.
@@ -184,6 +194,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: rainColors.sky,
   },
+  results: {
+    flex: 1,
+    backgroundColor: colors.paper,
+  },
   top: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -226,39 +240,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBlack,
     fontSize: 17,
     color: colors.goldDark,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: colors.backdrop,
-  },
-  overCard: {
-    gap: 4,
-    padding: 18,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: colors.line,
-    backgroundColor: colors.card,
-  },
-  overTitle: {
-    fontFamily: fonts.uiBlack,
-    fontSize: 22,
-    color: colors.sumi,
-  },
-  overScore: {
-    fontFamily: fonts.uiBlack,
-    fontSize: 32,
-    color: colors.sumi,
-  },
-  overSub: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 14,
-    color: colors.ink2,
-  },
-  overButtons: {
-    gap: 10,
-    marginTop: 12,
   },
   field: {
     flex: 1,

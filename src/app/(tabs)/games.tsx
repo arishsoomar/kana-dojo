@@ -3,10 +3,15 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts, rainColors } from '@/constants/theme';
+import { bestScore } from '@/core/answers';
+import { useProgress } from '@/hooks/use-progress';
+import { RAIN_LESSON_ID } from '@/hooks/use-rain';
 
 // The training hall: every game in one place. The first version has Kana Rain only.
 export default function GamesScreen() {
   const insets = useSafeAreaInsets();
+  const { progress } = useProgress();
+  const best = bestScore(progress, RAIN_LESSON_ID);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
@@ -23,7 +28,7 @@ export default function GamesScreen() {
             </View>
           </View>
           <Text style={styles.name}>Kana Rain</Text>
-          <Text style={styles.sub}>Type them before they land</Text>
+          <Text style={styles.sub}>{best === null ? 'Type them before they land' : `Best ${best.toLocaleString('en-US')}`}</Text>
         </Pressable>
       </View>
     </ScrollView>

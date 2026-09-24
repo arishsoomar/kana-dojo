@@ -12,10 +12,12 @@ export type KanaStats = {
   recentMs: readonly number[]; // times of the most recent correct answers, oldest first
 };
 
-// A finished lesson: which one, and when (a timestamp in milliseconds).
+// A finished lesson or game: which one, when (a timestamp in milliseconds), and for a
+// game, its score.
 export type Completion = {
   lesson: string;
   at: number;
+  score?: number;
 };
 
 export type Progress = {
@@ -98,9 +100,16 @@ export function recordAnswer(progress: Progress, answer: Answer): Progress {
   };
 }
 
-// Records that a lesson was finished at `now`.
-export function completeLesson(progress: Progress, lesson: string, now: number): Progress {
-  return { ...progress, completed: [...progress.completed, { lesson, at: now }] };
+// Records that a lesson (or a game, with its score) was finished at `now`.
+export function completeLesson(progress: Progress, lesson: string, now: number, score?: number): Progress {
+  const record: Completion = score === undefined ? { lesson, at: now } : { lesson, at: now, score };
+  return { ...progress, completed: [...progress.completed, record] };
+}
+
+// The highest score recorded for a game, or null if it has never been finished.
+export function bestScore(progress: Progress, lesson: string): number | null {
+  const scores = progress.completed.flatMap((c) => (c.lesson === lesson && c.score !== undefined ? [c.score] : []));
+  return scores.length === 0 ? null : Math.max(...scores);
 }
 
 // Makes a kana due now, without scoring anything: its box, stats and mix-ups stay the same.

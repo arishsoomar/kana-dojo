@@ -242,6 +242,10 @@ The engine's pickNext chooses which kana fall.)
 
 ### E5. Results
 Reuses the lesson completion layout. High score persists.
+(Score, accuracy, strike speed, belts earned, "New best!" or the best to
+beat, Play again. A finished game is saved like a lesson ("game:rain") with
+its score, so it also counts toward the streak. Best score shows on the
+training hall card.)
 
 ---
 

@@ -80,5 +80,10 @@ function isConfusion(value: unknown): value is Confusion {
 }
 
 function isCompletion(value: unknown): value is Completion {
-  return isObject(value) && typeof value.lesson === 'string' && typeof value.at === 'number';
+  return (
+    isObject(value) &&
+    typeof value.lesson === 'string' &&
+    typeof value.at === 'number' &&
+    (value.score === undefined || typeof value.score === 'number')
+  );
 }

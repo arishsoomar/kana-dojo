@@ -12,20 +12,36 @@ import { PrimaryButton } from './primary-button';
 type Props = {
   summary: LessonSummary;
   onContinue: () => void;
+  title?: string;
+  // The first stat tile. Lessons show XP; games show their score.
+  headline?: { label: string; value: string };
+  // An extra line under the title, like "New best!".
+  note?: string;
+  // A second button under Continue, like "Play again".
+  secondary?: { label: string; onPress: () => void };
 };
 
-export function LessonComplete({ summary, onContinue }: Props) {
+// The end-of-lesson (or end-of-game) screen: Karasu cheering, three stats, and any belts earned.
+export function LessonComplete({
+  summary,
+  onContinue,
+  title = 'Lesson complete',
+  headline = { label: 'XP', value: String(summary.xp) },
+  note,
+  secondary,
+}: Props) {
   const speed = summary.strikeSpeedMs === null ? '–' : `${(summary.strikeSpeedMs / 1000).toFixed(1)}s`;
 
   return (
     <View style={styles.screen}>
       <View style={styles.hero}>
         <Karasu mood="cheer" size={146} />
-        <Text style={styles.title}>Lesson complete</Text>
+        <Text style={styles.title}>{title}</Text>
+        {note && <Text style={styles.note}>{note}</Text>}
       </View>
 
       <View style={styles.stats}>
-        <Stat label="XP" value={String(summary.xp)} icon={<BoltIcon />} />
+        <Stat label={headline.label} value={headline.value} icon={<BoltIcon />} />
         <Stat label="Accuracy" value={`${Math.round(summary.accuracy * 100)}%`} color={colors.pineDark} />
         <Stat label="Strike speed" value={speed} color={colors.indigo} />
       </View>
@@ -40,6 +56,7 @@ export function LessonComplete({ summary, onContinue }: Props) {
       ))}
 
       <View style={styles.footer}>
+        {secondary && <PrimaryButton label={secondary.label} tone="pine" onPress={secondary.onPress} />}
         <PrimaryButton label="Continue" onPress={onContinue} />
       </View>
     </View>
@@ -129,7 +146,14 @@ const styles = StyleSheet.create({
   kana: {
     fontFamily: fonts.jp,
   },
+  note: {
+    marginTop: 2,
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    color: colors.goldDark,
+  },
   footer: {
+    gap: 10,
     marginTop: 'auto',
   },
 });

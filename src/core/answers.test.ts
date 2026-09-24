@@ -1,4 +1,4 @@
-import { completeLesson, EMPTY_PROGRESS, markDue, recordAnswer, type Progress } from './answers';
+import { bestScore, completeLesson, EMPTY_PROGRESS, markDue, recordAnswer, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -170,5 +170,21 @@ describe('markDue', () => {
     const snapshot = structuredClone(before);
     markDue(before, 'シ', NOW);
     expect(before).toEqual(snapshot);
+  });
+});
+
+describe('game scores', () => {
+  it('can store a score with a finished game', () => {
+    const next = completeLesson(EMPTY_PROGRESS, 'game:rain', 1000, 520);
+    expect(next.completed).toEqual([{ lesson: 'game:rain', at: 1000, score: 520 }]);
+  });
+
+  it('finds the best score for a game, or null if it was never played', () => {
+    expect(bestScore(EMPTY_PROGRESS, 'game:rain')).toBeNull();
+    let progress = completeLesson(EMPTY_PROGRESS, 'game:rain', 1000, 520);
+    progress = completeLesson(progress, 'game:rain', 2000, 1240);
+    progress = completeLesson(progress, 'game:rain', 3000, 300);
+    progress = completeLesson(progress, 'hiragana:a:0', 4000);
+    expect(bestScore(progress, 'game:rain')).toBe(1240);
   });
 });

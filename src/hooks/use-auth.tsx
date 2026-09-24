@@ -6,6 +6,7 @@ import { supabase } from '@/storage/supabase';
 type AuthContextValue = {
   available: boolean; // false when the app has no Supabase keys
   email: string | null; // the signed-in account, or null when signed out
+  userId: string | null;
   sendCode: (email: string) => Promise<string | null>; // returns an error message, or null
   verifyCode: (email: string, code: string) => Promise<string | null>;
   signOut: () => Promise<void>;
@@ -45,7 +46,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext
-      value={{ available: supabase !== null, email: session?.user.email ?? null, sendCode, verifyCode, signOut }}>
+      value={{
+        available: supabase !== null,
+        email: session?.user.email ?? null,
+        userId: session?.user.id ?? null,
+        sendCode,
+        verifyCode,
+        signOut,
+      }}>
       {children}
     </AuthContext>
   );

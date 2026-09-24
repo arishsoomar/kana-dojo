@@ -305,9 +305,14 @@ Done when:
 losing my phone doesn't lose my training.
 
 Done when:
-- [ ] Each save goes to the device first, then to the server
-- [ ] Works offline; unsent saves go up when the connection returns
+- [ ] Each save goes to the device first, then to the server (uploaded 2s
+      after changes settle, to the learner's row in the `progress` table)
+- [ ] Works offline; unsent saves go up when the connection returns (an
+      "upload owed" flag on the device; retried on foreground, on the next
+      change, and every 30s)
 - [ ] Server data is checked with `parseProgress` like local data
+- Until G3: on sign-in, a device with no progress takes the cloud copy;
+  otherwise the device's copy is uploaded over it.
 
 ### G3. Merging devices
 **As a** learner, **I want** practice on any device to count, **so that**

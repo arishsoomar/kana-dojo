@@ -145,3 +145,13 @@ export function finishOnboarding(progress: Progress): Progress {
 export function setScript(progress: Progress, script: Script): Progress {
   return { ...progress, settings: { ...progress.settings, script } };
 }
+
+// True when nothing has been trained yet (settings like the daily goal don't count).
+export function isEmptyProgress(progress: Progress): boolean {
+  return (
+    Object.keys(progress.kana).length === 0 &&
+    Object.keys(progress.stats).length === 0 &&
+    progress.confusions.length === 0 &&
+    progress.completed.length === 0
+  );
+}

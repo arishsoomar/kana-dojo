@@ -1,4 +1,4 @@
-import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, markDue, recordAnswer, type Progress } from './answers';
+import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, isEmptyProgress, markDue, recordAnswer, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -195,5 +195,17 @@ describe('onboarding', () => {
     const done = finishOnboarding(EMPTY_PROGRESS);
     expect(done.settings.onboarded).toBe(true);
     expect(EMPTY_PROGRESS.settings.onboarded).toBe(false);
+  });
+});
+
+describe('isEmptyProgress', () => {
+  it('is true for a learner who has done nothing yet', () => {
+    expect(isEmptyProgress(EMPTY_PROGRESS)).toBe(true);
+    expect(isEmptyProgress(finishOnboarding(EMPTY_PROGRESS))).toBe(true);
+  });
+
+  it('is false once anything has been answered or finished', () => {
+    expect(isEmptyProgress(progressWith(1))).toBe(false);
+    expect(isEmptyProgress(completeLesson(EMPTY_PROGRESS, 'x', 1))).toBe(false);
   });
 });

@@ -61,6 +61,9 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
   const [result, setResult] = useState<ExamResult | null>(null);
   // Set once the attempt is saved, so the timer and the last answer can't both save it.
   const finished = useRef(false);
+  // Answers so far, updated the moment one is given (the attempt itself updates after the
+  // answer's flash), so running out of time counts every answer.
+  const liveAnswers = useRef<LessonAnswer[]>([]);
 
   const correct = attempt.answers.filter((a) => a.correct).length;
   const misses = attempt.answers.length - correct;
@@ -70,7 +73,7 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
   const onTick = useEffectEvent(() => {
     const time = Date.now();
     setNow(time);
-    if (time - attempt.startedAt >= EXAM_TIME_MS) finish(attempt, true);
+    if (time - attempt.startedAt >= EXAM_TIME_MS) finish({ ...attempt, answers: liveAnswers.current }, true);
   });
 
   useEffect(() => {
@@ -99,6 +102,7 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     const right = guess === kana;
     changeProgress((current) => recordAnswer(current, { char: kana.char, guess: guess.char, ms, now: time }));
     const answers = [...attempt.answers, { char: kana.char, correct: right, ms }];
+    liveAnswers.current = answers;
     setFlash({ guess, correct: right });
 
     // After the flash, move on, or end the exam if the result is now certain.
@@ -119,6 +123,7 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
 
   function retake() {
     finished.current = false;
+    liveAnswers.current = [];
     setResult(null);
     setFlash(null);
     const fresh = newAttempt(currentProgress(), script, row);

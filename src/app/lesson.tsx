@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { BackHandler, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
@@ -54,6 +54,17 @@ export default function LessonScreen() {
   const { question, result, summary, fraction, check, goToNext } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
   const rank = useRank();
+
+  // Android's back button asks first, like the X. (iOS swipe-back is already off for lessons.)
+  // Once the lesson is complete, back just leaves.
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (summary) return false;
+      setLeaving(true);
+      return true; // handled: don't leave the screen
+    });
+    return () => subscription.remove();
+  }, [summary]);
 
   if (summary) {
     return (

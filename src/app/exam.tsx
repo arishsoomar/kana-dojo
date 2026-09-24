@@ -79,7 +79,7 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
         total={EXAM_LENGTH}
         nextRowChar={nextOpenNow && !before.nextOpen ? rowChar(script, nextRow) : null}
         rank={rank}
-        grew={rank !== before.rank}
+        fromRank={before.rank}
         onDone={close}
       />
     );

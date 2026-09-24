@@ -16,7 +16,7 @@ const icons: Record<string, ComponentType<TabIconProps>> = {
 
 export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
   return (
-    <View accessibilityRole="tablist" style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
+    <View role="tablist" style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
       {state.routes.map((route, index) => {
         const focused = state.index === index;
         const Icon = icons[route.name];
@@ -25,9 +25,9 @@ export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarP
         return (
           <Pressable
             key={route.key}
-            accessibilityRole="tab"
-            accessibilityLabel={label}
-            accessibilityState={{ selected: focused }}
+            role="tab"
+            aria-label={label}
+            aria-selected={focused}
             style={styles.tab}
             onPress={() => {
               if (!focused) navigation.navigate(route.name);

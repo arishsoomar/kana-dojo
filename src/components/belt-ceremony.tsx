@@ -17,7 +17,7 @@ type Props = {
   total: number;
   nextRowChar: string | null; // set if passing opened the next row
   rank: Belt; // the learner's overall rank now, which sets Karasu's form
-  grew: boolean; // passing this exam raised the overall rank
+  fromRank: Belt; // the rank before this exam; Karasu starts in this form
   onDone: () => void;
 };
 
@@ -26,7 +26,8 @@ const useNativeDriver = Platform.OS !== 'web';
 
 // The payoff for passing a belt exam. The new belt drops onto Karasu, he puts it on,
 // and the words appear. It takes about a second and a half.
-export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar, rank, grew, onDone }: Props) {
+export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar, rank, fromRank, onDone }: Props) {
+  const grew = rank !== fromRank;
   const insets = useSafeAreaInsets();
   // Animated values are created once. (useState keeps them between renders without
   // reading a ref during render.)
@@ -56,7 +57,8 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
         <View style={styles.glow} />
         {/* Wrapped in a View so he's layered above the glow on web too. */}
         <View>
-          <Karasu mood={tied ? 'proud' : 'focus'} rank={rank} belt={tied ? belt : from} size={160} />
+          {/* When the belt is tied he puts it on, and if the rank rose, he takes his new form. */}
+          <Karasu mood={tied ? 'proud' : 'focus'} rank={tied ? rank : fromRank} belt={tied ? belt : from} size={160} />
         </View>
         <Animated.View style={[styles.belt, beltStyle]}>
           <BeltIcon belt={belt} width={150} />

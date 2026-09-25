@@ -1,13 +1,38 @@
-import * as Speech from 'expo-speech';
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 
-import { KANA, type Kana } from '@/core/kana';
+import type { Kana } from '@/core/kana';
 
-// Says a kana aloud with the device's Japanese voice, cutting off anything still being said.
-// (On iOS nothing plays while the phone is on silent.) To use recorded audio instead, only
-// this file needs to change.
+import { CLIPS } from './clips';
+
+// Says a kana aloud: a native speaker's recording of its sound, said three times (see
+// assets/audio/kana/SOURCES.md). Hiragana and katakana with the same sound share a clip.
+
+// One player per clip, made the first time it's needed and kept while the app runs: there
+// are at most 46, each is tiny, and reusing them makes a replay start at once.
+const players = new Map<string, AudioPlayer>();
+let playing: AudioPlayer | null = null;
+let modeSet = false;
+
 export function pronounce(kana: Kana) {
-  // The katakana form is spoken even for hiragana: it sounds the same, and on its own は or
-  // へ can be read as the particles "wa" and "e", while ハ and ヘ can't.
-  const spoken = KANA.find((k) => k.script === 'katakana' && k.romaji[0] === kana.romaji[0])?.char ?? kana.char;
-  void Speech.stop().then(() => Speech.speak(spoken, { language: 'ja-JP', rate: 0.8 }));
+  const sound = kana.romaji[0];
+  const clip = CLIPS[sound];
+  if (!clip) return;
+
+  if (!modeSet) {
+    modeSet = true;
+    // Play even with the phone on silent (the app's own mute button is for turning it off),
+    // and only lower, not stop, music from other apps while a clip plays.
+    void setAudioModeAsync({ playsInSilentMode: true, interruptionMode: 'duckOthers' });
+  }
+
+  // Cut off whatever is still playing, so two clips never overlap.
+  playing?.pause();
+  let player = players.get(sound);
+  if (!player) {
+    player = createAudioPlayer(clip);
+    players.set(sound, player);
+  }
+  void player.seekTo(0);
+  player.play();
+  playing = player;
 }

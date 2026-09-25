@@ -66,6 +66,9 @@ export default function LessonScreen() {
     return () => subscription.remove();
   }, [summary]);
 
+  // Only a wrong answer gets the feedback sheet; a correct one moves on by itself.
+  const wrong = result !== null && !result.correct;
+
   if (summary) {
     return (
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
@@ -103,8 +106,8 @@ export default function LessonScreen() {
       </View>
 
       {/* The bottom padding lives here, so the white sheet reaches the bottom edge. */}
-      <View style={[result && styles.sheetArea, { paddingBottom: insets.bottom + (result ? 22 : 12) }]}>
-        {result && <FeedbackSheet result={result} onContinue={goToNext} />}
+      <View style={[wrong && styles.sheetArea, { paddingBottom: insets.bottom + (wrong ? 22 : 12) }]}>
+        {wrong && <FeedbackSheet result={result} onContinue={goToNext} />}
       </View>
 
       <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={leaveLesson} />

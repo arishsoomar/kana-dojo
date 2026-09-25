@@ -4,7 +4,7 @@ import { makeChoices } from './choices';
 import { awardedBelt, examDue } from './exam';
 import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
 import { pickNext } from './pick';
-import type { Question } from './question';
+import { avoiding, type Question } from './question';
 import type { Rng } from './random';
 import { unlockedKana } from './unlock';
 
@@ -104,14 +104,13 @@ export function learnPath(progress: Progress, script: Script): LearnPath {
 // the other unlocked kana.
 const PLAQUE_FOCUS_SHARE = 0.7;
 
-export function makePlaqueQuestion(progress: Progress, plaque: Plaque, now: number, rng: Rng): Question {
+export function makePlaqueQuestion(progress: Progress, plaque: Plaque, now: number, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, plaque.script);
   const review = unlocked.filter((k) => !plaque.kana.includes(k));
   const pool = [...new Set([...unlocked, ...plaque.kana])];
 
-  const kana =
-    review.length === 0 || rng() < PLAQUE_FOCUS_SHARE
-      ? pickNext(progress, plaque.kana, now, rng)
-      : pickNext(progress, review, now, rng);
+  const preferPlaque = review.length === 0 || rng() < PLAQUE_FOCUS_SHARE;
+  const options = avoiding(preferPlaque ? plaque.kana : review, avoid, [...plaque.kana, ...review]);
+  const kana = pickNext(progress, options, now, rng);
   return { kana, choices: makeChoices(kana, pool, rng) };
 }

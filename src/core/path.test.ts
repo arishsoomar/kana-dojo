@@ -122,3 +122,13 @@ describe('learnPath: belt exams', () => {
     expect(learnPath(EMPTY_PROGRESS, 'hiragana').units[1]?.exam).toBeNull();
   });
 });
+
+describe('makePlaqueQuestion: no repeats', () => {
+  it("asks the plaque's other kana instead of the one just asked", () => {
+    const [first] = plaquesFor('hiragana', 'a');
+    if (!first) throw new Error('missing plaque');
+    for (const rng of [() => 0, () => 0.2, () => 0.5]) {
+      expect(makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, rng, 'あ').kana.char).not.toBe('あ');
+    }
+  });
+});

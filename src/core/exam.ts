@@ -43,11 +43,19 @@ export function examDue(progress: Progress, script: Script, row: RowId): Belt | 
 }
 
 // The exam's questions: the row's kana, repeated to fill the exam, in random order.
+// It's built in rounds (each round is the whole row, shuffled), and a round never starts
+// with the kana the last one ended on, so the same kana never comes twice in a row.
 export function examQuestions(script: Script, row: RowId, rng: Rng): Kana[] {
   const rowKana = KANA.filter((k) => k.script === script && k.row === row);
-  // Safe: every row has at least one kana, so the index is always valid.
-  const repeated = Array.from({ length: EXAM_LENGTH }, (_, i) => rowKana[i % rowKana.length]!);
-  return shuffle(repeated, rng);
+  const questions: Kana[] = [];
+  while (questions.length < EXAM_LENGTH) {
+    let round = shuffle(rowKana, rng);
+    if (round.length > 1 && round[0] === questions[questions.length - 1]) {
+      round = [...round.slice(1), ...round.slice(0, 1)];
+    }
+    questions.push(...round);
+  }
+  return questions.slice(0, EXAM_LENGTH);
 }
 
 export type ExamStatus = 'going' | 'passed' | 'failed';

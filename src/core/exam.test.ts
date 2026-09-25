@@ -76,3 +76,15 @@ describe('examStatus', () => {
     expect(examStatus({ correct: 12, misses: 0, timeUp: true })).toBe('failed');
   });
 });
+
+describe('examQuestions: no repeats', () => {
+  it('never puts the same kana twice in a row, in any row', () => {
+    for (const row of ['a', 'ka', 'ya', 'wa'] as const) {
+      for (const rng of [() => 0, () => 0.5, () => 0.99]) {
+        const chars = examQuestions('hiragana', row, rng).map((k) => k.char);
+        const repeats = chars.filter((c, i) => i > 0 && c === chars[i - 1]);
+        expect(repeats).toEqual([]);
+      }
+    }
+  });
+});

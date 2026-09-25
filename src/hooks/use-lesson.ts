@@ -23,12 +23,16 @@ export type Result = {
 // A plaque from the Learn path, a practice lesson in one script, or a drill on one kana.
 export type LessonMode = { plaque: Plaque } | { script: Script } | { drill: Kana };
 
-function newQuestion(progress: Progress, mode: LessonMode): Question {
+// `avoid` is the kana just asked, so the same one never comes twice in a row.
+function newQuestion(progress: Progress, mode: LessonMode, avoid?: string): Question {
   const now = Date.now();
-  if ('plaque' in mode) return makePlaqueQuestion(progress, mode.plaque, now, Math.random);
-  if ('drill' in mode) return makeDrillQuestion(progress, mode.drill, now, Math.random);
-  return makeQuestion(progress, mode.script, now, Math.random);
+  if ('plaque' in mode) return makePlaqueQuestion(progress, mode.plaque, now, Math.random, avoid);
+  if ('drill' in mode) return makeDrillQuestion(progress, mode.drill, now, Math.random, avoid);
+  return makeQuestion(progress, mode.script, now, Math.random, avoid);
 }
+
+// After a correct answer, how long its green tile shows before the next question.
+const AUTO_ADVANCE_MS = 500;
 
 // The name a finished lesson is recorded under. Plaque ids mark plaques as done;
 // every finished lesson counts toward the streak (D4).
@@ -41,7 +45,7 @@ export function lessonId(mode: LessonMode): string {
 // Holds the lesson's state and connects the screen to the engine.
 // The real clock and Math.random are used here, never inside src/core.
 export function useLesson(mode: LessonMode) {
-  const { progress, updateProgress } = useProgress();
+  const { progress, updateProgress, currentProgress } = useProgress();
   // Progress as it was when the lesson began, to compare against at the end.
   const [startProgress] = useState(progress);
   const [answers, setAnswers] = useState<LessonAnswer[]>([]);
@@ -58,7 +62,11 @@ export function useLesson(mode: LessonMode) {
     const next = recordAnswer(progress, { char: kana.char, guess: guess.char, ms, now });
 
     updateProgress(next);
-    setAnswers([...answers, { char: kana.char, correct, ms }]);
+    const nextAnswers = [...answers, { char: kana.char, correct, ms }];
+    setAnswers(nextAnswers);
+    // A correct answer moves on by itself; a wrong one waits on the feedback sheet, so the
+    // correction and memory tip can be read.
+    if (correct) setTimeout(() => advance(nextAnswers, kana.char), AUTO_ADVANCE_MS);
     setResult({
       kana,
       guess,
@@ -70,15 +78,23 @@ export function useLesson(mode: LessonMode) {
     });
   }
 
-  function goToNext() {
-    if (answers.length >= LESSON_LENGTH) {
-      updateProgress(completeLesson(progress, lessonId(mode), Date.now()));
-      setSummary(summarizeLesson(startProgress, progress, answers));
+  // The next question, or the summary once the lesson is complete. It reads the latest
+  // progress, since it can run from a timer after the answer that just changed it.
+  function advance(answersSoFar: LessonAnswer[], justAsked: string) {
+    const latest = currentProgress();
+    if (answersSoFar.length >= LESSON_LENGTH) {
+      updateProgress(completeLesson(latest, lessonId(mode), Date.now()));
+      setSummary(summarizeLesson(startProgress, latest, answersSoFar));
       return;
     }
-    setQuestion(newQuestion(progress, mode));
+    setQuestion(newQuestion(latest, mode, justAsked));
     setShownAt(Date.now());
     setResult(null);
+  }
+
+  // Continue, from the feedback sheet after a wrong answer.
+  function goToNext() {
+    advance(answers, question.kana.char);
   }
 
   return {

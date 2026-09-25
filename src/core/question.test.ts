@@ -23,6 +23,19 @@ describe('makeQuestion', () => {
     }
   });
 
+  it("only asks kana the learner has met, not ones a newly opened row hasn't taught", () => {
+    // The a row is green, so the ka row is open, but only か has been met there.
+    const green = { box: 3, dueAt: 0 };
+    const progress: Progress = {
+      ...EMPTY_PROGRESS,
+      kana: { あ: green, い: green, う: green, え: green, お: green, か: { box: 0, dueAt: 0 } },
+    };
+    for (const rng of rngs) {
+      const { kana } = makeQuestion(progress, 'hiragana', NOW, rng);
+      expect(['あ', 'い', 'う', 'え', 'お', 'か']).toContain(kana.char);
+    }
+  });
+
   it('uses the requested script', () => {
     const { kana, choices } = makeQuestion(NEW_LEARNER, 'katakana', NOW, () => 0.5);
     expect(kana.script).toBe('katakana');

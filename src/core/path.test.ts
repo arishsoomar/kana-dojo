@@ -85,10 +85,19 @@ describe('makePlaqueQuestion', () => {
     expect(['あ', 'い']).toContain(kana.char);
   });
 
-  it('sometimes reviews other unlocked kana', () => {
+  it('sometimes reviews other unlocked kana the learner has met', () => {
     if (!first) throw new Error('missing plaque');
-    const { kana } = makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, () => 0.9);
-    expect(['う', 'え', 'お']).toContain(kana.char);
+    const met: Progress = { ...EMPTY_PROGRESS, kana: { う: { box: 1, dueAt: 0 } } };
+    const { kana } = makePlaqueQuestion(met, first, NOW, () => 0.9);
+    expect(kana.char).toBe('う');
+  });
+
+  it("never reviews a kana that hasn't been taught yet", () => {
+    if (!first) throw new Error('missing plaque');
+    for (const rng of [() => 0, () => 0.5, () => 0.99]) {
+      const { kana } = makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, rng);
+      expect(['あ', 'い']).toContain(kana.char);
+    }
   });
 
   it('offers four choices that include the answer', () => {

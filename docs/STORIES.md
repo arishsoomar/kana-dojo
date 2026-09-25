@@ -389,6 +389,9 @@ Done when:
   locked row repeats the rule.
 - White belt is count-based: no waits below green, so a row can open in
   one good practice session. Waits start at green (see PROJECT.md).
+- Practice and plaque reviews only ask kana the learner has met (answered
+  or placed). A newly opened row waits for its plaques. Drills still ask
+  any kana it's been mixed up with.
 - Answer tiles come in kana-chart order, not shuffled, so the eyes stay
   on the kana instead of hunting for the answer.
 

@@ -6,7 +6,7 @@ import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
 import { pickNext } from './pick';
 import { avoiding, type Question } from './question';
 import type { Rng } from './random';
-import { unlockedKana } from './unlock';
+import { metKana, unlockedKana } from './unlock';
 
 // One lesson on the dojo wall. 'learn' plaques introduce a few kana; the 'mixed'
 // plaque at the end of each row reviews the whole row.
@@ -101,12 +101,12 @@ export function learnPath(progress: Progress, script: Script): LearnPath {
 }
 
 // Share of a plaque lesson's questions that ask the plaque's own kana; the rest review
-// the other unlocked kana.
+// other kana the learner has met.
 const PLAQUE_FOCUS_SHARE = 0.7;
 
 export function makePlaqueQuestion(progress: Progress, plaque: Plaque, now: number, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, plaque.script);
-  const review = unlocked.filter((k) => !plaque.kana.includes(k));
+  const review = metKana(progress, plaque.script).filter((k) => !plaque.kana.includes(k));
   const pool = [...new Set([...unlocked, ...plaque.kana])];
 
   const preferPlaque = review.length === 0 || rng() < PLAQUE_FOCUS_SHARE;

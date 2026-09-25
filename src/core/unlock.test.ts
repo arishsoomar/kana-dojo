@@ -1,6 +1,6 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
 import type { Script } from './kana';
-import { greenNeeded, unlockedKana } from './unlock';
+import { greenNeeded, metKana, unlockedKana } from './unlock';
 
 // Progress where every listed kana is in `box`.
 function withBox(chars: string[], box: number): Progress {
@@ -43,5 +43,17 @@ describe('greenNeeded', () => {
 
   it('needs all 3 in a 3-kana row', () => {
     expect(greenNeeded(withBox([], 0), 'hiragana', 'ya')).toBe(3);
+  });
+});
+
+describe('metKana', () => {
+  it('is the unlocked kana that have progress (answered or placed)', () => {
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 1, dueAt: 0 }, う: { box: 0, dueAt: 0 } } };
+    expect(metKana(progress, 'hiragana').map((k) => k.char)).toEqual(['あ', 'う']);
+  });
+
+  it('leaves out kana in rows that are still locked', () => {
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { か: { box: 1, dueAt: 0 } } };
+    expect(metKana(progress, 'hiragana')).toEqual([]);
   });
 });

@@ -30,3 +30,9 @@ export function greenNeeded(progress: Progress, script: Script, row: RowId): num
   const green = rowKana.filter((k) => isGreenOrBetter(progress, k)).length;
   return Math.max(Math.ceil(rowKana.length * UNLOCK_SHARE) - green, 0);
 }
+
+// The unlocked kana the learner has met: answered at least once, or placed by the placement
+// test. When a row opens, its kana stay out of practice until a plaque teaches them.
+export function metKana(progress: Progress, script: Script): Kana[] {
+  return unlockedKana(progress, script).filter((k) => progress.kana[k.char] !== undefined);
+}

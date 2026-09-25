@@ -11,7 +11,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ProgressRing } from '@/components/progress-ring';
 import { SegmentedControl } from '@/components/segmented-control';
 import { colors, fonts, wallColors } from '@/constants/theme';
-import { setScript } from '@/core/answers';
+import { FAST_MS, setScript } from '@/core/answers';
 import type { Script } from '@/core/kana';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
@@ -39,6 +39,8 @@ export default function LearnScreen() {
   const needed = greenNeeded(progress, script, unit.row);
   // A belt exam that's ready takes priority in Karasu's suggestion.
   const examReady = path.units.find((u) => u.exam) ?? null;
+  // The next row to open, which gets a note saying what opens it.
+  const firstLocked = path.units.find((u) => !u.open) ?? null;
 
   // A new learner meets Karasu first.
   if (!progress.settings.onboarded) return <Redirect href="/welcome" />;
@@ -114,6 +116,12 @@ export default function LearnScreen() {
             </Text>
             {u.open && <BeltIcon belt={u.belt} width={30} />}
           </View>
+          {u === firstLocked && needed > 0 && (
+            <Text style={styles.lockedNote}>
+              Opens when {needed} more <Text style={styles.kana}>{rowKana(unit)}</Text> row{' '}
+              {needed === 1 ? 'kana reaches' : 'kana reach'} green belt. Tap Practice to get there.
+            </Text>
+          )}
           <View style={styles.rail} />
           <View style={styles.plaques}>
             {u.plaques.map(({ plaque, state }) => (
@@ -156,7 +164,7 @@ function coachLine(path: LearnPath, needed: number): string {
       : `Next: learn ${current.kana.map((k) => k.char).join(' ')}.`;
   }
   if (needed > 0) {
-    return `Practice until ${needed} more ${needed === 1 ? 'kana reaches' : 'kana reach'} green belt to open the next row.`;
+    return `${needed} more ${rowKana(path.currentUnit)} row ${needed === 1 ? 'kana needs' : 'kana need'} green belt to open the next row. Each right answer in under ${FAST_MS / 1000} seconds moves a kana up; a miss moves it back.`;
   }
   return 'Every plaque is done. Keep practicing to hold your belts.';
 }
@@ -274,6 +282,12 @@ const styles = StyleSheet.create({
   },
   shelfTitleLocked: {
     color: colors.muted,
+  },
+  lockedNote: {
+    marginBottom: 8,
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12,
+    color: colors.ink2,
   },
   rail: {
     height: 8,

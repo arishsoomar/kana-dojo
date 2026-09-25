@@ -466,7 +466,11 @@ Done when:
   and first win; won first, then ready, then locked, most mixed-up first
   within each. The date is formatted on screen (it needs the timezone).
 - The Duels card says how many duels are ready, or how many scrolls are
-  won when none are. A won pair can't be duelled again yet.
+  won when none are. A won scroll has "Duel again" for a rematch (the
+  first win stays on the scroll).
+- The Learn screen shows a "Duel ready" card under Karasu when a duel is
+  ready (the most mixed-up pair). Karasu's own line stays about plaques,
+  exams and unlocking.
 - A locked slot says what it's waiting for: "Needs タ row" (a row must open
   first) or "1 of 3 mix-ups".
 

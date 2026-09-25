@@ -10,9 +10,12 @@ import { PlaqueTile } from '@/components/plaque-tile';
 import { PrimaryButton } from '@/components/primary-button';
 import { ProgressRing } from '@/components/progress-ring';
 import { SegmentedControl } from '@/components/segmented-control';
-import { colors, fonts, wallColors } from '@/constants/theme';
+import { Yokai } from '@/components/yokai';
+import { colors, duelColors, fonts, wallColors } from '@/constants/theme';
 import { setScript } from '@/core/answers';
+import { scrolls } from '@/core/duel';
 import type { Script } from '@/core/kana';
+import { pairId } from '@/core/pairs';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
 import { useDailyGoal } from '@/hooks/use-daily-goal';
@@ -39,6 +42,8 @@ export default function LearnScreen() {
   const needed = greenNeeded(progress, script, unit.row);
   // A belt exam that's ready takes priority in Karasu's suggestion.
   const examReady = path.units.find((u) => u.exam) ?? null;
+  // The most mixed-up pair whose duel is ready, if any.
+  const duelReady = scrolls(progress).find((s) => s.state === 'ready')?.pair ?? null;
   // The next row to open, which gets a note saying what opens it.
   const firstLocked = path.units.find((u) => !u.open) ?? null;
 
@@ -107,6 +112,26 @@ export default function LearnScreen() {
           )}
         </View>
       </View>
+
+      {duelReady && (
+        <Pressable
+          role="button"
+          aria-label={`Duel ready: ${duelReady.kana.join(' ')}`}
+          onPress={() => router.push({ pathname: '/duel', params: { pair: pairId(duelReady) } })}
+          style={styles.duelCard}>
+          <View style={styles.duelYokai} aria-hidden>
+            <Yokai char={duelReady.kana[0]} size={40} hue="red" />
+            <Yokai char={duelReady.kana[1]} size={40} hue="red" />
+          </View>
+          <View style={styles.duelText}>
+            <Text style={styles.duelTitle}>Duel ready</Text>
+            <Text style={styles.duelSub}>{duelReady.name}: you keep mixing these up.</Text>
+          </View>
+          <View style={styles.duelButton}>
+            <Text style={styles.duelButtonText}>Duel</Text>
+          </View>
+        </Pressable>
+      )}
 
       {path.units.map((u) => (
         <View key={u.row} style={styles.shelf}>
@@ -294,6 +319,41 @@ const styles = StyleSheet.create({
     height: 8,
     marginHorizontal: -18,
     backgroundColor: wallColors.rail,
+  },
+  duelCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: duelColors.background,
+  },
+  duelYokai: {
+    flexDirection: 'row',
+  },
+  duelText: {
+    flex: 1,
+  },
+  duelTitle: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 14,
+    color: colors.card,
+  },
+  duelSub: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12,
+    color: duelColors.soft,
+  },
+  duelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: colors.vermilion,
+  },
+  duelButtonText: {
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.card,
   },
   examCard: {
     flexDirection: 'row',

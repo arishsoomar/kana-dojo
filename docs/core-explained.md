@@ -1,6 +1,6 @@
 # src/core explained, line by line
 
-A plain walkthrough of every file in `src/core/`, written as of story G4.
+A plain walkthrough of every file in `src/core/`, written as of story I4.
 If the code changes after that, line numbers here may drift.
 
 `src/core/` is the learning engine. None of it draws anything on screen, reads the clock,
@@ -16,6 +16,7 @@ Files are listed roughly in the order they build on each other.
 
 | File | What it's for |
 |---|---|
+| `pairs.ts` | The named lookalike pairs: each pair's name and tip |
 | `kana.ts` | The 92 kana, their rows and spellings, and which ones look alike |
 | `boxes.ts` | Box numbers (levels), how long each box waits, belts, and "is it due?" |
 | `goal.ts` | The daily goal choices, and counting lessons on a day |
@@ -30,6 +31,7 @@ Files are listed roughly in the order they build on each other.
 | `exam.ts` | Belt exams: which are due, which were passed, and the questions |
 | `path.ts` | The plaques on the Learn screen, and plaque questions |
 | `rank.ts` | The learner's overall rank (Karasu's form) |
+| `duel.ts` | Duels: weak pairs, duel rules and scores, and the scroll collection |
 | `tips.ts` | A memory tip for every kana |
 | `feedback.ts` | Belt changes and tips for the wrong-answer sheet |
 | `lesson.ts` | Lesson length, and the summary at the end (XP, accuracy, speed) |
@@ -103,25 +105,27 @@ Every file has a `.test.ts` file next to it, except `belts.ts`, whose one functi
 
 ## kana.ts: the 92 kana and facts about them
 
-**Line 1**
+**Line 1**: imports the named pairs from `pairs.ts`, which `lookalikesOf` uses at the bottom of this file.
+
+**Line 3**
 ```ts
 export type Script = 'hiragana' | 'katakana';
 ```
 A `Script` can only be the exact text `'hiragana'` or `'katakana'`. `|` means "or".
 
-**Line 4**
+**Line 6**
 ```ts
 export const ROWS = ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa'] as const;
 ```
 The ten row names, in the order they unlock. `as const` tells TypeScript to remember these exact ten strings in this exact order.
 
-**Line 6**
+**Line 8**
 ```ts
 export type RowId = (typeof ROWS)[number];
 ```
-`RowId` means "one of the strings in `ROWS`". `typeof ROWS` is the type of the list, and `[number]` means "any one item from it". The names are written once, on line 4.
+`RowId` means "one of the strings in `ROWS`". `typeof ROWS` is the type of the list, and `[number]` means "any one item from it". The names are written once, on line 6.
 
-**Lines 8–14**
+**Lines 10–16**
 ```ts
 export type Kana = {
   char: string;
@@ -136,15 +140,15 @@ The shape of one kana:
 - `row`: which row it's in, like `'sa'`.
 - `romaji`: its spellings. `[string, ...string[]]` means "one string, then any number more". So there is always at least one. The first is the standard spelling; the others are also accepted. `readonly` means nobody can change the list.
 
-**Line 17**
+**Line 19**
 ```ts
 const TABLE: readonly [RowId, string, string, string, ...string[]][] = [
 ```
 A list named `TABLE`, only used in this file. Each line in it has: a row name, the hiragana, the katakana, the first spelling, then any extra spellings.
 
-**Lines 18–27**: the data. 46 lines, one per sound. `['sa', 'し', 'シ', 'shi', 'si']` means row `sa`, hiragana し, katakana シ, spellings `shi` and `si`.
+**Lines 20–29**: the data. 46 lines, one per sound. `['sa', 'し', 'シ', 'shi', 'si']` means row `sa`, hiragana し, katakana シ, spellings `shi` and `si`.
 
-**Lines 30–36**
+**Lines 32–38**
 ```ts
 export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, first, ...rest]) => {
   const romaji: Kana['romaji'] = [first, ...rest];
@@ -156,12 +160,12 @@ export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, fi
 ```
 - Builds `KANA`, the list of all 92 kana, from `TABLE`.
 - `([row, hiragana, katakana, first, ...rest])` splits one table line into named parts. `...rest` collects everything left over (extra spellings) into a list.
-- Line 31 puts the spellings back together: `[first, ...rest]`. `Kana['romaji']` means "the type of the `romaji` field of `Kana`".
+- Line 33 puts the spellings back together: `[first, ...rest]`. `Kana['romaji']` means "the type of the `romaji` field of `Kana`".
 - Each table line becomes **two** kana: one hiragana, one katakana, with the same row and spellings. 46 × 2 = 92.
 - `row,` on its own is short for `row: row`.
 - The order of `KANA` is the kana chart: あ い う え お, then か き く け こ, and so on. `choices.ts` uses that order to line up the answer tiles.
 
-**Lines 38–41**
+**Lines 40–43**
 ```ts
 export function matchesRomaji(kana: Kana, input: string): boolean {
   const answer = input.trim().toLowerCase();
@@ -171,20 +175,45 @@ export function matchesRomaji(kana: Kana, input: string): boolean {
 - Checks whether typed text is a correct spelling of a kana.
 - `.trim()` removes spaces at the start and end. `.toLowerCase()` makes capital letters small. `' Shi '` becomes `'shi'`.
 
-**Lines 44–51**: `LOOKALIKES`, groups of kana that look similar, like `['シ', 'ツ']`.
-
-**Lines 53–57**
+**Lines 45–50**
 ```ts
 export function lookalikesOf(char: string): string[] {
-  return LOOKALIKES.filter((group) => group.includes(char)).flatMap((group) =>
-    group.filter((other) => other !== char),
+  return NAMED_PAIRS.filter(({ kana }) => kana.includes(char)).flatMap(({ kana }) =>
+    kana.filter((other) => other !== char),
   );
 }
 ```
-- Returns the kana that look like `char`.
-- `.filter(...)` keeps only the groups that contain `char`.
-- `.flatMap(...)` then takes each kept group, removes `char` itself, and joins the results.
-- `lookalikesOf('ね')` returns `['わ', 'れ']`. A kana in no group gets `[]`.
+- Returns the kana that look like `char`: the other kana of every named pair it's in (see `pairs.ts`).
+- `.filter(...)` keeps only the pairs that contain `char`.
+- `.flatMap(...)` then takes each kept pair, removes `char` itself, and joins the results.
+- `lookalikesOf('ね')` returns `['わ', 'れ']`, because ね is in two pairs. A kana in no pair, like や, gets `[]`.
+
+---
+
+## pairs.ts: the named lookalike pairs
+
+**Lines 5–9**
+```ts
+export type NamedPair = {
+  kana: readonly [string, string];
+  name: string;
+  tip: string;
+};
+```
+One pair of kana that look alike: the two characters, a name for its duel and scroll (like "The shadow twins"), and a tip for telling them apart. `readonly [string, string]` means exactly two strings, which can't be changed.
+
+**Lines 11–34**: `NAMED_PAIRS`, all 19 pairs: 11 hiragana, then 8 katakana. Every tip names both kana and one difference you can see, like `'お has a little dash off to the top right. あ has no dash.'`.
+
+This list is used in three places:
+- `lookalikesOf` in `kana.ts`: two kana count as lookalikes when they're a named pair. That decides which wrong-answer tiles are chosen first, and which kana a drill mixes in.
+- `pairTip` in `feedback.ts`: the tip on the wrong-answer sheet when you mix up a pair.
+- `duel.ts`: every duel and scroll is one of these pairs.
+
+This file imports nothing. That matters: `kana.ts` imports it, and if it imported `kana.ts` back (directly or through another file), the two would each need the other to finish loading first.
+
+**Lines 37–39**: `pairId`, a pair's id: its two kana joined, like `'シツ'`. It's used in the duel's address (`/duel?pair=シツ`) and in saved duel results.
+
+**Lines 42–44**: `pairById`, the pair with that id, or `null`. The duel screen uses it to turn the address back into a pair.
 
 ---
 
@@ -304,11 +333,11 @@ export type KanaStats = {
 ```
 A kana's answer history: how many times it was answered, how many of those were correct, and how long the most recent correct answers took (in milliseconds, oldest first).
 
-**Lines 19–23**: `Completion`, one finished lesson, game or exam: its name (`lesson`, like `'hiragana:a:0'` or `'rain'`), when it finished (`at`), and for games and exams, a `score`. `score?:` means it can be left out.
+**Lines 19–24**: `Completion`, one finished lesson, game, exam or duel: its name (`lesson`, like `'hiragana:a:0'` or `'rain'`), when it finished (`at`), for games, exams and duels a `score`, and for duels the opponent's score (`opponent`). `score?:` means it can be left out.
 
-**Lines 26–30**: `Settings`, the learner's choices: whether they've been through the welcome (`onboarded`), their daily goal, and which script the Learn screen shows.
+**Lines 27–31**: `Settings`, the learner's choices: whether they've been through the welcome (`onboarded`), their daily goal, and which script the Learn screen shows.
 
-**Lines 32–38**
+**Lines 33–39**
 ```ts
 export type Progress = {
   kana: Readonly<Record<string, KanaProgress>>;
@@ -326,13 +355,13 @@ Everything the app knows about the learner. This is what gets saved.
 - `settings`: the learner's choices.
 - `Readonly` and `readonly` mean none of these can be changed in place. Every change makes a new object.
 
-**Lines 41–47**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
+**Lines 42–48**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
 
-**Lines 49–54**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), and when it happened (`now`). `guess` can be `null`, which means no answer was given (a kana that landed in Kana Rain).
+**Lines 50–55**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), and when it happened (`now`). `guess` can be `null`, which means no answer was given (a kana that landed in Kana Rain).
 
-**Line 57**: `FAST_MS = 4000`. An answer must take less than 4 seconds to move a kana up a box.
+**Line 58**: `FAST_MS = 4000`. An answer must take less than 4 seconds to move a kana up a box.
 
-**Lines 59–66**
+**Lines 60–67**
 ```ts
 function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
   if (tierOf(current.box) !== 'white' && !isDue(current, answer.now)) return current;
@@ -342,14 +371,14 @@ function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
 }
 ```
 - The new box and due time after a **correct** answer. Not exported, so only this file uses it.
-- Line 62: if the kana is green or better **and** not due yet, nothing changes. This is "no free promotions": a green kana can't climb by being answered again and again in one sitting.
+- Line 63: if the kana is green or better **and** not due yet, nothing changes. This is "no free promotions": a green kana can't climb by being answered again and again in one sitting.
 - White-belt kana skip that check, so every quick right answer counts. This also matters for older saves, which may have white-belt kana with a due time in the future (from when white belt had waits). Those still move up.
-- Line 64: if it took under 4 seconds, the box goes up by 1 (but not past 7). Otherwise the box stays.
-- Line 65: either way, it's due again after that box's waiting time.
+- Line 65: if it took under 4 seconds, the box goes up by 1 (but not past 7). Otherwise the box stays.
+- Line 66: either way, it's due again after that box's waiting time.
 
-**Line 69**: `WRONG_DROP = 2`.
+**Line 70**: `WRONG_DROP = 2`.
 
-**Lines 71–73**
+**Lines 72–74**
 ```ts
 function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
   return { box: Math.max(current.box - WRONG_DROP, 0), dueAt: answer.now };
@@ -357,13 +386,13 @@ function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
 ```
 After a **wrong** answer: down 2 boxes (not below 0), and due right away. There is no "is it due" check, so a wrong answer always counts.
 
-**Line 76**: `NEW_KANA = { box: 0, dueAt: 0 }`, used for a kana with no progress yet. Time 0 is long ago, so it is always due.
+**Line 77**: `NEW_KANA = { box: 0, dueAt: 0 }`, used for a kana with no progress yet. Time 0 is long ago, so it is always due.
 
-**Line 78**: `NEW_STATS`, stats for a kana never answered: all zero.
+**Line 79**: `NEW_STATS`, stats for a kana never answered: all zero.
 
-**Line 81**: `RECENT_TIMES = 10`, how many recent correct times to keep.
+**Line 82**: `RECENT_TIMES = 10`, how many recent correct times to keep.
 
-**Lines 83–89**
+**Lines 84–90**
 ```ts
 function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats {
   return {
@@ -377,7 +406,7 @@ function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats 
 - `seen` always goes up by 1. `correct` goes up by 1 only if the answer was right.
 - If right, the time is added to the end of `recentMs`. `.slice(-RECENT_TIMES)` keeps only the last 10 items (a negative number counts from the end). If wrong, the times stay the same.
 
-**Lines 91–119**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
+**Lines 92–120**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
 
 ```ts
   const current = progress.kana[answer.char] ?? NEW_KANA;
@@ -422,7 +451,7 @@ If the code gets here, the answer was wrong. If a kana was picked, the mistake i
 ```
 Same as the correct case, but using `afterWrong`, and with the new mistake log.
 
-**Lines 122–125**
+**Lines 123–126**
 ```ts
 export function completeLesson(progress: Progress, lesson: string, now: number, score?: number): Progress {
   const record: Completion = score === undefined ? { lesson, at: now } : { lesson, at: now, score };
@@ -431,7 +460,7 @@ export function completeLesson(progress: Progress, lesson: string, now: number, 
 ```
 Adds a finished lesson to the end of `completed`. `score?:` in the parameters means the score can be left out. If it is, the record has no `score` field at all.
 
-**Lines 128–131**
+**Lines 129–132**
 ```ts
 export function bestScore(progress: Progress, lesson: string): number | null {
   const scores = progress.completed.flatMap((c) => (c.lesson === lesson && c.score !== undefined ? [c.score] : []));
@@ -442,11 +471,11 @@ export function bestScore(progress: Progress, lesson: string): number | null {
 - The `.flatMap` turns each matching record into `[score]` and every other record into `[]` (nothing). Joined together, that's a list of just the scores.
 - `Math.max(...scores)` passes each score to `Math.max` separately and gives the largest.
 
-**Lines 136–139**: `markDue` makes a kana due now without changing its box, stats or mistakes. `Math.min(current.dueAt, now)` keeps an earlier due time if it already had one. Kana Rain uses it for a kana that landed before the player had started typing it: that says nothing about whether they know it, so it isn't scored, but it should come up again soon.
+**Lines 137–140**: `markDue` makes a kana due now without changing its box, stats or mistakes. `Math.min(current.dueAt, now)` keeps an earlier due time if it already had one. Kana Rain uses it for a kana that landed before the player had started typing it: that says nothing about whether they know it, so it isn't scored, but it should come up again soon.
 
-**Lines 142–149**: `finishOnboarding` sets `onboarded` to `true`. `setScript` sets which script the Learn screen shows. Both copy everything else.
+**Lines 143–150**: `finishOnboarding` sets `onboarded` to `true`. `setScript` sets which script the Learn screen shows. Both copy everything else.
 
-**Lines 152–159**: `isEmptyProgress`, `true` when nothing has been trained: no kana, stats, mistakes or finished lessons. Settings don't count. (Nothing in the app uses it any more since G4; only its tests do.)
+**Lines 153–160**: `isEmptyProgress`, `true` when nothing has been trained: no kana, stats, mistakes or finished lessons. Settings don't count. (Nothing in the app uses it any more since G4; only its tests do.)
 
 ---
 
@@ -944,6 +973,101 @@ export function overallRank(progress: Progress): Belt {
 
 ---
 
+## duel.ts: duels and scrolls
+
+A duel is fast rounds on one named pair that you keep mixing up. Winning one earns that pair's scroll.
+
+**Line 11**: `DUEL_READY_MIXUPS = 3`. A pair's duel is offered once you've mixed it up 3 times.
+
+**Lines 15–19**: `WeakPair`, one named pair with how many times you've mixed it up (`mixUps`) and whether its duel is `ready`.
+
+**Lines 23–33**
+```ts
+export function weakPairs(progress: Progress): WeakPair[] {
+  const open = new Set(SCRIPTS.flatMap((script) => unlockedKana(progress, script)).map((k) => k.char));
+
+  return NAMED_PAIRS.map((pair) => {
+    const [a, b] = pair.kana;
+    const mixUps = progress.confusions.filter(
+      ({ shown, guessed }) => (shown === a && guessed === b) || (shown === b && guessed === a),
+    ).length;
+    return { pair, mixUps, ready: mixUps >= DUEL_READY_MIXUPS && open.has(a) && open.has(b) };
+  }).sort((x, y) => y.mixUps - x.mixUps);
+}
+```
+- `open`: every unlocked kana in both scripts, as a `Set` of characters.
+- For each named pair, count the mistakes where one of the two was shown and the other was picked, either way round.
+- It's `ready` with 3 or more mix-ups, as long as both kana are unlocked.
+- Sorted most mixed-up first. `.sort` keeps equal items in their original order, so pairs with the same count stay in `NAMED_PAIRS` order.
+
+**Lines 37–38**: `DUEL_WIN = 10`, `DUEL_LOSS = 5`. You win at 10 points; the opponent wins at 5, so you can miss at most 4 times.
+
+**Line 40**: `DuelScore`, `{ mine, theirs }`.
+
+**Lines 44–48**: `duelStatus`, `'won'` at 10 of mine, `'lost'` at 5 of theirs, otherwise `'going'`.
+
+**Lines 52–56**
+```ts
+export function scorePoint(score: DuelScore, answer: { correct: boolean; ms: number }): DuelScore {
+  if (duelStatus(score) !== 'going') return score;
+  if (!answer.correct) return { ...score, theirs: score.theirs + 1 };
+  return answer.ms < FAST_MS ? { ...score, mine: score.mine + 1 } : score;
+}
+```
+- The score after one answer.
+- Once the duel is over, nothing changes, so a late tap can't change a finished result.
+- A wrong answer is the opponent's point. A right answer under 4 seconds is yours. A right but slow answer is nobody's.
+- It returns a new score object; the one passed in is never changed.
+
+**Lines 61–66**
+```ts
+export function duelQuestion(pair: NamedPair, rng: Rng): Question {
+  const choices = KANA.filter((k) => pair.kana.includes(k.char));
+  const kana: Kana = choices[rng() < 0.5 ? 0 : 1]!;
+  return { kana, choices };
+}
+```
+- One point of a duel. `choices` is the pair's two kana, taken from `KANA` so they're in chart order.
+- The kana asked is either one, at random. Unlike lessons, the same kana can come twice in a row: with only two kana, taking turns would tell you every answer.
+- It returns a `Question`, the same shape lessons use, so the screen can reuse the answer tiles.
+
+**Lines 69–71**: `duelId`, how a duel is named in the finished-lesson records: `'duel:シツ'`.
+
+**Lines 74–77**
+```ts
+export function completeDuel(progress: Progress, pair: NamedPair, score: DuelScore, now: number): Progress {
+  const record: Completion = { lesson: duelId(pair), at: now, score: score.mine, opponent: score.theirs };
+  return { ...progress, completed: [...progress.completed, record] };
+}
+```
+Records a finished duel, won or lost, with both scores. Like any finished record, it counts toward the streak and the daily goal.
+
+**Lines 79–88**: `ScrollState` is `'won'`, `'ready'` or `'locked'`. `Scroll` is one slot in the collection: the pair, its mix-ups, its state, and its first win (when, and the score), or `null`.
+
+**Lines 94–106**: `scrolls`, the whole collection.
+
+```ts
+      const wins = progress.completed
+        .filter((c) => c.lesson === duelId(pair))
+        .map((c) => ({ at: c.at, score: { mine: c.score ?? 0, theirs: c.opponent ?? 0 } }))
+        .filter((c) => duelStatus(c.score) === 'won');
+```
+Every finished duel for this pair, turned into a time and a score, keeping only the wins.
+
+```ts
+      const firstWin = wins.reduce<Scroll['firstWin']>((first, win) => (first === null || win.at < first.at ? win : first), null);
+      const state = firstWin ? 'won' : ready ? 'ready' : 'locked';
+```
+- The earliest win, or `null` if there isn't one. `Scroll['firstWin']` means "the type of the `firstWin` field of `Scroll`".
+- A pair with a win is `'won'`. Otherwise it's `'ready'` if its duel is ready, or `'locked'`.
+
+```ts
+    .sort((a, b) => STATE_ORDER.indexOf(a.state) - STATE_ORDER.indexOf(b.state));
+```
+Won scrolls first, then ready, then locked. Within each group, the order from `weakPairs` stays: most mixed-up first.
+
+---
+
 ## tips.ts: a memory tip for every kana
 
 **Lines 4–100**: `KANA_TIPS`, an object with one tip for each of the 92 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
@@ -960,11 +1084,11 @@ The tip for a kana, or `null` if there isn't one (for something that isn't a kan
 
 ## feedback.ts: belt changes and tips for the wrong-answer sheet
 
-**Line 6**: `BeltChange`, the belt before and after.
+**Line 7**: `BeltChange`, the belt before and after.
 
-**Lines 8–10**: `beltOf`, the belt of one kana in some progress (white if it has no progress).
+**Lines 9–11**: `beltOf`, the belt of one kana in some progress (white if it has no progress).
 
-**Lines 13–17**
+**Lines 14–18**
 ```ts
 export function beltChange(before: Progress, after: Progress, char: string): BeltChange | null {
   const from = beltOf(before, char);
@@ -974,20 +1098,19 @@ export function beltChange(before: Progress, after: Progress, char: string): Bel
 ```
 Compares a kana's belt before and after an answer. If it's the same, `null`. Otherwise `{ from, to }`.
 
-**Lines 20–29**: `PAIR_TIPS`, written tips for telling lookalike pairs apart. Each has a `pair` of two kana and a `tip`.
-
-**Lines 31–33**
+**Lines 21–23**
 ```ts
 function pairTip(a: string, b: string): string | null {
-  return PAIR_TIPS.find(({ pair }) => pair.includes(a) && pair.includes(b))?.tip ?? null;
+  return NAMED_PAIRS.find(({ kana }) => kana.includes(a) && kana.includes(b))?.tip ?? null;
 }
 ```
-- The first pair tip that contains both `a` and `b`. `({ pair })` takes the `pair` field out of each item.
-- `?.tip` reads the tip if something was found. `?? null` turns "missing" into `null`.
+- The tip for telling `a` and `b` apart, from the named pair that contains both (see `pairs.ts`).
+- `({ kana })` takes the `kana` field out of each pair.
+- `?.tip` reads the tip if a pair was found. `?? null` turns "missing" into `null`.
 
-**Lines 36–42**: `pairTipFor` tries each kana in `others` in order and returns the first pair tip with `char`, or `null`. The detail sheet passes a kana's most common mix-ups first, then its lookalikes.
+**Lines 26–32**: `pairTipFor` tries each kana in `others` in order and returns the first pair tip with `char`, or `null`. The detail sheet passes a kana's most common mix-ups first, then its lookalikes.
 
-**Lines 46–52**
+**Lines 36–42**
 ```ts
 export function tipFor(shown: Kana, guessed: Kana): string {
   return (
@@ -1147,7 +1270,7 @@ function validEntries<T>(saved: Record<string, unknown>, isValid: (value: unknow
 
 **Lines 86–88**: `isConfusion`, `true` if both `shown` and `guessed` are strings.
 
-**Lines 90–97**: `isCompletion`, `true` if `lesson` is a string, `at` is a number, and `score` is either missing or a number.
+**Lines 90–98**: `isCompletion`, `true` if `lesson` is a string, `at` is a number, and `score` and `opponent` are each either missing or a number.
 
 ---
 
@@ -1601,7 +1724,8 @@ Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and 
 - `npm test` runs every `.test.ts` file and prints which tests passed and which failed.
 
 What each file checks:
-- **kana.test.ts**: 46 + 46 kana, no duplicates; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways.
+- **pairs.test.ts**: every pair is two different real kana from one script, listed once, with a name and a tip that mentions both; both scripts covered; `pairId` and `pairById`.
+- **kana.test.ts**: 46 + 46 kana, no duplicates; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes.
 - **boxes.test.ts**: each box's belt and waiting time (0 below green); "due" is true at or after the due time.
 - **goal.test.ts**: the four goals, the default of 2, changing the goal without changing the input, counting lessons on a day.
 - **answers.test.ts**: every rule of `recordAnswer` (up a box, capped at 7, slow, wrong, floor at 0, mistakes logged, new kana, a green kana not due stays put, a white kana moves up even with a future due time, input never changed), the stats it keeps, finished lessons, best scores, `markDue`, onboarding, and `isEmptyProgress`.
@@ -1614,10 +1738,11 @@ What each file checks:
 - **exam.test.ts**: which exam is due, awarded belts (never above the kana now), exam questions (20, from the row, no repeats in a row), and when an exam passes or fails.
 - **path.test.ts**: plaques per row (including 3-kana rows), `rowBelt`, which plaque is current, rows opening, scripts separate, plaque questions (mostly the plaque's kana, review only kana you've met, no repeats), exams on the path.
 - **rank.test.ts**: rank thresholds, higher belts counting toward lower ranks, only exam-earned belts count.
+- **duel.test.ts**: `weakPairs` (counting both ways, order, ready at 3 and only when unlocked), duel questions (only the two kana, chart order, repeats allowed), scoring (fast, wrong, slow, after the end, input unchanged), win and loss, `completeDuel`, and `scrolls` (locked, ready, first win kept, a loss isn't a win, order).
 - **tips.test.ts**: every kana has a tip, and each tip mentions the kana's sound.
 - **feedback.test.ts**: belt changes up, down and none; pair tips, the kana's own tip as the fallback, and `pairTipFor`.
 - **lesson.test.ts**: lesson length, `median`, and the lesson summary (XP, accuracy, strike speed, promotions).
-- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped; settings are checked.
+- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked.
 - **merge.test.ts**: the later due time wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.

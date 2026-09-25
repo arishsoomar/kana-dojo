@@ -1,4 +1,5 @@
-import { KANA, LOOKALIKES, ROWS, lookalikesOf, matchesRomaji, type Kana } from './kana';
+import { KANA, ROWS, lookalikesOf, matchesRomaji, type Kana } from './kana';
+import { NAMED_PAIRS } from './pairs';
 
 function kana(char: string): Kana {
   const found = KANA.find((k) => k.char === char);
@@ -77,15 +78,13 @@ describe('lookalikes', () => {
   });
 
   it('returns an empty list for a kana with no lookalikes', () => {
-    expect(lookalikesOf('あ')).toEqual([]);
+    expect(lookalikesOf('や')).toEqual([]);
   });
 
-  it('only lists real kana', () => {
-    const allChars = KANA.map((k) => k.char);
-    for (const group of LOOKALIKES) {
-      for (const char of group) {
-        expect(allChars).toContain(char);
-      }
+  it('treats the two kana of every named pair as lookalikes', () => {
+    for (const { kana } of NAMED_PAIRS) {
+      expect(lookalikesOf(kana[0])).toContain(kana[1]);
+      expect(lookalikesOf(kana[1])).toContain(kana[0]);
     }
   });
 });

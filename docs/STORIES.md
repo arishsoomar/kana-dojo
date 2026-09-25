@@ -408,6 +408,11 @@ Done when:
       counted), most mixed-up first
 - [ ] A pair is "ready" to duel once it's been mixed up 3 or more times
       and both its kana are unlocked
+- 19 pairs in `pairs.ts` (11 hiragana, 8 katakana). The lookalike list in
+  `kana.ts` is now built from them, so every named pair is also used for
+  tricky wrong-answer tiles and drill partners. `weakPairs` lives in
+  `duel.ts` (not `pairs.ts`) so `kana.ts` and `unlock.ts` don't import
+  each other in a loop.
 
 ### I2. Duel rules
 **As a** learner, **I want** a duel to have clear rules, **so that**

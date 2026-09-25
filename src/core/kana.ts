@@ -1,3 +1,5 @@
+import { NAMED_PAIRS } from './pairs';
+
 export type Script = 'hiragana' | 'katakana';
 
 // Rows in the order they unlock.
@@ -40,18 +42,9 @@ export function matchesRomaji(kana: Kana, input: string): boolean {
   return kana.romaji.includes(answer);
 }
 
-// Groups of kana that learners commonly mix up.
-export const LOOKALIKES: readonly (readonly string[])[] = [
-  ['シ', 'ツ'],
-  ['ソ', 'ン'],
-  ['ぬ', 'め'],
-  ['わ', 'ね', 'れ'],
-  ['る', 'ろ'],
-  ['さ', 'ち'],
-];
-
+// The kana that look like `char`: the other kana of every named pair it's in.
 export function lookalikesOf(char: string): string[] {
-  return LOOKALIKES.filter((group) => group.includes(char)).flatMap((group) =>
-    group.filter((other) => other !== char),
+  return NAMED_PAIRS.filter(({ kana }) => kana.includes(char)).flatMap(({ kana }) =>
+    kana.filter((other) => other !== char),
   );
 }

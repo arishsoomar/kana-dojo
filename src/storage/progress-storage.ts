@@ -43,13 +43,16 @@ export async function uploadProgress(userId: string, progress: Progress): Promis
   return !error;
 }
 
-// The learner's cloud copy, checked the same way as a local save, or null if there isn't
-// one or it can't be reached.
-export async function downloadProgress(userId: string): Promise<Progress | null> {
-  if (!supabase) return null;
+// What a download found: the cloud couldn't be reached, or it could and held this copy
+// (null when the account has no progress saved yet).
+export type Download = { reached: false } | { reached: true; progress: Progress | null };
+
+// The learner's cloud copy, checked the same way as a local save.
+export async function downloadProgress(userId: string): Promise<Download> {
+  if (!supabase) return { reached: false };
   const { data, error } = await supabase.from('progress').select('data').eq('user_id', userId).maybeSingle();
-  if (error || !data) return null;
-  return parseProgress(JSON.stringify(data.data));
+  if (error) return { reached: false };
+  return { reached: true, progress: data ? parseProgress(JSON.stringify(data.data)) : null };
 }
 
 // Whether a change hasn't reached the cloud yet. Kept on the device so it survives restarts.

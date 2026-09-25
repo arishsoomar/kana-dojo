@@ -1,7 +1,9 @@
 import { useEffect, useEffectEvent } from 'react';
 import { AppState } from 'react-native';
 
-import { isEmptyProgress } from '@/core/answers';
+import type { Progress } from '@/core/answers';
+import { mergeProgress } from '@/core/merge';
+import { serializeProgress } from '@/core/saved';
 import { downloadProgress, isUploadPending, setUploadPending, uploadProgress } from '@/storage/progress-storage';
 
 import { useAuth } from './use-auth';
@@ -12,52 +14,63 @@ const UPLOAD_DELAY_MS = 2000;
 // While an upload is still owed, try again this often.
 const RETRY_MS = 30_000;
 
-// Keeps the signed-in learner's cloud copy up to date. It draws nothing. The device's copy
-// is always saved first (by the progress context); this only mirrors it to the cloud.
+// Whether two copies hold the same training and settings, ignoring the order things are
+// listed in (merging a copy with itself puts it in the merge's order).
+function same(a: Progress, b: Progress): boolean {
+  return serializeProgress(mergeProgress(a, a)) === serializeProgress(mergeProgress(b, b));
+}
+
+// Keeps this device and the signed-in learner's cloud copy in step. It draws nothing. The
+// device's copy is always saved first (by the progress context). Each sync merges the cloud
+// copy into it, so practice on another device shows up here, then uploads the result.
 export function CloudSync() {
   const { userId } = useAuth();
   const { progress, updateProgress, currentProgress } = useProgress();
 
-  // Uploads the latest progress; if it fails, remembers that an upload is still owed.
-  const upload = useEffectEvent(async () => {
+  // Downloads the cloud copy, merges it into this device's, and uploads the result unless
+  // the cloud already has it all. If the cloud can't be reached, nothing is uploaded (so a
+  // network error can never overwrite the account); it's retried later.
+  const sync = useEffectEvent(async () => {
     if (!userId) return;
-    const ok = await uploadProgress(userId, currentProgress());
+    const download = await downloadProgress(userId);
+    if (!download.reached) {
+      await setUploadPending(true);
+      return;
+    }
+    const local = currentProgress();
+    const merged = download.progress ? mergeProgress(local, download.progress) : local;
+    if (!same(merged, local)) updateProgress(merged);
+    if (download.progress && same(merged, download.progress)) {
+      await setUploadPending(false);
+      return;
+    }
+    const ok = await uploadProgress(userId, merged);
     await setUploadPending(!ok);
   });
 
-  // On signing in: a device with no progress yet takes the cloud copy. Otherwise the device's
-  // copy is kept and uploaded. (Merging two copies properly comes in G3.)
-  const onSignIn = useEffectEvent(async (id: string) => {
-    const cloud = await downloadProgress(id);
-    if (cloud && !isEmptyProgress(cloud) && isEmptyProgress(currentProgress())) {
-      updateProgress({ ...cloud, settings: currentProgress().settings });
-    } else {
-      await upload();
-    }
-  });
-
+  // Signing in is the first sync: whatever this device has joins what the account has.
   useEffect(() => {
-    if (userId) void onSignIn(userId);
+    if (userId) void sync();
   }, [userId]);
 
   // Every change: note that an upload is owed, then upload once changes settle.
   useEffect(() => {
     if (!userId) return;
     void setUploadPending(true);
-    const timer = setTimeout(() => void upload(), UPLOAD_DELAY_MS);
+    const timer = setTimeout(() => void sync(), UPLOAD_DELAY_MS);
     return () => clearTimeout(timer);
   }, [progress, userId]);
 
-  // Retry an owed upload when the app comes back to the foreground, and every so often.
+  // Coming back to the app syncs, to pick up practice done on another device meanwhile.
+  // An upload that's still owed is also retried every so often.
   useEffect(() => {
     if (!userId) return;
     const retryIfOwed = async () => {
-      if (await isUploadPending()) await upload();
+      if (await isUploadPending()) await sync();
     };
-    void retryIfOwed();
     const timer = setInterval(() => void retryIfOwed(), RETRY_MS);
     const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') void retryIfOwed();
+      if (state === 'active') void sync();
     });
     return () => {
       clearInterval(timer);

@@ -315,8 +315,7 @@ Done when:
       "upload owed" flag on the device; retried on foreground, on the next
       change, and every 30s)
 - [ ] Server data is checked with `parseProgress` like local data
-- Until G3: on sign-in, a device with no progress takes the cloud copy;
-  otherwise the device's copy is uploaded over it.
+- Replaced in G4: every sync now merges instead.
 
 ### G3. Merging devices
 **As a** learner, **I want** practice on any device to count, **so that**
@@ -327,6 +326,13 @@ Done when:
 - [ ] Per kana, the copy with the later `dueAt` wins
 - [ ] Confusion logs are combined without duplicates
 - [ ] Merging is the same whichever order the two copies arrive in
+- Mix-up logs have no dates, so shared entries can't be told apart: each
+  pair keeps the larger of its two counts (never double-counts; can miss a
+  mix-up both devices logged separately). Stats: per kana, the copy that has
+  seen more answers. Finished lessons: once each, oldest first.
+- Settings are choices, not training: they come from the device in hand
+  (the first argument); onboarded if either copy is. Order-independence
+  covers the training record.
 
 ### G4. First sign-in keeps local progress
 **As a** learner, **I want** the progress I made before signing up to
@@ -335,6 +341,10 @@ carry over, **so that** creating an account never resets me.
 Done when:
 - [ ] On first sign-in, device progress is merged into the account
 - [ ] Signing in on a second device merges, never overwrites
+- Every sync (sign-in, 2s after changes, returning to the app, retries)
+  downloads, merges into the device's copy, and uploads if the cloud is
+  missing anything. A download that fails uploads nothing, so a network
+  error can't overwrite the account.
 
 ---
 

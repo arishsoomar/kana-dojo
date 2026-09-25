@@ -9,9 +9,14 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-// Null when the app has no keys yet: accounts are optional, so everything else still works.
+// Web pages are pre-rendered in Node (app.json has web output "static"), where there's no
+// window and no storage; the client must not start there. Apps and browsers have a window.
+const inAppOrBrowser = typeof window !== 'undefined';
+
+// Null when the app has no keys, or while pre-rendering: accounts are optional, so
+// everything else still works.
 export const supabase: SupabaseClient | null =
-  url && key
+  url && key && inAppOrBrowser
     ? createClient(url, key, {
         auth: {
           // Keeps the learner signed in across launches, on every platform.

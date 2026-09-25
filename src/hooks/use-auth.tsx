@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 
 import { supabase } from '@/storage/supabase';
 
@@ -14,10 +14,24 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Nothing to listen to: the only change is from the pre-rendered page to the live one.
+function noSubscription() {
+  return () => {};
+}
+
 // Keeps track of whether the learner is signed in. Signing in is optional; without it,
 // progress lives only on the device.
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
+  // False while a web page is pre-rendered (Supabase is off there) and for the browser's
+  // first render, then true. useSyncExternalStore gives a separate "server" answer, so the
+  // pre-rendered page and the browser agree and React can switch over safely.
+  const hydrated = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+  const available = hydrated && supabase !== null;
 
   useEffect(() => {
     if (!supabase) return;
@@ -47,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext
       value={{
-        available: supabase !== null,
+        available,
         email: session?.user.email ?? null,
         userId: session?.user.id ?? null,
         sendCode,

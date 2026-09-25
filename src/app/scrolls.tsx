@@ -67,6 +67,11 @@ function shortDate(at: number): string {
   return new Date(at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+function duel(scroll: Scroll) {
+  router.push({ pathname: '/duel', params: { pair: pairId(scroll.pair) } });
+}
+
+// A won scroll: the pair, its tip, the first win, and a rematch for a pair still mixed up.
 function WonScroll({ scroll }: { scroll: Scroll }) {
   const { pair, firstWin } = scroll;
   return (
@@ -82,11 +87,17 @@ function WonScroll({ scroll }: { scroll: Scroll }) {
           <Text style={styles.scrollResult}>
             Won {firstWin.score.mine} to {firstWin.score.theirs} on {shortDate(firstWin.at)}
           </Text>
-          <View style={styles.hanko}>
-            <Text style={styles.hankoText}>勝</Text>
+          {/* The victory seal: a red ring around 勝 ("win"). */}
+          <View style={styles.hanko} aria-label="Won">
+            <View style={styles.hankoInner}>
+              <Text style={styles.hankoText}>勝</Text>
+            </View>
           </View>
         </View>
       )}
+      <Pressable role="button" onPress={() => duel(scroll)} style={styles.rematch}>
+        <Text style={styles.rematchText}>Duel again</Text>
+      </Pressable>
     </View>
   );
 }
@@ -123,7 +134,7 @@ function Slot({ scroll }: { scroll: Scroll }) {
     <Pressable
       role="button"
       aria-label={label}
-      onPress={() => router.push({ pathname: '/duel', params: { pair: pairId(pair) } })}
+      onPress={() => duel(scroll)}
       style={styles.slot}>
       {content}
     </Pressable>
@@ -230,17 +241,39 @@ const styles = StyleSheet.create({
   hanko: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 34,
-    height: 34,
-    borderRadius: 6,
-    backgroundColor: colors.vermilion,
-    transform: [{ rotate: '-4deg' }],
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 3,
+    borderColor: colors.vermilion,
+  },
+  hankoInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: colors.vermilionLight,
   },
   hankoText: {
     fontFamily: fonts.jp,
-    fontSize: 20,
-    lineHeight: 26,
-    color: colors.card,
+    fontSize: 15,
+    lineHeight: 20,
+    color: colors.vermilion,
+  },
+  rematch: {
+    alignSelf: 'flex-start',
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: colors.vermilion,
+  },
+  rematchText: {
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.vermilionDark,
   },
   grid: {
     flexDirection: 'row',

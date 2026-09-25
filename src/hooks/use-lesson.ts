@@ -31,8 +31,6 @@ function newQuestion(progress: Progress, mode: LessonMode, avoid?: string): Ques
   return makeQuestion(progress, mode.script, now, Math.random, avoid);
 }
 
-// After a correct answer, how long its green tile shows before the next question.
-const AUTO_ADVANCE_MS = 500;
 
 // The name a finished lesson is recorded under. Plaque ids mark plaques as done;
 // every finished lesson counts toward the streak (D4).
@@ -64,9 +62,13 @@ export function useLesson(mode: LessonMode) {
     updateProgress(next);
     const nextAnswers = [...answers, { char: kana.char, correct, ms }];
     setAnswers(nextAnswers);
-    // A correct answer moves on by itself; a wrong one waits on the feedback sheet, so the
-    // correction and memory tip can be read.
-    if (correct) setTimeout(() => advance(nextAnswers, kana.char), AUTO_ADVANCE_MS);
+
+    // A correct answer goes straight to the next question.
+    if (correct) {
+      advance(nextAnswers, kana.char);
+      return;
+    }
+    // A wrong one waits on the feedback sheet, so the correction and memory tip can be read.
     setResult({
       kana,
       guess,

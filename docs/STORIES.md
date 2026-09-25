@@ -115,7 +115,7 @@ Done when:
 - [ ] Kana renders in the framed card from the mocks
 - [ ] Four options, one correct
 - [ ] Tapping an option answers straight away (no separate Check button).
-      A correct answer shows green for half a second and moves on by itself.
+      A correct answer moves straight on to the next question.
 - [ ] The same kana is never asked twice in a row (lessons, plaques,
       practice, drills and exams), unless it's the only one available
 - [ ] Options sit at the bottom, within thumb reach; the kana frame grows
@@ -126,8 +126,8 @@ Done when:
 **so that** the correction sticks.
 
 Done when:
-- [ ] Correct → green tile and a proud Karasu, then straight on (the pine
-      sheet was dropped so correct answers keep the pace up)
+- [ ] Correct → straight on to the next question (the pine sheet was
+      dropped so correct answers keep the pace up)
 - [ ] Wrong → vermilion sheet, correct answer, what was picked, memory tip
       (hand-written tips for the lookalike pairs; other mix-ups name both
       sounds. The button says Continue, and belt drops aren't announced.)

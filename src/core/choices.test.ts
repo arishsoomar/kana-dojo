@@ -37,4 +37,12 @@ describe('makeChoices', () => {
       expect(new Set(romaji).size).toBe(4);
     }
   });
+
+  it('lists the choices in kana-chart order, so each answer keeps its place', () => {
+    for (const rng of rngs) {
+      const choices = makeChoices(kana('う'), hiragana, rng);
+      const positions = choices.map((k) => KANA.indexOf(k));
+      expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    }
+  });
 });

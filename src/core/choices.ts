@@ -1,9 +1,10 @@
-import { lookalikesOf, type Kana } from './kana';
+import { KANA, lookalikesOf, type Kana } from './kana';
 import { shuffle, type Rng } from './random';
 
 const CHOICE_COUNT = 4;
 
-// The answer plus three distractors from `pool`, in random order.
+// The answer plus three distractors from `pool`, in kana-chart order (a i u e o, ka ki…),
+// so a kana's tile stays in the same place and the eyes stay on the question.
 // Lookalikes in the pool are used first; no two choices share a romaji.
 export function makeChoices(answer: Kana, pool: readonly Kana[], rng: Rng): Kana[] {
   const lookalikes = lookalikesOf(answer.char);
@@ -20,5 +21,5 @@ export function makeChoices(answer: Kana, pool: readonly Kana[], rng: Rng): Kana
     candidate.romaji.forEach((r) => usedRomaji.add(r));
   }
 
-  return shuffle(chosen, rng);
+  return chosen.sort((a, b) => KANA.indexOf(a) - KANA.indexOf(b));
 }

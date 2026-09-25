@@ -384,6 +384,11 @@ Done when:
   Graded: row belts earned 5/10/20). No name or XP total until accounts.
 - Ranks tab: your division (named after your rank) and lessons this week.
   The weekly league itself needs accounts (Epic G).
+- Learn: Karasu says what opens the next row (how many kana still need
+  green belt) and, since kana only move up when due, when the next one is
+  ready ("ready in 3 min"). The first locked row repeats the rule.
+- Answer tiles come in kana-chart order, not shuffled, so the eyes stay
+  on the kana instead of hunting for the answer.
 
 ## Later
 

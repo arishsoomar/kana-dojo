@@ -18,10 +18,15 @@ export type WeakPair = {
   ready: boolean; // mixed up enough, and both kana unlocked
 };
 
+// Every unlocked kana in both scripts, by character.
+function openChars(progress: Progress): Set<string> {
+  return new Set(SCRIPTS.flatMap((script) => unlockedKana(progress, script)).map((k) => k.char));
+}
+
 // Every named pair with how often the learner has mixed it up, most mixed-up first.
 // Pairs mixed up equally often keep their order in NAMED_PAIRS.
 export function weakPairs(progress: Progress): WeakPair[] {
-  const open = new Set(SCRIPTS.flatMap((script) => unlockedKana(progress, script)).map((k) => k.char));
+  const open = openChars(progress);
 
   return NAMED_PAIRS.map((pair) => {
     const [a, b] = pair.kana;
@@ -85,6 +90,7 @@ export type Scroll = {
   mixUps: number;
   state: ScrollState;
   firstWin: { at: number; score: DuelScore } | null;
+  opensWith: Kana | null; // the first kana of the row that must open before it can be duelled
 };
 
 const STATE_ORDER: readonly ScrollState[] = ['won', 'ready', 'locked'];
@@ -92,6 +98,7 @@ const STATE_ORDER: readonly ScrollState[] = ['won', 'ready', 'locked'];
 // Every named pair's scroll: won ones first, then ready, then locked. Within each group,
 // the most mixed-up pairs come first (the order weakPairs gives).
 export function scrolls(progress: Progress): Scroll[] {
+  const open = openChars(progress);
   return weakPairs(progress)
     .map(({ pair, mixUps, ready }): Scroll => {
       const wins = progress.completed
@@ -100,7 +107,16 @@ export function scrolls(progress: Progress): Scroll[] {
         .filter((c) => duelStatus(c.score) === 'won');
       const firstWin = wins.reduce<Scroll['firstWin']>((first, win) => (first === null || win.at < first.at ? win : first), null);
       const state = firstWin ? 'won' : ready ? 'ready' : 'locked';
-      return { pair, mixUps, state, firstWin };
+      return { pair, mixUps, state, firstWin, opensWith: rowToOpen(pair, open) };
     })
     .sort((a, b) => STATE_ORDER.indexOf(a.state) - STATE_ORDER.indexOf(b.state));
+}
+
+// For a pair with a kana still locked: the first kana of the row that has to open, which is
+// the later of the two kana's rows (KANA lists rows in unlock order). Null when both are open.
+function rowToOpen(pair: NamedPair, open: Set<string>): Kana | null {
+  const locked = KANA.filter((k) => pair.kana.includes(k.char) && !open.has(k.char));
+  const last = locked[locked.length - 1];
+  if (!last) return null;
+  return KANA.find((k) => k.script === last.script && k.row === last.row) ?? null;
 }

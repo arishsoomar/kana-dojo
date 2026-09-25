@@ -174,4 +174,14 @@ describe('scrolls', () => {
     expect(states.slice(0, 2)).toEqual(['won', 'ready']);
     expect(states.slice(2).every((state) => state === 'locked')).toBe(true);
   });
+
+  it('says which row has to open first, for a pair whose kana are still locked', () => {
+    const shadowTwins = scrolls(EMPTY_PROGRESS).find((s) => s.pair.kana.includes('シ') && s.pair.kana.includes('ツ'));
+    // シ is in the sa row and ツ in the ta row: the ta row opens last.
+    expect(shadowTwins?.opensWith?.char).toBe('タ');
+  });
+
+  it("has nothing to open for a pair whose kana are unlocked", () => {
+    expect(scrollFor(EMPTY_PROGRESS)?.opensWith).toBeNull();
+  });
 });

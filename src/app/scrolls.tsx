@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
 import { colors, fonts, scrollColors, wallColors } from '@/constants/theme';
-import { scrolls, type Scroll } from '@/core/duel';
+import { DUEL_READY_MIXUPS, scrolls, type Scroll } from '@/core/duel';
 import { pairId } from '@/core/pairs';
 import { useProgress } from '@/hooks/use-progress';
 
@@ -54,7 +54,8 @@ export default function ScrollsScreen() {
 
         <Text style={styles.note}>
           You earn a scroll by winning a duel. Each one keeps the trick for telling that pair apart, so your
-          trophies double as a reference. A pair is ready to duel once you&apos;ve mixed it up 3 times.
+          trophies double as a reference. A pair is ready to duel once both its rows are open and
+          you&apos;ve mixed it up {DUEL_READY_MIXUPS} times.
         </Text>
       </ScrollView>
     </View>
@@ -90,16 +91,24 @@ function WonScroll({ scroll }: { scroll: Scroll }) {
   );
 }
 
+// What a slot says: Ready, or what it's still waiting for.
+function slotText({ state, opensWith, mixUps }: Scroll): string {
+  if (state === 'ready') return 'Ready';
+  if (opensWith) return `Needs ${opensWith.char} row`;
+  return `${mixUps} of ${DUEL_READY_MIXUPS} mix-ups`;
+}
+
 // A pair not won yet: tap a ready one to duel it.
 function Slot({ scroll }: { scroll: Scroll }) {
   const { pair } = scroll;
   const ready = scroll.state === 'ready';
-  const label = `${pair.kana.join(' ')}, ${ready ? 'ready to duel' : 'locked'}`;
+  const text = slotText(scroll);
+  const label = `${pair.kana.join(' ')}, ${ready ? 'ready to duel' : text}`;
   const content = (
     <>
       <Text style={styles.slotKana}>{pair.kana[0]}</Text>
       <Text style={styles.slotKana}>{pair.kana[1]}</Text>
-      <Text style={[styles.slotState, ready && styles.slotReady]}>{ready ? 'Ready' : 'Locked'}</Text>
+      <Text style={[styles.slotState, ready && styles.slotReady]}>{text}</Text>
     </>
   );
 

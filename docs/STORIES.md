@@ -467,6 +467,8 @@ Done when:
   within each. The date is formatted on screen (it needs the timezone).
 - The Duels card says how many duels are ready, or how many scrolls are
   won when none are. A won pair can't be duelled again yet.
+- A locked slot says what it's waiting for: "Needs タ row" (a row must open
+  first) or "1 of 3 mix-ups".
 
 ---
 

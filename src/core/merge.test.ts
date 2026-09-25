@@ -14,7 +14,7 @@ const phone: Progress = {
     { lesson: 'hiragana:a:0', at: 10 },
     { lesson: 'drill:あ', at: 20 },
   ],
-  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana' },
+  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true },
 };
 
 const web: Progress = {
@@ -28,7 +28,7 @@ const web: Progress = {
     { lesson: 'hiragana:a:0', at: 10 },
     { lesson: 'rain', at: 30, score: 480 },
   ],
-  settings: { onboarded: false, dailyGoal: 1, script: 'katakana' },
+  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false },
 };
 
 describe('mergeProgress', () => {
@@ -73,7 +73,7 @@ describe('mergeProgress', () => {
   });
 
   it('keeps the settings of the first copy (the device in hand), onboarded if either is', () => {
-    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana' });
+    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false });
   });
 
   it('gives the same training record whichever order the copies come in', () => {

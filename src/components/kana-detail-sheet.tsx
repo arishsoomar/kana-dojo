@@ -10,17 +10,19 @@ import { BeltIcon } from './belt-icon';
 import { BulbIcon } from './bulb-icon';
 import { KanaFrame } from './kana-frame';
 import { PrimaryButton } from './primary-button';
+import { SpeakerIcon } from './speaker-icon';
 
 type Props = {
   kana: Kana;
   details: KanaDetails;
   tip: string | null;
   onDrill: () => void;
+  onSpeak: () => void; // says the kana aloud
   onClose: () => void;
 };
 
 // Everything the engine knows about one kana, in a sheet that slides up over the grid.
-export function KanaDetailSheet({ kana, details, tip, onDrill, onClose }: Props) {
+export function KanaDetailSheet({ kana, details, tip, onDrill, onSpeak, onClose }: Props) {
   const insets = useSafeAreaInsets();
   const accuracy = details.accuracy === null ? '–' : `${Math.round(details.accuracy * 100)}%`;
   const speed = details.strikeSpeedMs === null ? '–' : `${(details.strikeSpeedMs / 1000).toFixed(1)}s`;
@@ -41,6 +43,9 @@ export function KanaDetailSheet({ kana, details, tip, onDrill, onClose }: Props)
               <Text style={styles.beltText}>{capitalize(details.belt)} belt</Text>
             </View>
           </View>
+          <Pressable role="button" aria-label={`Hear ${kana.char}`} onPress={onSpeak} hitSlop={8} style={styles.speak}>
+            <SpeakerIcon color={colors.sumi} size={24} />
+          </Pressable>
         </View>
 
         <View style={styles.metrics}>
@@ -93,6 +98,16 @@ function capitalize(text: string): string {
 }
 
 const styles = StyleSheet.create({
+  speak: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    marginLeft: 'auto',
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: colors.edge,
+  },
   backdrop: {
     flex: 1,
     backgroundColor: colors.backdrop,

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-import { completeLesson, FAST_MS, recordAnswer, type Progress } from '@/core/answers';
+import { pronounce } from '@/audio/pronounce';
+
+import { completeLesson, FAST_MS, recordAnswer, setSound, type Progress } from '@/core/answers';
 import { beltChange, tipFor, type BeltChange } from '@/core/feedback';
 import type { Kana, Script } from '@/core/kana';
 import { LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
@@ -51,12 +53,18 @@ export function useLesson(mode: LessonMode) {
   const [question, setQuestion] = useState(() => newQuestion(progress, mode));
   const [shownAt, setShownAt] = useState(() => Date.now());
   const [result, setResult] = useState<Result | null>(null);
+  // The kana just answered, which is spoken aloud (unless muted) and shown with a replay button.
+  // Nothing is spoken before an answer: hearing it first would give the answer away.
+  const [heard, setHeard] = useState<Kana | null>(null);
+  const sound = progress.settings.sound;
 
   function check(guess: Kana) {
     const now = Date.now();
     const ms = now - shownAt;
     const { kana } = question;
     const correct = guess === kana;
+    setHeard(kana);
+    if (sound) pronounce(kana);
     const next = recordAnswer(progress, { char: kana.char, guess: guess.char, ms, now });
 
     updateProgress(next);
@@ -99,10 +107,17 @@ export function useLesson(mode: LessonMode) {
     advance(answers, question.kana.char);
   }
 
+  function toggleSound() {
+    updateProgress(setSound(currentProgress(), !sound));
+  }
+
   return {
     question,
     result,
     summary,
+    heard,
+    sound,
+    toggleSound,
     fraction: answers.length / LESSON_LENGTH,
     check,
     goToNext,

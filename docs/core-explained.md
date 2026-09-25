@@ -335,9 +335,9 @@ A kana's answer history: how many times it was answered, how many of those were 
 
 **Lines 19–24**: `Completion`, one finished lesson, game, exam or duel: its name (`lesson`, like `'hiragana:a:0'` or `'rain'`), when it finished (`at`), for games, exams and duels a `score`, and for duels the opponent's score (`opponent`). `score?:` means it can be left out.
 
-**Lines 27–31**: `Settings`, the learner's choices: whether they've been through the welcome (`onboarded`), their daily goal, and which script the Learn screen shows.
+**Lines 27–32**: `Settings`, the learner's choices: whether they've been through the welcome (`onboarded`), their daily goal, which script the Learn screen shows, and whether kana are spoken aloud (`sound`).
 
-**Lines 33–39**
+**Lines 34–40**
 ```ts
 export type Progress = {
   kana: Readonly<Record<string, KanaProgress>>;
@@ -355,13 +355,13 @@ Everything the app knows about the learner. This is what gets saved.
 - `settings`: the learner's choices.
 - `Readonly` and `readonly` mean none of these can be changed in place. Every change makes a new object.
 
-**Lines 42–48**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
+**Lines 43–49**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
 
-**Lines 50–55**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), and when it happened (`now`). `guess` can be `null`, which means no answer was given (a kana that landed in Kana Rain).
+**Lines 51–56**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), and when it happened (`now`). `guess` can be `null`, which means no answer was given (a kana that landed in Kana Rain).
 
-**Line 58**: `FAST_MS = 4000`. An answer must take less than 4 seconds to move a kana up a box.
+**Line 59**: `FAST_MS = 4000`. An answer must take less than 4 seconds to move a kana up a box.
 
-**Lines 60–67**
+**Lines 61–68**
 ```ts
 function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
   if (tierOf(current.box) !== 'white' && !isDue(current, answer.now)) return current;
@@ -371,14 +371,14 @@ function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
 }
 ```
 - The new box and due time after a **correct** answer. Not exported, so only this file uses it.
-- Line 63: if the kana is green or better **and** not due yet, nothing changes. This is "no free promotions": a green kana can't climb by being answered again and again in one sitting.
+- Line 64: if the kana is green or better **and** not due yet, nothing changes. This is "no free promotions": a green kana can't climb by being answered again and again in one sitting.
 - White-belt kana skip that check, so every quick right answer counts. This also matters for older saves, which may have white-belt kana with a due time in the future (from when white belt had waits). Those still move up.
-- Line 65: if it took under 4 seconds, the box goes up by 1 (but not past 7). Otherwise the box stays.
-- Line 66: either way, it's due again after that box's waiting time.
+- Line 66: if it took under 4 seconds, the box goes up by 1 (but not past 7). Otherwise the box stays.
+- Line 67: either way, it's due again after that box's waiting time.
 
-**Line 70**: `WRONG_DROP = 2`.
+**Line 71**: `WRONG_DROP = 2`.
 
-**Lines 72–74**
+**Lines 73–75**
 ```ts
 function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
   return { box: Math.max(current.box - WRONG_DROP, 0), dueAt: answer.now };
@@ -386,13 +386,13 @@ function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
 ```
 After a **wrong** answer: down 2 boxes (not below 0), and due right away. There is no "is it due" check, so a wrong answer always counts.
 
-**Line 77**: `NEW_KANA = { box: 0, dueAt: 0 }`, used for a kana with no progress yet. Time 0 is long ago, so it is always due.
+**Line 78**: `NEW_KANA = { box: 0, dueAt: 0 }`, used for a kana with no progress yet. Time 0 is long ago, so it is always due.
 
-**Line 79**: `NEW_STATS`, stats for a kana never answered: all zero.
+**Line 80**: `NEW_STATS`, stats for a kana never answered: all zero.
 
-**Line 82**: `RECENT_TIMES = 10`, how many recent correct times to keep.
+**Line 83**: `RECENT_TIMES = 10`, how many recent correct times to keep.
 
-**Lines 84–90**
+**Lines 85–91**
 ```ts
 function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats {
   return {
@@ -406,7 +406,7 @@ function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats 
 - `seen` always goes up by 1. `correct` goes up by 1 only if the answer was right.
 - If right, the time is added to the end of `recentMs`. `.slice(-RECENT_TIMES)` keeps only the last 10 items (a negative number counts from the end). If wrong, the times stay the same.
 
-**Lines 92–120**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
+**Lines 93–121**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
 
 ```ts
   const current = progress.kana[answer.char] ?? NEW_KANA;
@@ -451,7 +451,7 @@ If the code gets here, the answer was wrong. If a kana was picked, the mistake i
 ```
 Same as the correct case, but using `afterWrong`, and with the new mistake log.
 
-**Lines 123–126**
+**Lines 124–127**
 ```ts
 export function completeLesson(progress: Progress, lesson: string, now: number, score?: number): Progress {
   const record: Completion = score === undefined ? { lesson, at: now } : { lesson, at: now, score };
@@ -460,7 +460,7 @@ export function completeLesson(progress: Progress, lesson: string, now: number, 
 ```
 Adds a finished lesson to the end of `completed`. `score?:` in the parameters means the score can be left out. If it is, the record has no `score` field at all.
 
-**Lines 129–132**
+**Lines 130–133**
 ```ts
 export function bestScore(progress: Progress, lesson: string): number | null {
   const scores = progress.completed.flatMap((c) => (c.lesson === lesson && c.score !== undefined ? [c.score] : []));
@@ -471,11 +471,11 @@ export function bestScore(progress: Progress, lesson: string): number | null {
 - The `.flatMap` turns each matching record into `[score]` and every other record into `[]` (nothing). Joined together, that's a list of just the scores.
 - `Math.max(...scores)` passes each score to `Math.max` separately and gives the largest.
 
-**Lines 137–140**: `markDue` makes a kana due now without changing its box, stats or mistakes. `Math.min(current.dueAt, now)` keeps an earlier due time if it already had one. Kana Rain uses it for a kana that landed before the player had started typing it: that says nothing about whether they know it, so it isn't scored, but it should come up again soon.
+**Lines 138–141**: `markDue` makes a kana due now without changing its box, stats or mistakes. `Math.min(current.dueAt, now)` keeps an earlier due time if it already had one. Kana Rain uses it for a kana that landed before the player had started typing it: that says nothing about whether they know it, so it isn't scored, but it should come up again soon.
 
-**Lines 143–150**: `finishOnboarding` sets `onboarded` to `true`. `setScript` sets which script the Learn screen shows. Both copy everything else.
+**Lines 144–156**: `finishOnboarding` sets `onboarded` to `true`. `setScript` sets which script the Learn screen shows. `setSound` turns speaking kana on or off. All three copy everything else.
 
-**Lines 153–160**: `isEmptyProgress`, `true` when nothing has been trained: no kana, stats, mistakes or finished lessons. Settings don't count. (Nothing in the app uses it any more since G4; only its tests do.)
+**Lines 159–166**: `isEmptyProgress`, `true` when nothing has been trained: no kana, stats, mistakes or finished lessons. Settings don't count. (Nothing in the app uses it any more since G4; only its tests do.)
 
 ---
 
@@ -1198,7 +1198,7 @@ export function serializeProgress(progress: Progress): string {
 ```
 Turns progress into text. `JSON.stringify` writes an object as text, like `{"version":3,"progress":{...}}`. The same text is saved on the phone and sent to the cloud.
 
-**Lines 20–45**: `parseProgress` reads that text back. Anything missing or damaged is dropped, so a bad save can never crash the app.
+**Lines 20–47**: `parseProgress` reads that text back. Anything missing or damaged is dropped, so a bad save can never crash the app.
 
 ```ts
   if (text === null) return EMPTY;
@@ -1240,13 +1240,15 @@ If the data isn't an object, has a version this code can't read, or has no `prog
   const onboarded = isObject(settings) && typeof settings.onboarded === 'boolean' ? settings.onboarded : hasProgress;
   const dailyGoal = isObject(settings) && isDailyGoal(settings.dailyGoal) ? settings.dailyGoal : DEFAULT_DAILY_GOAL;
   const script = isObject(settings) && settings.script === 'katakana' ? 'katakana' : 'hiragana';
-  return { ...progress, settings: { onboarded, dailyGoal, script } };
+  const sound = !(isObject(settings) && settings.sound === false);
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound } };
 ```
 - Settings are checked one field at a time. `Object.keys(obj)` is the list of an object's field names.
 - Saves from before the welcome screen existed have no settings. Anyone with saved progress has clearly used the app, so they count as onboarded and never see the welcome.
 - A daily goal that isn't one of the four choices becomes the default. A script that isn't `'katakana'` becomes `'hiragana'`.
+- Sound is on unless it was saved as `false`, so older saves (which have no `sound`) start with it on.
 
-**Lines 48–54**
+**Lines 50–56**
 ```ts
 function validEntries<T>(saved: Record<string, unknown>, isValid: (value: unknown) => value is T): Record<string, T> {
   const result: Record<string, T> = {};
@@ -1260,17 +1262,17 @@ function validEntries<T>(saved: Record<string, unknown>, isValid: (value: unknow
 - `Object.entries(saved)` turns an object into a list of `[name, value]` pairs.
 - `isValid` is a function passed in, like `isKanaProgress`.
 
-**Lines 57–59**: `isObject`, `true` for a real object (not `null`, not a list). `typeof value === 'object'` asks what kind of value it is.
+**Lines 59–61**: `isObject`, `true` for a real object (not `null`, not a list). `typeof value === 'object'` asks what kind of value it is.
 
-**Lines 61–70**: `isKanaProgress`, `true` if the value has a whole-number `box` from 0 to 7 and a number `dueAt`. `Number.isInteger` checks for a whole number.
+**Lines 63–72**: `isKanaProgress`, `true` if the value has a whole-number `box` from 0 to 7 and a number `dueAt`. `Number.isInteger` checks for a whole number.
 
-**Lines 72–74**: `isCount`, `true` for a whole number of 0 or more.
+**Lines 74–76**: `isCount`, `true` for a whole number of 0 or more.
 
-**Lines 76–84**: `isKanaStats`, `true` if `seen` and `correct` are counts and `recentMs` is a list of numbers.
+**Lines 78–86**: `isKanaStats`, `true` if `seen` and `correct` are counts and `recentMs` is a list of numbers.
 
-**Lines 86–88**: `isConfusion`, `true` if both `shown` and `guessed` are strings.
+**Lines 88–90**: `isConfusion`, `true` if both `shown` and `guessed` are strings.
 
-**Lines 90–98**: `isCompletion`, `true` if `lesson` is a string, `at` is a number, and `score` and `opponent` are each either missing or a number.
+**Lines 92–100**: `isCompletion`, `true` if `lesson` is a string, `at` is a number, and `score` and `opponent` are each either missing or a number.
 
 ---
 
@@ -1728,7 +1730,7 @@ What each file checks:
 - **kana.test.ts**: 46 + 46 kana, no duplicates; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes.
 - **boxes.test.ts**: each box's belt and waiting time (0 below green); "due" is true at or after the due time.
 - **goal.test.ts**: the four goals, the default of 2, changing the goal without changing the input, counting lessons on a day.
-- **answers.test.ts**: every rule of `recordAnswer` (up a box, capped at 7, slow, wrong, floor at 0, mistakes logged, new kana, a green kana not due stays put, a white kana moves up even with a future due time, input never changed), the stats it keeps, finished lessons, best scores, `markDue`, onboarding, and `isEmptyProgress`.
+- **answers.test.ts**: every rule of `recordAnswer` (up a box, capped at 7, slow, wrong, floor at 0, mistakes logged, new kana, a green kana not due stays put, a white kana moves up even with a future due time, input never changed), the stats it keeps, finished lessons, best scores, `markDue`, onboarding, sound, and `isEmptyProgress`.
 - **unlock.test.ts**: only the あ row at first; the next row opens at 4 of 5 green but not 3 of 5; scripts are separate; `greenNeeded`; `metKana` only lists open kana with progress.
 - **random.test.ts**: shuffle keeps every item, is repeatable, and doesn't change the original.
 - **choices.test.ts**: 4 choices including the answer, lookalikes included, no repeated spellings, kana-chart order.
@@ -1742,7 +1744,7 @@ What each file checks:
 - **tips.test.ts**: every kana has a tip, and each tip mentions the kana's sound.
 - **feedback.test.ts**: belt changes up, down and none; pair tips, the kana's own tip as the fallback, and `pairTipFor`.
 - **lesson.test.ts**: lesson length, `median`, and the lesson summary (XP, accuracy, strike speed, promotions).
-- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked.
+- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound.
 - **merge.test.ts**: the later due time wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.

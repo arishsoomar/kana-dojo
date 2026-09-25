@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
 import { KanaCell } from '@/components/kana-cell';
+import { pronounce } from '@/audio/pronounce';
 import { KanaDetailSheet } from '@/components/kana-detail-sheet';
 import { ProgressRing } from '@/components/progress-ring';
 import { SegmentedControl } from '@/components/segmented-control';
@@ -94,7 +95,9 @@ function DetailSheet({ kana, onDrill, onClose }: { kana: Kana; onDrill: () => vo
   // Tip: how to tell it from its most common mix-up or a lookalike, else its own memory tip.
   const tip =
     pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]) ?? kanaTip(kana.char);
-  return <KanaDetailSheet kana={kana} details={details} tip={tip} onDrill={onDrill} onClose={onClose} />;
+  return (
+    <KanaDetailSheet kana={kana} details={details} tip={tip} onDrill={onDrill} onSpeak={() => pronounce(kana)} onClose={onClose} />
+  );
 }
 
 const styles = StyleSheet.create({

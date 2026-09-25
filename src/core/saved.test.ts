@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana' } };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true } };
 
 const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
@@ -12,7 +12,7 @@ const sample: Progress = {
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
     { lesson: 'duel:シツ', at: 3_000_000, score: 10, opponent: 3 },
   ],
-  settings: { onboarded: true, dailyGoal: 3, script: 'katakana' },
+  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false },
 };
 
 describe('saving progress', () => {
@@ -43,7 +43,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana' },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true },
     });
   });
 
@@ -57,7 +57,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana' },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true },
     });
   });
 
@@ -91,7 +91,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana' },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true },
     });
   });
 
@@ -126,5 +126,15 @@ describe('saving the chosen script', () => {
     expect(parseProgress(save({ onboarded: true, script: 'katakana' })).settings.script).toBe('katakana');
     expect(parseProgress(save({ onboarded: true })).settings.script).toBe('hiragana');
     expect(parseProgress(save({ onboarded: true, script: 'klingon' })).settings.script).toBe('hiragana');
+  });
+});
+
+describe('saving the sound setting', () => {
+  it('keeps sound off if it was turned off, and otherwise has it on', () => {
+    const save = (settings: unknown) =>
+      JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings } });
+    expect(parseProgress(save({ onboarded: true, sound: false })).settings.sound).toBe(false);
+    expect(parseProgress(save({ onboarded: true })).settings.sound).toBe(true);
+    expect(parseProgress(save({ onboarded: true, sound: 'loud' })).settings.sound).toBe(true);
   });
 });

@@ -1,4 +1,4 @@
-import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, isEmptyProgress, markDue, recordAnswer, type Progress } from './answers';
+import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, isEmptyProgress, markDue, recordAnswer, setSound, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -213,5 +213,15 @@ describe('isEmptyProgress', () => {
   it('is false once anything has been answered or finished', () => {
     expect(isEmptyProgress(progressWith(1))).toBe(false);
     expect(isEmptyProgress(completeLesson(EMPTY_PROGRESS, 'x', 1))).toBe(false);
+  });
+});
+
+describe('sound', () => {
+  it('starts on, and setSound turns it off and on without changing the input', () => {
+    expect(EMPTY_PROGRESS.settings.sound).toBe(true);
+    const muted = setSound(EMPTY_PROGRESS, false);
+    expect(muted.settings.sound).toBe(false);
+    expect(setSound(muted, true).settings.sound).toBe(true);
+    expect(EMPTY_PROGRESS.settings.sound).toBe(true);
   });
 });

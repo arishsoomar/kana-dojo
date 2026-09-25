@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
@@ -10,7 +10,9 @@ import { Karasu, type KarasuMood } from '@/components/karasu';
 import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { LessonTopBar } from '@/components/lesson-top-bar';
+import { SpeakerIcon } from '@/components/speaker-icon';
 import { colors, fonts } from '@/constants/theme';
+import { pronounce } from '@/audio/pronounce';
 import { KANA, type Kana } from '@/core/kana';
 import { plaqueById } from '@/core/path';
 import { useLesson, type LessonMode, type Result } from '@/hooks/use-lesson';
@@ -51,7 +53,7 @@ export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
   const [mode] = useState(() => modeFrom(params));
-  const { question, result, summary, fraction, check, goToNext } = useLesson(mode);
+  const { question, result, summary, heard, sound, toggleSound, fraction, check, goToNext } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
   const rank = useRank();
 
@@ -79,14 +81,29 @@ export default function LessonScreen() {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <LessonTopBar fraction={fraction} onClose={() => setLeaving(true)} />
+      <LessonTopBar fraction={fraction} onClose={() => setLeaving(true)} sound={sound} onToggleSound={toggleSound} />
 
       <View style={styles.body}>
         <View style={styles.coach}>
           <Karasu mood={moodFor(result)} rank={rank} />
-          <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>{coachLine(mode)}</Text>
-          </View>
+          {/* Before the first answer, what this lesson is. After it, the kana just answered,
+              with a button to hear it again. */}
+          {heard ? (
+            <Pressable
+              role="button"
+              aria-label={`Hear ${heard.char} again`}
+              onPress={() => pronounce(heard)}
+              style={[styles.bubble, styles.heard]}>
+              <Text style={styles.bubbleText}>
+                <Text style={styles.heardKana}>{heard.char}</Text> · {heard.romaji[0]}
+              </Text>
+              <SpeakerIcon color={colors.ink2} size={20} />
+            </Pressable>
+          ) : (
+            <View style={styles.bubble}>
+              <Text style={styles.bubbleText}>{coachLine(mode)}</Text>
+            </View>
+          )}
         </View>
 
         {/* The frame grows to fill the middle; the answers sit at the bottom, near the thumb. */}
@@ -155,6 +172,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBold,
     fontSize: 15,
     color: colors.sumi,
+  },
+  heard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  heardKana: {
+    fontFamily: fonts.jp,
   },
   choices: {
     flexDirection: 'row',

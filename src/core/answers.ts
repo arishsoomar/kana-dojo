@@ -28,6 +28,7 @@ export type Settings = {
   onboarded: boolean; // has been through the welcome and chosen a goal
   dailyGoal: number; // lessons per day
   script: Script; // the script the Learn screen shows
+  sound: boolean; // kana are spoken aloud after each answer
 };
 
 export type Progress = {
@@ -44,7 +45,7 @@ export const EMPTY_PROGRESS: Progress = {
   confusions: [],
   stats: {},
   completed: [],
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana' },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true },
 };
 
 export type Answer = {
@@ -147,6 +148,11 @@ export function finishOnboarding(progress: Progress): Progress {
 // Sets which script the Learn screen shows.
 export function setScript(progress: Progress, script: Script): Progress {
   return { ...progress, settings: { ...progress.settings, script } };
+}
+
+// Turns speaking kana aloud on or off.
+export function setSound(progress: Progress, sound: boolean): Progress {
+  return { ...progress, settings: { ...progress.settings, sound } };
 }
 
 // True when nothing has been trained yet (settings like the daily goal don't count).

@@ -387,6 +387,72 @@ Done when:
 
 ---
 
+## Epic I — Duels and scrolls
+
+A duel is a short, fast drill on two lookalike kana that the learner keeps
+mixing up, built from their own mistake log. Winning one earns a scroll
+that keeps the trick for telling the pair apart. Only pairs with a written
+tip can be duelled, so every duel and scroll has something to teach.
+
+### I1. Weak pairs
+**As a** learner, **I want** the app to know which lookalike pairs I mix
+up most, **so that** my duels are about my real mistakes.
+
+Done when:
+- [ ] Every pair tip in `feedback.ts` moves into one list of named pairs
+      (e.g. シ ツ "The shadow twins"), each with its name and tip
+- [ ] More named pairs are added for common hiragana and katakana
+      mix-ups, so the collection covers both scripts
+- [ ] `weakPairs(progress)` in `src/core/`, test-first: the named pairs,
+      each with how many times it's been mixed up (both directions
+      counted), most mixed-up first
+- [ ] A pair is "ready" to duel once it's been mixed up 3 or more times
+      and both its kana are unlocked
+
+### I2. Duel rules
+**As a** learner, **I want** a duel to have clear rules, **so that**
+winning means I can really tell the pair apart.
+
+Done when:
+- [ ] Pure functions in `src/core/`, test-first
+- [ ] Each point shows one of the two kana, with the pair's two
+      spellings as the only answers
+- [ ] A right answer under 4 seconds scores me a point; a wrong answer
+      scores the opponent a point; a slow right answer scores nothing
+- [ ] First to 10 wins. The opponent reaching 5 ends the duel as a loss
+- [ ] The kana shown is random each point, and may repeat. (The
+      no-repeats rule from lessons doesn't apply: with only two kana,
+      it would make every answer predictable.)
+
+### I3. Duel screen
+**As a** learner, **I want** to play a duel, **so that** I practise the
+pair I struggle with most.
+
+Done when:
+- [ ] Matches the Duel mock: point count, the pair's name, the kana, two
+      answers, the tip always showing, and how many times I've mixed
+      them up
+- [ ] Every answer goes through `recordAnswer()`
+- [ ] Winning or losing shows the score, with Retry and Done
+- [ ] The result is saved with the finished lessons, including both
+      scores, so a scroll can say "Won 10 to 3 on Sept 14"
+- [ ] Android back and the X both ask before leaving mid-duel
+
+### I4. Scrolls
+**As a** learner, **I want** a collection of scrolls I've won, **so that**
+I can see which pairs I've settled and look up their tips.
+
+Done when:
+- [ ] A Scrolls screen, matching the Scroll mock: "N of M" collected, and
+      one slot per named pair
+- [ ] A won scroll shows the pair, its name, its tip, and "Won 10 to 3
+      on" the date of the first win
+- [ ] A ready pair shows "Ready" and starts its duel when tapped
+- [ ] Any other pair shows "Locked"
+- [ ] A Duels card on the Games tab opens the Scrolls screen
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike
@@ -407,7 +473,7 @@ Done when:
 
 ## Later
 
-Yokai dungeon and charms, duels and scrolls, memory match, word forge,
+Yokai dungeon and charms, memory match, word forge,
 calligraphy, taiko drill, daily kata, the dojo room, assignments,
 tournaments, shadow match, supply shed.
 

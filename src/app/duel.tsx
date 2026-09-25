@@ -11,6 +11,7 @@ import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
+import { Yokai } from '@/components/yokai';
 import { colors, duelColors, fonts } from '@/constants/theme';
 import { DUEL_LOSS, DUEL_WIN } from '@/core/duel';
 import type { Kana } from '@/core/kana';
@@ -103,10 +104,14 @@ function Duel({ pair }: { pair: NamedPair }) {
 
         {/* The middle grows to fill the screen, so the answers sit at the bottom, near the thumb. */}
         <View style={styles.middle}>
-          {/* The two kana facing off. */}
+          {/* The pair's two yokai, facing you down. */}
           <View style={styles.twins} aria-hidden>
-            <Text style={[styles.twin, styles.twinLeft]}>{first?.char}</Text>
-            <Text style={[styles.twin, styles.twinRight]}>{second?.char}</Text>
+            <View style={styles.twinLeft}>
+              <Yokai char={first?.char ?? ''} size={126} hue="red" />
+            </View>
+            <View style={styles.twinRight}>
+              <Yokai char={second?.char ?? ''} size={126} hue="red" />
+            </View>
           </View>
           <KanaFrame char={duel.question.kana.char} size={112} />
         </View>
@@ -230,14 +235,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  twin: {
-    fontFamily: fonts.jp,
-    fontSize: 88,
-    lineHeight: 110,
-    color: colors.vermilion,
-  },
   twinLeft: {
-    marginRight: -12,
+    marginRight: -24,
     transform: [{ rotate: '-6deg' }],
   },
   twinRight: {

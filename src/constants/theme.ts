@@ -70,6 +70,18 @@ export const duelColors = {
   soft: '#E4B6AC',
 } as const;
 
+// Yokai, the kana spirits a learner faces in duels: horns, eyes, belly, and body colours.
+export const yokaiColors = {
+  outline: '#0E0F15',
+  horn: '#EFE6D2',
+  eye: '#F2C14E',
+  belly: '#F4EFE4',
+  fang: '#FFFFFF',
+  shadow: 'rgba(0, 0, 0, 0.3)',
+  redBody: '#B8341D',
+  slateBody: '#3A3F52',
+} as const;
+
 // Won scrolls: the paper, and the rule above the result line. The rods use wallColors.rail.
 export const scrollColors = {
   paper: '#F8F4EC',

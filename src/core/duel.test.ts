@@ -8,6 +8,7 @@ import {
   duelQuestion,
   duelStatus,
   scorePoint,
+  scrolls,
   weakPairs,
   type DuelScore,
 } from './duel';
@@ -130,5 +131,47 @@ describe('completeDuel', () => {
     ]);
     expect(duelId(pair)).toBe('duel:あお');
     expect(before.completed).toHaveLength(1);
+  });
+});
+
+describe('scrolls', () => {
+  const pair = NAMED_PAIRS[0]!; // あ お: the a row, open from the start
+  const mixedUp = withMixUps(['あ', 'お'], ['お', 'あ'], ['あ', 'お']);
+  const scrollFor = (progress: Progress) => scrolls(progress).find((s) => s.pair === pair);
+
+  it('has one scroll per named pair', () => {
+    expect(scrolls(EMPTY_PROGRESS)).toHaveLength(NAMED_PAIRS.length);
+  });
+
+  it('is locked until the pair is ready to duel, then ready', () => {
+    expect(scrollFor(EMPTY_PROGRESS)?.state).toBe('locked');
+    expect(scrollFor(mixedUp)?.state).toBe('ready');
+  });
+
+  it('is won by the first winning duel, keeping its date and score', () => {
+    const progress = [
+      { at: 10, mine: 6, theirs: 5 }, // lost
+      { at: 20, mine: 10, theirs: 3 }, // first win
+      { at: 30, mine: 10, theirs: 0 }, // a later win
+    ].reduce((p, { at, mine, theirs }) => completeDuel(p, pair, { mine, theirs }, at), mixedUp);
+    expect(scrollFor(progress)).toMatchObject({ state: 'won', firstWin: { at: 20, score: { mine: 10, theirs: 3 } } });
+  });
+
+  it('stays ready after a lost duel', () => {
+    const progress = completeDuel(mixedUp, pair, { mine: 4, theirs: 5 }, 10);
+    expect(scrollFor(progress)).toMatchObject({ state: 'ready', firstWin: null });
+  });
+
+  it('lists won scrolls first, then ready ones, then locked ones', () => {
+    // The a and ka rows are green, so the sa row is open and き さ can be ready.
+    const green = { box: 3, dueAt: 0 };
+    const opened = {
+      ...withMixUps(['き', 'さ'], ['さ', 'き'], ['き', 'さ']),
+      kana: Object.fromEntries([...'あいうえおかきくけこ'].map((char) => [char, green])),
+    };
+    const progress = completeDuel(opened, pair, { mine: 10, theirs: 0 }, 5);
+    const states = scrolls(progress).map((s) => s.state);
+    expect(states.slice(0, 2)).toEqual(['won', 'ready']);
+    expect(states.slice(2).every((state) => state === 'locked')).toBe(true);
   });
 });

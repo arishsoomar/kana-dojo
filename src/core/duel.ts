@@ -75,3 +75,32 @@ export function completeDuel(progress: Progress, pair: NamedPair, score: DuelSco
   const record: Completion = { lesson: duelId(pair), at: now, score: score.mine, opponent: score.theirs };
   return { ...progress, completed: [...progress.completed, record] };
 }
+
+export type ScrollState = 'won' | 'ready' | 'locked';
+
+// One slot in the scroll collection. A scroll is won by winning its pair's duel, and keeps
+// the first win; until then it's ready (the duel can be played) or locked.
+export type Scroll = {
+  pair: NamedPair;
+  mixUps: number;
+  state: ScrollState;
+  firstWin: { at: number; score: DuelScore } | null;
+};
+
+const STATE_ORDER: readonly ScrollState[] = ['won', 'ready', 'locked'];
+
+// Every named pair's scroll: won ones first, then ready, then locked. Within each group,
+// the most mixed-up pairs come first (the order weakPairs gives).
+export function scrolls(progress: Progress): Scroll[] {
+  return weakPairs(progress)
+    .map(({ pair, mixUps, ready }): Scroll => {
+      const wins = progress.completed
+        .filter((c) => c.lesson === duelId(pair))
+        .map((c) => ({ at: c.at, score: { mine: c.score ?? 0, theirs: c.opponent ?? 0 } }))
+        .filter((c) => duelStatus(c.score) === 'won');
+      const firstWin = wins.reduce<Scroll['firstWin']>((first, win) => (first === null || win.at < first.at ? win : first), null);
+      const state = firstWin ? 'won' : ready ? 'ready' : 'locked';
+      return { pair, mixUps, state, firstWin };
+    })
+    .sort((a, b) => STATE_ORDER.indexOf(a.state) - STATE_ORDER.indexOf(b.state));
+}

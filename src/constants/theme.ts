@@ -70,6 +70,12 @@ export const duelColors = {
   soft: '#E4B6AC',
 } as const;
 
+// Won scrolls: the paper, and the rule above the result line. The rods use wallColors.rail.
+export const scrollColors = {
+  paper: '#F8F4EC',
+  rule: '#E0D8C6',
+} as const;
+
 // Icon fills: the memory-tip bulb, the XP bolt, the streak flame, and the rest-day star.
 export const iconColors = {
   yellow: '#FFC93C',

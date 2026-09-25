@@ -462,6 +462,11 @@ Done when:
 - [ ] A ready pair shows "Ready" and starts its duel when tapped
 - [ ] Any other pair shows "Locked"
 - [ ] A Duels card on the Games tab opens the Scrolls screen
+- `scrolls(progress)` in `duel.ts` (test-first) gives each pair's state
+  and first win; won first, then ready, then locked, most mixed-up first
+  within each. The date is formatted on screen (it needs the timezone).
+- The Duels card says how many duels are ready, or how many scrolls are
+  won when none are. A won pair can't be duelled again yet.
 
 ---
 

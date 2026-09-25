@@ -2,16 +2,20 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, fonts, rainColors } from '@/constants/theme';
+import { colors, duelColors, fonts, rainColors } from '@/constants/theme';
 import { bestScore } from '@/core/answers';
+import { scrolls } from '@/core/duel';
 import { useProgress } from '@/hooks/use-progress';
 import { RAIN_LESSON_ID } from '@/hooks/use-rain';
 
-// The training hall: every game in one place. The first version has Kana Rain only.
+// The training hall: every game in one place.
 export default function GamesScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const best = bestScore(progress, RAIN_LESSON_ID);
+  const allScrolls = scrolls(progress);
+  const won = allScrolls.filter((s) => s.state === 'won').length;
+  const ready = allScrolls.filter((s) => s.state === 'ready').length;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
@@ -29,6 +33,17 @@ export default function GamesScreen() {
           </View>
           <Text style={styles.name}>Kana Rain</Text>
           <Text style={styles.sub}>{best === null ? 'Type them before they land' : `Best ${best.toLocaleString('en-US')}`}</Text>
+        </Pressable>
+
+        <Pressable role="button" aria-label="Duels" onPress={() => router.push('/scrolls')} style={styles.card}>
+          <View style={[styles.art, styles.duelArt]}>
+            <Text style={[styles.duelKana, styles.duelLeft]}>シ</Text>
+            <Text style={[styles.duelKana, styles.duelRight]}>ツ</Text>
+          </View>
+          <Text style={styles.name}>Duels</Text>
+          <Text style={styles.sub}>
+            {ready > 0 ? `${ready} ready to duel` : `${won} of ${allScrolls.length} scrolls`}
+          </Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -98,6 +113,22 @@ const styles = StyleSheet.create({
     fontFamily: fonts.jp,
     fontSize: 15,
     color: colors.sumi,
+  },
+  duelArt: {
+    gap: 0,
+    backgroundColor: duelColors.background,
+  },
+  duelKana: {
+    fontFamily: fonts.jp,
+    fontSize: 30,
+    lineHeight: 38,
+    color: colors.vermilion,
+  },
+  duelLeft: {
+    transform: [{ rotate: '-6deg' }],
+  },
+  duelRight: {
+    transform: [{ rotate: '6deg' }],
   },
   name: {
     paddingHorizontal: 10,

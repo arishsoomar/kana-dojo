@@ -14,9 +14,8 @@ import { colors, fonts, wallColors } from '@/constants/theme';
 import { setScript } from '@/core/answers';
 import type { Script } from '@/core/kana';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
-import { greenNeeded, nextPromotionAt } from '@/core/unlock';
+import { greenNeeded } from '@/core/unlock';
 import { useDailyGoal } from '@/hooks/use-daily-goal';
-import { useNow } from '@/hooks/use-now';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
@@ -38,10 +37,6 @@ export default function LearnScreen() {
   const path = learnPath(progress, script);
   const unit = path.currentUnit;
   const needed = greenNeeded(progress, script, unit.row);
-  // Kana only move up a box when they're due, so say when the next one is.
-  const now = useNow(5000);
-  const promotionAt = nextPromotionAt(progress, script, unit.row);
-  const waitMs = promotionAt === null ? 0 : Math.max(promotionAt - now, 0);
   // A belt exam that's ready takes priority in Karasu's suggestion.
   const examReady = path.units.find((u) => u.exam) ?? null;
   // The next row to open, which gets a note saying what opens it.
@@ -101,7 +96,7 @@ export default function LearnScreen() {
         <Karasu mood="focus" size={64} rank={rank} />
         <View style={styles.coachBody}>
           <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>{coachLine(path, needed, waitMs)}</Text>
+            <Text style={styles.bubbleText}>{coachLine(path, needed)}</Text>
           </View>
           {examReady ? (
             <PrimaryButton label="Take exam" tone="vermilion" onPress={() => takeExam(examReady)} />
@@ -157,7 +152,7 @@ function rowKana(unit: PathUnit): string {
   return unit.plaques[0]?.plaque.kana[0]?.char ?? '';
 }
 
-function coachLine(path: LearnPath, needed: number, waitMs: number): string {
+function coachLine(path: LearnPath, needed: number): string {
   const { current } = path;
   const ready = path.units.find((u) => u.exam);
   if (ready?.exam) {
@@ -170,18 +165,9 @@ function coachLine(path: LearnPath, needed: number, waitMs: number): string {
   }
   if (needed > 0) {
     const goal = `${needed} more ${rowKana(path.currentUnit)} row ${needed === 1 ? 'kana needs' : 'kana need'} green belt to open the next row.`;
-    if (waitMs > 0) {
-      return `${goal} Kana only move up after a rest, so the next one is ready ${formatWait(waitMs)}. Practice meanwhile keeps them fresh.`;
-    }
-    return `${goal} Some are ready now: answer them right, and quickly, to move them toward green.`;
+    return `${goal} A kana turns green after 3 quick right answers; a miss sets it back 2.`;
   }
   return 'Every plaque is done. Keep practicing to hold your belts.';
-}
-
-// "in 25 sec" or "in 3 min".
-function formatWait(ms: number): string {
-  if (ms < 60_000) return `in ${Math.ceil(ms / 1000)} sec`;
-  return `in ${Math.ceil(ms / 60_000)} min`;
 }
 
 function capitalize(text: string): string {

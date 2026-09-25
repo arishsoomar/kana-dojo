@@ -126,13 +126,15 @@ Leitner box system. Every kana has a box number 0–7 and a due timestamp.
 
 ```
 Box:       0     1     2     3      4     5     6     7
-Interval:  now   30s   3m    20m    6h    2d    7d    21d
+Interval:  now   now   now   20m    6h    2d    7d    21d
 Belt:      white white white green green brown brown black
 ```
 
 Rules:
-- Correct, answered when due, in under 4 seconds → box + 1
-- Correct but not yet due → box unchanged (no free promotions)
+- White belt (boxes 0–2): correct in under 4 seconds → box + 1, any time.
+  Green belt takes 3 quick right answers, not waiting.
+- Green and up: correct, answered when due, in under 4 seconds → box + 1
+- Green and up, correct but not yet due → box unchanged (no free promotions)
 - Wrong → box − 2 (floor 0), due immediately, and the confusion is logged
   as a pair (what it was, what the learner guessed)
 

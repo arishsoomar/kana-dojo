@@ -1,4 +1,4 @@
-import { intervalFor, isDue, MAX_BOX, type KanaProgress } from './boxes';
+import { intervalFor, isDue, MAX_BOX, tierOf, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
 
@@ -57,7 +57,9 @@ export type Answer = {
 export const FAST_MS = 4000;
 
 function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
-  if (!isDue(current, answer.now)) return current;
+  // From green belt up, only a due kana can move up (no free promotions). Below green,
+  // every quick right answer counts, even with a due time left over from an older save.
+  if (tierOf(current.box) !== 'white' && !isDue(current, answer.now)) return current;
 
   const box = answer.ms < FAST_MS ? Math.min(current.box + 1, MAX_BOX) : current.box;
   return { box, dueAt: answer.now + intervalFor(box) };

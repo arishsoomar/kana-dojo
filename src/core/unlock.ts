@@ -30,12 +30,3 @@ export function greenNeeded(progress: Progress, script: Script, row: RowId): num
   const green = rowKana.filter((k) => isGreenOrBetter(progress, k)).length;
   return Math.max(Math.ceil(rowKana.length * UNLOCK_SHARE) - green, 0);
 }
-
-// When the soonest kana in `row` that's still below green belt can next move up a box
-// (a timestamp; 0 if one is due already), or null if the whole row is green or better.
-// A right answer only moves a kana up when it's due, so this is when practice next pays off.
-export function nextPromotionAt(progress: Progress, script: Script, row: RowId): number | null {
-  const waiting = KANA.filter((k) => k.script === script && k.row === row && !isGreenOrBetter(progress, k));
-  if (waiting.length === 0) return null;
-  return Math.min(...waiting.map((k) => progress.kana[k.char]?.dueAt ?? 0));
-}

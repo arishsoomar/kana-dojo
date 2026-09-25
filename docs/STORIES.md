@@ -385,8 +385,10 @@ Done when:
 - Ranks tab: your division (named after your rank) and lessons this week.
   The weekly league itself needs accounts (Epic G).
 - Learn: Karasu says what opens the next row (how many kana still need
-  green belt) and, since kana only move up when due, when the next one is
-  ready ("ready in 3 min"). The first locked row repeats the rule.
+  green belt, and that 3 quick right answers make a kana green). The first
+  locked row repeats the rule.
+- White belt is count-based: no waits below green, so a row can open in
+  one good practice session. Waits start at green (see PROJECT.md).
 - Answer tiles come in kana-chart order, not shuffled, so the eyes stay
   on the kana instead of hunting for the answer.
 

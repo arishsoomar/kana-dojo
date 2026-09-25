@@ -18,12 +18,12 @@ describe('tierOf', () => {
 });
 
 describe('intervalFor', () => {
-  it('matches the Leitner schedule, in milliseconds', () => {
+  it('matches the Leitner schedule, in milliseconds, with no wait below green belt', () => {
     const intervals = [0, 1, 2, 3, 4, 5, 6, 7].map(intervalFor);
     expect(intervals).toEqual([
       0,
-      30 * SECOND,
-      3 * MINUTE,
+      0,
+      0,
       20 * MINUTE,
       6 * HOUR,
       2 * DAY,

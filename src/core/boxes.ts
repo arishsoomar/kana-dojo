@@ -4,10 +4,12 @@ const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
 // How long a kana waits before it is due again, indexed by box (0–7).
+// White belt (boxes 0–2) has no wait: reaching green takes right answers, not time.
+// From green up, the waits make a belt mean the kana is remembered after a break.
 const INTERVALS: readonly number[] = [
   0,
-  30 * SECOND,
-  3 * MINUTE,
+  0,
+  0,
   20 * MINUTE,
   6 * HOUR,
   2 * DAY,

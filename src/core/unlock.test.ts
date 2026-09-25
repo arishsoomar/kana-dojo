@@ -1,6 +1,6 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
 import type { Script } from './kana';
-import { greenNeeded, nextPromotionAt, unlockedKana } from './unlock';
+import { greenNeeded, unlockedKana } from './unlock';
 
 // Progress where every listed kana is in `box`.
 function withBox(chars: string[], box: number): Progress {
@@ -43,31 +43,5 @@ describe('greenNeeded', () => {
 
   it('needs all 3 in a 3-kana row', () => {
     expect(greenNeeded(withBox([], 0), 'hiragana', 'ya')).toBe(3);
-  });
-});
-
-describe('nextPromotionAt', () => {
-  const progress: Progress = {
-    ...EMPTY_PROGRESS,
-    kana: {
-      あ: { box: 3, dueAt: 100 }, // green already: doesn't count
-      い: { box: 2, dueAt: 900 },
-      う: { box: 1, dueAt: 500 },
-      え: { box: 4, dueAt: 0 },
-      お: { box: 3, dueAt: 0 },
-    },
-  };
-
-  it('is the soonest time a kana below green belt can move up', () => {
-    expect(nextPromotionAt(progress, 'hiragana', 'a')).toBe(500);
-  });
-
-  it('is 0 when a kana below green has never been answered (it is due now)', () => {
-    const { お: _unanswered, ...rest } = progress.kana;
-    expect(nextPromotionAt({ ...progress, kana: rest }, 'hiragana', 'a')).toBe(0);
-  });
-
-  it('is null when every kana in the row is green or better', () => {
-    expect(nextPromotionAt(withBox(['あ', 'い', 'う', 'え', 'お'], 3), 'hiragana', 'a')).toBeNull();
   });
 });

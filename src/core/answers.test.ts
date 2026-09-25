@@ -29,10 +29,16 @@ describe('recordAnswer: correct, due, fast', () => {
 });
 
 describe('recordAnswer: correct but not due', () => {
-  it('leaves the box and due time alone', () => {
+  it('leaves a green-or-better kana alone', () => {
+    const dueLater = NOW + 60_000;
+    const next = recordAnswer(progressWith(3, dueLater), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
+    expect(next.kana['シ']).toEqual({ box: 3, dueAt: dueLater });
+  });
+
+  it('still promotes a white-belt kana: below green, right answers count, not time', () => {
     const dueLater = NOW + 60_000;
     const next = recordAnswer(progressWith(2, dueLater), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
-    expect(next.kana['シ']).toEqual({ box: 2, dueAt: dueLater });
+    expect(next.kana['シ']).toEqual({ box: 3, dueAt: NOW + intervalFor(3) });
   });
 });
 

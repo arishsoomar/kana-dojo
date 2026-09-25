@@ -442,6 +442,13 @@ Done when:
 - [ ] The result is saved with the finished lessons, including both
       scores, so a scroll can say "Won 10 to 3 on Sept 14"
 - [ ] Android back and the X both ask before leaving mid-duel
+- `/duel?pair=シツ`. A right answer moves on at once (like lessons); a
+  wrong one shows red on the pick and the right answer for 0.7s, since the
+  tip is already on screen. A slow right answer says "too slow for a point".
+- Saved as `{ lesson: 'duel:シツ', score, opponent }`: finished-lesson
+  records got an optional `opponent` field (no save version bump; older
+  saves just don't have it). Like games, a finished duel counts toward the
+  streak and the daily goal.
 
 ### I4. Scrolls
 **As a** learner, **I want** a collection of scrolls I've won, **so that**

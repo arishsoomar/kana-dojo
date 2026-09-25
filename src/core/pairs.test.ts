@@ -1,5 +1,5 @@
 import { KANA } from './kana';
-import { NAMED_PAIRS } from './pairs';
+import { NAMED_PAIRS, pairById, pairId } from './pairs';
 
 function scriptOf(char: string) {
   return KANA.find((k) => k.char === char)?.script;
@@ -31,5 +31,19 @@ describe('NAMED_PAIRS', () => {
   it('covers both scripts', () => {
     const scripts = new Set(NAMED_PAIRS.map(({ kana }) => scriptOf(kana[0])));
     expect(scripts).toEqual(new Set(['hiragana', 'katakana']));
+  });
+});
+
+describe('pairId and pairById', () => {
+  it("names a pair by its two kana, and finds it again from that name", () => {
+    for (const pair of NAMED_PAIRS) {
+      expect(pairById(pairId(pair))).toBe(pair);
+    }
+    expect(pairId(NAMED_PAIRS[0]!)).toBe('あお');
+  });
+
+  it('is null for an id that is not a named pair', () => {
+    expect(pairById('あか')).toBeNull();
+    expect(pairById('')).toBeNull();
   });
 });

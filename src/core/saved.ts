@@ -92,6 +92,7 @@ function isCompletion(value: unknown): value is Completion {
     isObject(value) &&
     typeof value.lesson === 'string' &&
     typeof value.at === 'number' &&
-    (value.score === undefined || typeof value.score === 'number')
+    (value.score === undefined || typeof value.score === 'number') &&
+    (value.opponent === undefined || typeof value.opponent === 'number')
   );
 }

@@ -32,3 +32,13 @@ export const NAMED_PAIRS: readonly NamedPair[] = [
   { kana: ['コ', 'ユ'], name: 'The corner and the U-turn', tip: "ユ's bottom line sticks out past its side. コ's lines meet at a clean corner." },
   { kana: ['チ', 'テ'], name: 'The pole and the pom-pom', tip: 'チ has one slanted stroke on top and a line crossing its middle. テ has two flat bars on top, and nothing crosses.' },
 ];
+
+// A pair's id, for addresses and saved records: its two kana, e.g. "シツ".
+export function pairId(pair: NamedPair): string {
+  return pair.kana.join('');
+}
+
+// The named pair with this id, or null if there isn't one.
+export function pairById(id: string): NamedPair | null {
+  return NAMED_PAIRS.find((pair) => pairId(pair) === id) ?? null;
+}

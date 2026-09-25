@@ -10,6 +10,7 @@ const sample: Progress = {
   completed: [
     { lesson: 'hiragana:a:0', at: 1_000_000 },
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
+    { lesson: 'duel:シツ', at: 3_000_000, score: 10, opponent: 3 },
   ],
   settings: { onboarded: true, dailyGoal: 3, script: 'katakana' },
 };
@@ -76,7 +77,13 @@ describe('saving progress', () => {
           い: { seen: 'two', correct: 1, recentMs: [] },
           う: { seen: 2, correct: 1, recentMs: ['fast'] },
         },
-        completed: [{ lesson: 'hiragana:a:0', at: 5 }, { lesson: 'hiragana:a:1' }, 7, { lesson: 'game:rain', at: 6, score: 'lots' }],
+        completed: [
+          { lesson: 'hiragana:a:0', at: 5 },
+          { lesson: 'hiragana:a:1' },
+          7,
+          { lesson: 'game:rain', at: 6, score: 'lots' },
+          { lesson: 'duel:シツ', at: 8, score: 10, opponent: 'three' },
+        ],
       },
     });
     expect(parseProgress(damaged)).toEqual({

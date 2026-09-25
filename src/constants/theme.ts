@@ -62,6 +62,14 @@ export const rainColors = {
   groundEdge: '#8A6A43',
 } as const;
 
+// Duels: a dark red room, with a raised panel for the tip, the score track, and soft text.
+export const duelColors = {
+  background: '#2A1512',
+  panel: 'rgba(255, 255, 255, 0.08)',
+  track: '#54302A',
+  soft: '#E4B6AC',
+} as const;
+
 // Icon fills: the memory-tip bulb, the XP bolt, the streak flame, and the rest-day star.
 export const iconColors = {
   yellow: '#FFC93C',

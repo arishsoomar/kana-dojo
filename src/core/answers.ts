@@ -15,11 +15,12 @@ export type KanaStats = {
 };
 
 // A finished lesson or game: which one, when (a timestamp in milliseconds), and for a
-// game, its score.
+// game, its score. A duel also keeps the opponent's score.
 export type Completion = {
   lesson: string;
   at: number;
   score?: number;
+  opponent?: number;
 };
 
 // The learner's choices, as opposed to their training record.

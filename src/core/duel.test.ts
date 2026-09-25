@@ -1,8 +1,10 @@
 import { EMPTY_PROGRESS, type Confusion, type Progress } from './answers';
 import {
+  completeDuel,
   DUEL_LOSS,
   DUEL_READY_MIXUPS,
   DUEL_WIN,
+  duelId,
   duelQuestion,
   duelStatus,
   scorePoint,
@@ -114,5 +116,19 @@ describe('duelStatus', () => {
 
   it(`is lost when the opponent reaches ${DUEL_LOSS}`, () => {
     expect(duelStatus({ mine: 7, theirs: DUEL_LOSS })).toBe('lost');
+  });
+});
+
+describe('completeDuel', () => {
+  it('records the duel with both scores, keeping earlier records', () => {
+    const pair = NAMED_PAIRS[0]!;
+    const before = { ...EMPTY_PROGRESS, completed: [{ lesson: 'hiragana:a:0', at: 1 }] };
+    const after = completeDuel(before, pair, { mine: 10, theirs: 3 }, 500);
+    expect(after.completed).toEqual([
+      { lesson: 'hiragana:a:0', at: 1 },
+      { lesson: duelId(pair), at: 500, score: 10, opponent: 3 },
+    ]);
+    expect(duelId(pair)).toBe('duel:あお');
+    expect(before.completed).toHaveLength(1);
   });
 });

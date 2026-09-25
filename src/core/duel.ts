@@ -1,6 +1,6 @@
-import { FAST_MS, type Progress } from './answers';
+import { FAST_MS, type Completion, type Progress } from './answers';
 import { KANA, type Kana, type Script } from './kana';
-import { NAMED_PAIRS, type NamedPair } from './pairs';
+import { NAMED_PAIRS, pairId, type NamedPair } from './pairs';
 import type { Question } from './question';
 import type { Rng } from './random';
 import { unlockedKana } from './unlock';
@@ -63,4 +63,15 @@ export function duelQuestion(pair: NamedPair, rng: Rng): Question {
   // Safe: a named pair is two real kana (checked in pairs.test.ts), so choices has both.
   const kana: Kana = choices[rng() < 0.5 ? 0 : 1]!;
   return { kana, choices };
+}
+
+// How a duel is named in the finished-lesson records, e.g. "duel:シツ".
+export function duelId(pair: NamedPair): string {
+  return `duel:${pairId(pair)}`;
+}
+
+// Records a finished duel, won or lost, with both scores.
+export function completeDuel(progress: Progress, pair: NamedPair, score: DuelScore, now: number): Progress {
+  const record: Completion = { lesson: duelId(pair), at: now, score: score.mine, opponent: score.theirs };
+  return { ...progress, completed: [...progress.completed, record] };
 }

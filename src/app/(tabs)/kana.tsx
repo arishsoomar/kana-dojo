@@ -15,7 +15,6 @@ import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
 import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
-import { kanaTip } from '@/core/tips';
 import { useProgress } from '@/hooks/use-progress';
 
 const SCRIPTS = [
@@ -127,9 +126,9 @@ function KindHeading({ row, script }: { row: RowId; script: Script }) {
 function DetailSheet({ kana, onDrill, onClose }: { kana: Kana; onDrill: () => void; onClose: () => void }) {
   const { progress } = useProgress();
   const details = kanaDetails(progress, kana);
-  // Tip: how to tell it from its most common mix-up or a lookalike, else its own memory tip.
-  const tip =
-    pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]) ?? kanaTip(kana.char);
+  // How to tell it from its most common mix-up or a lookalike. (Its own memory tip is always
+  // shown, with its picture.)
+  const tip = pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]);
   return (
     <KanaDetailSheet kana={kana} details={details} tip={tip} onDrill={onDrill} onSpeak={() => pronounce(kana)} onClose={onClose} />
   );

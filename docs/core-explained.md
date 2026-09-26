@@ -386,7 +386,7 @@ Everything the app knows about the learner. This is what gets saved.
 
 **Lines 45–51**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
 
-**Lines 53–59**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), when it happened (`now`), and whether it was typed (`typed`). `guess` can be `null`, which means no kana was given: something typed that spells no kana, or a kana that landed in Kana Rain. `typed?:` can be left out, which means tapped.
+**Lines 53–59**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), when it happened (`now`), whether it was typed (`typed`), and whether it was `helped`: given after looking at the kana's mnemonic. `guess` can be `null`, which means no kana was given: something typed that spells no kana, or a kana that landed in Kana Rain. `typed?:` can be left out, which means tapped.
 
 **Line 62**: `FAST_MS = 4000`. An answer under 4 seconds counts as quick: it earns bonus XP (`lesson.ts`) and scores a point in a duel (`duel.ts`).
 
@@ -460,7 +460,7 @@ function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats 
 - `seen` always goes up by 1. `correct` goes up by 1 only if the answer was right.
 - If right, the time is added to the end of `recentMs`. `.slice(-RECENT_TIMES)` keeps only the last 10 items (a negative number counts from the end). If wrong, the times stay the same.
 
-**Lines 114–143**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
+**Lines 115–150**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
 
 ```ts
   const current = progress.kana[answer.char] ?? NEW_KANA;
@@ -475,6 +475,13 @@ Looks up the shown kana's progress (or `NEW_KANA` if there is none). The answer 
   };
 ```
 A new `stats` object: every kana's stats copied over, with the shown kana's stats replaced by the updated ones. `[answer.char]:` with square brackets means "use the **value** of `answer.char` as the field name". If it's `'シ'`, the field is `シ`.
+
+```ts
+  if (correct && answer.helped) {
+    return { ...progress, kana: { ...progress.kana, [answer.char]: { box: current.box, at: answer.now } } };
+  }
+```
+A right answer given after looking at the mnemonic proves nothing about reading it, so only `at` changes: the kana now counts as met (so practice can ask it), but its box and stats stay the same. A wrong answer is still wrong, so helped wrong answers carry on below as usual.
 
 ```ts
   if (correct) {
@@ -1144,15 +1151,22 @@ export function duelRow(pair: NamedPair): { script: Script; row: RowId } {
 
 ## tips.ts: a memory tip for every kana
 
-**Lines 4–234**: `KANA_TIPS`, an object with one tip for each of the 221 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. A marked kana's tip names the kana it's built on and what the mark does, like `が: 'か with dakuten, the two little strokes (゛) that voice a sound: ka becomes ga.'`, and a yōon's names both parts, like `しゃ: 'し with a small ゃ: shi and ya run together into one sound, sha.'`. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
+**Lines 7–237**: `KANA_TIPS`, an object with one tip for each of the 221 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. A marked kana's tip names the kana it's built on and what the mark does, like `が: 'か with dakuten, the two little strokes (゛) that voice a sound: ka becomes ga.'`, and a yōon's names both parts, like `しゃ: 'し with a small ゃ: shi and ya run together into one sound, sha.'`. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
 
-**Lines 103–105**
+**Lines 240–242**
 ```ts
 export function kanaTip(char: string): string | null {
   return KANA_TIPS[char] ?? null;
 }
 ```
 The tip for a kana, or `null` if there isn't one (for something that isn't a kana).
+
+**Line 245**: `PLAIN_ROW`, the row under each marked row: が's row is か's, and both ば's and ぱ's are は's. `Partial<Record<...>>` means "an object with some of these rows as field names".
+
+**Lines 250–262**: `mnemonicBase`, the basic kana whose mnemonic picture a kana uses (the pictures are in `src/constants/kana-pictures.ts`, one for each of the 92 basic kana):
+- A basic kana uses its own.
+- A yōon or extended katakana uses its big first kana's: `kana.char.charAt(0)` is きゃ's き, and ファ's フ. That one might itself be marked (ぎょ's ぎ), so the function calls itself on it to keep going down to a basic kana: ぎょ → ぎ → き.
+- A marked kana uses the kana in the same place in its plain row: ぢ is the second kana of the だ row, so it uses ち, the second of the た row.
 
 ---
 
@@ -2129,7 +2143,7 @@ What each file checks:
 - **path.test.ts**: plaques per row (including 3-kana rows), `rowBelt`, which plaque is current, rows opening, scripts separate, plaque questions (mostly the plaque's kana, review only kana you've met, no repeats), exams on the path.
 - **rank.test.ts**: rank thresholds, higher belts counting toward lower ranks, only exam-earned belts count.
 - **duel.test.ts**: `weakPairs` (counting both ways, order, ready at 3 and only when unlocked), duel questions (only the two kana, chart order, repeats allowed), scoring (fast, wrong, slow, after the end, input unchanged), win and loss, `completeDuel`, `scrolls` (locked, ready, first win kept, a loss isn't a win, order, which row has to open), and `duelRow`.
-- **tips.test.ts**: every kana has a tip, and each tip mentions the kana's sound.
+- **tips.test.ts**: `mnemonicBase` (itself, under a mark, the big kana of a yōon or extended katakana, always a basic kana of the same script); every kana has a tip, and each tip mentions the kana's sound.
 - **feedback.test.ts**: belt changes up, down and none; pair tips, the kana's own tip as the fallback, and `pairTipFor`.
 - **lesson.test.ts**: lesson length, `median`, the lesson summary (XP, accuracy, strike speed, promotions, rows opened), and `combo`.
 - **sayings.test.ts**: a new learner gets sensei lines; the most mixed-up pair with its tip; the trickiest kana (answered at least 3 times) with its tip; input never changed; never the same line twice in a row.

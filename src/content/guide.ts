@@ -54,6 +54,8 @@ export const GUIDE: GuideSection[] = [
               'Answer quickly: a quick right answer is what moves a kana up.',
               "After you answer, you hear the kana spoken, and Karasu hops (or shakes his head if you missed).",
               'Get one wrong and you see the right answer, with a tip for telling it apart from the one you picked.',
+              'Tap the kana card to turn it over: the back has a picture and a memory tip that tie its shape to its sound. The first time you meet a kana, its card starts turned over.',
+              "If you look at the back before answering, that question is practice: a right answer won't move the kana up. (A wrong one still counts.)",
             ],
           },
         ],

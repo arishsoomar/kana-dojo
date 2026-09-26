@@ -7,6 +7,7 @@ import { ChoiceTile, type TileState } from '@/components/choice-tile';
 import { ComboChip } from '@/components/combo-chip';
 import { FeedbackCard, FeedbackSheet, type Correction } from '@/components/feedback-sheet';
 import { KanaFrame } from '@/components/kana-frame';
+import { MnemonicCard } from '@/components/mnemonic-card';
 import { AliveKarasu } from '@/components/alive-karasu';
 import type { KarasuMood } from '@/components/karasu';
 import { LeaveDialog } from '@/components/leave-dialog';
@@ -59,6 +60,8 @@ export default function LessonScreen() {
   const {
     question,
     questionKey,
+    flipped,
+    flip,
     result,
     summary,
     heard,
@@ -145,8 +148,8 @@ export default function LessonScreen() {
             <FeedbackCard correction={correctionFor(result)} picture={<KanaFrame char={result.kana.char} size={76} />} />
           ) : (
             <>
-              <KanaFrame char={question.kana.char} />
-              <ComboChip count={combo} />
+              <MnemonicCard kana={question.kana} flipped={flipped} onFlip={flip} />
+              {!flipped && <ComboChip count={combo} />}
             </>
           )}
         </View>

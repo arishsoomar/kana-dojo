@@ -1,9 +1,11 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { KANA_PICTURES } from '@/constants/kana-pictures';
 import { colors, fonts } from '@/constants/theme';
 import type { KanaDetails } from '@/core/details';
 import type { Kana } from '@/core/kana';
+import { kanaTip, mnemonicBase } from '@/core/tips';
 
 import { BeltIcon } from './belt-icon';
 import { BulbIcon } from './bulb-icon';
@@ -14,7 +16,7 @@ import { SpeakerIcon } from './speaker-icon';
 type Props = {
   kana: Kana;
   details: KanaDetails;
-  tip: string | null;
+  tip: string | null; // how to tell it from a kana it's mixed up with or looks like, if any
   onDrill: () => void;
   onSpeak: () => void; // says the kana aloud
   onClose: () => void;
@@ -22,6 +24,7 @@ type Props = {
 
 // Everything the engine knows about one kana, in a sheet that slides up over the grid.
 export function KanaDetailSheet({ kana, details, tip, onDrill, onSpeak, onClose }: Props) {
+  const picture = KANA_PICTURES[mnemonicBase(kana).char];
   const insets = useSafeAreaInsets();
   const accuracy = details.accuracy === null ? '–' : `${Math.round(details.accuracy * 100)}%`;
   const speed = details.strikeSpeedMs === null ? '–' : `${(details.strikeSpeedMs / 1000).toFixed(1)}s`;
@@ -62,6 +65,13 @@ export function KanaDetailSheet({ kana, details, tip, onDrill, onSpeak, onClose 
           </Text>
         )}
 
+        {/* Its mnemonic: the picture and tip that tie its shape to its sound. */}
+        <View style={styles.mnemonic}>
+          {picture && <Image source={picture} style={styles.picture} accessibilityIgnoresInvertColors />}
+          <Text style={styles.mnemonicText}>{kanaTip(kana.char)}</Text>
+        </View>
+
+        {/* How to tell it from a kana it's mixed up with, or looks like. */}
         {tip && (
           <View style={styles.tip}>
             <BulbIcon />
@@ -188,6 +198,27 @@ const styles = StyleSheet.create({
   metricValue: {
     fontFamily: fonts.uiBlack,
     fontSize: 18,
+    color: colors.sumi,
+  },
+  mnemonic: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: colors.goldLight,
+  },
+  picture: {
+    width: 56,
+    height: 56,
+  },
+  mnemonicText: {
+    flex: 1,
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 14,
+    lineHeight: 19,
     color: colors.sumi,
   },
   tip: {

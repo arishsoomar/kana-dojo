@@ -36,6 +36,11 @@ function newQuestion(progress: Progress, mode: LessonMode, avoid?: string): Ques
 }
 
 
+// A kana the learner has never answered: its card starts turned over to its mnemonic.
+function isNew(progress: Progress, kana: Kana): boolean {
+  return progress.kana[kana.char] === undefined;
+}
+
 // The name a finished lesson is recorded under. Plaque ids mark plaques as done;
 // every finished lesson counts toward the streak (D4).
 export function lessonId(mode: LessonMode): string {
@@ -54,6 +59,10 @@ export function useLesson(mode: LessonMode) {
   const [summary, setSummary] = useState<LessonSummary | null>(null);
   const [question, setQuestion] = useState(() => newQuestion(progress, mode));
   const [shownAt, setShownAt] = useState(() => Date.now());
+  // Whether the card is turned over to its mnemonic, and whether it has been this question.
+  // A brand-new kana (never answered) starts turned over, so it's learned before it's asked.
+  const [flipped, setFlipped] = useState(() => isNew(progress, question.kana));
+  const [peeked, setPeeked] = useState(flipped);
   const [result, setResult] = useState<Result | null>(null);
   // The kana just answered, which is spoken aloud (unless muted) and shown with a replay button.
   // Nothing is spoken before an answer: hearing it first would give the answer away.
@@ -88,7 +97,8 @@ export function useLesson(mode: LessonMode) {
     if (correct) haptics.right();
     else haptics.miss();
     setReaction({ kind: correct ? 'hop' : 'shake', id: answers.length });
-    const next = recordAnswer(progress, { char: kana.char, guess: guess?.char ?? null, ms, now, typed: typed !== null });
+    // An answer given after looking at the mnemonic is a helped one: it can't move the kana up.
+    const next = recordAnswer(progress, { char: kana.char, guess: guess?.char ?? null, ms, now, typed: typed !== null, helped: peeked });
 
     updateProgress(next);
     const nextAnswers = [...answers, { char: kana.char, correct, ms }];
@@ -128,8 +138,11 @@ export function useLesson(mode: LessonMode) {
       setSummary(done);
       return;
     }
-    setQuestion(newQuestion(latest, mode, justAsked));
+    const nextQuestion = newQuestion(latest, mode, justAsked);
+    setQuestion(nextQuestion);
     setShownAt(Date.now());
+    setFlipped(isNew(latest, nextQuestion.kana));
+    setPeeked(isNew(latest, nextQuestion.kana));
     setResult(null);
   }
 
@@ -150,6 +163,12 @@ export function useLesson(mode: LessonMode) {
     question,
     // Changes with each new question (not with an answer), so the typing box knows to clear.
     questionKey: shownAt,
+    flipped,
+    // Turns the card over or back. Turning it to the mnemonic counts as a look.
+    flip: () => {
+      setFlipped(!flipped);
+      if (!flipped) setPeeked(true);
+    },
     result,
     summary,
     heard,

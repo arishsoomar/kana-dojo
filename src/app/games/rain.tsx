@@ -64,6 +64,7 @@ export default function KanaRainScreen() {
           secondary={{ label: 'Play again', onPress: restart }}
           onContinue={close}
           rank={rank}
+          celebrate={result.best !== null && result.score > result.best}
         />
       </View>
     );

@@ -6,7 +6,8 @@ import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 
 import { BeltIcon } from './belt-icon';
-import { Karasu } from './karasu';
+import { AliveKarasu } from './alive-karasu';
+import { Confetti } from './confetti';
 import { PrimaryButton } from './primary-button';
 
 type Props = {
@@ -58,7 +59,13 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
         {/* Wrapped in a View so he's layered above the glow on web too. */}
         <View>
           {/* When the belt is tied he puts it on, and if the rank rose, he takes his new form. */}
-          <Karasu mood={tied ? 'proud' : 'focus'} rank={tied ? rank : fromRank} belt={tied ? belt : from} size={160} />
+          <AliveKarasu
+            mood={tied ? 'proud' : 'focus'}
+            rank={tied ? rank : fromRank}
+            belt={tied ? belt : from}
+            size={160}
+            move={tied ? { kind: 'cheer', id: 1 } : null}
+          />
         </View>
         <Animated.View style={[styles.belt, beltStyle]}>
           <BeltIcon belt={belt} width={150} />
@@ -89,6 +96,7 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
       <View style={styles.footer}>
         <PrimaryButton label="Hang the plaque" tone="light" onPress={onDone} />
       </View>
+      {tied && <Confetti />}
     </View>
   );
 }

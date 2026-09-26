@@ -56,3 +56,18 @@ describe('summarizeLesson', () => {
     expect(summarizeLesson(before, after, repeated).promotions).toEqual([{ char: 'あ', belt: 'green' }]);
   });
 });
+
+describe('summarizeLesson: rows opened', () => {
+  const green = { box: 3, dueAt: 0 };
+  const aRowAlmost: Progress = { ...EMPTY_PROGRESS, kana: { あ: green, い: green, う: green } };
+  const aRowDone: Progress = { ...aRowAlmost, kana: { ...aRowAlmost.kana, え: green } };
+
+  it('lists a row that opened during the lesson', () => {
+    expect(summarizeLesson(aRowAlmost, aRowDone, []).rowsOpened).toEqual([{ script: 'hiragana', row: 'ka' }]);
+  });
+
+  it('lists nothing when no new row opened', () => {
+    expect(summarizeLesson(aRowDone, aRowDone, []).rowsOpened).toEqual([]);
+    expect(summarizeLesson(empty, aRowAlmost, []).rowsOpened).toEqual([]);
+  });
+});

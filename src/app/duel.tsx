@@ -70,6 +70,7 @@ function Duel({ pair }: { pair: NamedPair }) {
           secondary={{ label: 'Retry', onPress: duel.retry }}
           onContinue={close}
           rank={rank}
+          celebrate={won}
         />
       </View>
     );

@@ -217,6 +217,20 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
   ピャ: 'ピ with a small ャ: pi and ya run together into one sound, pya.',
   ピュ: 'ピ with a small ュ: pi and yu run together into one sound, pyu.',
   ピョ: 'ピ with a small ョ: pi and yo run together into one sound, pyo.',
+  // Extended katakana
+  ファ: 'フ with a small ァ: fu becomes fa, a sound for words from other languages.',
+  フィ: 'フ with a small ィ: fu becomes fi, a sound for words from other languages.',
+  フェ: 'フ with a small ェ: fu becomes fe, a sound for words from other languages.',
+  フォ: 'フ with a small ォ: fu becomes fo, a sound for words from other languages.',
+  ティ: 'テ with a small ィ: te becomes ti, a sound for words from other languages.',
+  ディ: 'デ with a small ィ: de becomes di, a sound for words from other languages.',
+  デュ: 'デ with a small ュ: de becomes dyu, a sound for words from other languages.',
+  ウィ: 'ウ with a small ィ: u becomes wi, a sound for words from other languages.',
+  ウェ: 'ウ with a small ェ: u becomes we, a sound for words from other languages.',
+  ウォ: 'ウ with a small ォ: u becomes wo, a sound for words from other languages.',
+  シェ: 'シ with a small ェ: shi becomes she, a sound for words from other languages.',
+  ジェ: 'ジ with a small ェ: ji becomes je, a sound for words from other languages.',
+  チェ: 'チ with a small ェ: chi becomes che, a sound for words from other languages.',
 };
 
 // The memory tip for a kana, or null if there isn't one.

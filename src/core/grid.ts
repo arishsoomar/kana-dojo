@@ -1,6 +1,6 @@
 import { NEW_KANA, type Progress } from './answers';
 import { BELTS, tierOf, type Belt } from './boxes';
-import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
+import { KANA, rowsOf, type Kana, type RowId, type Script } from './kana';
 import { rowBelt } from './belts';
 import { awardedBelt } from './exam';
 import { unlockedKana } from './unlock';
@@ -29,7 +29,7 @@ export type MasteryGrid = {
 export function masteryGrid(progress: Progress, script: Script): MasteryGrid {
   const unlocked = new Set(unlockedKana(progress, script));
 
-  const rows = ROWS.map((row) => ({
+  const rows = rowsOf(script).map((row) => ({
     row,
     belt: awardedBelt(progress, script, row),
     qualified: rowBelt(progress, script, row),

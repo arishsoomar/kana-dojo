@@ -1,12 +1,12 @@
 import { completeLesson, EMPTY_PROGRESS, type Progress } from './answers';
 import type { Belt } from './boxes';
 import { EXAM_PASS, examId } from './exam';
-import { KANA, ROWS, type RowId, type Script } from './kana';
+import { KANA, rowsOf, type RowId, type Script } from './kana';
 import { overallRank } from './rank';
 
 const BOX_FOR: Record<Belt, number> = { white: 0, green: 3, brown: 6, black: 9 };
 const EVERY_ROW: [Script, RowId][] = (['hiragana', 'katakana'] as const).flatMap((script) =>
-  ROWS.map((row): [Script, RowId] => [script, row]),
+  rowsOf(script).map((row): [Script, RowId] => [script, row]),
 );
 
 // Progress where the first `count` rows (hiragana first) have earned `belt`: their kana
@@ -41,8 +41,8 @@ describe('overallRank', () => {
   });
 
   it('is black only when every row, in both scripts, is black', () => {
-    const allRows = 2 * ROWS.length;
-    expect(allRows).toBe(52);
+    const allRows = rowsOf('hiragana').length + rowsOf('katakana').length;
+    expect(allRows).toBe(56);
     expect(overallRank(rowsEarned(allRows - 1, 'black'))).toBe('brown');
     expect(overallRank(rowsEarned(allRows, 'black'))).toBe('black');
   });

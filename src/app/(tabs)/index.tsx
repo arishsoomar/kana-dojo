@@ -42,8 +42,14 @@ const SAID_MS = 6000;
 // How long wall news is kept after the Learn screen shows it: long enough for it to play.
 const NEWS_MS = 3000;
 
-// Beside a unit's board: "dakuten ゛", "handakuten ゜" or "yōon", for rows after the basic ones.
-const KIND_TAGS = { basic: null, dakuten: 'dakuten ゛', handakuten: 'handakuten ゜', yoon: 'yōon' } as const;
+// Beside a unit's board: what kind of kana the row holds, for rows after the basic ones.
+const KIND_TAGS = {
+  basic: null,
+  dakuten: 'dakuten ゛',
+  handakuten: 'handakuten ゜',
+  yoon: 'yōon',
+  extended: 'extended katakana',
+} as const;
 
 function KindTag({ row }: { row: RowId }) {
   const tag = KIND_TAGS[rowKind(row)];

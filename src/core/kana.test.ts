@@ -1,4 +1,4 @@
-import { KANA, ROWS, kanaForRomaji, lookalikesOf, matchesRomaji, rowKind, typingDone, type Kana } from './kana';
+import { KANA, ROWS, kanaForRomaji, lookalikesOf, matchesRomaji, rowKind, rowsOf, typingDone, type Kana, type Script } from './kana';
 import { NAMED_PAIRS } from './pairs';
 
 function kana(char: string): Kana {
@@ -13,9 +13,9 @@ describe('kana data', () => {
     expect(hiragana).toHaveLength(104);
   });
 
-  it('has the same 104 in katakana', () => {
+  it('has the same 104 in katakana, and 13 extended katakana combos', () => {
     const katakana = KANA.filter((k) => k.script === 'katakana');
-    expect(katakana).toHaveLength(104);
+    expect(katakana).toHaveLength(117);
   });
 
   it('has no duplicate characters', () => {
@@ -35,6 +35,12 @@ describe('matchesRomaji', () => {
     expect(matchesRomaji(kana('ヅ'), 'zu')).toBe(true);
     expect(matchesRomaji(kana('ヅ'), 'du')).toBe(true);
     expect(matchesRomaji(kana('じ'), 'zi')).toBe(true);
+  });
+
+  it('spells the extended katakana', () => {
+    expect(['ファ', 'フィ', 'フェ', 'フォ', 'ティ', 'ディ', 'デュ', 'ウィ', 'ウェ', 'ウォ', 'シェ', 'ジェ', 'チェ'].map((c) => kana(c).romaji[0])).toEqual([
+      'fa', 'fi', 'fe', 'fo', 'ti', 'di', 'dyu', 'wi', 'we', 'wo', 'she', 'je', 'che',
+    ]);
   });
 
   it('accepts the common spellings of yōon', () => {
@@ -70,7 +76,14 @@ describe('rows', () => {
       'a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa',
       'ga', 'za', 'da', 'ba', 'pa',
       'kya', 'sha', 'cha', 'nya', 'hya', 'mya', 'rya', 'gya', 'ja', 'bya', 'pya',
+      'fa', 'ti', 'wi', 'she',
     ]);
+  });
+
+  it('gives each script its own rows: the extended ones are katakana only', () => {
+    expect(rowsOf('hiragana')).toEqual(ROWS.filter((r) => rowKind(r) !== 'extended'));
+    expect(rowsOf('katakana')).toEqual(ROWS);
+    expect(rowsOf('hiragana')).toHaveLength(26);
   });
 
   it('puts each kana in its row', () => {
@@ -88,13 +101,13 @@ describe('rows', () => {
     expect((['ga', 'za', 'da', 'ba'] as const).map(rowKind)).toEqual(['dakuten', 'dakuten', 'dakuten', 'dakuten']);
     expect(rowKind('pa')).toBe('handakuten');
     expect((['kya', 'ja', 'pya'] as const).map(rowKind)).toEqual(['yoon', 'yoon', 'yoon']);
+    expect((['fa', 'ti', 'wi', 'she'] as const).map(rowKind)).toEqual(['extended', 'extended', 'extended', 'extended']);
   });
 
   it('has the right number of kana in each row', () => {
-    const sizes = ROWS.map(
-      (row) => KANA.filter((k) => k.script === 'hiragana' && k.row === row).length,
-    );
-    expect(sizes).toEqual([5, 5, 5, 5, 5, 5, 5, 3, 5, 3, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]);
+    const sizes = (script: Script) => rowsOf(script).map((row) => KANA.filter((k) => k.script === script && k.row === row).length);
+    expect(sizes('hiragana')).toEqual([5, 5, 5, 5, 5, 5, 5, 3, 5, 3, 5, 5, 5, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]);
+    expect(sizes('katakana')).toEqual([...sizes('hiragana'), 4, 3, 3, 3]);
   });
 });
 

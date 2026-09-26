@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { tierOf } from './boxes';
 import { awardedBelt } from './exam';
-import { KANA, ROWS, type Script } from './kana';
+import { KANA, rowsOf, type Script } from './kana';
 import { median } from './lesson';
 
 // Numbers for the Profile screen, all worked out from saved progress.
@@ -25,9 +25,9 @@ export function overallStrikeSpeed(progress: Progress): number | null {
   return median(Object.values(progress.stats).flatMap((s) => s.recentMs));
 }
 
-// Rows (out of 20) that have earned a belt by passing an exam.
+// Rows, in both scripts, that have earned a belt by passing an exam.
 export function rowBeltsEarned(progress: Progress): number {
-  return SCRIPTS.flatMap((script) => ROWS.map((row) => awardedBelt(progress, script, row))).filter((b) => b !== 'white')
+  return SCRIPTS.flatMap((script) => rowsOf(script).map((row) => awardedBelt(progress, script, row))).filter((b) => b !== 'white')
     .length;
 }
 

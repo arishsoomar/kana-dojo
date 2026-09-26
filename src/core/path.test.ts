@@ -141,3 +141,13 @@ describe('makePlaqueQuestion: no repeats', () => {
     }
   });
 });
+
+describe('learnPath: rows each script has', () => {
+  it('gives hiragana no units for the katakana-only rows, and katakana all of them', () => {
+    const hiragana = learnPath(EMPTY_PROGRESS, 'hiragana').units;
+    const katakana = learnPath(EMPTY_PROGRESS, 'katakana').units;
+    expect(hiragana.every((u) => u.plaques.length > 0 && u.plaques.every(({ plaque }) => plaque.kana.length > 0))).toBe(true);
+    expect(hiragana.some((u) => u.row === 'fa')).toBe(false);
+    expect(katakana.map((u) => u.row).slice(-4)).toEqual(['fa', 'ti', 'wi', 'she']);
+  });
+});

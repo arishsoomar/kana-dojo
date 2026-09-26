@@ -18,6 +18,7 @@ export type GuideTopic = { id: string; question: string; answer: GuideBlock[] };
 export type GuideSection = { title: string; topics: GuideTopic[] };
 
 const FAST = `${FAST_MS / 1000} seconds`;
+const count = (script: 'hiragana' | 'katakana') => KANA.filter((k) => k.script === script).length;
 const GOALS = DAILY_GOALS.map((g) => `${g.minutes} minutes (${g.lessons} ${g.lessons === 1 ? 'lesson' : 'lessons'})`);
 
 // How each belt is reached, for the ladder picture: 3 steps each, and faster each time.
@@ -36,7 +37,7 @@ export const GUIDE: GuideSection[] = [
         id: 'what',
         question: 'What is Kana Dojo?',
         answer: [
-          `A dojo for learning to read the Japanese kana: hiragana and katakana, ${KANA.length / 2} of each. That's the 46 basic kana, their dakuten and handakuten forms, and the yōon combos like きゃ. The goal is to read each one at a glance, without having to stop and recall it.`,
+          `A dojo for learning to read the Japanese kana: ${count('hiragana')} hiragana and ${count('katakana')} katakana. That's the 46 basic kana in each, their dakuten and handakuten forms, the yōon combos like きゃ, and katakana's extra combos like フォ. The goal is to read each one at a glance, without having to stop and recall it.`,
           'Karasu, the crow, is your sensei. He grows as you do.',
         ],
       },
@@ -72,7 +73,7 @@ export const GUIDE: GuideSection[] = [
       },
       {
         id: 'marks',
-        question: 'What are dakuten, handakuten and yōon?',
+        question: 'What are dakuten, handakuten, yōon and extended katakana?',
         answer: [
           'After the basic rows, the wall goes on to the kana made from them:',
           {
@@ -81,6 +82,7 @@ export const GUIDE: GuideSection[] = [
               'Handakuten ゜, a little circle, turns h into p: は ha → ぱ pa.',
               'ぢ and づ sound just like じ (ji) and ず (zu), so either spelling is right when you type them. They\'re rare; じ and ず are the usual way to write those sounds.',
               'Yōon join a kana to a small ゃ, ゅ or ょ, read as one sound: き ki + ゃ → きゃ kya, し shi + ょ → しょ sho. They\'re written with two characters but count as one kana.',
+              'Extended katakana use a small ァ ィ ゥ ェ ォ for sounds from other languages: フォ fo in フォーク (fork), ティ ti in パーティー (party). Only katakana has them, at the end of its wall.',
             ],
           },
         ],

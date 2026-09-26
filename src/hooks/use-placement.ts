@@ -2,10 +2,13 @@ import { useState } from 'react';
 
 import { FAST_MS, recordAnswer } from '@/core/answers';
 import { makeChoices } from '@/core/choices';
-import { KANA, ROWS, type Kana, type RowId } from '@/core/kana';
+import { KANA, rowsOf, type Kana, type RowId } from '@/core/kana';
 import { placeKnown, placementQuestions, placeRow, rowPassed } from '@/core/placement';
 
 import { useProgress } from './use-progress';
+
+// The placement test is on hiragana, so it goes through hiragana's rows.
+const ROWS = rowsOf('hiragana');
 
 // How long the picked answer shows right or wrong before the next question.
 const FLASH_MS = 450;

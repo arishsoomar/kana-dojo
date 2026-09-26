@@ -3,11 +3,13 @@ import { NAMED_PAIRS } from './pairs';
 export type Script = 'hiragana' | 'katakana';
 
 // Rows in the order they unlock: the 46 basic kana, then the rows made by adding a mark,
-// then the yōon (combined sounds like きゃ).
+// then the yōon (combined sounds like きゃ), then the extended katakana (like ファ), which
+// only katakana has. See rowsOf for one script's rows.
 export const ROWS = [
   'a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa',
   'ga', 'za', 'da', 'ba', 'pa',
   'kya', 'sha', 'cha', 'nya', 'hya', 'mya', 'rya', 'gya', 'ja', 'bya', 'pya',
+  'fa', 'ti', 'wi', 'she',
 ] as const;
 
 export type RowId = (typeof ROWS)[number];
@@ -17,14 +19,17 @@ export type RowId = (typeof ROWS)[number];
 // - dakuten: with ゛, which voices the sound (か ka → が ga)
 // - handakuten: with ゜, which turns the h-row into p (は ha → ぱ pa)
 // - yoon: a kana with a small ゃ, ゅ or ょ, read as one sound (き + ゃ → きゃ kya)
-export type RowKind = 'basic' | 'dakuten' | 'handakuten' | 'yoon';
+// - extended: katakana with a small ァ ィ ゥ ェ ォ, for sounds from other languages (フォ fo)
+export type RowKind = 'basic' | 'dakuten' | 'handakuten' | 'yoon' | 'extended';
 
 const DAKUTEN_ROWS: readonly RowId[] = ['ga', 'za', 'da', 'ba'];
+const EXTENDED_ROWS: readonly RowId[] = ['fa', 'ti', 'wi', 'she'];
 
 export function rowKind(row: RowId): RowKind {
   if (DAKUTEN_ROWS.includes(row)) return 'dakuten';
   if (row === 'pa') return 'handakuten';
-  // The yōon rows are the ones after the ぱ row.
+  if (EXTENDED_ROWS.includes(row)) return 'extended';
+  // The yōon rows are the rest after the ぱ row.
   if (ROWS.indexOf(row) > ROWS.indexOf('pa')) return 'yoon';
   return 'basic';
 }
@@ -71,13 +76,32 @@ const TABLE: readonly [RowId, string, string, string, ...string[]][] = [
   ['pya', 'ぴゃ', 'ピャ', 'pya'], ['pya', 'ぴゅ', 'ピュ', 'pyu'], ['pya', 'ぴょ', 'ピョ', 'pyo'],
 ];
 
-export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, first, ...rest]) => {
-  const romaji: Kana['romaji'] = [first, ...rest];
-  return [
-    { char: hiragana, script: 'hiragana', row, romaji },
-    { char: katakana, script: 'katakana', row, romaji },
-  ];
-});
+// Extended katakana, one line per sound: [row, katakana, ...romaji]. Only katakana has these.
+// ディ shares "di" with ヂ and ウォ shares "wo" with ヲ. トゥ and ドゥ are left out, since "tu" is
+// already ツ.
+const EXTENDED_TABLE: readonly [RowId, string, string, ...string[]][] = [
+  ['fa', 'ファ', 'fa'], ['fa', 'フィ', 'fi'], ['fa', 'フェ', 'fe'], ['fa', 'フォ', 'fo'],
+  ['ti', 'ティ', 'ti'], ['ti', 'ディ', 'di'], ['ti', 'デュ', 'dyu'],
+  ['wi', 'ウィ', 'wi'], ['wi', 'ウェ', 'we'], ['wi', 'ウォ', 'wo'],
+  ['she', 'シェ', 'she'], ['she', 'ジェ', 'je'], ['she', 'チェ', 'che'],
+];
+
+export const KANA: readonly Kana[] = [
+  ...TABLE.flatMap(([row, hiragana, katakana, first, ...rest]): Kana[] => {
+    const romaji: Kana['romaji'] = [first, ...rest];
+    return [
+      { char: hiragana, script: 'hiragana', row, romaji },
+      { char: katakana, script: 'katakana', row, romaji },
+    ];
+  }),
+  ...EXTENDED_TABLE.map(([row, char, first, ...rest]): Kana => ({ char, script: 'katakana', row, romaji: [first, ...rest] })),
+];
+
+// The rows a script has, in unlock order. Katakana has every row; hiragana has all but the
+// extended katakana.
+export function rowsOf(script: Script): RowId[] {
+  return ROWS.filter((row) => KANA.some((k) => k.script === script && k.row === row));
+}
 
 function cleaned(input: string): string {
   return input.trim().toLowerCase();

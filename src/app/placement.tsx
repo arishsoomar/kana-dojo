@@ -9,7 +9,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import { finishOnboarding } from '@/core/answers';
-import { KANA, ROWS, type Kana, type RowId } from '@/core/kana';
+import { KANA, rowsOf, type Kana, type RowId } from '@/core/kana';
 import { usePlacement } from '@/hooks/use-placement';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
@@ -33,7 +33,7 @@ export default function PlacementScreen() {
 
   if (test.done) {
     const placed = test.placedRows;
-    const nextRow = ROWS[placed.length];
+    const nextRow = rowsOf('hiragana')[placed.length];
     return (
       <View style={[styles.screen, styles.result, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
         <View style={styles.resultBody}>

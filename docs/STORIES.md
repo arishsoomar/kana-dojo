@@ -613,6 +613,33 @@ not guessing.
 
 ---
 
+## Epic N — Extended katakana
+
+Katakana has combos with a small ァ ィ ゥ ェ ォ for sounds Japanese doesn't
+have on its own, used in words from other languages: パーティー (party),
+フォーク (fork), カフェ (café). They exist only in katakana.
+
+### N1. The extended rows
+**As a** learner, **I want** to learn ファ, ティ, ウィ, シェ and the rest,
+**so that** I can read loanwords.
+
+- [ ] Four katakana-only rows after the yōon: ファ フィ フェ フォ; ティ ディ
+      デュ; ウィ ウェ ウォ; シェ ジェ チェ (test-first)
+- [ ] Each script has its own list of rows (`rowsOf`); unlocking, the Learn
+      wall, the grid, exams, placement and rank use it, so hiragana has no
+      empty units
+- [ ] Every combo has a tip that mentions its sound
+- [ ] The Learn wall and Kana tab label the rows as extended katakana
+- Notes: ディ shares "di" with ヂ, and ウォ shares "wo" with ヲ; answer
+  tiles never show the same spelling twice. トゥ and ドゥ are left out: "tu"
+  is already ツ.
+
+### N2. Words that use them
+- [ ] Word Forge gains words like パーティー, フォーク, カフェ, チェス and
+      ジェットコースター, with pictures
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

@@ -1,15 +1,17 @@
 import { completeLesson, EMPTY_PROGRESS, type Progress } from './answers';
 import { EXAM_PASS, examId } from './exam';
 import { masteryGrid } from './grid';
-import { ROWS } from './kana';
+import { rowsOf } from './kana';
 
 const NEW_LEARNER: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
 describe('masteryGrid', () => {
   it('has every row in order, with 104 kana in total', () => {
     const grid = masteryGrid(NEW_LEARNER, 'hiragana');
-    expect(grid.rows.map((r) => r.row)).toEqual(ROWS);
+    expect(grid.rows.map((r) => r.row)).toEqual(rowsOf('hiragana'));
     expect(grid.total).toBe(104);
+    // Katakana also has the extended rows.
+    expect(masteryGrid(NEW_LEARNER, 'katakana').total).toBe(117);
     expect(grid.rows.find((r) => r.row === 'ya')?.cells).toHaveLength(3);
   });
 

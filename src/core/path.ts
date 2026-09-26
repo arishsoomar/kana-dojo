@@ -2,7 +2,7 @@ import type { Progress } from './answers';
 import type { Belt } from './boxes';
 import { makeChoices } from './choices';
 import { awardedBelt, examDue } from './exam';
-import { KANA, ROWS, type Kana, type RowId, type Script } from './kana';
+import { KANA, rowsOf, type Kana, type RowId, type Script } from './kana';
 import { pickNext } from './pick';
 import { avoiding, type Question } from './question';
 import type { Rng } from './random';
@@ -54,7 +54,7 @@ const SCRIPTS: readonly Script[] = ['hiragana', 'katakana'];
 // The plaque with this id, or null if there isn't one.
 export function plaqueById(id: string): Plaque | null {
   for (const script of SCRIPTS) {
-    for (const row of ROWS) {
+    for (const row of rowsOf(script)) {
       const plaque = plaquesFor(script, row).find((p) => p.id === id);
       if (plaque) return plaque;
     }
@@ -71,7 +71,7 @@ export function learnPath(progress: Progress, script: Script): LearnPath {
   let currentUnit: PathUnit | null = null;
   let lastOpen: PathUnit | null = null;
 
-  const units = ROWS.map((row, index) => {
+  const units = rowsOf(script).map((row, index) => {
     const open = openRows.has(row);
     const plaques = plaquesFor(script, row).map((plaque) => {
       let state: PlaqueState = 'locked';

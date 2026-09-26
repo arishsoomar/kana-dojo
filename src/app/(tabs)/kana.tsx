@@ -101,6 +101,12 @@ const KIND_HEADINGS = {
   dakuten: { title: 'Dakuten ゛', about: 'Two little strokes voice the sound:', from: 'ka', to: 'ga' },
   handakuten: { title: 'Handakuten ゜', about: 'A little circle turns h into p:', from: 'ha', to: 'pa' },
   yoon: { title: 'Yōon', about: 'A small ゃ, ゅ or ょ joins the kana before it into one sound:', from: 'ki', to: 'kya' },
+  extended: {
+    title: 'Extended katakana',
+    about: 'A small ァ ィ ゥ ェ ォ makes sounds for words from other languages:',
+    from: 'fu',
+    to: 'fo',
+  },
 } as const;
 
 function KindHeading({ row, script }: { row: RowId; script: Script }) {

@@ -15,7 +15,7 @@ import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 import { awardedBelt, EXAM_LENGTH, EXAM_PASS, examDue } from '@/core/exam';
 import { overallRank } from '@/core/rank';
-import { KANA, ROWS, type Kana, type RowId, type Script } from '@/core/kana';
+import { KANA, ROWS, rowsOf, type Kana, type RowId, type Script } from '@/core/kana';
 import { unlockedKana } from '@/core/unlock';
 import { useExam } from '@/hooks/use-exam';
 import { useProgress } from '@/hooks/use-progress';
@@ -59,7 +59,8 @@ function Exam({ script, row, belt }: { script: Script; row: RowId; belt: Belt })
   const rank = useRank();
   const rowName = rowChar(script, row) ?? row;
   const beltName = `${belt} belt`;
-  const nextRow = ROWS[ROWS.indexOf(row) + 1];
+  const rows = rowsOf(script);
+  const nextRow = rows[rows.indexOf(row) + 1];
   // Remembered from before the exam, for the ceremony: the belt the row had, and whether
   // the next row was already open.
   const [before] = useState(() => ({

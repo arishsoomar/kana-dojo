@@ -1,14 +1,16 @@
 # Kana recordings
 
-Each file is one kana's sound, said three times by a native speaker. They come
+Each file is one kana's sound, said once by a native speaker. They come
 from Wikimedia Commons, recorded by Hakatanoshio117117 and released into the
 public domain ("I grant anyone the right to use this work for any purpose,
 without any conditions"). No credit is required; it's given here anyway.
 
 Every file's licence was checked on its own Commons page before it was added.
-Changes made: converted from Ogg to MP3 (iPhones can't play Ogg), mono, 64 kbps;
-the silence at each end trimmed, the gaps between the three repetitions
-shortened to about 0.35 s, and the volume levelled so every clip is about as loud.
+Changes made: each original says its sound three times; only the middle one is
+kept. It's slowed down without changing pitch so every clip has about 0.3 s of
+sound (0.4x to 0.8x speed: the vowels, recorded very short, are slowed most),
+levelled to the same peak volume, given 10 ms and 60 ms fades, and converted
+from Ogg to MP3 (iPhones can't play Ogg), mono, 64 kbps.
 
 | File | Original |
 |---|---|

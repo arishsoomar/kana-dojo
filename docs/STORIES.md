@@ -498,9 +498,8 @@ Done when:
   bubble then shows the kana with a replay button. A speaker button in the
   lesson bar mutes it (saved in settings); the kana detail sheet has a
   speaker button that always plays. The clips are a native speaker saying
-  each sound three times: public-domain recordings from Wikimedia Commons,
-  converted to MP3 with shorter gaps and levelled volume
-  (`assets/audio/kana/SOURCES.md`). Played with `expo-audio` through
+  each sound once, slowed a little without changing pitch: public-domain
+  recordings from Wikimedia Commons (`assets/audio/kana/SOURCES.md`). Played with `expo-audio` through
   `src/audio/pronounce.ts`; it plays with the phone on silent (the app's
   mute is the off switch). The audio plugin has microphone and background
   playback turned off.

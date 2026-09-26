@@ -4,8 +4,9 @@ import type { Kana } from '@/core/kana';
 
 import { CLIPS } from './clips';
 
-// Says a kana aloud: a native speaker's recording of its sound, said three times (see
-// assets/audio/kana/SOURCES.md). Hiragana and katakana with the same sound share a clip.
+// Says a kana aloud: a native speaker's recording of its sound, slowed a little so it's
+// easy to hear (see assets/audio/kana/SOURCES.md). Hiragana and katakana with the same
+// sound share a clip.
 
 // One player per clip, made the first time it's needed and kept while the app runs: there
 // are at most 46, each is tiny, and reusing them makes a replay start at once.

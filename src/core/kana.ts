@@ -2,10 +2,20 @@ import { NAMED_PAIRS } from './pairs';
 
 export type Script = 'hiragana' | 'katakana';
 
-// Rows in the order they unlock.
-export const ROWS = ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa'] as const;
+// Rows in the order they unlock: the 46 basic kana, then the rows made by adding a mark.
+export const ROWS = ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', 'ga', 'za', 'da', 'ba', 'pa'] as const;
 
 export type RowId = (typeof ROWS)[number];
+
+// The mark a row's kana carry: dakuten ゛ voices a kana (か ka → が ga), and handakuten ゜
+// turns the h-row into p (は ha → ぱ pa). Null for the basic rows.
+export type RowMark = 'dakuten' | 'handakuten';
+
+export function rowMark(row: RowId): RowMark | null {
+  if (row === 'pa') return 'handakuten';
+  if (row === 'ga' || row === 'za' || row === 'da' || row === 'ba') return 'dakuten';
+  return null;
+}
 
 export type Kana = {
   char: string;
@@ -27,6 +37,13 @@ const TABLE: readonly [RowId, string, string, string, ...string[]][] = [
   ['ya', 'や', 'ヤ', 'ya'], ['ya', 'ゆ', 'ユ', 'yu'], ['ya', 'よ', 'ヨ', 'yo'],
   ['ra', 'ら', 'ラ', 'ra'], ['ra', 'り', 'リ', 'ri'], ['ra', 'る', 'ル', 'ru'], ['ra', 'れ', 'レ', 're'], ['ra', 'ろ', 'ロ', 'ro'],
   ['wa', 'わ', 'ワ', 'wa'], ['wa', 'を', 'ヲ', 'wo'], ['wa', 'ん', 'ン', 'n'],
+  // Dakuten. ぢ and づ sound the same as じ and ず, so they share those spellings.
+  ['ga', 'が', 'ガ', 'ga'], ['ga', 'ぎ', 'ギ', 'gi'], ['ga', 'ぐ', 'グ', 'gu'], ['ga', 'げ', 'ゲ', 'ge'], ['ga', 'ご', 'ゴ', 'go'],
+  ['za', 'ざ', 'ザ', 'za'], ['za', 'じ', 'ジ', 'ji', 'zi'], ['za', 'ず', 'ズ', 'zu'], ['za', 'ぜ', 'ゼ', 'ze'], ['za', 'ぞ', 'ゾ', 'zo'],
+  ['da', 'だ', 'ダ', 'da'], ['da', 'ぢ', 'ヂ', 'ji', 'di'], ['da', 'づ', 'ヅ', 'zu', 'du'], ['da', 'で', 'デ', 'de'], ['da', 'ど', 'ド', 'do'],
+  ['ba', 'ば', 'バ', 'ba'], ['ba', 'び', 'ビ', 'bi'], ['ba', 'ぶ', 'ブ', 'bu'], ['ba', 'べ', 'ベ', 'be'], ['ba', 'ぼ', 'ボ', 'bo'],
+  // Handakuten.
+  ['pa', 'ぱ', 'パ', 'pa'], ['pa', 'ぴ', 'ピ', 'pi'], ['pa', 'ぷ', 'プ', 'pu'], ['pa', 'ぺ', 'ペ', 'pe'], ['pa', 'ぽ', 'ポ', 'po'],
 ];
 
 export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, first, ...rest]) => {

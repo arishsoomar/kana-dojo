@@ -5,10 +5,10 @@ import { masteryGrid } from './grid';
 const NEW_LEARNER: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
 describe('masteryGrid', () => {
-  it('has every row in order, with 46 kana in total', () => {
+  it('has every row in order, with 71 kana in total', () => {
     const grid = masteryGrid(NEW_LEARNER, 'hiragana');
-    expect(grid.rows.map((r) => r.row)).toEqual(['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa']);
-    expect(grid.total).toBe(46);
+    expect(grid.rows.map((r) => r.row)).toEqual(['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', 'ga', 'za', 'da', 'ba', 'pa']);
+    expect(grid.total).toBe(71);
     expect(grid.rows.find((r) => r.row === 'ya')?.cells).toHaveLength(3);
   });
 
@@ -34,7 +34,7 @@ describe('masteryGrid', () => {
     const grid = masteryGrid(progress, 'hiragana');
     expect(grid.rows[0]?.cells.map((c) => c.belt)).toEqual(['black', 'brown', 'green', 'green', 'white']);
     expect(grid.pastWhite).toBe(4);
-    expect(grid.counts).toEqual({ white: 42, green: 2, brown: 1, black: 1 });
+    expect(grid.counts).toEqual({ white: 67, green: 2, brown: 1, black: 1 });
   });
 
   it('keeps each script separate', () => {

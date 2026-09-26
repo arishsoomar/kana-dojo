@@ -21,6 +21,7 @@ export const NAMED_PAIRS: readonly NamedPair[] = [
   { kana: ['わ', 'れ'], name: 'The duck and the ray', tip: 'れ ends with a tail that kicks out to the right. わ curves back in and stays round.' },
   { kana: ['ね', 'れ'], name: 'The cat and the ray', tip: 'ね ends in a little loop. れ ends with a tail that kicks out to the right.' },
   { kana: ['る', 'ろ'], name: 'The open road', tip: 'る ends in a loop at the bottom. ろ is open, with no loop.' },
+  { kana: ['ば', 'ぱ'], name: 'Strokes or circle', tip: 'ば has two little strokes (dakuten): ba. ぱ has a little circle (handakuten): pa.' },
 
   // Katakana
   { kana: ['シ', 'ツ'], name: 'The shadow twins', tip: "シ's short strokes stack on the left and its long stroke sweeps up. ツ's short strokes sit on top and its long stroke sweeps down." },
@@ -30,6 +31,8 @@ export const NAMED_PAIRS: readonly NamedPair[] = [
   { kana: ['ク', 'タ'], name: 'The empty tent', tip: 'タ has an extra short stroke inside. ク is empty inside.' },
   { kana: ['ス', 'ヌ'], name: 'The crossed stroke', tip: "ヌ's short stroke cuts across the middle. ス's short stroke hangs off the bottom right without crossing." },
   { kana: ['コ', 'ユ'], name: 'The corner and the U-turn', tip: "ユ's bottom line sticks out past its side. コ's lines meet at a clean corner." },
+  { kana: ['バ', 'パ'], name: 'The sharp strokes or circle', tip: 'バ has two little strokes (dakuten): ba. パ has a little circle (handakuten): pa.' },
+  { kana: ['ジ', 'ヅ'], name: 'The voiced shadow twins', tip: "Like シ and ツ: ジ's short strokes stack on the left and its long stroke sweeps up. ヅ's short strokes sit on top and its long stroke sweeps down." },
   { kana: ['チ', 'テ'], name: 'The pole and the pom-pom', tip: 'チ has one slanted stroke on top and a line crossing its middle. テ has two flat bars on top, and nothing crosses.' },
 ];
 

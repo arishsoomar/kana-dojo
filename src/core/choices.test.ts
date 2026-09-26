@@ -46,3 +46,14 @@ describe('makeChoices', () => {
     }
   });
 });
+
+describe('makeChoices: kana that share a spelling', () => {
+  it('never shows じ as a choice when the answer is ぢ, since both are "ji"', () => {
+    const answer = kana('ぢ');
+    const pool = KANA.filter((k) => k.script === 'hiragana');
+    for (const r of [0, 0.3, 0.6, 0.99]) {
+      const labels = makeChoices(answer, pool, () => r).map((k) => k.romaji[0]);
+      expect(new Set(labels).size).toBe(labels.length);
+    }
+  });
+});

@@ -40,9 +40,11 @@ describe('overallRank', () => {
     expect(overallRank(rowsEarned(10, 'brown'))).toBe('brown');
   });
 
-  it('is black only when all 20 rows, both scripts, are black', () => {
-    expect(overallRank(rowsEarned(19, 'black'))).toBe('brown');
-    expect(overallRank(rowsEarned(20, 'black'))).toBe('black');
+  it('is black only when every row, in both scripts, is black', () => {
+    const allRows = 2 * ROWS.length;
+    expect(allRows).toBe(30);
+    expect(overallRank(rowsEarned(allRows - 1, 'black'))).toBe('brown');
+    expect(overallRank(rowsEarned(allRows, 'black'))).toBe('black');
   });
 
   it('only counts belts earned by exam, not just qualified for', () => {

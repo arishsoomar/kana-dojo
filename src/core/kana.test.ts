@@ -1,4 +1,4 @@
-import { KANA, ROWS, kanaForRomaji, lookalikesOf, matchesRomaji, typingDone, type Kana } from './kana';
+import { KANA, ROWS, kanaForRomaji, lookalikesOf, matchesRomaji, rowMark, typingDone, type Kana } from './kana';
 import { NAMED_PAIRS } from './pairs';
 
 function kana(char: string): Kana {
@@ -8,14 +8,14 @@ function kana(char: string): Kana {
 }
 
 describe('kana data', () => {
-  it('has all 46 basic hiragana', () => {
+  it('has the 46 basic hiragana and their 25 dakuten and handakuten forms', () => {
     const hiragana = KANA.filter((k) => k.script === 'hiragana');
-    expect(hiragana).toHaveLength(46);
+    expect(hiragana).toHaveLength(71);
   });
 
-  it('has all 46 basic katakana', () => {
+  it('has the same 71 in katakana', () => {
     const katakana = KANA.filter((k) => k.script === 'katakana');
-    expect(katakana).toHaveLength(46);
+    expect(katakana).toHaveLength(71);
   });
 
   it('has no duplicate characters', () => {
@@ -27,6 +27,14 @@ describe('kana data', () => {
 describe('matchesRomaji', () => {
   it('accepts the standard spelling', () => {
     expect(matchesRomaji(kana('か'), 'ka')).toBe(true);
+  });
+
+  it('spells ぢ and づ like じ and ず, with their own alternates too', () => {
+    expect(matchesRomaji(kana('ぢ'), 'ji')).toBe(true);
+    expect(matchesRomaji(kana('ぢ'), 'di')).toBe(true);
+    expect(matchesRomaji(kana('ヅ'), 'zu')).toBe(true);
+    expect(matchesRomaji(kana('ヅ'), 'du')).toBe(true);
+    expect(matchesRomaji(kana('じ'), 'zi')).toBe(true);
   });
 
   it('accepts alternate spellings, in both scripts', () => {
@@ -47,20 +55,28 @@ describe('matchesRomaji', () => {
 
 describe('rows', () => {
   it('lists rows in unlock order', () => {
-    expect(ROWS).toEqual(['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa']);
+    expect(ROWS).toEqual(['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', 'ga', 'za', 'da', 'ba', 'pa']);
   });
 
   it('puts each kana in its row', () => {
     expect(kana('し').row).toBe('sa');
     expect(kana('ツ').row).toBe('ta');
     expect(kana('ん').row).toBe('wa');
+    expect(kana('ぢ').row).toBe('da');
+    expect(kana('ポ').row).toBe('pa');
+  });
+
+  it('says which rows are dakuten and handakuten', () => {
+    expect(rowMark('ka')).toBeNull();
+    expect((['ga', 'za', 'da', 'ba'] as const).map(rowMark)).toEqual(['dakuten', 'dakuten', 'dakuten', 'dakuten']);
+    expect(rowMark('pa')).toBe('handakuten');
   });
 
   it('has the right number of kana in each row', () => {
     const sizes = ROWS.map(
       (row) => KANA.filter((k) => k.script === 'hiragana' && k.row === row).length,
     );
-    expect(sizes).toEqual([5, 5, 5, 5, 5, 5, 5, 3, 5, 3]);
+    expect(sizes).toEqual([5, 5, 5, 5, 5, 5, 5, 3, 5, 3, 5, 5, 5, 5, 5]);
   });
 });
 
@@ -75,6 +91,12 @@ describe('lookalikes', () => {
     expect(result).toHaveLength(2);
     expect(result).toContain('わ');
     expect(result).toContain('れ');
+  });
+
+  it('pairs the dakuten and handakuten lookalikes', () => {
+    expect(lookalikesOf('ぱ')).toEqual(['ば']);
+    expect(lookalikesOf('パ')).toEqual(['バ']);
+    expect(lookalikesOf('ヅ')).toEqual(['ジ']);
   });
 
   it('returns an empty list for a kana with no lookalikes', () => {

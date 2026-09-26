@@ -475,6 +475,39 @@ Done when:
 
 ---
 
+## Epic J — Dakuten and handakuten
+
+The basic 46 kana per script are only part of what's needed to read. The
+dakuten mark ゛ voices a kana (か ka → が ga) and the handakuten circle ゜
+turns the h-row into p (は ha → ぱ pa). That's 25 more kana per script, in
+five new rows after the わ row. Combos like きゃ (yōon) are a later epic.
+
+### J1. The new rows
+**As a** learner, **I want** to learn が, ざ, だ, ば and ぱ rows, **so that**
+I can read the sounds most Japanese words use.
+
+- [ ] `KANA` gains the が, ざ, だ, ば and ぱ rows in both scripts (71 + 71),
+      test-first, opening in that order after the わ row
+- [ ] Spellings: じ and ぢ are both "ji" (also "zi", "di"); ず and づ both
+      "zu" (also "du"). Answer tiles never show the same spelling twice
+- [ ] Every new kana has a memory tip that mentions its sound
+- [ ] New lookalike pairs for duels: ば/ぱ, バ/パ, ジ/ヅ
+- [ ] Everything built on rows (plaques, unlocking, exams, the grid, rank,
+      Kana Rain) takes the new rows with no special cases
+- Notes: ぢ and づ are rare; their tips say so, and which sound they share.
+
+### J2. Showing them
+**As a** learner, **I want** to see that the new rows are dakuten, **so
+that** I know what the marks mean.
+
+- [ ] The Learn wall's unit boards say "dakuten" or "handakuten"
+- [ ] The Kana tab's grid has a heading before the first dakuten row and
+      before the handakuten row
+- [ ] "Kana learned" on Profile counts out of every kana (142), not 92
+- [ ] The guide explains dakuten and handakuten, and its counts are right
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

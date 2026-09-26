@@ -2,7 +2,7 @@ import { KANA } from './kana';
 import { kanaTip } from './tips';
 
 describe('kanaTip', () => {
-  it('has a memory tip for every one of the 92 kana', () => {
+  it('has a memory tip for every kana', () => {
     const missing = KANA.filter((k) => !kanaTip(k.char)).map((k) => k.char);
     expect(missing).toEqual([]);
   });

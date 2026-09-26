@@ -238,7 +238,7 @@ export const GUIDE: GuideSection[] = [
             bullets: [
               `A round is ${FORGE_ROUND} words, from the script the Learn screen is on.`,
               "Tap the word's romaji from four options, or type it. Each wrong option is the word with one kana misread, often as a lookalike.",
-              'After each word you hear it and see what it means.',
+              'Each word comes with a picture and its meaning, and after you answer you hear it spoken.',
               "It counts as practice for every kana in the word: a word read right moves them all up (typed counts double, like lessons), and a misread kana is logged as a mix-up.",
             ],
           },
@@ -328,6 +328,22 @@ export const GUIDE: GuideSection[] = [
         answer: [
           'On your phone, after every answer. You never need an account.',
           'If you want it on more than one device, sign in from the Profile tab with a code sent to your email. Your progress is then saved to your account too, and each device combines its progress with the account instead of replacing it.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Credits',
+    topics: [
+      {
+        id: 'credits',
+        question: 'Where do the Word Forge pictures come from?',
+        answer: [
+          "They're Fluent Emoji, by Microsoft (github.com/microsoft/fluentui-emoji), shared under the MIT licence:",
+          'Copyright (c) Microsoft Corporation.',
+          "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:",
+          "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.",
+          "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE",
         ],
       },
     ],

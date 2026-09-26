@@ -36,9 +36,10 @@ describe('the word list', () => {
     expect(ambiguous.map((w) => w.text)).toEqual([]);
   });
 
-  it('lists each word once, with a meaning', () => {
+  it('lists each word once, with a meaning and a picture', () => {
     expect(new Set(WORDS.map((w) => w.text)).size).toBe(WORDS.length);
     expect(WORDS.every((w) => w.meaning.length > 0)).toBe(true);
+    expect(WORDS.every((w) => w.picture.length > 0)).toBe(true);
   });
 
   it('has words in both scripts', () => {

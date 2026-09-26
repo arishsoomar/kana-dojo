@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { BackHandler, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { speakWord } from '@/audio/pronounce';
@@ -15,7 +15,8 @@ import { SpeakerIcon } from '@/components/speaker-icon';
 import { TypeAnswer } from '@/components/type-answer';
 import { WordFrame } from '@/components/word-frame';
 import { colors, fonts } from '@/constants/theme';
-import { FORGE_MIN_WORDS, readyWords, type ForgeOption } from '@/core/forge';
+import { WORD_PICTURES } from '@/constants/word-pictures';
+import { FORGE_MIN_WORDS, readyWords, wordRomaji, type ForgeOption } from '@/core/forge';
 import { missDetails, useForge, type ForgeMiss } from '@/hooks/use-forge';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
@@ -98,8 +99,8 @@ function Forge() {
       <View style={styles.body}>
         <View style={styles.coach}>
           <AliveKarasu mood={miss ? 'stern' : heard ? 'proud' : 'focus'} rank={rank} move={forge.reaction} />
-          {/* Before the first answer, what to do. After it, the word just read, its meaning,
-              and a button to hear it again. */}
+          {/* Before the first answer, what to do. After it, the word just read, its romaji and
+              meaning, and a button to hear it again. */}
           {heard ? (
             <Pressable
               role="button"
@@ -107,7 +108,7 @@ function Forge() {
               onPress={() => speakWord(heard.word.text)}
               style={[styles.bubble, styles.heard]}>
               <Text style={styles.bubbleText} numberOfLines={2}>
-                <Text style={styles.kana}>{heard.word.text}</Text> · {heard.word.meaning}
+                <Text style={styles.kana}>{heard.word.text}</Text> · {wordRomaji(heard.units)} · {heard.word.meaning}
               </Text>
               <SpeakerIcon color={colors.ink2} size={20} />
             </Pressable>
@@ -120,9 +121,17 @@ function Forge() {
 
         <View style={styles.frame}>
           {forge.typing && miss ? (
-            <FeedbackCard correction={correctionFor(miss)} picture={<Text style={styles.cardWord}>{miss.word.word.text}</Text>} />
+            <FeedbackCard
+              correction={correctionFor(miss)}
+              picture={
+                <View style={styles.cardPicture}>
+                  <Image source={WORD_PICTURES[miss.word.word.picture]} style={styles.cardImage} />
+                  <Text style={styles.cardWord}>{miss.word.word.text}</Text>
+                </View>
+              }
+            />
           ) : (
-            <WordFrame text={word.word.text} />
+            <WordFrame text={word.word.text} picture={WORD_PICTURES[word.word.picture]} meaning={word.word.meaning} />
           )}
         </View>
 
@@ -226,6 +235,13 @@ const styles = StyleSheet.create({
   },
   frame: {
     flex: 1,
+  },
+  cardPicture: {
+    alignItems: 'center',
+  },
+  cardImage: {
+    width: 56,
+    height: 56,
   },
   cardWord: {
     fontFamily: fonts.jp,

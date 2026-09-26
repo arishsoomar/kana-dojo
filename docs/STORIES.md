@@ -573,6 +573,12 @@ that** I can read words whenever I like.
 - [ ] A wrong answer shows which kana was misread, with its tip
 - [ ] The end shows the usual summary, and the round counts toward the
       streak and daily goal
+- Each word's card shows a picture and its English meaning. The pictures are
+  Microsoft's Fluent Emoji in 3D (MIT licence), downloaded by
+  `scripts/fetch-word-pictures.mjs` into `assets/images/words/` (256 px,
+  about 4 MB in all), which also writes `src/constants/word-pictures.ts`.
+  The set has no flags, so countries use a stand-in (🗽 for America). The
+  licence notice is in the guide, under Credits.
 
 ---
 

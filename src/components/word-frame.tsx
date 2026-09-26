@@ -1,14 +1,21 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import { Image, StyleSheet, Text, View, type ImageSourcePropType, type LayoutChangeEvent } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 
-// A word in the same mounted frame as a kana (corner brackets and all), sized to fit: as big as
-// the frame allows, but small enough that the whole word fits on one line.
-export function WordFrame({ text }: { text: string }) {
+type Props = {
+  text: string; // the word, in kana
+  picture?: ImageSourcePropType; // a picture of it, above the word
+  meaning?: string; // in English, under the word
+};
+
+// A word in the same mounted frame as a kana (corner brackets and all): a picture of it on top,
+// the word in the middle, sized to fit on one line, and what it means underneath.
+export function WordFrame({ text, picture, meaning }: Props) {
   const [box, setBox] = useState({ width: 0, height: 0 });
-  // Each kana is about one font size wide.
-  const fontSize = Math.min(box.height * 0.4, (box.width - 2 * SIDE) / Math.max(text.length, 1), MAX_SIZE);
+  // The picture takes about a third of the height. Each kana is about one font size wide.
+  const pictureSize = Math.min(box.height * 0.34, MAX_PICTURE);
+  const fontSize = Math.min(box.height * (picture ? 0.2 : 0.4), (box.width - 2 * SIDE) / Math.max(text.length, 1), MAX_SIZE);
 
   function onLayout(event: LayoutChangeEvent) {
     const { width, height } = event.nativeEvent.layout;
@@ -21,17 +28,22 @@ export function WordFrame({ text }: { text: string }) {
       <View style={[styles.corner, styles.topRight]} />
       <View style={[styles.corner, styles.bottomLeft]} />
       <View style={[styles.corner, styles.bottomRight]} />
+      {picture && pictureSize > 0 && (
+        <Image source={picture} style={{ width: pictureSize, height: pictureSize }} accessibilityIgnoresInvertColors />
+      )}
       {fontSize > 0 && (
         <Text style={[styles.word, { fontSize, lineHeight: fontSize * 1.25 }]} numberOfLines={1}>
           {text}
         </Text>
       )}
+      {meaning && <Text style={styles.meaning}>{meaning}</Text>}
     </View>
   );
 }
 
 const SIDE = 24; // room left at each side of the word
 const MAX_SIZE = 120;
+const MAX_PICTURE = 150;
 const CORNER = 15;
 const CORNER_INSET = 7;
 const CORNER_WIDTH = 3;
@@ -50,6 +62,11 @@ const styles = StyleSheet.create({
   word: {
     fontFamily: fonts.jp,
     color: colors.sumi,
+  },
+  meaning: {
+    fontFamily: fonts.uiBold,
+    fontSize: 17,
+    color: colors.ink2,
   },
   corner: {
     position: 'absolute',

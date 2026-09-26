@@ -1879,9 +1879,9 @@ Any other key is added to what's typed. If no falling kana's spelling starts wit
 
 ## words.ts: the word list for Word Forge
 
-**Lines 5–8**: `Word`, one word: its `text` as written (in hiragana or katakana) and its `meaning` in English.
+**Lines 5–10**: `Word`, one word: its `text` as written (in hiragana or katakana), its `meaning` in English, and its `picture`, named by an emoji. The emoji is just a name here: the app shows a 3D drawing for it, looked up in `src/constants/word-pictures.ts`.
 
-**Lines 10–136**: `WORDS`, the list: common words like `{ text: 'ねこ', meaning: 'cat' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera).
+**Lines 12–138**: `WORDS`, the list: common words like `{ text: 'ねこ', meaning: 'cat', picture: '🐱' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera).
 
 Two rules for the list, both checked by `words.test.ts`:
 - Every word is written only with kana the app teaches. So no small っ (きって, stamp) or long mark ー (コーヒー, coffee) yet.
@@ -2005,7 +2005,7 @@ What each file checks:
 - **sayings.test.ts**: a new learner gets sensei lines; the most mixed-up pair with its tip; the trickiest kana (answered at least 3 times) with its tip; input never changed; never the same line twice in a row.
 - **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound, haptics and typing; a version 3 save's 8 boxes become 10 at the same belts, with due times turned into last-answered times.
 - **merge.test.ts**: the copy answered later wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
-- **words.test.ts**: every word splits into kana the app teaches, all in one script; its romaji reads back as the same kana; no word twice; words in both scripts.
+- **words.test.ts**: every word splits into kana the app teaches, all in one script; its romaji reads back as the same kana; no word twice, each with a meaning and a picture; words in both scripts. (`src/constants/word-pictures.test.ts` checks every picture has an image.)
 - **forge.test.ts**: `splitWord` (yōon kept together, っ and ー refused), `wordRomaji`, `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged), and rounds with no word twice in a row.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.

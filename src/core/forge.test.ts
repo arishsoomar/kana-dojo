@@ -23,7 +23,7 @@ function kana(char: string): Kana {
 function word(text: string, meaning = ''): ForgeWord {
   const units = splitWord(text);
   if (!units) throw new Error(`Can't split ${text}`);
-  return { word: { text, meaning }, units, script: units[0]!.script };
+  return { word: { text, meaning, picture: '' }, units, script: units[0]!.script };
 }
 
 // Progress where these kana have been met (answered once), at white belt.

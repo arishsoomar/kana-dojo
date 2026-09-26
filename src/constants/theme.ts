@@ -45,8 +45,9 @@ export const karasuColors = {
   shadow: 'rgba(0, 0, 0, 0.14)',
 } as const;
 
-// The dojo wall on the Learn path: the rail plaques hang from, and their cords and pegs;
-// and the wooden floor Karasu stands on, with its edge and the lines between planks.
+// The dojo wall on the Learn path: the rail plaques hang from, and their cords and pegs; the
+// wooden floor Karasu stands on, with its edge and the lines between planks; and the wall's
+// shoji paper and grid.
 export const wallColors = {
   rail: '#6B4E35',
   cord: '#6B5236',
@@ -54,6 +55,11 @@ export const wallColors = {
   floor: '#CFC79A',
   floorEdge: '#8A6A43',
   plank: 'rgba(0, 0, 0, 0.07)',
+  paper: '#F4EFE5', // the wall itself: warm shoji paper
+  shoji: 'rgba(107, 78, 53, 0.09)', // the thin wooden grid on the paper
+  faded: '#E8E0D0', // locked plaques and boards: pale, unfinished wood
+  fadedEdge: '#D6CAB4',
+  fadedInk: '#A89B84',
 } as const;
 
 // Kana Rain: the sky, clouds, the paper tags the kana fall on, and the ground.

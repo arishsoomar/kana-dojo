@@ -1,6 +1,6 @@
 import { Redirect, router } from 'expo-router';
 import { useRef, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
@@ -25,8 +25,18 @@ import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
 
-// Plaques hang three to a rail, like the mock.
-const PER_RAIL = 3;
+// Plaques hang four to a rail when the screen is wide enough (most rows have exactly four
+// plaques, so a row fits on one rail), and three on narrow screens, like the mock.
+const SLOT_WIDTH = 60;
+const WALL_PADDING = 24;
+const MIN_GAP = 18;
+function perRailFor(width: number): number {
+  return Math.min(Math.max(Math.floor((width - 2 * WALL_PADDING + MIN_GAP) / (SLOT_WIDTH + MIN_GAP)), 3), 4);
+}
+
+// The shoji grid on the wall: how far apart its lines are, and how many rows of it to draw.
+const SHOJI_ROW = 96;
+const SHOJI_ROWS = 14;
 
 export default function LearnScreen() {
   const insets = useSafeAreaInsets();
@@ -34,6 +44,7 @@ export default function LearnScreen() {
   const streak = useStreak();
   const daily = useDailyGoal();
   const rank = useRank();
+  const { width } = useWindowDimensions();
   // The script shown here is remembered, and chosen during onboarding.
   const script = progress.settings.script;
   const chooseScript = (next: Script) => updateProgress(setScript(progress, next));
@@ -138,9 +149,11 @@ export default function LearnScreen() {
       </View>
 
       <View style={styles.wallArea}>
+        <Shoji width={width} />
         {/* A new script is a new wall, which scrolls to its own current unit. */}
         <Wall
           key={script}
+          perRail={perRailFor(width)}
           currentRow={unit.row}
           units={path.units.map((u) => ({
             unit: u,
@@ -159,9 +172,24 @@ export default function LearnScreen() {
 
 type WallUnit = { unit: PathUnit; items: ReactNode[]; note: string | null };
 
-// The dojo wall: every unit's plaques on rails, three to a rail. It scrolls, and opens at the
-// current unit, so its rails are the ones in view.
-function Wall({ units, currentRow }: { units: WallUnit[]; currentRow: RowId }) {
+// The paper screen behind the wall: faint wooden lines, three upright and the rest across.
+// It stays still while the plaques scroll over it.
+function Shoji({ width }: { width: number }) {
+  return (
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {[1, 2, 3].map((i) => (
+        <View key={`v${i}`} style={[styles.shojiUpright, { left: (width * i) / 4 }]} />
+      ))}
+      {Array.from({ length: SHOJI_ROWS }, (_, i) => (
+        <View key={`h${i}`} style={[styles.shojiAcross, { top: (i + 1) * SHOJI_ROW }]} />
+      ))}
+    </View>
+  );
+}
+
+// The dojo wall: every unit's plaques on rails. It scrolls, and opens at the current unit,
+// so its rails are the ones in view.
+function Wall({ units, currentRow, perRail }: { units: WallUnit[]; currentRow: RowId; perRail: number }) {
   const scroller = useRef<ScrollView>(null);
   const scrolled = useRef(false);
 
@@ -176,20 +204,25 @@ function Wall({ units, currentRow }: { units: WallUnit[]; currentRow: RowId }) {
       {units.map(({ unit, items, note }) => (
         <View key={unit.row} style={styles.unit} onLayout={(e) => onUnitLayout(unit.row, e)}>
           <View style={styles.unitLabel}>
-            <Text style={[styles.unitLabelText, !unit.open && styles.unitLabelLocked]}>
-              Unit {unit.number} · <Text style={styles.kana}>{rowKana(unit)}</Text> row
-            </Text>
+            {/* The unit's name on a small wooden board. */}
+            <View style={[styles.board, !unit.open && styles.boardLocked]}>
+              <Text style={[styles.boardText, !unit.open && styles.boardTextLocked]}>
+                Unit {unit.number} · <Text style={styles.kana}>{rowKana(unit)}</Text> row
+              </Text>
+            </View>
             {unit.open && <BeltIcon belt={unit.belt} width={30} />}
           </View>
           {note && <Text style={styles.note}>{note}</Text>}
-          {rails(items).map((rail, i) => (
+          {rails(items, perRail).map((rail, i) => (
             <View key={i} style={styles.railBlock}>
               <View style={styles.rail} />
               <View style={styles.hangers}>
                 {rail}
-                {/* Empty slots keep a short rail's plaques on the left. */}
-                {Array.from({ length: PER_RAIL - rail.length }, (_, j) => (
-                  <View key={`gap${j}`} style={styles.slot} />
+                {/* A short rail's empty spots show bare pegs, waiting for plaques. */}
+                {Array.from({ length: perRail - rail.length }, (_, j) => (
+                  <View key={`gap${j}`} style={styles.slot}>
+                    <View style={styles.peg} />
+                  </View>
                 ))}
               </View>
             </View>
@@ -200,10 +233,10 @@ function Wall({ units, currentRow }: { units: WallUnit[]; currentRow: RowId }) {
   );
 }
 
-// Items split into rails of PER_RAIL.
-function rails(items: ReactNode[]): ReactNode[][] {
+// Items split into rails of `perRail`.
+function rails(items: ReactNode[], perRail: number): ReactNode[][] {
   const out: ReactNode[][] = [];
-  for (let i = 0; i < items.length; i += PER_RAIL) out.push(items.slice(i, i + PER_RAIL));
+  for (let i = 0; i < items.length; i += perRail) out.push(items.slice(i, i + perRail));
   return out;
 }
 
@@ -306,9 +339,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.muted,
   },
+  // The wall: shoji paper under a wooden beam.
   wallArea: {
     flex: 1,
     overflow: 'hidden',
+    borderTopWidth: 6,
+    borderTopColor: wallColors.rail,
+    backgroundColor: wallColors.paper,
+  },
+  shojiUpright: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 2,
+    backgroundColor: wallColors.shoji,
+  },
+  shojiAcross: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: wallColors.shoji,
   },
   unit: {
     paddingTop: 12,
@@ -320,13 +371,25 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     paddingHorizontal: 18,
   },
-  unitLabelText: {
+  board: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: colors.woodDark,
+    backgroundColor: colors.wood,
+  },
+  boardLocked: {
+    borderColor: wallColors.fadedEdge,
+    backgroundColor: wallColors.faded,
+  },
+  boardText: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 13,
     color: colors.sumi,
   },
-  unitLabelLocked: {
-    color: colors.muted,
+  boardTextLocked: {
+    color: wallColors.fadedInk,
   },
   note: {
     marginBottom: 8,
@@ -348,9 +411,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     marginTop: -4,
-    paddingHorizontal: 32,
+    paddingHorizontal: WALL_PADDING,
   },
   slot: {
-    width: 60,
+    alignItems: 'center',
+    width: SLOT_WIDTH,
+  },
+  peg: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: wallColors.peg,
   },
 });

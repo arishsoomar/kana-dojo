@@ -483,8 +483,11 @@ Done when:
 - Ranks tab: your division (named after your rank) and lessons this week.
   The weekly league itself needs accounts (Epic G).
 - Learn screen laid out like the mock: a script picker chip (ひらがな ▾),
-  streak and daily ring on top; the unit card; a scrolling wall with three
-  plaques to a rail, opening at the current unit; and a floor at the bottom
+  streak and daily ring on top; the unit card; a scrolling wall of shoji
+  paper under a wooden beam, four plaques to a rail (three on narrow
+  phones, so most rows fit on one rail), bare pegs in a rail's empty spots,
+  unit names on small wooden boards (locked ones in pale wood), opening at
+  the current unit; and a floor at the bottom
   where Karasu stands and talks. Tapping his bubble does what he suggests
   (Begin, Take exam, Practice). Exams hang as gold plaques and ready duels
   as red ones. The mock's coins and chest wait for the Mon currency.

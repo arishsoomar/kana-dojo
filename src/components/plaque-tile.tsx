@@ -30,7 +30,7 @@ export function PlaqueTile({ plaque, state, onPress }: Props) {
         onPress={onPress}
         style={[styles.plaque, current && styles.current, locked && styles.locked]}>
         {locked ? (
-          <LockIcon color={colors.muted} />
+          <LockIcon color={wallColors.fadedInk} />
         ) : plaque.kind === 'mixed' ? (
           <Text style={[styles.mixed, current && styles.onCurrent]}>Mixed</Text>
         ) : (
@@ -89,8 +89,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sumi,
   },
   locked: {
-    borderColor: colors.edge,
-    backgroundColor: colors.line,
+    borderColor: wallColors.fadedEdge,
+    backgroundColor: wallColors.faded,
   },
   kana: {
     fontFamily: fonts.jp,

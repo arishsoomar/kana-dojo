@@ -1,20 +1,22 @@
 import { Redirect, router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRef, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
 import { BeltPlaque } from '@/components/belt-plaque';
+import { CoachFloor, FLOOR_SPACE } from '@/components/coach-floor';
+import { DuelPlaque } from '@/components/duel-plaque';
+import { ExamPlaque } from '@/components/exam-plaque';
 import { FlameIcon } from '@/components/flame-icon';
-import { Karasu } from '@/components/karasu';
+import { PlaqueIcon } from '@/components/plaque-icon';
 import { PlaqueTile } from '@/components/plaque-tile';
-import { PrimaryButton } from '@/components/primary-button';
 import { ProgressRing } from '@/components/progress-ring';
-import { SegmentedControl } from '@/components/segmented-control';
-import { Yokai } from '@/components/yokai';
-import { colors, duelColors, fonts, wallColors } from '@/constants/theme';
+import { ScriptPicker } from '@/components/script-picker';
+import { colors, fonts, wallColors } from '@/constants/theme';
 import { setScript } from '@/core/answers';
-import { scrolls } from '@/core/duel';
-import type { Script } from '@/core/kana';
+import { duelRow, scrolls } from '@/core/duel';
+import type { RowId, Script } from '@/core/kana';
 import { pairId } from '@/core/pairs';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { greenNeeded } from '@/core/unlock';
@@ -23,10 +25,8 @@ import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
 
-const SCRIPTS = [
-  { value: 'hiragana', label: 'Hiragana' },
-  { value: 'katakana', label: 'Katakana' },
-] as const;
+// Plaques hang three to a rail, like the mock.
+const PER_RAIL = 3;
 
 export default function LearnScreen() {
   const insets = useSafeAreaInsets();
@@ -42,8 +42,11 @@ export default function LearnScreen() {
   const needed = greenNeeded(progress, script, unit.row);
   // A belt exam that's ready takes priority in Karasu's suggestion.
   const examReady = path.units.find((u) => u.exam) ?? null;
-  // The most mixed-up pair whose duel is ready, if any.
-  const duelReady = scrolls(progress).find((s) => s.state === 'ready')?.pair ?? null;
+  // Duels that are ready, each hung in the unit of the row that opened it.
+  const readyDuels = scrolls(progress)
+    .filter((s) => s.state === 'ready')
+    .map((s) => s.pair)
+    .filter((pair) => duelRow(pair).script === script);
   // The next row to open, which gets a note saying what opens it.
   const firstLocked = path.units.find((u) => !u.open) ?? null;
 
@@ -62,114 +65,146 @@ export default function LearnScreen() {
     router.push({ pathname: '/exam', params: { script, row: u.row } });
   }
 
+  // What tapping Karasu's bubble does: the same thing his line suggests.
+  const { current } = path;
+  const action = examReady
+    ? { label: 'Take exam', onPress: () => takeExam(examReady) }
+    : current
+      ? { label: 'Begin', onPress: () => openPlaque(current) }
+      : { label: 'Practice', onPress: practice };
+
+  // Everything hung in a unit: its lesson plaques, then its belt, a ready exam, and ready duels.
+  function itemsFor(u: PathUnit): ReactNode[] {
+    return [
+      ...u.plaques.map(({ plaque, state }) => (
+        <PlaqueTile key={plaque.id} plaque={plaque} state={state} onPress={() => openPlaque(plaque)} />
+      )),
+      u.belt !== 'white' && <BeltPlaque key="belt" belt={u.belt} />,
+      u.exam && <ExamPlaque key="exam" belt={u.exam} onPress={() => takeExam(u)} />,
+      ...readyDuels
+        .filter((pair) => duelRow(pair).row === u.row)
+        .map((pair) => (
+          <DuelPlaque
+            key={pairId(pair)}
+            pair={pair}
+            onPress={() => router.push({ pathname: '/duel', params: { pair: pairId(pair) } })}
+          />
+        )),
+    ].filter(Boolean);
+  }
+
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
-      <View style={styles.topRow}>
-        <View style={styles.toggle}>
-          <SegmentedControl options={SCRIPTS} value={script} onChange={chooseScript} />
-        </View>
-        <Pressable
-          role="button"
-          aria-label={`Streak: ${streak.current} ${streak.current === 1 ? 'day' : 'days'}`}
-          onPress={() => router.push('/streak')}
-          style={styles.streak}>
-          <FlameIcon />
-          <Text style={[styles.streakCount, streak.current === 0 && styles.streakCountZero]}>{streak.current}</Text>
-        </Pressable>
-        <View style={styles.daily} aria-label={`Daily goal: ${daily.done} of ${daily.goal} ${daily.goal === 1 ? 'lesson' : 'lessons'} today`}>
-          <ProgressRing fraction={Math.min(daily.done / daily.goal, 1)} label="" size={22} stroke={4} />
-          <Text style={styles.dailyText}>
-            {daily.done}/{daily.goal}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.unitCard}>
-        <Text style={styles.unitNumber}>Unit {unit.number}</Text>
-        <Text style={styles.unitTitle}>
-          The <Text style={styles.kana}>{rowKana(unit)}</Text> row
-        </Text>
-        <View style={styles.unitBelt}>
-          <BeltIcon belt={unit.belt} width={40} />
-          <Text style={styles.unitBeltText}>
-            {capitalize(unit.belt)} belt, {unit.done} of {unit.plaques.length} done
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.coach}>
-        <Karasu mood="focus" size={64} rank={rank} />
-        <View style={styles.coachBody}>
-          <View style={styles.bubble}>
-            <Text style={styles.bubbleText}>{coachLine(path, needed)}</Text>
-          </View>
-          {examReady ? (
-            <PrimaryButton label="Take exam" tone="vermilion" onPress={() => takeExam(examReady)} />
-          ) : path.current ? (
-            <PrimaryButton label="Begin" onPress={() => path.current && openPlaque(path.current)} />
-          ) : (
-            <PrimaryButton label="Practice" onPress={practice} />
-          )}
-        </View>
-      </View>
-
-      {duelReady && (
-        <Pressable
-          role="button"
-          aria-label={`Duel ready: ${duelReady.kana.join(' ')}`}
-          onPress={() => router.push({ pathname: '/duel', params: { pair: pairId(duelReady) } })}
-          style={styles.duelCard}>
-          <View style={styles.duelYokai} aria-hidden>
-            <Yokai char={duelReady.kana[0]} size={40} hue="red" />
-            <Yokai char={duelReady.kana[1]} size={40} hue="red" />
-          </View>
-          <View style={styles.duelText}>
-            <Text style={styles.duelTitle}>Duel ready</Text>
-            <Text style={styles.duelSub}>{duelReady.name}: you keep mixing these up.</Text>
-          </View>
-          <View style={styles.duelButton}>
-            <Text style={styles.duelButtonText}>Duel</Text>
-          </View>
-        </Pressable>
-      )}
-
-      {path.units.map((u) => (
-        <View key={u.row} style={styles.shelf}>
-          <View style={styles.shelfLabel}>
-            <Text style={[styles.shelfTitle, !u.open && styles.shelfTitleLocked]}>
-              Unit {u.number} · <Text style={styles.kana}>{rowKana(u)}</Text> row
-            </Text>
-            {u.open && <BeltIcon belt={u.belt} width={30} />}
-          </View>
-          {u === firstLocked && needed > 0 && (
-            <Text style={styles.lockedNote}>
-              Opens when {needed} more <Text style={styles.kana}>{rowKana(unit)}</Text> row{' '}
-              {needed === 1 ? 'kana reaches' : 'kana reach'} green belt.
-            </Text>
-          )}
-          <View style={styles.rail} />
-          <View style={styles.plaques}>
-            {u.plaques.map(({ plaque, state }) => (
-              <PlaqueTile key={plaque.id} plaque={plaque} state={state} onPress={() => openPlaque(plaque)} />
-            ))}
-            {u.belt !== 'white' && <BeltPlaque belt={u.belt} />}
-          </View>
-          {u.exam && (
-            <View style={styles.examCard}>
-              <BeltIcon belt={u.exam} width={44} />
-              <View style={styles.examText}>
-                <Text style={styles.examTitle}>{capitalize(u.exam)} belt exam ready</Text>
-                <Text style={styles.examSub}>20 questions, 60 seconds, 18 to pass</Text>
-              </View>
-              <Pressable role="button" onPress={() => takeExam(u)} style={styles.examButton}>
-                <Text style={styles.examButtonText}>Take exam</Text>
-              </Pressable>
+    <View style={[styles.screen, { paddingTop: insets.top + 8 }]}>
+      <View style={styles.top}>
+        <View style={styles.statsRow}>
+          <ScriptPicker value={script} onChange={chooseScript} />
+          <View style={styles.stats}>
+            <Pressable
+              role="button"
+              aria-label={`Streak: ${streak.current} ${streak.current === 1 ? 'day' : 'days'}`}
+              onPress={() => router.push('/streak')}
+              style={styles.stat}>
+              <FlameIcon />
+              <Text style={[styles.statText, styles.streakCount, streak.current === 0 && styles.streakCountZero]}>
+                {streak.current}
+              </Text>
+            </Pressable>
+            <View
+              style={styles.stat}
+              aria-label={`Daily goal: ${daily.done} of ${daily.goal} ${daily.goal === 1 ? 'lesson' : 'lessons'} today`}>
+              <ProgressRing fraction={Math.min(daily.done / daily.goal, 1)} label="" size={22} stroke={4} />
+              <Text style={styles.statText}>
+                {daily.done}/{daily.goal}
+              </Text>
             </View>
-          )}
+          </View>
+        </View>
+
+        <View style={styles.unitCard}>
+          <View style={styles.unitText}>
+            <Text style={styles.unitNumber}>Unit {unit.number}</Text>
+            <Text style={styles.unitTitle}>
+              The <Text style={styles.kana}>{rowKana(unit)}</Text> row
+            </Text>
+            <View style={styles.unitBelt}>
+              <BeltIcon belt={unit.belt} width={40} />
+              <Text style={styles.unitBeltText}>
+                {capitalize(unit.belt)} belt, {unit.done} of {unit.plaques.length} done
+              </Text>
+            </View>
+          </View>
+          <PlaqueIcon color={colors.card} lines={colors.sumi} />
+        </View>
+      </View>
+
+      <View style={styles.wallArea}>
+        {/* A new script is a new wall, which scrolls to its own current unit. */}
+        <Wall
+          key={script}
+          currentRow={unit.row}
+          units={path.units.map((u) => ({
+            unit: u,
+            items: itemsFor(u),
+            note:
+              u === firstLocked && needed > 0
+                ? `Opens when ${needed} more ${rowKana(unit)} row ${needed === 1 ? 'kana reaches' : 'kana reach'} green belt.`
+                : null,
+          }))}
+        />
+        <CoachFloor rank={rank} line={coachLine(path, needed)} action={action} />
+      </View>
+    </View>
+  );
+}
+
+type WallUnit = { unit: PathUnit; items: ReactNode[]; note: string | null };
+
+// The dojo wall: every unit's plaques on rails, three to a rail. It scrolls, and opens at the
+// current unit, so its rails are the ones in view.
+function Wall({ units, currentRow }: { units: WallUnit[]; currentRow: RowId }) {
+  const scroller = useRef<ScrollView>(null);
+  const scrolled = useRef(false);
+
+  function onUnitLayout(row: RowId, event: LayoutChangeEvent) {
+    if (row !== currentRow || scrolled.current) return;
+    scrolled.current = true;
+    scroller.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: false });
+  }
+
+  return (
+    <ScrollView ref={scroller} contentContainerStyle={{ paddingBottom: FLOOR_SPACE }}>
+      {units.map(({ unit, items, note }) => (
+        <View key={unit.row} style={styles.unit} onLayout={(e) => onUnitLayout(unit.row, e)}>
+          <View style={styles.unitLabel}>
+            <Text style={[styles.unitLabelText, !unit.open && styles.unitLabelLocked]}>
+              Unit {unit.number} · <Text style={styles.kana}>{rowKana(unit)}</Text> row
+            </Text>
+            {unit.open && <BeltIcon belt={unit.belt} width={30} />}
+          </View>
+          {note && <Text style={styles.note}>{note}</Text>}
+          {rails(items).map((rail, i) => (
+            <View key={i} style={styles.railBlock}>
+              <View style={styles.rail} />
+              <View style={styles.hangers}>
+                {rail}
+                {/* Empty slots keep a short rail's plaques on the left. */}
+                {Array.from({ length: PER_RAIL - rail.length }, (_, j) => (
+                  <View key={`gap${j}`} style={styles.slot} />
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
       ))}
     </ScrollView>
   );
+}
+
+// Items split into rails of PER_RAIL.
+function rails(items: ReactNode[]): ReactNode[][] {
+  const out: ReactNode[][] = [];
+  for (let i = 0; i < items.length; i += PER_RAIL) out.push(items.slice(i, i + PER_RAIL));
+  return out;
 }
 
 // The first kana of a unit's row, e.g. "か" for the ka row.
@@ -181,7 +216,7 @@ function coachLine(path: LearnPath, needed: number): string {
   const { current } = path;
   const ready = path.units.find((u) => u.exam);
   if (ready?.exam) {
-    return `Your ${rowKana(ready)} row is ready for its ${ready.exam} belt exam. Take it when you're ready.`;
+    return `Your ${rowKana(ready)} row is ready for its ${ready.exam} belt exam.`;
   }
   if (current) {
     return current.kind === 'mixed'
@@ -190,7 +225,7 @@ function coachLine(path: LearnPath, needed: number): string {
   }
   if (needed > 0) {
     const goal = `${needed} more ${rowKana(path.currentUnit)} row ${needed === 1 ? 'kana needs' : 'kana need'} green belt to open the next row.`;
-    return `${goal} A kana turns green after 3 quick right answers; a miss sets it back 2.`;
+    return `${goal} 3 quick right answers make a kana green.`;
   }
   return 'Every plaque is done. Keep practicing to hold your belts.';
 }
@@ -204,50 +239,51 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.paper,
   },
-  content: {
-    gap: 12,
-    paddingHorizontal: 18,
-    paddingBottom: 28,
-  },
   kana: {
     fontFamily: fonts.jp,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  top: {
     gap: 12,
+    paddingHorizontal: 18,
+    paddingBottom: 6,
   },
-  toggle: {
-    flex: 1,
-  },
-  streak: {
+  statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'space-between',
+  },
+  stats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  stat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  statText: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 16,
+    color: colors.sumi,
   },
   streakCount: {
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 15,
     color: colors.vermilion,
   },
   streakCountZero: {
     color: colors.muted,
   },
-  daily: {
+  unitCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-  },
-  dailyText: {
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 15,
-    color: colors.sumi,
-  },
-  unitCard: {
+    gap: 12,
     paddingVertical: 11,
     paddingHorizontal: 14,
     borderRadius: 8,
     backgroundColor: colors.sumi,
+  },
+  unitText: {
+    flex: 1,
   },
   unitNumber: {
     fontFamily: fonts.uiSemiBold,
@@ -270,131 +306,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.muted,
   },
-  coach: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  coachBody: {
+  wallArea: {
     flex: 1,
-    gap: 8,
+    overflow: 'hidden',
   },
-  bubble: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: colors.edge,
-    backgroundColor: colors.card,
+  unit: {
+    paddingTop: 12,
   },
-  bubbleText: {
-    fontFamily: fonts.uiBold,
-    fontSize: 14,
-    color: colors.sumi,
-  },
-  shelf: {
-    marginTop: 8,
-  },
-  shelfLabel: {
+  unitLabel: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 6,
+    paddingHorizontal: 18,
   },
-  shelfTitle: {
+  unitLabelText: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 13,
     color: colors.sumi,
   },
-  shelfTitleLocked: {
+  unitLabelLocked: {
     color: colors.muted,
   },
-  lockedNote: {
+  note: {
     marginBottom: 8,
+    paddingHorizontal: 18,
     fontFamily: fonts.uiSemiBold,
     fontSize: 12,
     color: colors.ink2,
+  },
+  railBlock: {
+    marginBottom: 22,
   },
   rail: {
     height: 8,
-    marginHorizontal: -18,
     backgroundColor: wallColors.rail,
   },
-  duelCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: duelColors.background,
-  },
-  duelYokai: {
-    flexDirection: 'row',
-  },
-  duelText: {
-    flex: 1,
-  },
-  duelTitle: {
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 14,
-    color: colors.card,
-  },
-  duelSub: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 12,
-    color: duelColors.soft,
-  },
-  duelButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: colors.vermilion,
-  },
-  duelButtonText: {
-    fontFamily: fonts.uiBold,
-    fontSize: 13,
-    color: colors.card,
-  },
-  examCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.vermilion,
-    backgroundColor: colors.vermilionLight,
-  },
-  examText: {
-    flex: 1,
-  },
-  examTitle: {
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 14,
-    color: colors.vermilionDark,
-  },
-  examSub: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 12,
-    color: colors.ink2,
-  },
-  examButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: colors.vermilion,
-  },
-  examButtonText: {
-    fontFamily: fonts.uiBold,
-    fontSize: 13,
-    color: colors.card,
-  },
-  plaques: {
+  // Pulled up so each plaque's peg sits on the rail.
+  hangers: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
+    justifyContent: 'space-between',
     marginTop: -4,
-    paddingLeft: 6,
+    paddingHorizontal: 32,
+  },
+  slot: {
+    width: 60,
   },
 });

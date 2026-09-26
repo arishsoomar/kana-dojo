@@ -468,9 +468,8 @@ Done when:
 - The Duels card says how many duels are ready, or how many scrolls are
   won when none are. A won scroll has "Duel again" for a rematch (the
   first win stays on the scroll).
-- The Learn screen shows a "Duel ready" card under Karasu when a duel is
-  ready (the most mixed-up pair). Karasu's own line stays about plaques,
-  exams and unlocking.
+- A ready duel hangs on the Learn wall as a red "boss" plaque, in the unit
+  of the row that opened it (`duelRow`).
 - A locked slot says what it's waiting for: "Needs タ row" (a row must open
   first) or "1 of 3 mix-ups".
 
@@ -483,6 +482,12 @@ Done when:
   Graded: row belts earned 5/10/20). No name or XP total until accounts.
 - Ranks tab: your division (named after your rank) and lessons this week.
   The weekly league itself needs accounts (Epic G).
+- Learn screen laid out like the mock: a script picker chip (ひらがな ▾),
+  streak and daily ring on top; the unit card; a scrolling wall with three
+  plaques to a rail, opening at the current unit; and a floor at the bottom
+  where Karasu stands and talks. Tapping his bubble does what he suggests
+  (Begin, Take exam, Practice). Exams hang as gold plaques and ready duels
+  as red ones. The mock's coins and chest wait for the Mon currency.
 - Learn: Karasu says what opens the next row (how many kana still need
   green belt, and that 3 quick right answers make a kana green). The first
   locked row repeats the rule.

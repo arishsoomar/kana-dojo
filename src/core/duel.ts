@@ -1,5 +1,5 @@
 import { FAST_MS, type Completion, type Progress } from './answers';
-import { KANA, type Kana, type Script } from './kana';
+import { KANA, type Kana, type RowId, type Script } from './kana';
 import { NAMED_PAIRS, pairId, type NamedPair } from './pairs';
 import type { Question } from './question';
 import type { Rng } from './random';
@@ -119,4 +119,13 @@ function rowToOpen(pair: NamedPair, open: Set<string>): Kana | null {
   const last = locked[locked.length - 1];
   if (!last) return null;
   return KANA.find((k) => k.script === last.script && k.row === last.row) ?? null;
+}
+
+// Where a pair's duel plaque hangs on the Learn path: its script, and the later of its two
+// kana's rows (KANA lists rows in unlock order), since that's the row that opens the duel.
+export function duelRow(pair: NamedPair): { script: Script; row: RowId } {
+  const kana = KANA.filter((k) => pair.kana.includes(k.char));
+  // Safe: a named pair is two real kana (checked in pairs.test.ts).
+  const last = kana[kana.length - 1]!;
+  return { script: last.script, row: last.row };
 }

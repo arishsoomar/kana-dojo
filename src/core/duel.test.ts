@@ -6,6 +6,7 @@ import {
   DUEL_WIN,
   duelId,
   duelQuestion,
+  duelRow,
   duelStatus,
   scorePoint,
   scrolls,
@@ -183,5 +184,15 @@ describe('scrolls', () => {
 
   it("has nothing to open for a pair whose kana are unlocked", () => {
     expect(scrollFor(EMPTY_PROGRESS)?.opensWith).toBeNull();
+  });
+});
+
+describe('duelRow', () => {
+  const find = (a: string, b: string) => NAMED_PAIRS.find(({ kana }) => kana.includes(a) && kana.includes(b))!;
+
+  it("is the pair's script and the later of its two kana's rows", () => {
+    expect(duelRow(find('あ', 'お'))).toEqual({ script: 'hiragana', row: 'a' });
+    expect(duelRow(find('き', 'さ'))).toEqual({ script: 'hiragana', row: 'sa' });
+    expect(duelRow(find('シ', 'ツ'))).toEqual({ script: 'katakana', row: 'ta' });
   });
 });

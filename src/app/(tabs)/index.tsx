@@ -1,5 +1,5 @@
-import { Redirect, router } from 'expo-router';
-import { useRef, useState, type ReactNode } from 'react';
+import { Redirect, router, useIsFocused } from 'expo-router';
+import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,7 +10,7 @@ import { DuelPlaque } from '@/components/duel-plaque';
 import { ExamPlaque } from '@/components/exam-plaque';
 import { FlameIcon } from '@/components/flame-icon';
 import { PlaqueIcon } from '@/components/plaque-icon';
-import { PlaqueTile } from '@/components/plaque-tile';
+import { PlaqueTile, STAMP_LANDS_MS } from '@/components/plaque-tile';
 import { ProgressRing } from '@/components/progress-ring';
 import { ScriptPicker } from '@/components/script-picker';
 import { colors, fonts, wallColors } from '@/constants/theme';
@@ -26,6 +26,7 @@ import { useHaptics } from '@/hooks/use-haptics';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
+import { clearWallNews, NO_NEWS, useWallNews } from '@/hooks/wall-news';
 
 // Plaques hang four to a rail when the screen is wide enough (most rows have exactly four
 // plaques, so a row fits on one rail), and three on narrow screens, like the mock.
@@ -38,6 +39,8 @@ function perRailFor(width: number): number {
 
 // How long a line Karasu says when tapped stays in his bubble.
 const SAID_MS = 6000;
+// How long wall news is kept after the Learn screen shows it: long enough for it to play.
+const NEWS_MS = 2500;
 
 // The shoji grid on the wall: how far apart its lines are, and how many rows of it to draw.
 const SHOJI_ROW = 96;
@@ -55,6 +58,23 @@ export default function LearnScreen() {
   const [said, setSaid] = useState<string | null>(null);
   const [karasuMove, setKarasuMove] = useState<{ kind: 'hop'; id: number } | null>(null);
   const saidTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // What happened while a lesson was open: seals to stamp and rows to flip. It's only shown
+  // once the Learn tab is in view again, so it plays where it can be seen.
+  const focused = useIsFocused();
+  const waiting = useWallNews();
+  const news = focused ? waiting : NO_NEWS;
+
+  const feel = useEffectEvent((stamped: boolean, opened: boolean) => {
+    if (stamped) setTimeout(() => haptics.thunk(), STAMP_LANDS_MS);
+    if (opened) haptics.success();
+  });
+  useEffect(() => {
+    if (news === NO_NEWS) return;
+    feel(news.stamped.length > 0, news.opened.length > 0);
+    // Once it has played, clear it, so it doesn't play again.
+    const timer = setTimeout(clearWallNews, NEWS_MS);
+    return () => clearTimeout(timer);
+  }, [news]);
   // The script shown here is remembered, and chosen during onboarding.
   const script = progress.settings.script;
   const chooseScript = (next: Script) => updateProgress(setScript(progress, next));
@@ -105,8 +125,15 @@ export default function LearnScreen() {
   // Everything hung in a unit: its lesson plaques, then its belt, a ready exam, and ready duels.
   function itemsFor(u: PathUnit): ReactNode[] {
     return [
-      ...u.plaques.map(({ plaque, state }) => (
-        <PlaqueTile key={plaque.id} plaque={plaque} state={state} onPress={() => openPlaque(plaque)} />
+      ...u.plaques.map(({ plaque, state }, i) => (
+        <PlaqueTile
+          key={plaque.id}
+          plaque={plaque}
+          state={state}
+          onPress={() => openPlaque(plaque)}
+          stamp={news.stamped.includes(plaque.id)}
+          reveal={news.opened.some((o) => o.script === script && o.row === u.row) ? i : null}
+        />
       )),
       u.belt !== 'white' && <BeltPlaque key="belt" belt={u.belt} />,
       u.exam && <ExamPlaque key="exam" belt={u.exam} onPress={() => takeExam(u)} />,
@@ -168,9 +195,9 @@ export default function LearnScreen() {
 
       <View style={styles.wallArea}>
         <Shoji width={width} />
-        {/* A new script is a new wall, which scrolls to its own current unit. */}
+        {/* A new script or a new current unit is a new wall, which scrolls to that unit. */}
         <Wall
-          key={script}
+          key={`${script}:${unit.row}`}
           perRail={perRailFor(width)}
           currentRow={unit.row}
           units={path.units.map((u) => ({

@@ -11,6 +11,7 @@ import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question'
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
+import { postWallNews } from './wall-news';
 
 // What happened on the last answer, for the feedback sheet.
 export type Result = {
@@ -103,7 +104,11 @@ export function useLesson(mode: LessonMode) {
     if (answersSoFar.length >= LESSON_LENGTH) {
       updateProgress(completeLesson(latest, lessonId(mode), Date.now()));
       haptics.thunk();
-      setSummary(summarizeLesson(startProgress, latest, answersSoFar));
+      const done = summarizeLesson(startProgress, latest, answersSoFar);
+      // A plaque finished for the first time gets its seal stamped on the wall.
+      const firstTime = 'plaque' in mode && !startProgress.completed.some((c) => c.lesson === mode.plaque.id);
+      postWallNews({ stamped: firstTime ? [mode.plaque.id] : [], opened: done.rowsOpened });
+      setSummary(done);
       return;
     }
     setQuestion(newQuestion(latest, mode, justAsked));

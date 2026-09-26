@@ -16,6 +16,7 @@ import type { NamedPair } from '@/core/pairs';
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
+import { postWallNews } from './wall-news';
 
 // How long a wrong answer shows (red on the pick, green on the answer) before the next point.
 // A right answer moves on straight away.
@@ -69,7 +70,9 @@ export function useDuel(pair: NamedPair) {
       if (status === 'won') haptics.success();
       else haptics.thunk();
       changeProgress((current) => completeDuel(current, pair, nextScore, now));
-      setResult({ status, score: nextScore, summary: summarizeLesson(startProgress, currentProgress(), nextAnswers) });
+      const summary = summarizeLesson(startProgress, currentProgress(), nextAnswers);
+      postWallNews({ opened: summary.rowsOpened });
+      setResult({ status, score: nextScore, summary });
       return;
     }
     if (correct) {

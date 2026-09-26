@@ -10,6 +10,7 @@ import { unlockedKana } from '@/core/unlock';
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
+import { postWallNews } from './wall-news';
 
 // How long the picked answer shows right or wrong before the next question.
 const FLASH_MS = 450;
@@ -94,7 +95,9 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     if (status === 'passed') haptics.success();
     else haptics.thunk();
     changeProgress((current) => completeLesson(current, examId(script, row, belt), Date.now(), right));
-    setResult({ status, correct: right, summary: summarizeLesson(done.startProgress, currentProgress(), done.answers) });
+    const summary = summarizeLesson(done.startProgress, currentProgress(), done.answers);
+    postWallNews({ opened: summary.rowsOpened });
+    setResult({ status, correct: right, summary });
   }
 
   function answer(guess: Kana) {

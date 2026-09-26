@@ -8,6 +8,7 @@ import { pointsFor, startRain, stepRain, targetOf, typeKey, type Drop, type Rain
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
+import { postWallNews } from './wall-news';
 
 // If the app was in the background, don't try to catch up on minutes of rain at once.
 const MAX_STEP_MS = 100;
@@ -113,11 +114,9 @@ export function useRain(pool: readonly Kana[]) {
   function finish(score: number) {
     changeProgress((current) => completeLesson(current, RAIN_LESSON_ID, Date.now(), score));
     const before = startProgress.current ?? currentProgress();
-    setResult({
-      score,
-      best: bestBefore.current,
-      summary: summarizeLesson(before, currentProgress(), answers.current),
-    });
+    const summary = summarizeLesson(before, currentProgress(), answers.current);
+    postWallNews({ opened: summary.rowsOpened });
+    setResult({ score, best: bestBefore.current, summary });
   }
 
   // Stores a key's result, and pops up the points if it cleared a kana.

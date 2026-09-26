@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, wallColors } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 
-import { AliveKarasu } from './alive-karasu';
+import { AliveKarasu, type KarasuMove } from './alive-karasu';
 
 // How tall the strip of floor is, and how much room Karasu and the bubble take above the
 // bottom edge; the wall above leaves this much space so nothing hides behind them.
@@ -18,11 +18,13 @@ type Props = {
   rank: Belt; // Karasu's form
   line: string;
   action: { label: string; onPress: () => void } | null;
+  onKarasuPress: () => void; // tapping Karasu himself
+  move: { kind: KarasuMove; id: number } | null;
 };
 
 // The dojo floor at the bottom of the Learn screen: Karasu standing on it, saying what to do
 // next. When there's something to do, tapping the bubble does it.
-export function CoachFloor({ rank, line, action }: Props) {
+export function CoachFloor({ rank, line, action, onKarasuPress, move }: Props) {
   const bubble = (
     <>
       <View style={styles.tail} />
@@ -39,9 +41,9 @@ export function CoachFloor({ rank, line, action }: Props) {
           <View key={i} style={[styles.plank, { left: (i + 1) * PLANK_WIDTH }]} />
         ))}
       </View>
-      <View style={styles.karasu} pointerEvents="none">
-        <AliveKarasu mood="focus" size={96} rank={rank} />
-      </View>
+      <Pressable role="button" aria-label="Talk to Karasu" onPress={onKarasuPress} style={styles.karasu}>
+        <AliveKarasu mood="focus" size={96} rank={rank} move={move} />
+      </Pressable>
       {action ? (
         <Pressable role="button" aria-label={`${line} ${action.label}`} onPress={action.onPress} style={styles.bubble}>
           {bubble}

@@ -1,5 +1,5 @@
 import { Redirect, router } from 'expo-router';
-import { useRef, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -19,8 +19,10 @@ import { duelRow, scrolls } from '@/core/duel';
 import type { RowId, Script } from '@/core/kana';
 import { pairId } from '@/core/pairs';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
+import { karasuSays } from '@/core/sayings';
 import { greenNeeded } from '@/core/unlock';
 import { useDailyGoal } from '@/hooks/use-daily-goal';
+import { useHaptics } from '@/hooks/use-haptics';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
@@ -34,6 +36,9 @@ function perRailFor(width: number): number {
   return Math.min(Math.max(Math.floor((width - 2 * WALL_PADDING + MIN_GAP) / (SLOT_WIDTH + MIN_GAP)), 3), 4);
 }
 
+// How long a line Karasu says when tapped stays in his bubble.
+const SAID_MS = 6000;
+
 // The shoji grid on the wall: how far apart its lines are, and how many rows of it to draw.
 const SHOJI_ROW = 96;
 const SHOJI_ROWS = 14;
@@ -45,6 +50,11 @@ export default function LearnScreen() {
   const daily = useDailyGoal();
   const rank = useRank();
   const { width } = useWindowDimensions();
+  const haptics = useHaptics();
+  // What Karasu says when tapped, shown for a few seconds instead of his usual line.
+  const [said, setSaid] = useState<string | null>(null);
+  const [karasuMove, setKarasuMove] = useState<{ kind: 'hop'; id: number } | null>(null);
+  const saidTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The script shown here is remembered, and chosen during onboarding.
   const script = progress.settings.script;
   const chooseScript = (next: Script) => updateProgress(setScript(progress, next));
@@ -74,6 +84,14 @@ export default function LearnScreen() {
 
   function takeExam(u: PathUnit) {
     router.push({ pathname: '/exam', params: { script, row: u.row } });
+  }
+
+  function talk() {
+    setSaid(karasuSays(progress, Math.random, said ?? undefined));
+    setKarasuMove((m) => ({ kind: 'hop', id: (m?.id ?? 0) + 1 }));
+    haptics.right();
+    if (saidTimer.current) clearTimeout(saidTimer.current);
+    saidTimer.current = setTimeout(() => setSaid(null), SAID_MS);
   }
 
   // What tapping Karasu's bubble does: the same thing his line suggests.
@@ -164,7 +182,13 @@ export default function LearnScreen() {
                 : null,
           }))}
         />
-        <CoachFloor rank={rank} line={coachLine(path, needed)} action={action} />
+        <CoachFloor
+          rank={rank}
+          line={said ?? coachLine(path, needed)}
+          action={action}
+          onKarasuPress={talk}
+          move={karasuMove}
+        />
       </View>
     </View>
   );

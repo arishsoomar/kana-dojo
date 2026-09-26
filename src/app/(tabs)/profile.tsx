@@ -10,7 +10,7 @@ import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
-import { setSound } from '@/core/answers';
+import { setHaptics, setSound } from '@/core/answers';
 import { DAILY_GOALS } from '@/core/goal';
 import {
   badgeLevel,
@@ -95,6 +95,21 @@ export default function ProfileScreen() {
           aria-label="Sound"
           value={progress.settings.sound}
           onValueChange={(on) => updateProgress(setSound(progress, on))}
+          trackColor={{ false: colors.edge, true: colors.pine }}
+          thumbColor={colors.card}
+          {...webThumbColor}
+        />
+      </View>
+
+      <View style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>Haptics</Text>
+          <Text style={styles.goalSub}>A tap for right answers, a buzz for misses and big moments</Text>
+        </View>
+        <Switch
+          aria-label="Haptics"
+          value={progress.settings.haptics}
+          onValueChange={(on) => updateProgress(setHaptics(progress, on))}
           trackColor={{ false: colors.edge, true: colors.pine }}
           thumbColor={colors.card}
           {...webThumbColor}

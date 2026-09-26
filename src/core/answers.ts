@@ -29,6 +29,7 @@ export type Settings = {
   dailyGoal: number; // lessons per day
   script: Script; // the script the Learn screen shows
   sound: boolean; // kana are spoken aloud after each answer
+  haptics: boolean; // the phone taps and buzzes on answers and big moments
 };
 
 export type Progress = {
@@ -45,7 +46,7 @@ export const EMPTY_PROGRESS: Progress = {
   confusions: [],
   stats: {},
   completed: [],
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true },
 };
 
 export type Answer = {
@@ -153,6 +154,11 @@ export function setScript(progress: Progress, script: Script): Progress {
 // Turns speaking kana aloud on or off.
 export function setSound(progress: Progress, sound: boolean): Progress {
   return { ...progress, settings: { ...progress.settings, sound } };
+}
+
+// Turns the phone's taps and buzzes on or off.
+export function setHaptics(progress: Progress, haptics: boolean): Progress {
+  return { ...progress, settings: { ...progress.settings, haptics } };
 }
 
 // True when nothing has been trained yet (settings like the daily goal don't count).

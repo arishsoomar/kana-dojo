@@ -6,6 +6,7 @@ import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/l
 import { pickNext } from '@/core/pick';
 import { pointsFor, startRain, stepRain, targetOf, typeKey, type Drop, type RainState, type TypeResult } from '@/core/rain';
 
+import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 
 // If the app was in the background, don't try to catch up on minutes of rain at once.
@@ -39,6 +40,7 @@ export type Pop = {
 // landing before the player started on it just makes it due again (see `landed` below).
 export function useRain(pool: readonly Kana[]) {
   const { changeProgress, currentProgress } = useProgress();
+  const haptics = useHaptics();
   // Progress, best score and answers for the current game, to build the results at the end.
   const startProgress = useRef<Progress | null>(null);
   const bestBefore = useRef<number | null>(null);
@@ -94,6 +96,7 @@ export function useRain(pool: readonly Kana[]) {
   // it: a wrong answer. If they never started on it, it most likely landed because they were
   // busy with others, which says nothing about knowing it, so it's only made due again.
   function landed(drop: Drop, wasLockedOn: boolean) {
+    haptics.miss(); // a life is lost either way
     if (wasLockedOn) record(drop, false);
     else changeProgress((current) => markDue(current, drop.kana.char, Date.now()));
   }

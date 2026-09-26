@@ -1,4 +1,4 @@
-import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, isEmptyProgress, markDue, recordAnswer, setSound, type Progress } from './answers';
+import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, isEmptyProgress, markDue, recordAnswer, setHaptics, setSound, type Progress } from './answers';
 import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
@@ -223,5 +223,15 @@ describe('sound', () => {
     expect(muted.settings.sound).toBe(false);
     expect(setSound(muted, true).settings.sound).toBe(true);
     expect(EMPTY_PROGRESS.settings.sound).toBe(true);
+  });
+});
+
+describe('haptics', () => {
+  it('start on, and setHaptics turns them off and on without changing the input', () => {
+    expect(EMPTY_PROGRESS.settings.haptics).toBe(true);
+    const off = setHaptics(EMPTY_PROGRESS, false);
+    expect(off.settings.haptics).toBe(false);
+    expect(setHaptics(off, true).settings.haptics).toBe(true);
+    expect(EMPTY_PROGRESS.settings.haptics).toBe(true);
   });
 });

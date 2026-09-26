@@ -14,6 +14,7 @@ import type { Kana } from '@/core/kana';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import type { NamedPair } from '@/core/pairs';
 
+import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 
 // How long a wrong answer shows (red on the pick, green on the answer) before the next point.
@@ -31,6 +32,7 @@ export type DuelResult = {
 // Runs a duel on one named pair: first to 10 points, lost if the opponent reaches 5.
 export function useDuel(pair: NamedPair) {
   const { progress, changeProgress, currentProgress } = useProgress();
+  const haptics = useHaptics();
   const [startProgress, setStartProgress] = useState(progress);
   // How often the pair had been mixed up when the duel opened.
   const [mixUps] = useState(() => weakPairs(progress).find((w) => w.pair === pair)?.mixUps ?? 0);
@@ -52,6 +54,8 @@ export function useDuel(pair: NamedPair) {
     const now = Date.now();
     const ms = now - shownAt;
     const correct = guess === question.kana;
+    if (correct) haptics.right();
+    else haptics.miss();
     changeProgress((current) => recordAnswer(current, { char: question.kana.char, guess: guess.char, ms, now }));
 
     const nextScore = scorePoint(score, { correct, ms });
@@ -62,6 +66,8 @@ export function useDuel(pair: NamedPair) {
 
     const status = duelStatus(nextScore);
     if (status !== 'going') {
+      if (status === 'won') haptics.success();
+      else haptics.thunk();
       changeProgress((current) => completeDuel(current, pair, nextScore, now));
       setResult({ status, score: nextScore, summary: summarizeLesson(startProgress, currentProgress(), nextAnswers) });
       return;

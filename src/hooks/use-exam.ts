@@ -8,6 +8,7 @@ import { KANA, type Kana, type RowId, type Script } from '@/core/kana';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { unlockedKana } from '@/core/unlock';
 
+import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 
 // How long the picked answer shows right or wrong before the next question.
@@ -55,6 +56,7 @@ export type ExamResult = {
 // Runs a belt exam on one row: 20 questions, 60 seconds, no hints.
 export function useExam(script: Script, row: RowId, belt: Belt) {
   const { progress, changeProgress, currentProgress } = useProgress();
+  const haptics = useHaptics();
   const [attempt, setAttempt] = useState(() => newAttempt(progress, script, row));
   const [now, setNow] = useState(() => Date.now());
   const [flash, setFlash] = useState<{ guess: Kana; correct: boolean } | null>(null);
@@ -89,6 +91,8 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     const status = examStatus({ correct: right, misses: done.answers.length - right, timeUp });
     if (status === 'going') return;
     finished.current = true;
+    if (status === 'passed') haptics.success();
+    else haptics.thunk();
     changeProgress((current) => completeLesson(current, examId(script, row, belt), Date.now(), right));
     setResult({ status, correct: right, summary: summarizeLesson(done.startProgress, currentProgress(), done.answers) });
   }
@@ -100,6 +104,8 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     const time = Date.now();
     const ms = time - attempt.shownAt;
     const right = guess === kana;
+    if (right) haptics.right();
+    else haptics.miss();
     changeProgress((current) => recordAnswer(current, { char: kana.char, guess: guess.char, ms, now: time }));
     const answers = [...attempt.answers, { char: kana.char, correct: right, ms }];
     liveAnswers.current = answers;

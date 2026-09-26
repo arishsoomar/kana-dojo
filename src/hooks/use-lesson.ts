@@ -9,6 +9,7 @@ import { LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary }
 import { makePlaqueQuestion, type Plaque } from '@/core/path';
 import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question';
 
+import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 
 // What happened on the last answer, for the feedback sheet.
@@ -57,6 +58,7 @@ export function useLesson(mode: LessonMode) {
   // Nothing is spoken before an answer: hearing it first would give the answer away.
   const [heard, setHeard] = useState<Kana | null>(null);
   const sound = progress.settings.sound;
+  const haptics = useHaptics();
 
   function check(guess: Kana) {
     const now = Date.now();
@@ -65,6 +67,8 @@ export function useLesson(mode: LessonMode) {
     const correct = guess === kana;
     setHeard(kana);
     if (sound) pronounce(kana);
+    if (correct) haptics.right();
+    else haptics.miss();
     const next = recordAnswer(progress, { char: kana.char, guess: guess.char, ms, now });
 
     updateProgress(next);
@@ -94,6 +98,7 @@ export function useLesson(mode: LessonMode) {
     const latest = currentProgress();
     if (answersSoFar.length >= LESSON_LENGTH) {
       updateProgress(completeLesson(latest, lessonId(mode), Date.now()));
+      haptics.thunk();
       setSummary(summarizeLesson(startProgress, latest, answersSoFar));
       return;
     }

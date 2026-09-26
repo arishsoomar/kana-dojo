@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true } };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true } };
 
 const sample: Progress = {
   kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
@@ -12,7 +12,7 @@ const sample: Progress = {
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
     { lesson: 'duel:シツ', at: 3_000_000, score: 10, opponent: 3 },
   ],
-  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false },
+  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false },
 };
 
 describe('saving progress', () => {
@@ -43,7 +43,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true },
     });
   });
 
@@ -57,7 +57,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true },
     });
   });
 
@@ -91,7 +91,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true },
     });
   });
 
@@ -136,5 +136,15 @@ describe('saving the sound setting', () => {
     expect(parseProgress(save({ onboarded: true, sound: false })).settings.sound).toBe(false);
     expect(parseProgress(save({ onboarded: true })).settings.sound).toBe(true);
     expect(parseProgress(save({ onboarded: true, sound: 'loud' })).settings.sound).toBe(true);
+  });
+});
+
+describe('saving the haptics setting', () => {
+  it('keeps haptics off if they were turned off, and otherwise has them on', () => {
+    const save = (settings: unknown) =>
+      JSON.stringify({ version: 3, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings } });
+    expect(parseProgress(save({ onboarded: true, haptics: false })).settings.haptics).toBe(false);
+    expect(parseProgress(save({ onboarded: true })).settings.haptics).toBe(true);
+    expect(parseProgress(save({ onboarded: true, haptics: 'buzzy' })).settings.haptics).toBe(true);
   });
 });

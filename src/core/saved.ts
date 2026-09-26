@@ -41,9 +41,10 @@ export function parseProgress(text: string | null): Progress {
   const onboarded = isObject(settings) && typeof settings.onboarded === 'boolean' ? settings.onboarded : hasProgress;
   const dailyGoal = isObject(settings) && isDailyGoal(settings.dailyGoal) ? settings.dailyGoal : DEFAULT_DAILY_GOAL;
   const script = isObject(settings) && settings.script === 'katakana' ? 'katakana' : 'hiragana';
-  // Sound is on unless it was saved as off.
+  // Sound and haptics are on unless they were saved as off.
   const sound = !(isObject(settings) && settings.sound === false);
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound } };
+  const haptics = !(isObject(settings) && settings.haptics === false);
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics } };
 }
 
 // Keeps the entries whose value passes `isValid`.

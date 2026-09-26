@@ -640,6 +640,46 @@ have on its own, used in words from other languages: パーティー (party),
 
 ---
 
+## Epic O — Yokai dungeon
+
+A roguelike run, from the mock. Each enemy is a yokai with a kana on its
+belly, and a right answer is a strike. Answer too slowly and it attacks, so
+speed matters as much as accuracy. Between floors the learner takes one of
+three charms, so each run feels different.
+
+### O1. Dungeon rules
+**As a** learner, **I want** a run with clear rules, **so that** going
+deeper means reading faster.
+
+- [ ] Pure functions in `src/core/dungeon.ts`, test-first
+- [ ] Floors get more yokai (3, then one more every floor, up to 6) and
+      tougher ones (1 HP, then more every 3 floors, up to 3)
+- [ ] Each yokai attacks after a few seconds (5s on floor 1, 8% faster
+      every floor, never under 2s); a wrong answer or a timeout costs one of
+      5 hearts; the run ends at 0
+- [ ] A right answer strikes once; a quick one ("Clean!") too
+- [ ] Charms: Paper lantern (Common: attacks 20% slower), Healing tea
+      (Common: 2 hearts back), Hint scroll (Rare: the answer's first letter,
+      3 times a floor), Sharp bokken (Rare: clean strikes hit twice), Lucky
+      omamori (Epic: the first mistake each floor is free). Three to pick
+      from, rarer ones less often, none twice except tea
+
+### O2. The dungeon screens
+**As a** learner, **I want** to play the dungeon from the Games tab, **so
+that** I can practise under pressure.
+
+- [ ] Choose hiragana or katakana, with how many kana I've learned in each
+      and my deepest floor; it needs 5 met kana
+- [ ] The battle matches the mock: floor, charms, yokai with its kana and
+      HP, "Clean!", Karasu with hearts, the attack timer, four dark tiles
+- [ ] After each floor, the charm pick from the mock
+- [ ] Every answer goes through `recordAnswer()`; a timeout counts as
+      wrong with nothing picked
+- [ ] The end shows the floor reached, saved per script as the deepest
+- [ ] The Games tab card shows the deepest floor
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

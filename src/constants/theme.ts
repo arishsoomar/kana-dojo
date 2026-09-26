@@ -108,6 +108,40 @@ export const iconColors = {
 } as const;
 
 // Outline for belt drawings: a light edge for the white belt, a dark one for the rest.
+// The Yokai dungeon: the night background with raised tiles and cards, pillars for the
+// torches, and the rarity chips on charms.
+export const dungeonColors = {
+  tile: '#26282E',
+  edge: '#3A3D46',
+  card: '#22242A',
+  iconBack: '#2E3139',
+  soft: '#A8AEBC', // quiet text on the dark
+  cardText: '#B5BAC6',
+  rareBack: '#233A56',
+  rareText: '#9EC8F0',
+  epicBack: '#3A3320',
+  epicText: '#2B2100',
+} as const;
+
+// The charms' little pictures: a paper lantern, a scroll, an omamori, a cup of tea, a bokken.
+export const charmColors = {
+  lanternCap: '#5B4300',
+  lanternBody: '#FF7A5C',
+  lanternRibs: '#E4533A',
+  paper: '#FFF1D6',
+  wood: '#C98A4B',
+  omamoriString: '#FFC93C',
+  omamoriBody: '#FF8FC0',
+  omamoriEdge: '#E2689F',
+  teaCup: '#7FB77E',
+  teaCupEdge: '#4E8A4D',
+  tea: '#C9E4A6',
+  steam: '#B5BAC6',
+  bokkenGrip: '#5B4300',
+  door: '#A8AEBC',
+  doorLines: '#231B3B',
+} as const;
+
 export const beltEdges = {
   light: '#C3C8D2',
   dark: 'rgba(0, 0, 0, 0.35)',

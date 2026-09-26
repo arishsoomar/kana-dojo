@@ -1,5 +1,6 @@
 import { FAST_MS } from '@/core/answers';
 import { DUEL_LOSS, DUEL_READY_MIXUPS, DUEL_WIN } from '@/core/duel';
+import { CHARMS, DUNGEON_MIN_KANA, MAX_HEARTS } from '@/core/dungeon';
 import { EXAM_LENGTH, EXAM_PASS, EXAM_TIME_MS } from '@/core/exam';
 import { FORGE_MIN_WORDS, FORGE_ROUND } from '@/core/forge';
 import { DAILY_GOALS } from '@/core/goal';
@@ -261,6 +262,21 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'dungeon',
+        question: 'How does the Yokai dungeon work?',
+        answer: [
+          `Choose hiragana or katakana (you need ${DUNGEON_MIN_KANA} kana learned in it), then go down floor after floor. Each yokai has one of your kana on its belly, and your weaker kana come up most.`,
+          {
+            bullets: [
+              "A right answer strikes the yokai. A quick one is a clean strike. Deeper yokai take more strikes.",
+              `Answer too slowly, or wrong, and it attacks: you lose one of your ${MAX_HEARTS} hearts. Every floor, they attack sooner.`,
+              'After each floor, take one of three charms. ' + Object.values(CHARMS).map((c) => `${c.name}: ${c.about}`).join(' '),
+              'The run ends when your hearts run out. Your deepest floor in each script is saved, and every answer counts as practice.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'rain',
         question: 'How does Kana Rain work?',
         answer: [
@@ -285,7 +301,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, Word Forge rounds and Kana Rain games all count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, Word Forge rounds, dungeon runs and Kana Rain games all count. Change your goal on the Profile tab.',
         ],
       },
       {

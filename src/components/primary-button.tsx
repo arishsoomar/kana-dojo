@@ -2,8 +2,8 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 
-// 'light' is a white button, for dark backgrounds.
-type Tone = 'sumi' | 'pine' | 'vermilion' | 'light';
+// 'light' is a white button, for dark backgrounds; 'gold' is for a prize, like a charm.
+type Tone = 'sumi' | 'pine' | 'vermilion' | 'gold' | 'light';
 
 type Props = {
   label: string;
@@ -20,7 +20,9 @@ export function PrimaryButton({ label, tone = 'sumi', disabled = false, onPress 
       disabled={disabled}
       onPress={onPress}
       style={[styles.button, { backgroundColor: tone === 'light' ? colors.card : colors[tone] }, disabled && styles.buttonDisabled]}>
-      <Text style={[styles.label, tone === 'light' && styles.labelOnLight, disabled && styles.labelDisabled]}>{label}</Text>
+      <Text style={[styles.label, (tone === 'light' || tone === 'gold') && styles.labelOnLight, disabled && styles.labelDisabled]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }

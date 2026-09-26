@@ -45,6 +45,7 @@ Files are listed roughly in the order they build on each other.
 | `rain.ts` | The Kana Rain game |
 | `words.ts` | The word list for Word Forge |
 | `forge.ts` | Word Forge: splitting words into kana, reading them tapped or typed, and recording it |
+| `dungeon.ts` | The Yokai dungeon's rules: floors, yokai, the attack timer, hearts and charms |
 
 Every file has a `.test.ts` file next to it, except `belts.ts`, whose one function is tested in `path.test.ts`. See the last section.
 
@@ -1997,6 +1998,64 @@ Word Forge shows a word and asks for its romaji, tapped from four options or typ
 
 ---
 
+## dungeon.ts: the Yokai dungeon
+
+A run down floor after floor of yokai. Each shows a kana (chosen by the screen from the learner's met kana, with `pickNext`), and a right answer is a strike. Too slow or wrong, and it attacks. This file holds only the rules.
+
+**Lines 9–12**: `MAX_HEARTS = 5`, `DUNGEON_MIN_KANA = 5` met kana to enter, `CLEAN_MS = 1500` (a right answer quicker than this is a clean strike), `HINTS_PER_FLOOR = 3`.
+
+**Lines 15–17**: `dungeonId`, where a script's runs are saved (`'game:dungeon:hiragana'`), with the floor reached as the score. So `bestScore` gives the deepest floor for each script.
+
+**Lines 19–28**: `Charm` and `CHARMS`, the five charms with their names, rarity and what they do: Paper lantern, Healing tea, Hint scroll, Sharp bokken, Lucky omamori.
+
+**Line 31**: `RARITY_WEIGHT`: commons are offered 3 times as often as epics, rares twice as often.
+
+**Line 34**: `YOKAI_NAMES`, for the name above each yokai's HP.
+
+**Lines 36–47**: `Enemy` (its name, HP left and full HP) and `Run`, the whole run: floor, hearts, kept charms, yokai left on this floor (counting the one being fought), the current yokai, hints left, whether the omamori is still ready, and whether it's over.
+
+**Lines 51–53**: `floorPlan`
+```ts
+  return { enemies: Math.min(2 + floor, 6), hp: Math.min(1 + Math.floor((floor - 1) / 3), 3) };
+```
+3 yokai on floor 1 and one more each floor, up to 6. Each has 1 HP, and one more every 3 floors (floors 4–6 have 2, from 7 on 3). `Math.floor` rounds down.
+
+**Lines 57–60**: `attackMs`
+```ts
+  const wait = Math.max(5000 * 0.92 ** (floor - 1), 2000);
+  return Math.round(wait * (charms.includes('lantern') ? 1.2 : 1));
+```
+- How long a yokai waits before it attacks. `**` means "to the power of", so each floor multiplies the wait by 0.92: 5000, 4600, 4232...
+- `Math.max(..., 2000)` keeps it at 2 seconds or more.
+- The paper lantern makes it 20% longer.
+
+**Lines 62–66**: `newEnemy`, a yokai for a floor: a random name and the floor's HP.
+
+**Lines 69–78**: `enterFloor`, a run arriving on a floor: its yokai count, the first yokai, 3 hints if the hint scroll is kept, and the omamori ready again.
+
+**Lines 80–92**: `startRun`, a fresh run on floor 1 with full hearts.
+
+**Lines 95–97**: `Blow`, what an answer did: a `'strike'` (was it clean, how much damage, was the yokai defeated, was the floor cleared) or `'hurt'` (did the omamori take it, is the run over).
+
+**Lines 100–121**: `answerRun`
+```ts
+  if (answer?.correct) {
+    const clean = answer.ms < CLEAN_MS;
+    const damage = clean && run.charms.includes('bokken') ? 2 : 1;
+```
+- `answer` is `null` when the yokai attacked first. `answer?.correct` is `undefined` then, which counts as false.
+- A right answer strikes for 1, or 2 if it was clean and the bokken is kept.
+- If the yokai has HP left, only its HP changes. If not, it's defeated: one fewer yokai on the floor, and a new one comes on, unless that was the last (`floorCleared`).
+- A wrong answer or an attack costs a heart, unless the omamori is ready, which takes it and is used up for this floor. At 0 hearts the run is over, and after that nothing changes.
+
+**Lines 125–144**: `charmChoices`, up to three charms to choose from: any not already kept, plus healing tea, which can be taken again. Each is picked at random, weighted by its rarity (the same way `pickNext` weighs kana), then taken out of the running so all three are different.
+
+**Lines 147–151**: `takeCharm`, taking a charm and going down to the next floor. Healing tea is drunk at once (2 hearts back, never over 5), so it isn't kept.
+
+**Lines 154–156**: `spendHint`, one hint used, if there are any left.
+
+---
+
 ## The test files
 
 Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and so on). They all use the same pieces:
@@ -2039,6 +2098,7 @@ What each file checks:
 - **merge.test.ts**: the copy answered later wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
 - **words.test.ts**: every word splits into kana the app teaches, all in one script; its romaji reads back as the same kana; no word twice, each with a meaning and a picture; words in both scripts. (`src/constants/word-pictures.test.ts` checks every picture has an image.)
 - **forge.test.ts**: `splitWord` (yōon kept together, っ and ー kept as marks, a mark with nothing to change refused), `wordRomaji` (including っ and ー), `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged, marks not recorded), marks typed and missed (kite, kohii, ko-hi-, maccha), the option that leaves a mark out, and rounds with no word twice in a row.
+- **dungeon.test.ts**: floors (yokai count, HP, attack time, the lantern), a new run, strikes (clean, the bokken, next yokai, clearing a floor), getting hit (wrong, timeout, the end, the omamori), and charms (choices, fewer when fewer are left, tea, hints and the omamori refilled each floor).
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

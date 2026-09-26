@@ -127,6 +127,14 @@ export default function ProfileScreen() {
         </Pressable>
       )}
 
+      <Pressable role="button" onPress={() => router.push('/guide')} style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>How the dojo works</Text>
+          <Text style={styles.goalSub}>Belts, exams, duels, streaks, and everything else</Text>
+        </View>
+        <Text style={styles.goalChange}>Open</Text>
+      </Pressable>
+
       <Text style={styles.heading}>Badges</Text>
       <Badge
         name="Unbroken"

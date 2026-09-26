@@ -59,6 +59,7 @@ export default function RootLayout() {
           <Stack.Screen name="exam" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="duel" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="scrolls" options={{ headerShown: false }} />
+          <Stack.Screen name="guide" options={{ headerShown: false }} />
           <Stack.Screen name="games/rain" options={{ headerShown: false, gestureEnabled: false }} />
         </Stack>
       </ProgressProvider>

@@ -535,6 +535,12 @@ Done when:
   with `expo-audio`, follow the same Sound switch as the spoken kana, and
   stay quiet when the phone is on silent.
 
+- Guide: "How the dojo works", opened from Profile (`/guide`, or
+  `/guide?topic=belts` to open one question). Every rule a learner might ask
+  about, as questions that open to show their answers, with a belt ladder
+  picture. The text lives in `src/content/guide.ts` and takes its numbers
+  from the engine; `guide.test.ts` fails if a hand-written rule changes.
+
 ## Later
 
 Yokai dungeon and charms, memory match, word forge,

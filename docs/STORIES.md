@@ -680,6 +680,35 @@ that** I can practise under pressure.
 
 ---
 
+## Epic P — Memory match
+
+From the mock: sixteen cards face down, eight pairs. Flip two; a kana and
+its romaji (or the same sound in the other script) are a pair. It links the
+kana to their sounds, and hiragana to katakana, in a calmer game than the
+others.
+
+### P1. Memory rules
+- [ ] Pure functions in `src/core/memory.ts`, test-first
+- [ ] Three modes: hiragana (あ with a), katakana (ア with a), and both (あ
+      with ア); each deals 8 pairs from kana the learner has met in it, the
+      weaker ones more often, with no two pairs sharing a spelling
+- [ ] Flipping two cards is a move; a pair stays face up, anything else
+      turns back over
+- [ ] A found pair counts as a right answer for its kana (timed from the
+      first card to the second); a miss isn't recorded, since forgetting
+      where a card was isn't misreading it
+- [ ] The best is the fewest moves, kept for each mode
+
+### P2. The memory match screen
+- [ ] Choose a mode, with how many kana are learned for it and the best;
+      a mode needs 8 met kana (in both scripts, for "both")
+- [ ] The board matches the mock: pairs found, the clock, face-down cards,
+      the card turned up, found pairs faded, and Karasu saying what matched
+- [ ] The end shows the moves, the time, and whether it's a new best
+- [ ] The Games tab card shows the best
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

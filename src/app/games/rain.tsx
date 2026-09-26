@@ -116,6 +116,8 @@ export default function KanaRainScreen() {
             onChangeText={onType}
             onSubmitEditing={onSubmit}
             submitBehavior="submit"
+            // The web ignores submitBehavior and reads this instead: keep focus after return.
+            blurOnSubmit={false}
             autoFocus
             autoCapitalize="none"
             autoCorrect={false}

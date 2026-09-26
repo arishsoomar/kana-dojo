@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 import { typingDone } from '@/core/kana';
@@ -7,9 +7,11 @@ import { typingDone } from '@/core/kana';
 type Props = {
   // Changes with each new question, which clears the box.
   questionKey: number;
-  // Set once this question is answered wrong: the box locks, showing what was typed in red.
+  // Set once this question is answered wrong: the box shows what was typed in red, and its
+  // button (or return) continues to the next question.
   wrong: boolean;
   onSubmit: (typed: string) => void;
+  onContinue: () => void;
 };
 
 // Browsers draw their own focus ring around inputs; the box's border already shows focus.
@@ -18,10 +20,10 @@ const hideWebFocusRing = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as un
 // The answer box in typing mode. It checks the answer as soon as a whole spelling is typed
 // (see typingDone), or on Enter.
 //
-// It's the same box for the whole lesson, and stays focused from one question to the next:
-// it only clears. (A new box for each question made the keyboard start to close and open
-// again, which jolted the screen between questions.)
-export function TypeAnswer({ questionKey, wrong, onSubmit }: Props) {
+// It's the same box for the whole lesson, and it keeps the keyboard up the whole time, even
+// after a wrong answer: it only clears. (Any time the keyboard closed and opened again, the
+// screen resized around it, which jolted it between questions.)
+export function TypeAnswer({ questionKey, wrong, onSubmit, onContinue }: Props) {
   const input = useRef<TextInput>(null);
   const [text, setText] = useState('');
   // A new question clears the box. This is React's way to reset state when a prop changes:
@@ -32,21 +34,22 @@ export function TypeAnswer({ questionKey, wrong, onSubmit }: Props) {
     setText('');
   }
 
-  // A wrong answer puts the keyboard away, so the feedback sheet can be seen. The next
-  // question brings it back.
+  // Stays focused: if focus was lost (a tap elsewhere), a new question takes it back.
   useEffect(() => {
-    if (wrong) Keyboard.dismiss();
-    else input.current?.focus();
-  }, [wrong, questionKey]);
+    input.current?.focus();
+  }, [questionKey]);
 
+  // After a wrong answer, typing does nothing; the box keeps showing what was typed.
   function change(next: string) {
     if (wrong) return;
     setText(next);
     if (typingDone(next)) onSubmit(next);
   }
 
+  // Return checks the answer, or after a wrong answer, goes on to the next question.
   function submit() {
-    if (!wrong && text.trim() !== '') onSubmit(text);
+    if (wrong) onContinue();
+    else if (text.trim() !== '') onSubmit(text);
   }
 
   return (
@@ -57,7 +60,8 @@ export function TypeAnswer({ questionKey, wrong, onSubmit }: Props) {
         onChangeText={change}
         onSubmitEditing={submit}
         submitBehavior="submit"
-        editable={!wrong}
+        // The web ignores submitBehavior and reads this instead: keep focus after return.
+        blurOnSubmit={false}
         autoFocus
         autoCapitalize="none"
         autoCorrect={false}
@@ -69,11 +73,18 @@ export function TypeAnswer({ questionKey, wrong, onSubmit }: Props) {
         aria-label="Type its sound"
         style={[styles.input, wrong && styles.inputWrong, hideWebFocusRing]}
       />
-      {/* For "n", which waits for more letters in case it's the start of na, ni, and so on. */}
-      {!wrong && text.trim() !== '' && (
-        <Pressable role="button" aria-label="Check" onPress={submit} hitSlop={8} style={styles.check}>
-          <Text style={styles.checkText}>Check</Text>
+      {/* Check is for "n", which waits for more letters in case it's the start of na, ni,
+          and so on. */}
+      {wrong ? (
+        <Pressable role="button" aria-label="Continue" onPress={onContinue} hitSlop={8} style={[styles.check, styles.continue]}>
+          <Text style={styles.checkText}>Continue</Text>
         </Pressable>
+      ) : (
+        text.trim() !== '' && (
+          <Pressable role="button" aria-label="Check" onPress={submit} hitSlop={8} style={styles.check}>
+            <Text style={styles.checkText}>Check</Text>
+          </Pressable>
+        )
       )}
     </View>
   );
@@ -114,6 +125,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
     backgroundColor: colors.sumi,
+  },
+  continue: {
+    backgroundColor: colors.vermilion,
   },
   checkText: {
     fontFamily: fonts.uiExtraBold,

@@ -504,6 +504,10 @@ Done when:
   with more time (6s, 4s, 3s). The answer is checked as soon as a whole
   spelling is typed; "n" waits for Enter or Check, since it may start
   na, ni... A wrong typed answer logs the kana it spells as the mix-up.
+  The keyboard stays up for the whole lesson (one answer box, cleared
+  between questions), since any time it closed and reopened, the screen
+  jolted. So a wrong typed answer shows its correction in place of the
+  kana card, and the box's Continue button (or return) moves on.
   Exams and duels stay tapped. Kana Rain answers count as typed.
 - The Kana tab's detail sheet shows what the next belt takes ("To brown:
   2 more", and how quick) instead of a wait.

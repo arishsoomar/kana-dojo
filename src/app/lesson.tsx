@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
 import { ComboChip } from '@/components/combo-chip';
-import { FeedbackSheet } from '@/components/feedback-sheet';
+import { FeedbackCard, FeedbackSheet } from '@/components/feedback-sheet';
 import { KanaFrame } from '@/components/kana-frame';
 import { AliveKarasu } from '@/components/alive-karasu';
 import type { KarasuMood } from '@/components/karasu';
@@ -89,6 +89,8 @@ export default function LessonScreen() {
 
   // Only a wrong answer gets the feedback sheet; a correct one moves on by itself.
   const wrong = result !== null && !result.correct;
+  // Tapping shows the correction in a sheet at the bottom; typing shows it in place of the kana.
+  const sheet = wrong && !typing;
 
   if (summary) {
     return (
@@ -137,12 +139,20 @@ export default function LessonScreen() {
 
         {/* The frame grows to fill the middle; the answers sit at the bottom, near the thumb. */}
         <View style={styles.frame}>
-          <KanaFrame char={question.kana.char} />
-          <ComboChip count={combo} />
+          {/* In typing mode a wrong answer's correction takes the kana card's place, so the
+              keyboard can stay up (see TypeAnswer). */}
+          {typing && wrong ? (
+            <FeedbackCard result={result} />
+          ) : (
+            <>
+              <KanaFrame char={question.kana.char} />
+              <ComboChip count={combo} />
+            </>
+          )}
         </View>
 
         {typing ? (
-          <TypeAnswer questionKey={questionKey} wrong={wrong} onSubmit={checkTyped} />
+          <TypeAnswer questionKey={questionKey} wrong={wrong} onSubmit={checkTyped} onContinue={goToNext} />
         ) : (
           <View style={styles.choices}>
             {question.choices.map((choice) => (
@@ -159,8 +169,8 @@ export default function LessonScreen() {
       </View>
 
       {/* The bottom padding lives here, so the white sheet reaches the bottom edge. */}
-      <View style={[wrong && styles.sheetArea, { paddingBottom: insets.bottom + (wrong ? 22 : 12) }]}>
-        {wrong && <FeedbackSheet result={result} onContinue={goToNext} />}
+      <View style={[sheet && styles.sheetArea, { paddingBottom: insets.bottom + (sheet ? 22 : 12) }]}>
+        {sheet && <FeedbackSheet result={result} onContinue={goToNext} />}
       </View>
 
       <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={leaveLesson} />

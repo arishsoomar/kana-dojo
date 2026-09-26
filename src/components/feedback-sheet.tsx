@@ -4,6 +4,7 @@ import { colors, fonts } from '@/constants/theme';
 import type { Result } from '@/hooks/use-lesson';
 
 import { BulbIcon } from './bulb-icon';
+import { KanaFrame } from './kana-frame';
 import { PrimaryButton } from './primary-button';
 
 type Props = {
@@ -42,6 +43,29 @@ export function FeedbackSheet({ result, onContinue }: Props) {
   );
 }
 
+// The same correction for typing mode, shown in place of the kana card instead of in a sheet
+// at the bottom. The keyboard stays up, so nothing on screen has to move; the answer box
+// below it has the Continue button, and return continues too.
+export function FeedbackCard({ result }: { result: Result }) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <KanaFrame char={result.kana.char} size={76} />
+        <View style={styles.text}>
+          <Text style={[styles.title, { color: colors.vermilionDark }]}>That&apos;s {result.kana.romaji[0]}</Text>
+          <Text style={styles.detail}>{detailText(result)}</Text>
+        </View>
+      </View>
+      {result.tip && (
+        <View style={styles.tip}>
+          <BulbIcon />
+          <Text style={styles.tipText}>{result.tip}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
 function detailText(result: Result): string {
   if (!result.correct) {
     if (result.typed !== null) {
@@ -65,6 +89,21 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 12,
+  },
+  // Fills the kana card's space, with a red edge like a wrong answer tile.
+  card: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.vermilion,
+    backgroundColor: colors.card,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
   },
   bar: {
     width: 5,

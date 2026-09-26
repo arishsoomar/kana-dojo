@@ -1881,11 +1881,12 @@ Any other key is added to what's typed. If no falling kana's spelling starts wit
 
 **Lines 5–10**: `Word`, one word: its `text` as written (in hiragana or katakana), its `meaning` in English, and its `picture`, named by an emoji. The emoji is just a name here: the app shows a 3D drawing for it, looked up in `src/constants/word-pictures.ts`.
 
-**Lines 12–138**: `WORDS`, the list: common words like `{ text: 'ねこ', meaning: 'cat', picture: '🐱' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera).
+**Lines 12–188**: `WORDS`, 170 words: common words like `{ text: 'ねこ', meaning: 'cat', picture: '🐱' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera). Each script ends with words that use small っ or ー, like `'きって'` and `'コーヒー'`.
 
-Two rules for the list, both checked by `words.test.ts`:
-- Every word is written only with kana the app teaches. So no small っ (きって, stamp) or long mark ー (コーヒー, coffee) yet.
-- Every word's romaji reads back as the same kana. ほんや ("honya", bookshop) is left out, because "honya" could also be read ほにゃ.
+Rules for the list, all checked by `words.test.ts`:
+- Every word is written only with kana the app teaches, plus small っ and ー. So no small ィ or ォ yet (パーティー, party; フォーク, fork).
+- Every word's own romaji is accepted when it's typed.
+- Words without っ or ー read back from their romaji as the same kana, so a typed answer can't be read two ways.
 
 ---
 
@@ -1895,61 +1896,75 @@ Word Forge shows a word and asks for its romaji, tapped from four options or typ
 
 **Lines 11–13**: `FORGE_ROUND = 10` words in a round, `FORGE_MIN_WORDS = 5` ready words before the game opens, and `FORGE_LESSON_ID`, the name a finished round is saved under.
 
-**Line 16**: `ForgeWord`, a word with the kana it's made of (`units`) and its script.
+**Lines 18–23**: `Mark`, a character that isn't a sound of its own but changes the kana beside it. Small っ (ッ in katakana) is a `'double'` mark: it doubles the next consonant, so きって is kitte. ー is a `'long'` mark: it stretches the vowel before it, so コーヒー is koohii. `MARKS` lists the three.
 
-**Lines 21–31**: `splitWord`
+**Lines 26–30**: `Part`, one piece of a word: a `Kana` or a `Mark`. `isMark` tells them apart by checking for the `mark` field. Its return type, `part is Mark`, tells TypeScript that after `if (isMark(part))`, `part` is a `Mark`.
+
+**Line 33**: `ForgeWord`, a word with its `parts` (kana and marks, in order), just its kana (`units`), and its script.
+
+**Lines 38–56**: `splitWord`
 ```ts
-  while (at < text.length) {
-    const found = KANA.find((k) => k.char.length === 2 && text.startsWith(k.char, at)) ?? KANA.find((k) => text.startsWith(k.char, at));
-    if (!found) return null;
-    units.push(found);
-    at += found.char.length;
-  }
+    const found =
+      KANA.find((k) => k.char.length === 2 && text.startsWith(k.char, at)) ??
+      KANA.find((k) => text.startsWith(k.char, at)) ??
+      MARKS.find((m) => text.startsWith(m.char, at));
 ```
-- Walks through the word, finding the kana at each point. `text.startsWith(k.char, at)` asks "does the text, from position `at`, start with this kana?".
+- Walks through the word, finding the part at each point. `text.startsWith(k.char, at)` asks "does the text, from position `at`, start with this kana?".
 - Two-character kana are tried first, so しゃしん splits as しゃ, し, ん, not し, ゃ...
-- If nothing matches (a character the app doesn't teach, like っ), the word can't be used: `null`.
+- Then marks. If nothing matches (like small ィ), the word can't be used: `null`.
+- Then each mark is checked for a kana to change: っ needs one after it, ー one before it. `きっ` or `ーカ` gives `null`.
 
-**Lines 34–36**: `wordRomaji`, each kana's standard spelling joined: しゃしん → `'shashin'`.
+**Lines 59–64**: `forgeWord`, a word turned into a `ForgeWord`, or `null` if it can't be split. `units` is the parts without the marks. The `(p): p is Kana =>` filter tells TypeScript the result is only kana.
 
-**Lines 39–46**: `readyWords`, the words the learner can read now: every kana in them is in `metKana` (open, and answered at least once), and in the script asked for.
+**Lines 68–76**: `markSpelling`, how a mark is spelled, from the kana beside it. ー is the last letter (the vowel) of the kana before it: コ is `ko`, so ー is `o`. っ is the first letter of the kana after it: て is `te`, so っ is `t`. Before `ch` it's `t`, the usual way: ちょっと is chotto, not chochoto.
 
-**Lines 51–52**: `UnitResult`, how one kana in a word was read: right or wrong, and `guess`, the kana read in its place (`null` if nothing). `Reading` is the whole word: right or wrong, and the kana that could be judged.
+**Lines 80–82**: `wordRomaji`, each part's spelling joined: しゃしん → `'shashin'`, きって → `'kitte'`, コーヒー → `'koohii'`.
 
-**Lines 55–60**: `spellingsOf`, every spelling of every kana in a script, longest first, for reading typed romaji.
+**Lines 86–93**: `readyWords`, the words the learner can read now: every kana in them is in `metKana` (open, and answered at least once), in the script asked for. Marks don't need learning first.
 
-**Lines 64–83**: `readTyped`
+**Lines 99–100**: `UnitResult`, how one kana in a word was read: right or wrong, and `guess`, the kana read in its place (`null` if nothing). `Reading` is the whole word: right or wrong, the kana that could be judged, and `missedMark`, the first っ or ー that was read wrong or left out.
+
+**Lines 103–107**: `spellingsOf`, every spelling of every kana in a script, longest first, for reading typed romaji.
+
+**Lines 111–117**: `markTypings`, what a mark may be typed as: its spelling, plus `c` for っ before ch (`maccha` for まっちゃ) and `-` for ー (`ko-hi-`).
+
+**Lines 123–155**: `readTyped`
 ```ts
-  for (const kana of word.units) {
-    const own = [...kana.romaji].sort((a, b) => b.length - a.length).find((s) => typed.startsWith(s, at));
-    if (own !== undefined) {
-      units.push({ kana, correct: true, guess: kana });
-      at += own.length;
+    if (isMark(part)) {
+      const next = word.parts[i + 1];
+      const follows = (t: string) =>
+        part.mark === 'long' || (next !== undefined && !isMark(next) && next.romaji.some((s) => typed.startsWith(s, at + t.length)));
+      const typing = markTypings(word.parts, i).find((t) => t !== '' && typed.startsWith(t, at) && follows(t));
+      if (typing !== undefined) at += typing.length;
+      else missedMark ??= part;
       continue;
     }
-    const other = all.find(({ spelling }) => typed.startsWith(spelling, at));
-    units.push({ kana, correct: false, guess: other?.kana ?? null });
-    if (!other) break;
-    at += other.spelling.length;
-  }
 ```
-- Checks the typing one kana at a time, keeping its place in the text with `at`.
-- If the typing continues with one of this kana's spellings (any of them, so "susi" reads すし), it's right. `continue` jumps to the next kana.
-- If not, it looks for any kana whose spelling was typed there: that's what the learner read it as. For ねこ typed "reko", ね was read as れ.
+- Checks the typing one part at a time, keeping its place in the text with `at`.
+- A mark is right if its letter comes next. For っ, the next kana must also follow straight after that letter: "kitte" has it, while "kite" is just て starting early. If the mark is missing, it's noted (`??=` sets `missedMark` only if it isn't set yet, so the first miss is kept) and reading goes on from the same place.
+```ts
+    const own = [...part.romaji].sort((a, b) => b.length - a.length).find((s) => typed.startsWith(s, at));
+    ...
+    const other = all.find(({ spelling }) => typed.startsWith(spelling, at));
+    units.push({ kana: part, correct: false, guess: other?.kana ?? null });
+    if (!other) break;
+```
+- A kana is right if the typing continues with one of its spellings (any of them, so "susi" reads すし).
+- If not, whichever kana's spelling was typed there is what the learner read it as. For ねこ typed "reko", ね was read as れ.
 - If no kana at all matches ("saxana"), judging stops there (`break`), since there's no telling what came next.
-- The word is right only if every kana was right **and** nothing is left over, so "nekoo" is wrong.
+- The word is right only if no mark was missed, every kana was right, **and** nothing is left over, so "nekoo" is wrong.
 
-**Line 86**: `ForgeOption`, one tap-mode option: its romaji, and which kana it misreads (`null` for the right answer).
+**Line 159**: `ForgeOption`, one tap-mode option: its romaji, and what's wrong with it: `misread`, the kana it misreads (by its place in the word's parts), or `dropsMark`, the mark it leaves out. Neither for the right answer.
 
-**Lines 92–116**: `forgeOptions`
-- Starts with the right answer, then adds up to three wrong ones. Each is the word with one kana swapped for another from `pool` (the kana the learner has met).
-- The kana to swap takes turns through the word's positions, in a random order.
-- For each, the swapped kana's lookalikes come first, then any other kana. A swap with the same spelling (じ for ぢ) is skipped, and so is any option already offered.
+**Lines 166–199**: `forgeOptions`
+- Starts with the right answer.
+- A word with a mark then gets the word with that mark left out, like "kite" for きって: the slip learners make most.
+- The rest each swap one kana for another from `pool` (the kana the learner has met). The kana to swap takes turns through the word's kana, in a random order. For each, its lookalikes come first, then any other kana. A swap with the same spelling (じ for ぢ) is skipped, and so is any option already offered.
 - `.sort((a, b) => a.romaji.localeCompare(b.romaji))` puts them in alphabetical order, so the answer isn't always in the same place.
 
-**Lines 119–124**: `readChosen`, the reading for a tapped option. The right one judges every kana right. A wrong one judges only the misread kana: the others might well have been read right.
+**Lines 203–214**: `readChosen`, the reading for a tapped option. The right one judges every kana right. One that drops a mark judges no kana, just the missed mark. One that misreads a kana judges only that kana: the others might well have been read right.
 
-**Lines 128–145**: `recordReading`
+**Lines 219–235**: `recordReading`
 ```ts
   const each = Math.round(ms / word.units.length);
   for (const { kana, correct, guess } of reading.units) {
@@ -1957,11 +1972,12 @@ Word Forge shows a word and asks for its romaji, tapped from four options or typ
     answers.push({ char: kana.char, correct, ms: each });
   }
 ```
-- Every judged kana goes through `recordAnswer`, like any lesson answer. The time for the word is shared evenly: ねこ read in 3 seconds is 1.5 seconds per kana.
+- Every judged kana goes through `recordAnswer`, like any lesson answer. The time for the word is shared evenly between its kana: きって read in 2 seconds is 1 second each for き and て.
+- Marks have no belt of their own, so nothing is recorded for them.
 - A wrong kana is recorded with what it was read as, which logs the mix-up.
 - It also returns the answers, for the end-of-round summary.
 
-**Lines 148–156**: `forgeRound`, ten words, shuffled. If fewer than ten are ready, the list is shuffled again and added on; when a new batch would start with the word just used, that word is moved to the end, so no word comes twice in a row.
+**Lines 239–247**: `forgeRound`, ten words, shuffled. If fewer than ten are ready, the list is shuffled again and added on; when a new batch would start with the word just used, that word is moved to the end, so no word comes twice in a row.
 
 ---
 
@@ -2006,7 +2022,7 @@ What each file checks:
 - **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound, haptics and typing; a version 3 save's 8 boxes become 10 at the same belts, with due times turned into last-answered times.
 - **merge.test.ts**: the copy answered later wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
 - **words.test.ts**: every word splits into kana the app teaches, all in one script; its romaji reads back as the same kana; no word twice, each with a meaning and a picture; words in both scripts. (`src/constants/word-pictures.test.ts` checks every picture has an image.)
-- **forge.test.ts**: `splitWord` (yōon kept together, っ and ー refused), `wordRomaji`, `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged), and rounds with no word twice in a row.
+- **forge.test.ts**: `splitWord` (yōon kept together, っ and ー kept as marks, a mark with nothing to change refused), `wordRomaji` (including っ and ー), `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged, marks not recorded), marks typed and missed (kite, kohii, ko-hi-, maccha), the option that leaves a mark out, and rounds with no word twice in a row.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

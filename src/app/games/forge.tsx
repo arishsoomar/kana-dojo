@@ -16,7 +16,7 @@ import { TypeAnswer } from '@/components/type-answer';
 import { WordFrame } from '@/components/word-frame';
 import { colors, fonts } from '@/constants/theme';
 import { WORD_PICTURES } from '@/constants/word-pictures';
-import { FORGE_MIN_WORDS, readyWords, wordRomaji, type ForgeOption } from '@/core/forge';
+import { FORGE_MIN_WORDS, isMark, readyWords, wordRomaji, type ForgeOption, type ForgeWord } from '@/core/forge';
 import { missDetails, useForge, type ForgeMiss } from '@/hooks/use-forge';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
@@ -99,16 +99,21 @@ function Forge() {
       <View style={styles.body}>
         <View style={styles.coach}>
           <AliveKarasu mood={miss ? 'stern' : heard ? 'proud' : 'focus'} rank={rank} move={forge.reaction} />
-          {/* Before the first answer, what to do. After it, the word just read, its romaji and
+          {/* A word with っ or ー gets a hint about the mark before it's answered. Otherwise:
+              before the first answer, what to do; after it, the word just read, its romaji and
               meaning, and a button to hear it again. */}
-          {heard ? (
+          {!miss && markHint(word) ? (
+            <View style={styles.bubble}>
+              <Text style={styles.bubbleText}>{markHint(word)}</Text>
+            </View>
+          ) : heard ? (
             <Pressable
               role="button"
               aria-label={`Hear ${heard.word.text} again`}
               onPress={() => speakWord(heard.word.text)}
               style={[styles.bubble, styles.heard]}>
               <Text style={styles.bubbleText} numberOfLines={2}>
-                <Text style={styles.kana}>{heard.word.text}</Text> · {wordRomaji(heard.units)} · {heard.word.meaning}
+                <Text style={styles.kana}>{heard.word.text}</Text> · {wordRomaji(heard.parts)} · {heard.word.meaning}
               </Text>
               <SpeakerIcon color={colors.ink2} size={20} />
             </Pressable>
@@ -176,10 +181,17 @@ function correctionFor(miss: ForgeMiss): Correction {
   return { title: `That's ${romaji}`, detail: misread ? `${given} ${misread}` : given, tip };
 }
 
+// A hint for a word with a mark in it, or null.
+function markHint(word: ForgeWord): string | null {
+  const mark = word.parts.find(isMark);
+  if (!mark) return null;
+  return mark.mark === 'double' ? `Small ${mark.char} doubles the sound after it.` : 'ー makes the sound before it longer.';
+}
+
 function tileState(option: ForgeOption, miss: ForgeMiss | null): TileState {
   if (!miss) return 'idle';
   if (option === miss.picked) return 'wrong';
-  if (option.misread === null) return 'missed';
+  if (option.misread === null && option.dropsMark === undefined) return 'missed';
   return 'idle';
 }
 

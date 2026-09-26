@@ -1,5 +1,5 @@
 import { KANA, type Kana } from './kana';
-import { splitWord, wordRomaji } from './forge';
+import { forgeWord, readTyped, wordRomaji } from './forge';
 import { WORDS } from './words';
 
 // Reads romaji back into kana the simple way, taking the longest spelling at each point.
@@ -20,18 +20,28 @@ function readBack(romaji: string, script: Kana['script']): string {
 }
 
 describe('the word list', () => {
-  it('writes every word with kana the app teaches, all in one script', () => {
+  it('writes every word with kana the app teaches (and っ or ー), all in one script', () => {
     const broken = WORDS.filter((w) => {
-      const units = splitWord(w.text);
-      return units === null || new Set(units.map((k) => k.script)).size !== 1;
+      const found = forgeWord(w);
+      return found === null || new Set(found.units.map((k) => k.script)).size !== 1;
     });
     expect(broken.map((w) => w.text)).toEqual([]);
   });
 
-  it("reads each word's romaji back as the same kana, so typing it can't be taken two ways", () => {
+  it("accepts each word's own romaji when it's typed", () => {
+    const rejected = WORDS.filter((w) => {
+      const found = forgeWord(w);
+      return !found || !readTyped(found, wordRomaji(found.parts)).correct;
+    });
+    expect(rejected.map((w) => w.text)).toEqual([]);
+  });
+
+  it("reads each word's romaji back as the same kana, so it can't be taken two ways", () => {
+    // Only words without っ or ー: those marks can't be read back from romaji on their own.
     const ambiguous = WORDS.filter((w) => {
-      const units = splitWord(w.text) ?? [];
-      return readBack(wordRomaji(units), units[0]?.script ?? 'hiragana') !== w.text;
+      const found = forgeWord(w);
+      if (!found || found.parts.length !== found.units.length) return false;
+      return readBack(wordRomaji(found.parts), found.script) !== w.text;
     });
     expect(ambiguous.map((w) => w.text)).toEqual([]);
   });
@@ -43,7 +53,7 @@ describe('the word list', () => {
   });
 
   it('has words in both scripts', () => {
-    const scripts = new Set(WORDS.map((w) => splitWord(w.text)?.[0]?.script));
+    const scripts = new Set(WORDS.map((w) => forgeWord(w)?.script));
     expect(scripts).toEqual(new Set(['hiragana', 'katakana']));
   });
 });

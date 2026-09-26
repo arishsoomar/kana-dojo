@@ -1,6 +1,6 @@
-// Words for Word Forge: common words written only with kana the app teaches, with their
-// meanings. None needs small っ or the long mark ー yet (the app doesn't teach those), and each
-// word's romaji reads back as the same kana (both checked in words.test.ts).
+// Words for Word Forge: common words written only with kana the app teaches (and small っ or
+// the long mark ー), with their meanings and pictures. Each word's own romaji is accepted when
+// it's typed (checked in words.test.ts).
 
 export type Word = {
   text: string; // as written, in hiragana or katakana
@@ -56,7 +56,7 @@ export const WORDS: readonly Word[] = [
   { text: 'ひと', meaning: 'person', picture: '🧑' },
   { text: 'ふね', meaning: 'boat', picture: '⛵' },
   { text: 'ふゆ', meaning: 'winter', picture: '⛄' },
-  { text: 'へや', meaning: 'room', picture: '🛏️' },
+  { text: 'へや', meaning: 'room', picture: '🛋️' },
   { text: 'ほし', meaning: 'star', picture: '⭐' },
   { text: 'ほん', meaning: 'book', picture: '📖' },
   { text: 'みみ', meaning: 'ear', picture: '👂' },
@@ -97,6 +97,18 @@ export const WORDS: readonly Word[] = [
   { text: 'りょこう', meaning: 'travel', picture: '🧳' },
   { text: 'ひゃく', meaning: 'hundred', picture: '💯' },
   { text: 'きんぎょ', meaning: 'goldfish', picture: '🐠' },
+  // With small っ, which doubles the sound after it
+  { text: 'きって', meaning: 'stamp', picture: '✉️' },
+  { text: 'がっこう', meaning: 'school', picture: '🏫' },
+  { text: 'ざっし', meaning: 'magazine', picture: '📰' },
+  { text: 'きっぷ', meaning: 'ticket', picture: '🎫' },
+  { text: 'にっき', meaning: 'diary', picture: '📔' },
+  { text: 'せっけん', meaning: 'soap', picture: '🧼' },
+  { text: 'らっぱ', meaning: 'trumpet', picture: '🎺' },
+  { text: 'ちょっと', meaning: 'a little', picture: '🤏' },
+  { text: 'はっぱ', meaning: 'leaf', picture: '🍃' },
+  { text: 'けっこん', meaning: 'marriage', picture: '💒' },
+  { text: 'おんせん', meaning: 'hot spring', picture: '♨️' },
 
   // Katakana
   { text: 'カメラ', meaning: 'camera', picture: '📷' },
@@ -135,4 +147,42 @@ export const WORDS: readonly Word[] = [
   { text: 'カラオケ', meaning: 'karaoke', picture: '🎤' },
   { text: 'シャツ', meaning: 'shirt', picture: '👕' },
   { text: 'ジャム', meaning: 'jam', picture: '🍓' },
+  // With ッ and ー, which doubles the sound after it and stretches the one before
+  { text: 'コーヒー', meaning: 'coffee', picture: '☕' },
+  { text: 'サッカー', meaning: 'soccer', picture: '⚽' },
+  { text: 'ゲーム', meaning: 'game', picture: '🎮' },
+  { text: 'ケーキ', meaning: 'cake', picture: '🍰' },
+  { text: 'スープ', meaning: 'soup', picture: '🥣' },
+  { text: 'ジュース', meaning: 'juice', picture: '🧃' },
+  { text: 'ビール', meaning: 'beer', picture: '🍺' },
+  { text: 'ボール', meaning: 'ball', picture: '🏐' },
+  { text: 'ノート', meaning: 'notebook', picture: '📓' },
+  { text: 'スーパー', meaning: 'supermarket', picture: '🛒' },
+  { text: 'タクシー', meaning: 'taxi', picture: '🚕' },
+  { text: 'バス', meaning: 'bus', picture: '🚌' },
+  { text: 'メール', meaning: 'email', picture: '📧' },
+  { text: 'カレー', meaning: 'curry', picture: '🍛' },
+  { text: 'ラーメン', meaning: 'ramen', picture: '🍜' },
+  { text: 'アイスクリーム', meaning: 'ice cream', picture: '🍨' },
+  { text: 'チーズ', meaning: 'cheese', picture: '🧀' },
+  { text: 'コート', meaning: 'coat', picture: '🧥' },
+  { text: 'コンピューター', meaning: 'computer', picture: '💻' },
+  { text: 'ロボット', meaning: 'robot', picture: '🤖' },
+  { text: 'ベッド', meaning: 'bed', picture: '🛏️' },
+  { text: 'カップ', meaning: 'cup', picture: '🥤' },
+  { text: 'ホットドッグ', meaning: 'hot dog', picture: '🌭' },
+  { text: 'クッキー', meaning: 'cookie', picture: '🍪' },
+  { text: 'ヘリコプター', meaning: 'helicopter', picture: '🚁' },
+  { text: 'エレベーター', meaning: 'elevator', picture: '🛗' },
+  { text: 'ハンバーガー', meaning: 'hamburger', picture: '🍔' },
+  { text: 'スプーン', meaning: 'spoon', picture: '🥄' },
+  { text: 'ギター', meaning: 'guitar', picture: '🎸' },
+  { text: 'ピーマン', meaning: 'green pepper', picture: '🫑' },
+  { text: 'ドーナツ', meaning: 'doughnut', picture: '🍩' },
+  { text: 'ハート', meaning: 'heart', picture: '💖' },
+  { text: 'スキー', meaning: 'skiing', picture: '⛷️' },
+  { text: 'コアラ', meaning: 'koala', picture: '🐨' },
+  { text: 'ペンギン', meaning: 'penguin', picture: '🐧' },
+  { text: 'トイレ', meaning: 'toilet', picture: '🚽' },
+  { text: 'サンドイッチ', meaning: 'sandwich', picture: '🥪' },
 ];

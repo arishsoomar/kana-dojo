@@ -86,6 +86,20 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'small-tsu',
+        question: 'What do small っ and ー do?',
+        answer: [
+          "They aren't sounds of their own; they change the kana beside them. You'll meet them in Word Forge.",
+          {
+            bullets: [
+              'Small っ (ッ in katakana) doubles the sound after it, like a tiny pause before it: きって is kitte (stamp), ざっし is zasshi (magazine). Before ch it\'s written with a t: ちょっと is chotto.',
+              'ー stretches the vowel before it, mostly in katakana: コーヒー is koohii (coffee), ゲーム is geemu (game). When typing, you can also type ー as a dash: ko-hi-.',
+              'Leaving one out changes the word, so a reading without it counts as wrong: きて (kite) is a different word from きって (kitte).',
+            ],
+          },
+        ],
+      },
+      {
         id: 'karasu',
         question: 'Who is Karasu, and what does he say?',
         answer: [

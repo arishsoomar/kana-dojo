@@ -128,11 +128,22 @@ export function useForge() {
   };
 }
 
+// What a mark does, for its tip and for Karasu's hint before answering.
+export const MARK_TIPS = {
+  double: 'Small っ doubles the sound after it: きって is kitte, not kite.',
+  long: 'ー makes the sound before it longer: コーヒー is koohii, not kohi.',
+} as const;
+
 // The word's romaji and the tip for its first misread kana: how to tell it from the kana
-// read instead, or its own memory tip.
+// read instead, or its own memory tip. A missed っ or ー gets that mark's tip.
 export function missDetails(miss: ForgeMiss): { romaji: string; tip: string | null; misread: string | null } {
+  const romaji = wordRomaji(miss.word.parts);
+  const { missedMark } = miss.reading;
   const wrong = miss.reading.units.find((u) => !u.correct);
+  if (missedMark && !wrong) {
+    return { romaji, tip: MARK_TIPS[missedMark.mark], misread: `It leaves out the ${missedMark.char}.` };
+  }
   const tip = wrong ? (pairTipFor(wrong.kana.char, wrong.guess ? [wrong.guess.char] : []) ?? kanaTip(wrong.kana.char)) : null;
   const misread = wrong ? (wrong.guess ? `${wrong.kana.char} is ${wrong.kana.romaji[0]}, not ${wrong.guess.romaji[0]}.` : `${wrong.kana.char} is ${wrong.kana.romaji[0]}.`) : null;
-  return { romaji: wordRomaji(miss.word.units), tip, misread };
+  return { romaji, tip, misread };
 }

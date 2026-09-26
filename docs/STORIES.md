@@ -582,6 +582,37 @@ that** I can read words whenever I like.
 
 ---
 
+## Epic M — Small っ and ー
+
+Two marks that aren't sounds of their own. Small っ (sokuon) doubles the
+next consonant: きって kitte. ー (chōonpu) stretches the vowel before it,
+mostly in katakana: コーヒー koohii. They're needed for a huge number of
+common words, so Word Forge teaches them in words.
+
+### M1. Reading marks in words
+**As a** learner, **I want** Word Forge to read words with っ and ー, **so
+that** I can read words like がっこう and ラーメン.
+
+- [ ] `splitWord` keeps っ, ッ and ー in a word as marks between its kana,
+      test-first; a mark must sit next to the kana it changes
+- [ ] Romaji: っ doubles the next consonant (t before ch: matcha); ー
+      repeats the vowel before it (koohii). Typing ー as "-" works too
+- [ ] Typed readings check each mark; a missed mark makes the word wrong,
+      and is named in the correction
+- [ ] Tap mode: a word with a mark can offer the word with the mark missed
+      (kite for きって) as one of the wrong options
+- [ ] Marks have no belt: only the word's kana go through `recordAnswer()`
+
+### M2. Teaching them
+**As a** learner, **I want** to be told what っ and ー do, **so that** I'm
+not guessing.
+
+- [ ] Before answering a word with a mark, Karasu says what the mark does
+- [ ] About 40 common words with っ and ー join the list, with pictures
+- [ ] The guide explains both marks
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

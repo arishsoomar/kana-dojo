@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
@@ -10,6 +10,7 @@ import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
+import { setSound } from '@/core/answers';
 import { DAILY_GOALS } from '@/core/goal';
 import {
   badgeLevel,
@@ -25,13 +26,17 @@ import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
 
+// On web the switch's knob colour comes from activeThumbColor, not thumbColor. React Native's
+// types don't list it (it only exists on web), hence the cast.
+const webThumbColor = Platform.OS === 'web' ? ({ activeThumbColor: colors.card } as object) : {};
+
 // Badge goals: streak days for Unbroken, row belts earned for Graded.
 const UNBROKEN_GOALS = [7, 30, 100];
 const GRADED_GOALS = [5, 10, 20];
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { progress } = useProgress();
+  const { progress, updateProgress } = useProgress();
   const rank = useRank();
   const streak = useStreak();
   const since = trainingSince(progress);
@@ -79,6 +84,22 @@ export default function ProfileScreen() {
         </View>
         <Text style={styles.goalChange}>Change</Text>
       </Pressable>
+
+      {/* The same setting as the speaker button in a lesson's top bar. */}
+      <View style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>Sound</Text>
+          <Text style={styles.goalSub}>Hear each kana spoken after you answer it</Text>
+        </View>
+        <Switch
+          aria-label="Sound"
+          value={progress.settings.sound}
+          onValueChange={(on) => updateProgress(setSound(progress, on))}
+          trackColor={{ false: colors.edge, true: colors.pine }}
+          thumbColor={colors.card}
+          {...webThumbColor}
+        />
+      </View>
 
       {/* Only shown when this build has accounts set up. */}
       {auth.available && (

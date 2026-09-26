@@ -2,6 +2,7 @@ import { FAST_MS } from '@/core/answers';
 import { DUEL_LOSS, DUEL_READY_MIXUPS, DUEL_WIN } from '@/core/duel';
 import { EXAM_LENGTH, EXAM_PASS, EXAM_TIME_MS } from '@/core/exam';
 import { DAILY_GOALS } from '@/core/goal';
+import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
 import { NAMED_PAIRS } from '@/core/pairs';
 import { RAIN_LIVES } from '@/core/rain';
@@ -34,7 +35,7 @@ export const GUIDE: GuideSection[] = [
         id: 'what',
         question: 'What is Kana Dojo?',
         answer: [
-          'A dojo for learning to read the Japanese kana: the 46 hiragana and the 46 katakana. The goal is to read each one at a glance, without having to stop and recall it.',
+          `A dojo for learning to read the Japanese kana: hiragana and katakana, ${KANA.length / 2} of each, counting the 46 basic kana and their dakuten and handakuten forms. The goal is to read each one at a glance, without having to stop and recall it.`,
           'Karasu, the crow, is your sensei. He grows as you do.',
         ],
       },
@@ -66,6 +67,21 @@ export const GUIDE: GuideSection[] = [
             ],
           },
           'Gold plaques are belt exams, and red ones are duels. Both are explained below.',
+        ],
+      },
+      {
+        id: 'marks',
+        question: 'What are dakuten and handakuten?',
+        answer: [
+          'Two small marks that change a kana\'s sound. After the わ row, the wall has five more rows made with them:',
+          {
+            bullets: [
+              'Dakuten ゛, two little strokes, voice the sound: か ka → が ga, さ sa → ざ za, た ta → だ da, は ha → ば ba.',
+              'Handakuten ゜, a little circle, turns h into p: は ha → ぱ pa.',
+              'ぢ and づ sound just like じ (ji) and ず (zu), so either spelling is right when you type them. They\'re rare; じ and ず are the usual way to write those sounds.',
+            ],
+          },
+          'Combos like きゃ (kya), called yōon, are still to come.',
         ],
       },
       {
@@ -261,7 +277,7 @@ export const GUIDE: GuideSection[] = [
         answer: [
           {
             bullets: [
-              'Kana learned: kana at green belt or higher, out of 92.',
+              `Kana learned: kana at green belt or higher, out of ${KANA.length}.`,
               'Strike speed: your typical time for a right answer. Half your right answers are faster than this.',
               'Accuracy: your share of right answers, over everything you have answered.',
               'Unbroken badge: streak days, levelling up at 7, 30 and 100.',

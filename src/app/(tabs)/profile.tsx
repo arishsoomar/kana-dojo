@@ -21,6 +21,7 @@ import {
   trainingSince,
   type BadgeProgress,
 } from '@/core/profile';
+import { KANA } from '@/core/kana';
 import { useAuth } from '@/hooks/use-auth';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
@@ -62,7 +63,7 @@ export default function ProfileScreen() {
 
       <View style={styles.stats}>
         <Stat icon={<FlameIcon size={28} />} value={String(streak.current)} label="Day streak" />
-        <Stat icon={<KanaIcon color={colors.sumi} size={28} />} value={`${kanaLearned(progress)}/92`} label="Kana learned" />
+        <Stat icon={<KanaIcon color={colors.sumi} size={28} />} value={`${kanaLearned(progress)}/${KANA.length}`} label="Kana learned" />
         <Stat
           icon={<BoltIcon size={28} />}
           value={speed === null ? '–' : `${(speed / 1000).toFixed(1)}s`}

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,7 +14,7 @@ import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
-import { lookalikesOf, type Kana, type Script } from '@/core/kana';
+import { KANA, lookalikesOf, rowMark, type Kana, type RowId, type Script } from '@/core/kana';
 import { kanaTip } from '@/core/tips';
 import { useProgress } from '@/hooks/use-progress';
 
@@ -62,28 +62,53 @@ export default function KanaScreen() {
       </View>
 
       <View style={styles.rows}>
-        {grid.rows.map(({ row, belt, cells }) => (
-          <View key={row} style={styles.row}>
-            {/* The row's name and its belt: the belt of its weakest kana. */}
-            <View style={styles.rowLabel} aria-label={`${row} row, ${belt} belt`}>
-              <Text style={styles.rowName}>{row}</Text>
-              <BeltIcon belt={belt} width={24} />
-            </View>
-            {cells.map((cell) => (
-              <KanaCell key={cell.kana.char} cell={cell} onPress={() => setOpen(cell.kana)} />
-            ))}
-            {/* Short rows (ya, wa) keep the same column widths as the rest. */}
-            {Array.from({ length: 5 - cells.length }, (_, i) => (
-              <View key={`empty-${i}`} style={styles.emptyCell} />
-            ))}
-          </View>
-        ))}
+        {grid.rows.map(({ row, belt, cells }, i) => {
+          // A heading where the marked rows begin, saying what the mark does.
+          const previous = grid.rows[i - 1];
+          const newMark = rowMark(row) !== null && rowMark(row) !== (previous ? rowMark(previous.row) : null);
+          return (
+            <Fragment key={row}>
+              {newMark && <MarkHeading row={row} script={script} />}
+              <View style={styles.row}>
+                {/* The row's name and its belt: the belt of its weakest kana. */}
+                <View style={styles.rowLabel} aria-label={`${row} row, ${belt} belt`}>
+                  <Text style={styles.rowName}>{row}</Text>
+                  <BeltIcon belt={belt} width={24} />
+                </View>
+                {cells.map((cell) => (
+                  <KanaCell key={cell.kana.char} cell={cell} onPress={() => setOpen(cell.kana)} />
+                ))}
+                {/* Short rows (ya, wa) keep the same column widths as the rest. */}
+                {Array.from({ length: 5 - cells.length }, (_, n) => (
+                  <View key={`empty-${n}`} style={styles.emptyCell} />
+                ))}
+              </View>
+            </Fragment>
+          );
+        })}
       </View>
 
       {open && (
         <DetailSheet kana={open} onDrill={() => drill(open)} onClose={() => setOpen(null)} />
       )}
     </ScrollView>
+  );
+}
+
+// "Dakuten ゛" with an example from this script, like か ka → が ga.
+function MarkHeading({ row, script }: { row: RowId; script: Script }) {
+  const mark = rowMark(row);
+  if (!mark) return null;
+  const [plain, marked] = mark === 'dakuten' ? ['ka', 'ga'] : ['ha', 'pa'];
+  const char = (romaji: string) => KANA.find((k) => k.script === script && k.romaji[0] === romaji)?.char ?? '';
+  return (
+    <View style={styles.markHeading}>
+      <Text style={styles.markTitle}>{mark === 'dakuten' ? 'Dakuten ゛' : 'Handakuten ゜'}</Text>
+      <Text style={styles.markSub}>
+        {mark === 'dakuten' ? 'Two little strokes voice the sound: ' : 'A little circle turns h into p: '}
+        <Text style={styles.markKana}>{char(plain)}</Text> {plain} → <Text style={styles.markKana}>{char(marked)}</Text> {marked}
+      </Text>
+    </View>
   );
 }
 
@@ -155,6 +180,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  markHeading: {
+    marginTop: 14,
+    marginBottom: 2,
+    gap: 2,
+  },
+  markTitle: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 16,
+    color: colors.sumi,
+  },
+  markSub: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 13,
+    color: colors.ink2,
+  },
+  markKana: {
+    fontFamily: fonts.jp,
+    color: colors.sumi,
   },
   rowLabel: {
     alignItems: 'center',

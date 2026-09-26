@@ -16,7 +16,7 @@ import { ScriptPicker } from '@/components/script-picker';
 import { colors, fonts, wallColors } from '@/constants/theme';
 import { setScript } from '@/core/answers';
 import { duelRow, scrolls } from '@/core/duel';
-import type { RowId, Script } from '@/core/kana';
+import { rowMark, type RowId, type Script } from '@/core/kana';
 import { pairId } from '@/core/pairs';
 import { learnPath, type LearnPath, type PathUnit, type Plaque } from '@/core/path';
 import { karasuSays } from '@/core/sayings';
@@ -41,6 +41,13 @@ function perRailFor(width: number): number {
 const SAID_MS = 6000;
 // How long wall news is kept after the Learn screen shows it: long enough for it to play.
 const NEWS_MS = 3000;
+
+// Beside a unit's board, for a row of marked kana: which mark.
+function MarkTag({ row }: { row: RowId }) {
+  const mark = rowMark(row);
+  if (!mark) return null;
+  return <Text style={styles.markTag}>{mark === 'dakuten' ? 'dakuten ゛' : 'handakuten ゜'}</Text>;
+}
 
 // The shoji grid on the wall: how far apart its lines are, and how many rows of it to draw.
 const SHOJI_ROW = 96;
@@ -274,11 +281,14 @@ function Wall({ units, showRow, perRail }: { units: WallUnit[]; showRow: RowId; 
       {units.map(({ unit, items, note }) => (
         <View key={unit.row} style={styles.unit} onLayout={(e) => onUnitLayout(unit.row, e)}>
           <View style={styles.unitLabel}>
-            {/* The unit's name on a small wooden board. */}
-            <View style={[styles.board, !unit.open && styles.boardLocked]}>
-              <Text style={[styles.boardText, !unit.open && styles.boardTextLocked]}>
-                Unit {unit.number} · <Text style={styles.kana}>{rowKana(unit)}</Text> row
-              </Text>
+            {/* The unit's name on a small wooden board, and for a row of marked kana, which mark. */}
+            <View style={styles.boardRow}>
+              <View style={[styles.board, !unit.open && styles.boardLocked]}>
+                <Text style={[styles.boardText, !unit.open && styles.boardTextLocked]}>
+                  Unit {unit.number} · <Text style={styles.kana}>{rowKana(unit)}</Text> row
+                </Text>
+              </View>
+              <MarkTag row={unit.row} />
             </View>
             {unit.open && <BeltIcon belt={unit.belt} width={30} />}
           </View>
@@ -440,6 +450,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 6,
     paddingHorizontal: 18,
+  },
+  boardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  markTag: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 12,
+    color: colors.woodDark,
   },
   board: {
     paddingVertical: 4,

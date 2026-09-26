@@ -13,10 +13,12 @@ type Props = {
   rank: Belt;
   // The belt he's wearing. Normally his rank's belt; the belt ceremony shows a new one.
   belt?: Belt;
+  // Eyes shut for a moment (see AliveKarasu, which blinks him every few seconds).
+  blink?: boolean;
 };
 
 // Karasu, drawn from the mocks. Rank changes his form; mood changes his face.
-export function Karasu({ mood, size = 58, rank, belt = rank }: Props) {
+export function Karasu({ mood, size = 58, rank, belt = rank, blink = false }: Props) {
   const fledgling = rank === 'white';
   const master = rank === 'black';
   const body = fledgling ? k.fledglingBody : k.body;
@@ -50,7 +52,7 @@ export function Karasu({ mood, size = 58, rank, belt = rank }: Props) {
         <Path d="M42 30L50 17 58 30 55 36H45Z" fill={k.hat} stroke={k.hatEdge} strokeWidth={1.5} strokeLinejoin="round" />
       )}
 
-      <Eyes mood={mood} fledgling={fledgling} />
+      <Eyes mood={mood} fledgling={fledgling} blink={blink} />
       <Beak open={mood === 'cheer'} fledgling={fledgling} />
 
       {master && (
@@ -117,10 +119,14 @@ function Headband({ color }: { color: string }) {
   );
 }
 
-function Eyes({ mood, fledgling }: { mood: KarasuMood; fledgling: boolean }) {
+function Eyes({ mood, fledgling, blink }: { mood: KarasuMood; fledgling: boolean; blink: boolean }) {
   if (mood === 'proud' || mood === 'cheer') {
     // Closed, smiling eyes.
     return <Path d="M31 55q7-7 14 0M55 55q7-7 14 0" fill="none" stroke={k.eye} strokeWidth={3.4} strokeLinecap="round" />;
+  }
+  if (blink) {
+    // Mid-blink: the eyes as two flat lines.
+    return <Path d="M31 54h14M55 54h14" stroke={k.eye} strokeWidth={3.4} strokeLinecap="round" />;
   }
 
   // Open eyes (bigger on the fledgling); the brows set the expression.

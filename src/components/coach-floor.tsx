@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, wallColors } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 
-import { Karasu } from './karasu';
+import { AliveKarasu } from './alive-karasu';
 
 // How tall the strip of floor is, and how much room Karasu and the bubble take above the
 // bottom edge; the wall above leaves this much space so nothing hides behind them.
@@ -40,7 +40,7 @@ export function CoachFloor({ rank, line, action }: Props) {
         ))}
       </View>
       <View style={styles.karasu} pointerEvents="none">
-        <Karasu mood="focus" size={96} rank={rank} />
+        <AliveKarasu mood="focus" size={96} rank={rank} />
       </View>
       {action ? (
         <Pressable role="button" aria-label={`${line} ${action.label}`} onPress={action.onPress} style={styles.bubble}>

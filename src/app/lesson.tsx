@@ -6,7 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
 import { FeedbackSheet } from '@/components/feedback-sheet';
 import { KanaFrame } from '@/components/kana-frame';
-import { Karasu, type KarasuMood } from '@/components/karasu';
+import { AliveKarasu } from '@/components/alive-karasu';
+import type { KarasuMood } from '@/components/karasu';
 import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { LessonTopBar } from '@/components/lesson-top-bar';
@@ -53,7 +54,7 @@ export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
   const [mode] = useState(() => modeFrom(params));
-  const { question, result, summary, heard, sound, toggleSound, fraction, check, goToNext } = useLesson(mode);
+  const { question, result, summary, heard, reaction, sound, toggleSound, fraction, check, goToNext } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
   const rank = useRank();
 
@@ -85,7 +86,7 @@ export default function LessonScreen() {
 
       <View style={styles.body}>
         <View style={styles.coach}>
-          <Karasu mood={moodFor(result)} rank={rank} />
+          <AliveKarasu mood={moodFor(result)} rank={rank} move={reaction} />
           {/* Before the first answer, what this lesson is. After it, the kana just answered,
               with a button to hear it again. */}
           {heard ? (

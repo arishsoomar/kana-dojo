@@ -57,6 +57,9 @@ export function useLesson(mode: LessonMode) {
   // The kana just answered, which is spoken aloud (unless muted) and shown with a replay button.
   // Nothing is spoken before an answer: hearing it first would give the answer away.
   const [heard, setHeard] = useState<Kana | null>(null);
+  // Karasu's reaction to the latest answer: a hop for right, a head-shake for wrong. The id
+  // counts answers, so the same reaction twice in a row still plays twice.
+  const [reaction, setReaction] = useState<{ kind: 'hop' | 'shake'; id: number } | null>(null);
   const sound = progress.settings.sound;
   const haptics = useHaptics();
 
@@ -69,6 +72,7 @@ export function useLesson(mode: LessonMode) {
     if (sound) pronounce(kana);
     if (correct) haptics.right();
     else haptics.miss();
+    setReaction({ kind: correct ? 'hop' : 'shake', id: answers.length });
     const next = recordAnswer(progress, { char: kana.char, guess: guess.char, ms, now });
 
     updateProgress(next);
@@ -121,6 +125,7 @@ export function useLesson(mode: LessonMode) {
     result,
     summary,
     heard,
+    reaction,
     sound,
     toggleSound,
     fraction: answers.length / LESSON_LENGTH,

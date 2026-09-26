@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, typ
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
-import { BeltPlaque } from '@/components/belt-plaque';
+import { BeltPlaque, HANG_LANDS_MS } from '@/components/belt-plaque';
 import { CoachFloor, FLOOR_SPACE } from '@/components/coach-floor';
 import { DuelPlaque } from '@/components/duel-plaque';
 import { ExamPlaque } from '@/components/exam-plaque';
@@ -40,7 +40,7 @@ function perRailFor(width: number): number {
 // How long a line Karasu says when tapped stays in his bubble.
 const SAID_MS = 6000;
 // How long wall news is kept after the Learn screen shows it: long enough for it to play.
-const NEWS_MS = 2500;
+const NEWS_MS = 3000;
 
 // The shoji grid on the wall: how far apart its lines are, and how many rows of it to draw.
 const SHOJI_ROW = 96;
@@ -58,19 +58,21 @@ export default function LearnScreen() {
   const [said, setSaid] = useState<string | null>(null);
   const [karasuMove, setKarasuMove] = useState<{ kind: 'hop'; id: number } | null>(null);
   const saidTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // What happened while a lesson was open: seals to stamp and rows to flip. It's only shown
+  // What happened while a lesson was open: seals to stamp, rows to flip, and belt plaques to
+  // hang. It's only shown
   // once the Learn tab is in view again, so it plays where it can be seen.
   const focused = useIsFocused();
   const waiting = useWallNews();
   const news = focused ? waiting : NO_NEWS;
 
-  const feel = useEffectEvent((stamped: boolean, opened: boolean) => {
+  const feel = useEffectEvent((stamped: boolean, opened: boolean, hung: boolean) => {
     if (stamped) setTimeout(() => haptics.thunk(), STAMP_LANDS_MS);
+    if (hung) setTimeout(() => haptics.thunk(), HANG_LANDS_MS);
     if (opened) haptics.success();
   });
   useEffect(() => {
     if (news === NO_NEWS) return;
-    feel(news.stamped.length > 0, news.opened.length > 0);
+    feel(news.stamped.length > 0, news.opened.length > 0, news.hung.length > 0);
     // Once it has played, clear it, so it doesn't play again.
     const timer = setTimeout(clearWallNews, NEWS_MS);
     return () => clearTimeout(timer);
@@ -135,7 +137,14 @@ export default function LearnScreen() {
           reveal={news.opened.some((o) => o.script === script && o.row === u.row) ? i : null}
         />
       )),
-      u.belt !== 'white' && <BeltPlaque key="belt" belt={u.belt} />,
+      u.belt !== 'white' && (
+        <BeltPlaque
+          key="belt"
+          belt={u.belt}
+          rank={rank}
+          hang={news.hung.some((h) => h.script === script && h.row === u.row)}
+        />
+      ),
       u.exam && <ExamPlaque key="exam" belt={u.exam} onPress={() => takeExam(u)} />,
       ...readyDuels
         .filter((pair) => duelRow(pair).row === u.row)
@@ -195,11 +204,12 @@ export default function LearnScreen() {
 
       <View style={styles.wallArea}>
         <Shoji width={width} />
-        {/* A new script or a new current unit is a new wall, which scrolls to that unit. */}
+        {/* A new script or a new current unit is a new wall, which scrolls to that unit. While a
+            belt plaque is being hung, it shows that plaque's row instead. */}
         <Wall
           key={`${script}:${unit.row}`}
           perRail={perRailFor(width)}
-          currentRow={unit.row}
+          showRow={news.hung.find((h) => h.script === script)?.row ?? unit.row}
           units={path.units.map((u) => ({
             unit: u,
             items: itemsFor(u),
@@ -238,17 +248,26 @@ function Shoji({ width }: { width: number }) {
   );
 }
 
-// The dojo wall: every unit's plaques on rails. It scrolls, and opens at the current unit,
-// so its rails are the ones in view.
-function Wall({ units, currentRow, perRail }: { units: WallUnit[]; currentRow: RowId; perRail: number }) {
+// The dojo wall: every unit's plaques on rails. It scrolls, and opens at `showRow` (normally
+// the current unit), so its rails are the ones in view. If `showRow` changes, it glides there.
+function Wall({ units, showRow, perRail }: { units: WallUnit[]; showRow: RowId; perRail: number }) {
   const scroller = useRef<ScrollView>(null);
   const scrolled = useRef(false);
+  // Where each unit starts, once it's been laid out.
+  const unitTops = useRef(new Map<RowId, number>());
 
   function onUnitLayout(row: RowId, event: LayoutChangeEvent) {
-    if (row !== currentRow || scrolled.current) return;
+    unitTops.current.set(row, event.nativeEvent.layout.y);
+    if (row !== showRow || scrolled.current) return;
     scrolled.current = true;
     scroller.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: false });
   }
+
+  useEffect(() => {
+    // Before the first layout, onUnitLayout does the first scroll instead.
+    const y = unitTops.current.get(showRow);
+    if (y !== undefined) scroller.current?.scrollTo({ y, animated: true });
+  }, [showRow]);
 
   return (
     <ScrollView ref={scroller} contentContainerStyle={{ paddingBottom: FLOOR_SPACE }}>

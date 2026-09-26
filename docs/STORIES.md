@@ -526,6 +526,9 @@ Done when:
   motion is skipped with the phone's Reduce Motion setting.
 - Belt ceremony: the new belt falls onto Karasu's waist, wraps round him,
   he tugs the knot tight, and a gong rings as he cheers.
+  Back on the Learn wall, the wall scrolls to that row and a small Karasu
+  flies up from the floor carrying the new belt plaque by its cord, hooks it
+  on its peg, and flies off while it swings.
 - Sound effects: a taiko drum when a lesson, duel, failed exam or Kana Rain
   game ends, and a gong when a belt is tied on. Both are made from plain
   maths by `scripts/make-sounds.mjs` (no recordings, no licence), played

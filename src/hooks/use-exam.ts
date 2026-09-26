@@ -102,7 +102,8 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     }
     changeProgress((current) => completeLesson(current, examId(script, row, belt), Date.now(), right));
     const summary = summarizeLesson(done.startProgress, currentProgress(), done.answers);
-    postWallNews({ opened: summary.rowsOpened });
+    // A pass earns the row's belt plaque, which Karasu hangs on the wall.
+    postWallNews({ opened: summary.rowsOpened, hung: status === 'passed' ? [{ script, row }] : [] });
     setResult({ status, correct: right, summary });
   }
 

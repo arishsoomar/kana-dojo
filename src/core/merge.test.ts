@@ -3,7 +3,7 @@ import { mergeProgress } from './merge';
 
 // Two copies of one learner's progress, each with changes the other hasn't seen.
 const phone: Progress = {
-  kana: { あ: { box: 3, dueAt: 500 }, い: { box: 1, dueAt: 100 } },
+  kana: { あ: { box: 3, at: 500 }, い: { box: 1, at: 100 } },
   confusions: [
     { shown: 'あ', guessed: 'お' },
     { shown: 'あ', guessed: 'お' },
@@ -14,11 +14,11 @@ const phone: Progress = {
     { lesson: 'hiragana:a:0', at: 10 },
     { lesson: 'drill:あ', at: 20 },
   ],
-  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true },
+  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false },
 };
 
 const web: Progress = {
-  kana: { あ: { box: 2, dueAt: 300 }, い: { box: 2, dueAt: 400 }, う: { box: 1, dueAt: 50 } },
+  kana: { あ: { box: 2, at: 300 }, い: { box: 2, at: 400 }, う: { box: 1, at: 50 } },
   confusions: [
     { shown: 'あ', guessed: 'お' },
     { shown: 'い', guessed: 'り' },
@@ -28,23 +28,23 @@ const web: Progress = {
     { lesson: 'hiragana:a:0', at: 10 },
     { lesson: 'rain', at: 30, score: 480 },
   ],
-  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false },
+  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false },
 };
 
 describe('mergeProgress', () => {
   it('keeps, per kana, the copy with the later due time', () => {
     const merged = mergeProgress(phone, web);
     expect(merged.kana).toEqual({
-      あ: { box: 3, dueAt: 500 },
-      い: { box: 2, dueAt: 400 },
-      う: { box: 1, dueAt: 50 },
+      あ: { box: 3, at: 500 },
+      い: { box: 2, at: 400 },
+      う: { box: 1, at: 50 },
     });
   });
 
   it('breaks a due-time tie with the higher box', () => {
-    const a = { ...EMPTY_PROGRESS, kana: { あ: { box: 1, dueAt: 100 } } };
-    const b = { ...EMPTY_PROGRESS, kana: { あ: { box: 2, dueAt: 100 } } };
-    expect(mergeProgress(a, b).kana['あ']).toEqual({ box: 2, dueAt: 100 });
+    const a = { ...EMPTY_PROGRESS, kana: { あ: { box: 1, at: 100 } } };
+    const b = { ...EMPTY_PROGRESS, kana: { あ: { box: 2, at: 100 } } };
+    expect(mergeProgress(a, b).kana['あ']).toEqual({ box: 2, at: 100 });
   });
 
   it('combines mix-ups without counting shared ones twice: each pair keeps its larger count', () => {
@@ -73,7 +73,7 @@ describe('mergeProgress', () => {
   });
 
   it('keeps the settings of the first copy (the device in hand), onboarded if either is', () => {
-    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false });
+    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false });
   });
 
   it('gives the same training record whichever order the copies come in', () => {

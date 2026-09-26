@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 
 import { SpeakerIcon } from './speaker-icon';
 import { XIcon } from './x-icon';
@@ -12,9 +12,13 @@ type Props = {
   // Whether kana are spoken after each answer, and the button that turns it on and off.
   sound: boolean;
   onToggleSound: () => void;
+  // Whether answers are typed or tapped, and the switch between them. Typed answers count
+  // double toward belts, which the "×2" says.
+  typing: boolean;
+  onToggleTyping: () => void;
 };
 
-export function LessonTopBar({ fraction, onClose, sound, onToggleSound }: Props) {
+export function LessonTopBar({ fraction, onClose, sound, onToggleSound, typing, onToggleTyping }: Props) {
   return (
     <View style={styles.bar}>
       <Pressable role="button" aria-label="Leave lesson" onPress={onClose} hitSlop={10}>
@@ -28,6 +32,18 @@ export function LessonTopBar({ fraction, onClose, sound, onToggleSound }: Props)
         aria-valuenow={Math.round(fraction * 100)}>
         <View style={[styles.fill, { width: `${fraction * 100}%` }]} />
       </View>
+      <Pressable
+        role="switch"
+        aria-checked={typing}
+        aria-label="Type answers, for double progress"
+        onPress={onToggleTyping}
+        hitSlop={6}
+        style={styles.mode}>
+        <Text style={[styles.segment, !typing && styles.segmentOn]}>Tap</Text>
+        <Text style={[styles.segment, typing && styles.segmentOn]}>
+          Type <Text style={[styles.double, typing && styles.doubleOn]}>×2</Text>
+        </Text>
+      </Pressable>
       <Pressable role="button" aria-label={sound ? 'Mute sound' : 'Turn sound on'} onPress={onToggleSound} hitSlop={10}>
         <SpeakerIcon color={colors.ink2} muted={!sound} />
       </Pressable>
@@ -55,5 +71,34 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 3,
     backgroundColor: colors.sumi,
+  },
+  // Two segments; the one in use is filled.
+  mode: {
+    flexDirection: 'row',
+    padding: 2,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: colors.edge,
+    backgroundColor: colors.card,
+  },
+  segment: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    overflow: 'hidden',
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.ink2,
+  },
+  segmentOn: {
+    backgroundColor: colors.sumi,
+    color: colors.card,
+  },
+  double: {
+    fontFamily: fonts.uiExtraBold,
+    color: colors.vermilion,
+  },
+  doubleOn: {
+    color: colors.gold,
   },
 });

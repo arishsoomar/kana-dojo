@@ -1,4 +1,4 @@
-import { KANA, ROWS, lookalikesOf, matchesRomaji, type Kana } from './kana';
+import { KANA, ROWS, kanaForRomaji, lookalikesOf, matchesRomaji, typingDone, type Kana } from './kana';
 import { NAMED_PAIRS } from './pairs';
 
 function kana(char: string): Kana {
@@ -86,5 +86,39 @@ describe('lookalikes', () => {
       expect(lookalikesOf(kana[0])).toContain(kana[1]);
       expect(lookalikesOf(kana[1])).toContain(kana[0]);
     }
+  });
+});
+
+describe('typingDone', () => {
+  it('is done once the input is a whole spelling that no longer spelling starts with', () => {
+    expect(typingDone('ka')).toBe(true);
+    expect(typingDone('shi')).toBe(true);
+    expect(typingDone('si')).toBe(true);
+    expect(typingDone(' KA ')).toBe(true);
+  });
+
+  it('waits while more letters could follow', () => {
+    expect(typingDone('')).toBe(false);
+    expect(typingDone('k')).toBe(false);
+    expect(typingDone('sh')).toBe(false);
+    // "n" is ん, but it might be the start of na, ni, nu, ne or no: Enter sends it.
+    expect(typingDone('n')).toBe(false);
+  });
+
+  it('waits on something that spells no kana, so a typo can be fixed', () => {
+    expect(typingDone('kx')).toBe(false);
+  });
+});
+
+describe('kanaForRomaji', () => {
+  it('finds the kana a spelling belongs to, in the given script', () => {
+    expect(kanaForRomaji('ka', 'hiragana')?.char).toBe('か');
+    expect(kanaForRomaji('ti', 'katakana')?.char).toBe('チ');
+    expect(kanaForRomaji(' Shi', 'hiragana')?.char).toBe('し');
+  });
+
+  it('is null for something that spells no kana', () => {
+    expect(kanaForRomaji('kx', 'hiragana')).toBeNull();
+    expect(kanaForRomaji('', 'hiragana')).toBeNull();
   });
 });

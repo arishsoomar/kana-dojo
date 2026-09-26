@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
@@ -13,6 +13,7 @@ import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { LessonTopBar } from '@/components/lesson-top-bar';
 import { SpeakerIcon } from '@/components/speaker-icon';
+import { TypeAnswer } from '@/components/type-answer';
 import { colors, fonts } from '@/constants/theme';
 import { pronounce } from '@/audio/pronounce';
 import { KANA, type Kana } from '@/core/kana';
@@ -55,8 +56,23 @@ export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
   const [mode] = useState(() => modeFrom(params));
-  const { question, result, summary, heard, reaction, combo, sound, toggleSound, fraction, check, goToNext } =
-    useLesson(mode);
+  const {
+    question,
+    questionKey,
+    result,
+    summary,
+    heard,
+    reaction,
+    combo,
+    sound,
+    toggleSound,
+    typing,
+    toggleTyping,
+    fraction,
+    check,
+    checkTyped,
+    goToNext,
+  } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
   const rank = useRank();
 
@@ -83,8 +99,18 @@ export default function LessonScreen() {
   }
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <LessonTopBar fraction={fraction} onClose={() => setLeaving(true)} sound={sound} onToggleSound={toggleSound} />
+    // In typing mode the keyboard is up, so the screen makes room for it.
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={[styles.screen, { paddingTop: insets.top }]}>
+      <LessonTopBar
+        fraction={fraction}
+        onClose={() => setLeaving(true)}
+        sound={sound}
+        onToggleSound={toggleSound}
+        typing={typing}
+        onToggleTyping={toggleTyping}
+      />
 
       <View style={styles.body}>
         <View style={styles.coach}>
@@ -115,17 +141,22 @@ export default function LessonScreen() {
           <ComboChip count={combo} />
         </View>
 
-        <View style={styles.choices}>
-          {question.choices.map((choice) => (
-            <ChoiceTile
-              key={choice.char}
-              label={choice.romaji[0]}
-              state={tileState(choice, question.kana, result)}
-              disabled={result !== null}
-              onPress={() => check(choice)}
-            />
-          ))}
-        </View>
+        {/* A fresh box for each question: it clears, and opens the keyboard. */}
+        {typing ? (
+          <TypeAnswer key={questionKey} wrong={wrong} onSubmit={checkTyped} />
+        ) : (
+          <View style={styles.choices}>
+            {question.choices.map((choice) => (
+              <ChoiceTile
+                key={choice.char}
+                label={choice.romaji[0]}
+                state={tileState(choice, question.kana, result)}
+                disabled={result !== null}
+                onPress={() => check(choice)}
+              />
+            ))}
+          </View>
+        )}
       </View>
 
       {/* The bottom padding lives here, so the white sheet reaches the bottom edge. */}
@@ -134,7 +165,7 @@ export default function LessonScreen() {
       </View>
 
       <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={leaveLesson} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -1,7 +1,6 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
 import { learnPath } from './path';
 import { placeKnown, placeRow, placementQuestions, rowPassed } from './placement';
-import { intervalFor } from './boxes';
 
 const NOW = 1_000_000;
 
@@ -23,14 +22,14 @@ describe('rowPassed', () => {
 });
 
 describe('placeKnown', () => {
-  it('starts a known kana at green belt (box 3), due after that box\'s wait', () => {
+  it('starts a known kana at green belt (box 3)', () => {
     const next = placeKnown(EMPTY_PROGRESS, 'か', NOW);
-    expect(next.kana['か']).toEqual({ box: 3, dueAt: NOW + intervalFor(3) });
+    expect(next.kana['か']).toEqual({ box: 3, at: NOW });
   });
 
   it('never lowers a kana that is already higher', () => {
-    const high: Progress = { ...EMPTY_PROGRESS, kana: { か: { box: 5, dueAt: 7 } } };
-    expect(placeKnown(high, 'か', NOW).kana['か']).toEqual({ box: 5, dueAt: 7 });
+    const high: Progress = { ...EMPTY_PROGRESS, kana: { か: { box: 5, at: 7 } } };
+    expect(placeKnown(high, 'か', NOW).kana['か']).toEqual({ box: 5, at: 7 });
   });
 
   it('never changes the progress it was given', () => {

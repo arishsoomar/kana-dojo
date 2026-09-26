@@ -1,5 +1,4 @@
 import { completeLesson, NEW_KANA, type Progress } from './answers';
-import { intervalFor } from './boxes';
 import { KANA, type Kana, type RowId } from './kana';
 import { plaquesFor } from './path';
 import { shuffle, type Rng } from './random';
@@ -28,7 +27,7 @@ export function rowPassed(correct: number, total: number): boolean {
 export function placeKnown(progress: Progress, char: string, now: number): Progress {
   const current = progress.kana[char] ?? NEW_KANA;
   if (current.box >= KNOWN_BOX) return progress;
-  return { ...progress, kana: { ...progress.kana, [char]: { box: KNOWN_BOX, dueAt: now + intervalFor(KNOWN_BOX) } } };
+  return { ...progress, kana: { ...progress.kana, [char]: { box: KNOWN_BOX, at: now } } };
 }
 
 // Marks a known row's lesson plaques as done, so the learn path starts after it.

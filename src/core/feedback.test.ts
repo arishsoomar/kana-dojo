@@ -12,7 +12,7 @@ function kana(char: string): Kana {
 const NOW = 1_000_000;
 
 function withBox(box: number): Progress {
-  return { ...EMPTY_PROGRESS, kana: { ぬ: { box, dueAt: NOW } } };
+  return { ...EMPTY_PROGRESS, kana: { ぬ: { box, at: NOW } } };
 }
 
 describe('beltChange', () => {

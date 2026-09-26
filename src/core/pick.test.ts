@@ -8,42 +8,39 @@ function kana(char: string): Kana {
   return found;
 }
 
-const NOW = 1_000_000;
-
 // 100 evenly spaced "random" numbers, so picks can be counted like percentages.
 const sweep = Array.from({ length: 100 }, (_, i) => i / 100);
 
 function countPicks(progress: Progress, candidates: Kana[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const value of sweep) {
-    const picked = pickNext(progress, candidates, NOW, () => value);
+    const picked = pickNext(progress, candidates, () => value);
     counts[picked.char] = (counts[picked.char] ?? 0) + 1;
   }
   return counts;
 }
 
 describe('pickNext', () => {
-  it('strongly favors a due kana over one that is not due', () => {
+  it('favors a low box over a high box', () => {
     const progress: Progress = {
       ...EMPTY_PROGRESS,
-      kana: { あ: { box: 3, dueAt: NOW - 1 }, い: { box: 3, dueAt: NOW + 60_000 } },
-    };
-    const counts = countPicks(progress, [kana('あ'), kana('い')]);
-    expect(counts['あ']).toBeGreaterThan(85);
-    expect(counts['い']).toBeGreaterThan(0);
-  });
-
-  it('favors a low box over a high box when both are due', () => {
-    const progress: Progress = {
-      ...EMPTY_PROGRESS,
-      kana: { あ: { box: 0, dueAt: NOW }, い: { box: 6, dueAt: NOW } },
+      kana: { あ: { box: 0, at: 1 }, い: { box: 6, at: 1 } },
     };
     const counts = countPicks(progress, [kana('あ'), kana('い')]);
     expect(counts['あ']).toBeGreaterThan(70);
   });
 
-  it('treats a never-seen kana as box 0 and due', () => {
-    const progress: Progress = { ...EMPTY_PROGRESS, kana: { い: { box: 6, dueAt: NOW } } };
+  it('still sometimes picks a black-belt kana, so it gets reviewed', () => {
+    const progress: Progress = {
+      ...EMPTY_PROGRESS,
+      kana: { あ: { box: 0, at: 1 }, い: { box: 9, at: 1 } },
+    };
+    const counts = countPicks(progress, [kana('あ'), kana('い')]);
+    expect(counts['い']).toBeGreaterThan(0);
+  });
+
+  it('treats a never-seen kana as box 0', () => {
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { い: { box: 6, at: 1 } } };
     const counts = countPicks(progress, [kana('あ'), kana('い')]);
     expect(counts['あ']).toBeGreaterThan(70);
   });

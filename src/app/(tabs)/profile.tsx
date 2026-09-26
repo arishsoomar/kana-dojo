@@ -10,7 +10,7 @@ import { FlameIcon } from '@/components/flame-icon';
 import { Karasu } from '@/components/karasu';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
-import { setHaptics, setSound } from '@/core/answers';
+import { setHaptics, setTyping, setSound } from '@/core/answers';
 import { DAILY_GOALS } from '@/core/goal';
 import {
   badgeLevel,
@@ -110,6 +110,22 @@ export default function ProfileScreen() {
           aria-label="Haptics"
           value={progress.settings.haptics}
           onValueChange={(on) => updateProgress(setHaptics(progress, on))}
+          trackColor={{ false: colors.edge, true: colors.pine }}
+          thumbColor={colors.card}
+          {...webThumbColor}
+        />
+      </View>
+
+      {/* The same setting as the Tap / Type switch in a lesson's top bar. */}
+      <View style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>Type answers</Text>
+          <Text style={styles.goalSub}>Type each kana&apos;s sound instead of tapping it. Counts double toward belts.</Text>
+        </View>
+        <Switch
+          aria-label="Type answers"
+          value={progress.settings.typing}
+          onValueChange={(on) => updateProgress(setTyping(progress, on))}
           trackColor={{ false: colors.edge, true: colors.pine }}
           thumbColor={colors.card}
           {...webThumbColor}

@@ -1,5 +1,5 @@
-import { NEW_KANA, type Progress } from './answers';
-import { tierOf, type Belt } from './boxes';
+import { climbLimit, NEW_KANA, type Progress } from './answers';
+import { BELT_STARTS, BELTS, tierOf, type Belt } from './boxes';
 import type { Kana } from './kana';
 import { median } from './lesson';
 
@@ -9,12 +9,22 @@ export type KanaDetails = {
   belt: Belt;
   accuracy: number | null; // 0 to 1; null if never answered
   strikeSpeedMs: number | null; // median of recent correct answers; null if none
-  dueInMs: number; // 0 or less means due now
+  nextBelt: NextBelt | null; // null at black belt
   mixUps: MixUp[]; // most frequent first
 };
 
+// What the next belt takes: this many more quick right answers (typed ones count double),
+// each under tapMs when tapped or typeMs when typed.
+export type NextBelt = { belt: Belt; steps: number; tapMs: number; typeMs: number };
+
+function nextBeltFor(box: number): NextBelt | null {
+  const next = BELTS[BELTS.indexOf(tierOf(box)) + 1];
+  if (!next) return null;
+  return { belt: next, steps: BELT_STARTS[next] - box, tapMs: climbLimit(box, false), typeMs: climbLimit(box, true) };
+}
+
 // Everything the engine knows about one kana.
-export function kanaDetails(progress: Progress, kana: Kana, now: number): KanaDetails {
+export function kanaDetails(progress: Progress, kana: Kana): KanaDetails {
   const box = progress.kana[kana.char] ?? NEW_KANA;
   const stats = progress.stats[kana.char];
 
@@ -22,7 +32,7 @@ export function kanaDetails(progress: Progress, kana: Kana, now: number): KanaDe
     belt: tierOf(box.box),
     accuracy: stats && stats.seen > 0 ? stats.correct / stats.seen : null,
     strikeSpeedMs: stats ? median(stats.recentMs) : null,
-    dueInMs: Math.max(box.dueAt - now, 0),
+    nextBelt: nextBeltFor(box.box),
     mixUps: mixUpsOf(progress, kana.char),
   };
 }
@@ -35,20 +45,4 @@ export function mixUpsOf(progress: Progress, char: string): MixUp[] {
     if (other) counts.set(other, (counts.get(other) ?? 0) + 1);
   }
   return [...counts].map(([other, count]) => ({ char: other, count })).sort((a, b) => b.count - a.count);
-}
-
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-
-// A wait as a short phrase, rounded up: "Now", "20 min", "6 hours", "2 days".
-export function formatWait(ms: number): string {
-  if (ms <= 0) return 'Now';
-  if (ms < HOUR) return `${Math.ceil(ms / MINUTE)} min`;
-  if (ms < DAY) return plural(Math.ceil(ms / HOUR), 'hour');
-  return plural(Math.ceil(ms / DAY), 'day');
-}
-
-function plural(count: number, unit: string): string {
-  return `${count} ${unit}${count === 1 ? '' : 's'}`;
 }

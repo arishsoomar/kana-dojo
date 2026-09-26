@@ -46,11 +46,11 @@ describe('summarizeLesson', () => {
   it('lists kana that reached a higher belt, once each, and ignores drops', () => {
     const before: Progress = {
       ...EMPTY_PROGRESS,
-      kana: { あ: { box: 2, dueAt: NOW }, い: { box: 3, dueAt: NOW } },
+      kana: { あ: { box: 2, at: NOW }, い: { box: 3, at: NOW } },
     };
     const after: Progress = {
       ...EMPTY_PROGRESS,
-      kana: { あ: { box: 3, dueAt: NOW }, い: { box: 1, dueAt: NOW } },
+      kana: { あ: { box: 3, at: NOW }, い: { box: 1, at: NOW } },
     };
     const repeated = [...answers, { char: 'あ', correct: true, ms: 800 }];
     expect(summarizeLesson(before, after, repeated).promotions).toEqual([{ char: 'あ', belt: 'green' }]);
@@ -58,7 +58,7 @@ describe('summarizeLesson', () => {
 });
 
 describe('summarizeLesson: rows opened', () => {
-  const green = { box: 3, dueAt: 0 };
+  const green = { box: 3, at: 0 };
   const aRowAlmost: Progress = { ...EMPTY_PROGRESS, kana: { あ: green, い: green, う: green } };
   const aRowDone: Progress = { ...aRowAlmost, kana: { ...aRowAlmost.kana, え: green } };
 

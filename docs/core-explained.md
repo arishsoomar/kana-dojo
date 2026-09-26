@@ -18,7 +18,7 @@ Files are listed roughly in the order they build on each other.
 |---|---|
 | `pairs.ts` | The named lookalike pairs: each pair's name and tip |
 | `kana.ts` | The 92 kana, their rows and spellings, and which ones look alike |
-| `boxes.ts` | Box numbers (levels), how long each box waits, belts, and "is it due?" |
+| `boxes.ts` | Box numbers (steps) and the belt each one is |
 | `goal.ts` | The daily goal choices, and counting lessons on a day |
 | `answers.ts` | The learner's progress, and what one answer does to it |
 | `unlock.ts` | Which rows are open, and which kana the learner has met |
@@ -50,7 +50,7 @@ Every file has a `.test.ts` file next to it, except `belts.ts`, whose one functi
 
 1. The lesson hook asks `path.ts` or `question.ts` for a question. They use `unlock.ts`
    (which kana are allowed), `pick.ts` (which one to ask) and `choices.ts` (the four tiles).
-2. You tap a tile. The hook calls `recordAnswer` in `answers.ts`, which returns new
+2. You tap a tile (or type the sound). The hook calls `recordAnswer` in `answers.ts`, which returns new
    progress: the kana's box moves up or down, its stats update, and a mistake is logged.
 3. The hook saves the new progress (`saved.ts` turns it into text) and, if you're signed
    in, the cloud sync merges it with the account's copy (`merge.ts`).
@@ -67,7 +67,7 @@ Every file has a `.test.ts` file next to it, except `belts.ts`, whose one functi
 - **Number**: a number: `4000`. `60_000` is the same as `60000`; the `_` only makes it easier to read.
 - **Boolean**: either `true` or `false`.
 - **List (array)**: several values in order, in square brackets: `['a', 'ka', 'sa']`. Positions are counted from 0, so `'a'` is at position 0.
-- **Object**: values stored under names, in curly braces: `{ box: 2, dueAt: 5000 }`. `box` and `dueAt` are **fields**. You read one with a dot: `progress.box`.
+- **Object**: values stored under names, in curly braces: `{ box: 2, at: 5000 }`. `box` and `at` are **fields**. You read one with a dot: `progress.box`.
 - **`const name = ...`**: gives a value a name. The name can't be pointed at a different value later.
 - **`let name = ...`**: same, except the name *can* be given a new value later.
 - **Function**: a named set of steps. It takes **parameters** (inputs) and **returns** a value (output).
@@ -166,17 +166,41 @@ export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, fi
 - `row,` on its own is short for `row: row`.
 - The order of `KANA` is the kana chart: あ い う え お, then か き く け こ, and so on. `choices.ts` uses that order to line up the answer tiles.
 
-**Lines 40–43**
+**Lines 40–46**
 ```ts
+function cleaned(input: string): string {
+  return input.trim().toLowerCase();
+}
+
 export function matchesRomaji(kana: Kana, input: string): boolean {
-  const answer = input.trim().toLowerCase();
-  return kana.romaji.includes(answer);
+  return kana.romaji.includes(cleaned(input));
 }
 ```
-- Checks whether typed text is a correct spelling of a kana.
-- `.trim()` removes spaces at the start and end. `.toLowerCase()` makes capital letters small. `' Shi '` becomes `'shi'`.
+- `cleaned` tidies typed text: `.trim()` removes spaces at the start and end, and `.toLowerCase()` makes capital letters small. `' Shi '` becomes `'shi'`.
+- `matchesRomaji` checks whether typed text is a correct spelling of a kana, including alternates like `si`.
 
-**Lines 45–50**
+**Line 49**: `SPELLINGS`, every accepted spelling of every kana, each once (`new Set` drops the repeats, since hiragana and katakana share spellings).
+
+**Lines 54–57**
+```ts
+export function typingDone(input: string): boolean {
+  const typed = cleaned(input);
+  return SPELLINGS.includes(typed) && !SPELLINGS.some((s) => s !== typed && s.startsWith(typed));
+}
+```
+- Whether a typed answer is finished, so a lesson can check it without waiting for Enter.
+- It's finished when it's a whole spelling **and** no other spelling starts with it. `ka` is finished. `n` is a whole spelling (ん) but `na`, `ni` and others start with it, so it waits for Enter. `kx` spells nothing, so it waits too, and the typo can be fixed.
+
+**Lines 60–63**
+```ts
+export function kanaForRomaji(input: string, script: Script): Kana | null {
+  const typed = cleaned(input);
+  return KANA.find((k) => k.script === script && k.romaji.includes(typed)) ?? null;
+}
+```
+The kana in a script that a typed answer spells: `kanaForRomaji('ka', 'hiragana')` is か. `null` if it spells none. When a typed answer is wrong, this is the kana logged as the mix-up, just as if it had been tapped.
+
+**Lines 66–70**
 ```ts
 export function lookalikesOf(char: string): string[] {
   return NAMED_PAIRS.filter(({ kana }) => kana.includes(char)).flatMap(({ kana }) =>
@@ -218,70 +242,30 @@ This file imports nothing. That matters: `kana.ts` imports it, and if it importe
 
 ---
 
-## boxes.ts: boxes, waiting times, belts, "is it due"
+## boxes.ts: boxes and belts
 
-Every kana has a **box** from 0 to 7. On screen we call it a level. The box decides the belt.
+Every kana has a **box** from 0 to 9. On screen we call it a step. The box decides the belt: three steps to each belt, and black at the top. How a kana moves between boxes is in `answers.ts`.
 
-**Lines 1–4**: `SECOND`, `MINUTE`, `HOUR`, `DAY` in milliseconds. `*` means multiply.
+**Line 4**: `MAX_BOX = 9`, the top box.
 
-**Lines 9–18**
-```ts
-const INTERVALS: readonly number[] = [
-  0,
-  0,
-  0,
-  20 * MINUTE,
-  6 * HOUR,
-  2 * DAY,
-  7 * DAY,
-  21 * DAY,
-];
-```
-How long a kana waits after reaching each box before it is due again. The position is the box number: `INTERVALS[3]` is 20 minutes, `INTERVALS[7]` is 21 days.
+**Line 7**: `BELTS`, the four belts, lowest first: `'white'`, `'green'`, `'brown'`, `'black'`.
 
-Boxes 0, 1 and 2 (white belt) wait 0. That means a white-belt kana is always due, so it moves up with every quick right answer. Reaching green takes right answers, not time. From green up, the waits are what make a belt mean "you still knew it after a break".
+**Line 9**: `Belt` is one of those four names, built from `BELTS` the same way `RowId` is built from `ROWS`.
 
-**Line 20**
-```ts
-export const MAX_BOX = INTERVALS.length - 1;
-```
-`.length` is how many items the list has (8). So `MAX_BOX` is 7.
+**Line 12**: `BELT_STARTS`, the box each belt starts at: white 0, green 3, brown 6, black 9. `Record<Belt, number>` means "an object with one number for each belt".
 
-**Lines 22–26**
-```ts
-export function intervalFor(box: number): number {
-  const clamped = Math.min(Math.max(box, 0), MAX_BOX);
-  return INTERVALS[clamped]!;
-}
-```
-- Returns the waiting time for a box.
-- `Math.max(box, 0)` turns anything below 0 into 0. `Math.min(..., MAX_BOX)` turns anything above 7 into 7.
-- The `!` is safe because `clamped` is always 0 to 7.
-
-**Line 29**: `BELTS`, the four belts, lowest first: `'white'`, `'green'`, `'brown'`, `'black'`.
-
-**Line 31**: `Belt` is one of those four names, built from `BELTS` the same way `RowId` is built from `ROWS`.
-
-**Lines 33–38**
+**Lines 14–19**
 ```ts
 export function tierOf(box: number): Belt {
-  if (box >= 7) return 'black';
-  if (box >= 5) return 'brown';
-  if (box >= 3) return 'green';
+  if (box >= BELT_STARTS.black) return 'black';
+  if (box >= BELT_STARTS.brown) return 'brown';
+  if (box >= BELT_STARTS.green) return 'green';
   return 'white';
 }
 ```
 Turns a box number into a belt. It checks from the top down and stops at the first match. `return` ends the function. Boxes 0–2 reach the last line: white.
 
-**Lines 41–45**: `KanaProgress`, the learner's progress on one kana: its `box`, and `dueAt`, the time it's next due.
-
-**Lines 47–49**
-```ts
-export function isDue(progress: KanaProgress, now: number): boolean {
-  return now >= progress.dueAt;
-}
-```
-`true` if the current time is at or after the due time. The time is given to the function as `now`; it never reads the clock itself.
+**Lines 22–27**: `KanaProgress`, the learner's progress on one kana: its `box`, and `at`, when it was last answered (0 if never). `at` doesn't affect learning; it's there so that merging two devices' progress (`merge.ts`) can keep the copy answered most recently.
 
 ---
 
@@ -336,9 +320,9 @@ A kana's answer history: how many times it was answered, how many of those were 
 
 **Lines 19–24**: `Completion`, one finished lesson, game, exam or duel: its name (`lesson`, like `'hiragana:a:0'` or `'rain'`), when it finished (`at`), for games, exams and duels a `score`, and for duels the opponent's score (`opponent`). `score?:` means it can be left out.
 
-**Lines 27–32**: `Settings`, the learner's choices: whether they've been through the welcome (`onboarded`), their daily goal, which script the Learn screen shows, and whether kana are spoken aloud (`sound`).
+**Lines 27–34**: `Settings`, the learner's choices: whether they've been through the welcome (`onboarded`), their daily goal, which script the Learn screen shows, whether kana are spoken aloud (`sound`), whether the phone taps and buzzes (`haptics`), and whether lessons ask for answers to be typed (`typing`).
 
-**Lines 34–40**
+**Lines 36–42**
 ```ts
 export type Progress = {
   kana: Readonly<Record<string, KanaProgress>>;
@@ -349,51 +333,76 @@ export type Progress = {
 };
 ```
 Everything the app knows about the learner. This is what gets saved.
-- `kana`: for each character, its box and due time. `Record<string, KanaProgress>` means "an object whose field names are strings (characters) and whose values are `KanaProgress`". Example: `{ シ: { box: 2, dueAt: 5000 } }`. A kana that has never been answered has no entry at all.
+- `kana`: for each character, its box and when it was last answered. `Record<string, KanaProgress>` means "an object whose field names are strings (characters) and whose values are `KanaProgress`". Example: `{ シ: { box: 2, at: 5000 } }`. A kana that has never been answered has no entry at all.
 - `confusions`: every mistake, in order.
 - `stats`: for each character, its answer history.
 - `completed`: every finished lesson, game and exam.
 - `settings`: the learner's choices.
 - `Readonly` and `readonly` mean none of these can be changed in place. Every change makes a new object.
 
-**Lines 43–49**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
+**Lines 45–51**: `EMPTY_PROGRESS`, the progress of someone who has just installed the app.
 
-**Lines 51–56**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), and when it happened (`now`). `guess` can be `null`, which means no answer was given (a kana that landed in Kana Rain).
+**Lines 53–59**: `Answer`, one answer: the kana shown (`char`), the kana picked (`guess`), how many milliseconds it took (`ms`), when it happened (`now`), and whether it was typed (`typed`). `guess` can be `null`, which means no kana was given: something typed that spells no kana, or a kana that landed in Kana Rain. `typed?:` can be left out, which means tapped.
 
-**Line 59**: `FAST_MS = 4000`. An answer must take less than 4 seconds to move a kana up a box.
+**Line 62**: `FAST_MS = 4000`. An answer under 4 seconds counts as quick: it earns bonus XP (`lesson.ts`) and scores a point in a duel (`duel.ts`).
 
-**Lines 61–68**
+**Lines 67–71**
+```ts
+const CLIMB_MS: Readonly<Record<Exclude<Belt, 'black'>, { tap: number; type: number }>> = {
+  white: { tap: 4000, type: 6000 },
+  green: { tap: 2500, type: 4000 },
+  brown: { tap: 1500, type: 3000 },
+};
+```
+- How fast a right answer must be to move a kana up, by the belt it's climbing from. Each belt asks for more speed, because the goal is reading a kana at a glance.
+- Typing takes longer than tapping, so typed answers get more time.
+- `Exclude<Belt, 'black'>` means "every belt except black": a black-belt kana has nowhere left to climb.
+
+**Lines 73–78**
+```ts
+export function climbLimit(box: number, typed: boolean): number {
+  const belt = tierOf(box);
+  const limits = CLIMB_MS[belt === 'black' ? 'brown' : belt];
+  return typed ? limits.type : limits.tap;
+}
+```
+The limit for a kana in `box`, tapped or typed. For example, `climbLimit(4, false)` is 2500: box 4 is green, and green climbs with a tapped answer under 2.5 seconds. Black is given the brown limit, just so there's always a number.
+
+**Lines 81–82**: `TAP_STEPS = 1`, `TYPED_STEPS = 2`. Typing the sound means recalling it, which is harder than recognising it among four, so a typed answer is worth two steps.
+
+**Lines 84–89**
 ```ts
 function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
-  if (tierOf(current.box) !== 'white' && !isDue(current, answer.now)) return current;
-
-  const box = answer.ms < FAST_MS ? Math.min(current.box + 1, MAX_BOX) : current.box;
-  return { box, dueAt: answer.now + intervalFor(box) };
+  const typed = answer.typed ?? false;
+  const quick = answer.ms < climbLimit(current.box, typed);
+  const steps = quick ? (typed ? TYPED_STEPS : TAP_STEPS) : 0;
+  return { box: Math.min(current.box + steps, MAX_BOX), at: answer.now };
 }
 ```
-- The new box and due time after a **correct** answer. Not exported, so only this file uses it.
-- Line 64: if the kana is green or better **and** not due yet, nothing changes. This is "no free promotions": a green kana can't climb by being answered again and again in one sitting.
-- White-belt kana skip that check, so every quick right answer counts. This also matters for older saves, which may have white-belt kana with a due time in the future (from when white belt had waits). Those still move up.
-- Line 66: if it took under 4 seconds, the box goes up by 1 (but not past 7). Otherwise the box stays.
-- Line 67: either way, it's due again after that box's waiting time.
+- The new box after a **correct** answer. Not exported, so only this file uses it.
+- `answer.typed ?? false`: an answer with no `typed` field counts as tapped.
+- If it beat the limit for its belt, it goes up 1 step (tapped) or 2 (typed). Otherwise 0.
+- `Math.min(..., MAX_BOX)` stops it going past 9. A typed answer at box 8 goes to 9, not 10.
+- There's no waiting: the same kana answered right again straight away moves up again.
+- Examples: box 2 tapped in 3.9s → 3 (green). Box 3 tapped in 3s → stays 3 (green needs under 2.5s). Box 0 typed in 5s → 2.
 
-**Line 71**: `WRONG_DROP = 2`.
+**Line 92**: `WRONG_DROP = 2`.
 
-**Lines 73–75**
+**Lines 94–96**
 ```ts
 function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
-  return { box: Math.max(current.box - WRONG_DROP, 0), dueAt: answer.now };
+  return { box: Math.max(current.box - WRONG_DROP, 0), at: answer.now };
 }
 ```
-After a **wrong** answer: down 2 boxes (not below 0), and due right away. There is no "is it due" check, so a wrong answer always counts.
+After a **wrong** answer: down 2 boxes, not below 0. A kana that has just reached brown (box 6) drops back to green (box 4).
 
-**Line 78**: `NEW_KANA = { box: 0, dueAt: 0 }`, used for a kana with no progress yet. Time 0 is long ago, so it is always due.
+**Line 99**: `NEW_KANA = { box: 0, at: 0 }`, used for a kana with no progress yet.
 
-**Line 80**: `NEW_STATS`, stats for a kana never answered: all zero.
+**Line 101**: `NEW_STATS`, stats for a kana never answered: all zero.
 
-**Line 83**: `RECENT_TIMES = 10`, how many recent correct times to keep.
+**Line 104**: `RECENT_TIMES = 10`, how many recent correct times to keep.
 
-**Lines 85–91**
+**Lines 106–112**
 ```ts
 function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats {
   return {
@@ -407,7 +416,7 @@ function afterAnswer(stats: KanaStats, correct: boolean, ms: number): KanaStats 
 - `seen` always goes up by 1. `correct` goes up by 1 only if the answer was right.
 - If right, the time is added to the end of `recentMs`. `.slice(-RECENT_TIMES)` keeps only the last 10 items (a negative number counts from the end). If wrong, the times stay the same.
 
-**Lines 93–121**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
+**Lines 114–143**: `recordAnswer`, the main function. It takes all the progress and one answer, and returns **new** progress. The old progress is never changed.
 
 ```ts
   const current = progress.kana[answer.char] ?? NEW_KANA;
@@ -440,7 +449,7 @@ If correct: a new progress object. `...progress` copies every field. Then `kana`
       ? progress.confusions
       : [...progress.confusions, { shown: answer.char, guessed: answer.guess }];
 ```
-If the code gets here, the answer was wrong. If a kana was picked, the mistake is added to the end of the log. If nothing was picked (`null`), the log stays the same, because nothing was confused with anything.
+If the code gets here, the answer was wrong. If a kana was picked (or typed), the mistake is added to the end of the log. If there was no kana (`null`), the log stays the same, because nothing was confused with anything.
 
 ```ts
   return {
@@ -452,7 +461,7 @@ If the code gets here, the answer was wrong. If a kana was picked, the mistake i
 ```
 Same as the correct case, but using `afterWrong`, and with the new mistake log.
 
-**Lines 124–127**
+**Lines 146–149**
 ```ts
 export function completeLesson(progress: Progress, lesson: string, now: number, score?: number): Progress {
   const record: Completion = score === undefined ? { lesson, at: now } : { lesson, at: now, score };
@@ -461,7 +470,7 @@ export function completeLesson(progress: Progress, lesson: string, now: number, 
 ```
 Adds a finished lesson to the end of `completed`. `score?:` in the parameters means the score can be left out. If it is, the record has no `score` field at all.
 
-**Lines 130–133**
+**Lines 152–155**
 ```ts
 export function bestScore(progress: Progress, lesson: string): number | null {
   const scores = progress.completed.flatMap((c) => (c.lesson === lesson && c.score !== undefined ? [c.score] : []));
@@ -472,11 +481,9 @@ export function bestScore(progress: Progress, lesson: string): number | null {
 - The `.flatMap` turns each matching record into `[score]` and every other record into `[]` (nothing). Joined together, that's a list of just the scores.
 - `Math.max(...scores)` passes each score to `Math.max` separately and gives the largest.
 
-**Lines 138–141**: `markDue` makes a kana due now without changing its box, stats or mistakes. `Math.min(current.dueAt, now)` keeps an earlier due time if it already had one. Kana Rain uses it for a kana that landed before the player had started typing it: that says nothing about whether they know it, so it isn't scored, but it should come up again soon.
+**Lines 158–181**: `finishOnboarding` sets `onboarded` to `true`. `setScript` sets which script the Learn screen shows. `setSound`, `setHaptics` and `setTyping` turn speaking, the phone's buzzes, and typed answers on or off. Each copies everything else.
 
-**Lines 144–156**: `finishOnboarding` sets `onboarded` to `true`. `setScript` sets which script the Learn screen shows. `setSound` turns speaking kana on or off. All three copy everything else.
-
-**Lines 159–166**: `isEmptyProgress`, `true` when nothing has been trained: no kana, stats, mistakes or finished lessons. Settings don't count. (Nothing in the app uses it any more since G4; only its tests do.)
+**Lines 183–190**: `isEmptyProgress`, `true` when nothing has been trained: no kana, stats, mistakes or finished lessons. Settings don't count. (Nothing in the app uses it any more since G4; only its tests do.)
 
 ---
 
@@ -623,18 +630,15 @@ The 4 choices in kana-chart order (a i u e o, ka ki ku…), not shuffled. Each k
 
 ## pick.ts: choosing which kana to ask next
 
-**Line 7**: `DUE_WEIGHT = 10`.
-
-**Lines 10–13**
+**Lines 8–10**
 ```ts
-function weightOf(progress: KanaProgress, now: number): number {
-  const lowBoxWeight = MAX_BOX + 1 - progress.box;
-  return isDue(progress, now) ? lowBoxWeight * DUE_WEIGHT : lowBoxWeight;
+function weightOf(progress: KanaProgress): number {
+  return MAX_BOX + 1 - progress.box;
 }
 ```
-Each kana gets a **weight**. Bigger means more likely to be picked. `8 - box`: box 0 gives 8, box 7 gives 1. Due kana are multiplied by 10. White-belt kana are always due, so the kana you know least come up most.
+Each kana gets a **weight**. Bigger means more likely to be picked. `10 - box`: box 0 gives 10, box 9 (black) gives 1. So the kana you know least come up most, and black-belt kana still come up now and then.
 
-**Lines 16–32**: `pickNext`.
+**Lines 13–29**: `pickNext`.
 
 ```ts
   if (candidates.length === 0) throw new Error('pickNext needs at least one candidate');
@@ -644,7 +648,7 @@ If there's nothing to pick from, `throw` stops with an error message. It never h
 ```ts
   const weighted = candidates.map((kana) => ({
     kana,
-    weight: weightOf(progress.kana[kana.char] ?? NEW_KANA, now),
+    weight: weightOf(progress.kana[kana.char] ?? NEW_KANA),
   }));
   const total = weighted.reduce((sum, w) => sum + w.weight, 0);
 ```
@@ -673,18 +677,33 @@ Normally never reached. Decimal numbers can have tiny rounding errors, so this m
 
 **Line 6**: `MixUp`, another kana and how many times the two were confused.
 
-**Lines 8–14**: `KanaDetails`: belt, accuracy (or `null` if never answered), strike speed (or `null`), how long until it's due (0 means now), and its mix-ups, most frequent first.
+**Lines 8–14**: `KanaDetails`: belt, accuracy (or `null` if never answered), strike speed (or `null`), what the next belt takes (or `null` at black), and its mix-ups, most frequent first.
 
-**Lines 17–28**
+**Line 18**: `NextBelt`: the next belt, how many more `steps` it needs, and how quick each answer must be, tapped (`tapMs`) or typed (`typeMs`).
+
+**Lines 20–24**
 ```ts
-export function kanaDetails(progress: Progress, kana: Kana, now: number): KanaDetails {
+function nextBeltFor(box: number): NextBelt | null {
+  const next = BELTS[BELTS.indexOf(tierOf(box)) + 1];
+  if (!next) return null;
+  return { belt: next, steps: BELT_STARTS[next] - box, tapMs: climbLimit(box, false), typeMs: climbLimit(box, true) };
+}
+```
+- `next` is the belt after this one in `BELTS`. After black there's nothing, so `BELTS[4]` is `undefined` and the function returns `null`.
+- `steps`: where the next belt starts, minus where the kana is. Box 7 (brown) needs 9 − 7 = 2 more.
+- The limits come from `climbLimit` in `answers.ts`, so the sheet always matches the real rule.
+- The Kana tab shows it as "To black: 2 more", with "Each right answer under 1.5s moves it up a step. Typed under 3s, two steps."
+
+**Lines 27–38**
+```ts
+export function kanaDetails(progress: Progress, kana: Kana): KanaDetails {
   const box = progress.kana[kana.char] ?? NEW_KANA;
   const stats = progress.stats[kana.char];
   return {
     belt: tierOf(box.box),
     accuracy: stats && stats.seen > 0 ? stats.correct / stats.seen : null,
     strikeSpeedMs: stats ? median(stats.recentMs) : null,
-    dueInMs: Math.max(box.dueAt - now, 0),
+    nextBelt: nextBeltFor(box.box),
     mixUps: mixUpsOf(progress, kana.char),
   };
 }
@@ -692,9 +711,8 @@ export function kanaDetails(progress: Progress, kana: Kana, now: number): KanaDe
 - `stats` might be missing (never answered).
 - Accuracy: if there are stats and at least one answer, correct divided by seen. Otherwise `null`.
 - Strike speed: the median of the recent correct times (see `median` in `lesson.ts`), or `null`.
-- `dueInMs`: due time minus now. `Math.max(..., 0)` turns anything already past into 0.
 
-**Lines 31–38**
+**Lines 41–48**
 ```ts
 export function mixUpsOf(progress: Progress, char: string): MixUp[] {
   const counts = new Map<string, number>();
@@ -706,23 +724,8 @@ export function mixUpsOf(progress: Progress, char: string): MixUp[] {
 }
 ```
 - For each mistake: if `char` was shown, the other kana is what was guessed. If `char` was guessed, the other kana is what was shown. Otherwise the mistake doesn't involve `char` (`null`).
-- Line 35 adds 1 to that other kana's count (starting from 0).
-- Line 37 turns the `Map` into a list of `{ char, count }` and sorts it, highest count first (`b.count - a.count`).
-
-**Lines 40–42**: `MINUTE`, `HOUR`, `DAY` in milliseconds.
-
-**Lines 45–50**
-```ts
-export function formatWait(ms: number): string {
-  if (ms <= 0) return 'Now';
-  if (ms < HOUR) return `${Math.ceil(ms / MINUTE)} min`;
-  if (ms < DAY) return plural(Math.ceil(ms / HOUR), 'hour');
-  return plural(Math.ceil(ms / DAY), 'day');
-}
-```
-Turns a wait into short text: `'Now'`, `'20 min'`, `'6 hours'`, `'2 days'`. Text in backticks with `${...}` puts values into the text. `Math.ceil` rounds **up**, so 30 seconds shows as "1 min", never "0 min".
-
-**Lines 52–54**: `plural` adds an "s" unless the count is 1: `1 day`, `2 days`.
+- It adds 1 to that other kana's count (starting from 0).
+- The last line turns the `Map` into a list of `{ char, count }` and sorts it, highest count first (`b.count - a.count`).
 
 ---
 
@@ -748,10 +751,10 @@ export function avoiding(options: readonly Kana[], avoid?: string, fallback: rea
 
 **Lines 27–32**
 ```ts
-export function makeQuestion(progress: Progress, script: Script, now: number, rng: Rng, avoid?: string): Question {
+export function makeQuestion(progress: Progress, script: Script, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, script);
   const met = metKana(progress, script);
-  const kana = pickNext(progress, avoiding(met.length > 0 ? met : unlocked, avoid), now, rng);
+  const kana = pickNext(progress, avoiding(met.length > 0 ? met : unlocked, avoid), rng);
   return { kana, choices: makeChoices(kana, unlocked, rng) };
 }
 ```
@@ -777,7 +780,7 @@ A practice question:
 ```ts
   const preferFocus = partners.length === 0 || rng() < DRILL_FOCUS_SHARE;
   const options = avoiding(preferFocus ? [focus] : partners, avoid, [focus, ...partners]);
-  const kana = pickNext(progress, options, now, rng);
+  const kana = pickNext(progress, options, rng);
   return { kana, choices: makeChoices(kana, unlocked, rng) };
 ```
 - If there are no partners, or the random number is below 0.5, ask the focus kana. Otherwise ask a partner. So about half the questions are the focus kana.
@@ -926,14 +929,14 @@ The unit shown at the top is the one with the current plaque. If every plaque is
 
 **Lines 107–116**
 ```ts
-export function makePlaqueQuestion(progress: Progress, plaque: Plaque, now: number, rng: Rng, avoid?: string): Question {
+export function makePlaqueQuestion(progress: Progress, plaque: Plaque, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, plaque.script);
   const review = metKana(progress, plaque.script).filter((k) => !plaque.kana.includes(k));
   const pool = [...new Set([...unlocked, ...plaque.kana])];
 
   const preferPlaque = review.length === 0 || rng() < PLAQUE_FOCUS_SHARE;
   const options = avoiding(preferPlaque ? plaque.kana : review, avoid, [...plaque.kana, ...review]);
-  const kana = pickNext(progress, options, now, rng);
+  const kana = pickNext(progress, options, rng);
   return { kana, choices: makeChoices(kana, pool, rng) };
 }
 ```
@@ -1300,10 +1303,10 @@ export function combo(answers: readonly LessonAnswer[]): number {
 
 **Lines 8–9**
 ```ts
-const SAVE_VERSION = 3;
-const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3];
+const SAVE_VERSION = 4;
+const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, 4];
 ```
-Each save is marked with a version number. Version 1 had no stats, version 2 had no finished lessons. This code writes version 3 and can still read all three.
+Each save is marked with a version number. Version 1 had no stats, version 2 had no finished lessons, and versions 1 to 3 had 8 boxes with waiting times. This code writes version 4 and can still read all four.
 
 **Line 11**: `EMPTY`, the same as `EMPTY_PROGRESS`.
 
@@ -1342,7 +1345,7 @@ If the data isn't an object, has a version this code can't read, or has no `prog
 ```ts
   const { kana, confusions, stats, completed, settings } = data.progress;
   const progress = {
-    kana: isObject(kana) ? validEntries(kana, isKanaProgress) : {},
+    kana: !isObject(kana) ? {} : data.version === SAVE_VERSION ? validEntries(kana, isKanaProgress) : oldKana(kana),
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
     stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
     completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
@@ -1351,6 +1354,7 @@ If the data isn't an object, has a version this code can't read, or has no `prog
 - Takes the parts out of the saved progress. `const { a, b } = obj` is short for `const a = obj.a; const b = obj.b;`.
 - For each part: if it's the right kind of thing, keep only the valid entries inside it. Otherwise use an empty one.
 - A version 1 save has no `stats`, so `stats` is `undefined`, `isObject` is `false`, and stats become `{}`. That is how old saves are upgraded.
+- Kana from a version 4 save are checked with `isKanaProgress`. Kana from an older save go through `oldKana`, which converts them (see below).
 
 ```ts
   const hasProgress = Object.keys(progress.kana).length > 0 || progress.completed.length > 0 || Object.keys(progress.stats).length > 0;
@@ -1358,14 +1362,16 @@ If the data isn't an object, has a version this code can't read, or has no `prog
   const dailyGoal = isObject(settings) && isDailyGoal(settings.dailyGoal) ? settings.dailyGoal : DEFAULT_DAILY_GOAL;
   const script = isObject(settings) && settings.script === 'katakana' ? 'katakana' : 'hiragana';
   const sound = !(isObject(settings) && settings.sound === false);
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound } };
+  const haptics = !(isObject(settings) && settings.haptics === false);
+  const typing = isObject(settings) && settings.typing === true;
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing } };
 ```
 - Settings are checked one field at a time. `Object.keys(obj)` is the list of an object's field names.
 - Saves from before the welcome screen existed have no settings. Anyone with saved progress has clearly used the app, so they count as onboarded and never see the welcome.
 - A daily goal that isn't one of the four choices becomes the default. A script that isn't `'katakana'` becomes `'hiragana'`.
-- Sound is on unless it was saved as `false`, so older saves (which have no `sound`) start with it on.
+- Sound and haptics are on unless they were saved as `false`, so older saves (which don't have them) start with them on. Typing is the other way round: off unless saved as `true`.
 
-**Lines 50–56**
+**Lines 53–59**
 ```ts
 function validEntries<T>(saved: Record<string, unknown>, isValid: (value: unknown) => value is T): Record<string, T> {
   const result: Record<string, T> = {};
@@ -1379,17 +1385,38 @@ function validEntries<T>(saved: Record<string, unknown>, isValid: (value: unknow
 - `Object.entries(saved)` turns an object into a list of `[name, value]` pairs.
 - `isValid` is a function passed in, like `isKanaProgress`.
 
-**Lines 59–61**: `isObject`, `true` for a real object (not `null`, not a list). `typeof value === 'object'` asks what kind of value it is.
+**Lines 62–64**: `isObject`, `true` for a real object (not `null`, not a list). `typeof value === 'object'` asks what kind of value it is.
 
-**Lines 63–72**: `isKanaProgress`, `true` if the value has a whole-number `box` from 0 to 7 and a number `dueAt`. `Number.isInteger` checks for a whole number.
+**Lines 66–68**: `isBox`, `true` for a whole number from 0 to `max`. `Number.isInteger` checks for a whole number.
 
-**Lines 74–76**: `isCount`, `true` for a whole number of 0 or more.
+**Lines 70–72**: `isKanaProgress`, `true` if the value has a `box` from 0 to 9 and a number `at`.
 
-**Lines 78–86**: `isKanaStats`, `true` if `seen` and `correct` are counts and `recentMs` is a list of numbers.
+**Lines 77–79**: how old saves (versions 1 to 3) stored kana. They had 8 boxes, 0 to 7: green was 3–4, brown 5–6, black 7. Each box also had a wait, and the save kept when the kana was next due (`dueAt`), not when it was last answered.
+- `OLD_BOX_TO_NEW`: each old box's new box, at the same belt. Old 5 (the start of brown) becomes 6, and old 7 (black) becomes 9.
+- `OLD_WAITS`: each old box's wait, in milliseconds (`60_000` is a minute; the `_` just makes big numbers readable).
 
-**Lines 88–90**: `isConfusion`, `true` if both `shown` and `guessed` are strings.
+**Lines 81–88**
+```ts
+function oldKana(saved: Record<string, unknown>): Record<string, KanaProgress> {
+  const out: Record<string, KanaProgress> = {};
+  for (const [char, value] of Object.entries(saved)) {
+    if (!isObject(value) || !isBox(value.box, OLD_MAX_BOX) || typeof value.dueAt !== 'number') continue;
+    out[char] = { box: OLD_BOX_TO_NEW[value.box]!, at: Math.max(value.dueAt - OLD_WAITS[value.box]!, 0) };
+  }
+  return out;
+}
+```
+- Converts every valid old kana entry, and skips damaged ones (`continue` jumps to the next one).
+- The new box keeps the kana's belt, so nobody loses a belt when the app updates.
+- When it was last answered is worked out backwards: the due time minus that box's wait. `Math.max(..., 0)` stops it going below 0.
 
-**Lines 92–100**: `isCompletion`, `true` if `lesson` is a string, `at` is a number, and `score` and `opponent` are each either missing or a number.
+**Lines 91–93**: `isCount`, `true` for a whole number of 0 or more.
+
+**Lines 95–103**: `isKanaStats`, `true` if `seen` and `correct` are counts and `recentMs` is a list of numbers.
+
+**Lines 105–107**: `isConfusion`, `true` if both `shown` and `guessed` are strings.
+
+**Lines 109–117**: `isCompletion`, `true` if `lesson` is a string, `at` is a number, and `score` and `opponent` are each either missing or a number.
 
 ---
 
@@ -1434,11 +1461,11 @@ function mergeRecords<T>(a: Readonly<Record<string, T>>, b: Readonly<Record<stri
 **Lines 32–35**
 ```ts
 function laterKana(x: KanaProgress, y: KanaProgress): KanaProgress {
-  if (x.dueAt !== y.dueAt) return x.dueAt > y.dueAt ? x : y;
+  if (x.at !== y.at) return x.at > y.at ? x : y;
   return x.box >= y.box ? x : y;
 }
 ```
-For a kana's box: keep the copy with the later due time. Every answer sets a new due time, so the later one is usually the most recent answer. If the times are equal, keep the higher box.
+For a kana's box: keep the copy answered most recently (the later `at`). If the times are equal, keep the higher box.
 
 **Lines 39–43**: `moreStats` keeps the stats that have seen more answers. Ties go to more correct answers, and if those are equal too, to whichever writes out as the "larger" text. That last rule is arbitrary, but it means the choice never depends on order.
 
@@ -1655,10 +1682,10 @@ For learners who already know some hiragana. It goes row by row, asking each kan
 export function placeKnown(progress: Progress, char: string, now: number): Progress {
   const current = progress.kana[char] ?? NEW_KANA;
   if (current.box >= KNOWN_BOX) return progress;
-  return { ...progress, kana: { ...progress.kana, [char]: { box: KNOWN_BOX, dueAt: now + intervalFor(KNOWN_BOX) } } };
+  return { ...progress, kana: { ...progress.kana, [char]: { box: KNOWN_BOX, at: now } } };
 }
 ```
-Starts a kana you knew at green belt (box 3), due in 20 minutes. A kana that's already higher is left alone, so the test can never lower you.
+Starts a kana you knew at green belt (box 3). A kana that's already higher is left alone, so the test can never lower you.
 
 **Lines 35–37**
 ```ts
@@ -1844,15 +1871,15 @@ Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and 
 
 What each file checks:
 - **pairs.test.ts**: every pair is two different real kana from one script, listed once, with a name and a tip that mentions both; both scripts covered; `pairId` and `pairById`.
-- **kana.test.ts**: 46 + 46 kana, no duplicates; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes.
-- **boxes.test.ts**: each box's belt and waiting time (0 below green); "due" is true at or after the due time.
+- **kana.test.ts**: 46 + 46 kana, no duplicates; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes; `typingDone` (finished spellings, waiting on "n" and typos) and `kanaForRomaji`.
+- **boxes.test.ts**: each box's belt (three to a belt), and 9 as the top box.
 - **goal.test.ts**: the four goals, the default of 2, changing the goal without changing the input, counting lessons on a day.
-- **answers.test.ts**: every rule of `recordAnswer` (up a box, capped at 7, slow, wrong, floor at 0, mistakes logged, new kana, a green kana not due stays put, a white kana moves up even with a future due time, input never changed), the stats it keeps, finished lessons, best scores, `markDue`, onboarding, sound, haptics, and `isEmptyProgress`.
+- **answers.test.ts**: `climbLimit` at each belt, tapped and typed; every rule of `recordAnswer` (up a step under the limit, not at it, faster limits at green and brown, capped at 9, no waiting, typed answers up two steps, wrong drops two, floor at 0, mistakes logged, none for a `null` guess, new kana, input never changed), the stats it keeps, finished lessons, best scores, onboarding, sound, haptics, typing, and `isEmptyProgress`.
 - **unlock.test.ts**: only the あ row at first; the next row opens at 4 of 5 green but not 3 of 5; scripts are separate; `greenNeeded`; `metKana` only lists open kana with progress.
 - **random.test.ts**: shuffle keeps every item, is repeatable, and doesn't change the original.
 - **choices.test.ts**: 4 choices including the answer, lookalikes included, no repeated spellings, kana-chart order.
-- **pick.test.ts**: runs `pickNext` 100 times with random numbers 0.00 to 0.99 and counts picks; due and low-box kana win most often; only candidates are picked.
-- **details.test.ts**: belt, accuracy, speed and wait for a kana; mix-ups counted both ways; a never-answered kana; `formatWait` wording.
+- **pick.test.ts**: runs `pickNext` 100 times with random numbers 0.00 to 0.99 and counts picks; low-box kana win most often, black-belt kana still come up, and only candidates are picked.
+- **details.test.ts**: belt, accuracy, speed and what the next belt takes; none at black; mix-ups counted both ways; a never-answered kana.
 - **question.test.ts**: practice asks unlocked kana in the right script, only ones you've met; drill questions ask the focus kana or a partner; the same kana never comes twice in a row.
 - **exam.test.ts**: which exam is due, awarded belts (never above the kana now), exam questions (20, from the row, no repeats in a row), and when an exam passes or fails.
 - **path.test.ts**: plaques per row (including 3-kana rows), `rowBelt`, which plaque is current, rows opening, scripts separate, plaque questions (mostly the plaque's kana, review only kana you've met, no repeats), exams on the path.
@@ -1862,8 +1889,8 @@ What each file checks:
 - **feedback.test.ts**: belt changes up, down and none; pair tips, the kana's own tip as the fallback, and `pairTipFor`.
 - **lesson.test.ts**: lesson length, `median`, the lesson summary (XP, accuracy, strike speed, promotions, rows opened), and `combo`.
 - **sayings.test.ts**: a new learner gets sensei lines; the most mixed-up pair with its tip; the trickiest kana (answered at least 3 times) with its tip; input never changed; never the same line twice in a row.
-- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound and haptics.
-- **merge.test.ts**: the later due time wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
+- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound, haptics and typing; a version 3 save's 8 boxes become 10 at the same belts, with due times turned into last-answered times.
+- **merge.test.ts**: the copy answered later wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

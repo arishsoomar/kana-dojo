@@ -44,7 +44,10 @@ export function FeedbackSheet({ result, onContinue }: Props) {
 
 function detailText(result: Result): string {
   if (!result.correct) {
-    return `You picked ${result.guess.romaji[0]}, which is ${result.guess.char}.`;
+    if (result.typed !== null) {
+      return result.guess ? `You typed ${result.typed}, which is ${result.guess.char}.` : `You typed "${result.typed}".`;
+    }
+    return result.guess ? `You picked ${result.guess.romaji[0]}, which is ${result.guess.char}.` : '';
   }
   const seconds = `${(result.ms / 1000).toFixed(1)} seconds.`;
   // Only promotions are mentioned; a correct answer can't lower a belt.

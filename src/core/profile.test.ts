@@ -5,10 +5,10 @@ import { badgeLevel, kanaLearned, lessonsSince, overallAccuracy, overallStrikeSp
 const progress: Progress = {
   ...EMPTY_PROGRESS,
   kana: {
-    あ: { box: 3, dueAt: 0 },
-    い: { box: 5, dueAt: 0 },
-    う: { box: 1, dueAt: 0 },
-    ア: { box: 7, dueAt: 0 },
+    あ: { box: 3, at: 0 },
+    い: { box: 6, at: 0 },
+    う: { box: 1, at: 0 },
+    ア: { box: 9, at: 0 },
   },
   stats: {
     あ: { seen: 4, correct: 3, recentMs: [900, 1300] },
@@ -32,7 +32,7 @@ describe('profile stats', () => {
   });
 
   it('counts rows that have earned a belt by exam', () => {
-    const aRow = Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, dueAt: 0 }]));
+    const aRow = Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, at: 0 }]));
     const earned = completeLesson({ ...EMPTY_PROGRESS, kana: aRow }, examId('hiragana', 'a', 'green'), 1000, EXAM_PASS);
     expect(rowBeltsEarned(earned)).toBe(1);
     expect(rowBeltsEarned({ ...EMPTY_PROGRESS, kana: aRow })).toBe(0);

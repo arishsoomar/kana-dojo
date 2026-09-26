@@ -1,10 +1,10 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true } };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false } };
 
 const sample: Progress = {
-  kana: { あ: { box: 3, dueAt: 1_000_000 }, シ: { box: 0, dueAt: 5 } },
+  kana: { あ: { box: 3, at: 1_000_000 }, シ: { box: 9, at: 5 } },
   confusions: [{ shown: 'シ', guessed: 'ツ' }],
   stats: { あ: { seen: 4, correct: 3, recentMs: [900, 1200, 800] } },
   completed: [
@@ -12,7 +12,7 @@ const sample: Progress = {
     { lesson: 'game:rain', at: 2_000_000, score: 640 },
     { lesson: 'duel:シツ', at: 3_000_000, score: 10, opponent: 3 },
   ],
-  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false },
+  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true },
 };
 
 describe('saving progress', () => {
@@ -36,14 +36,15 @@ describe('saving progress', () => {
   it('upgrades a version 1 save, which had no stats', () => {
     const v1 = JSON.stringify({
       version: 1,
-      progress: { kana: { あ: { box: 3, dueAt: 1_000_000 } }, confusions: [{ shown: 'シ', guessed: 'ツ' }] },
+      progress: { kana: { あ: { box: 3, dueAt: 5_000_000 } }, confusions: [{ shown: 'シ', guessed: 'ツ' }] },
     });
     expect(parseProgress(v1)).toEqual({
-      kana: { あ: { box: 3, dueAt: 1_000_000 } },
+      // Box 3 waited 20 minutes, so it was last answered 1,200,000 ms before it was due.
+      kana: { あ: { box: 3, at: 3_800_000 } },
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false },
     });
   });
 
@@ -57,8 +58,52 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false },
     });
+  });
+
+  it('upgrades a version 3 save: 8 boxes become 10 (3 to a belt), and due times become last-answered times', () => {
+    const HOUR = 3_600_000;
+    const DAY = 24 * HOUR;
+    const v3 = JSON.stringify({
+      version: 3,
+      progress: {
+        kana: {
+          あ: { box: 0, dueAt: 100 },
+          い: { box: 2, dueAt: 100 },
+          う: { box: 4, dueAt: 10 * DAY + 6 * HOUR },
+          え: { box: 5, dueAt: 10 * DAY + 2 * DAY },
+          お: { box: 6, dueAt: 10 * DAY + 7 * DAY },
+          か: { box: 7, dueAt: 30 * DAY + 21 * DAY },
+        },
+        confusions: [],
+        stats: {},
+        completed: [],
+      },
+    });
+    // Each kana keeps its belt: old green (3–4) stays 3–4, old brown (5–6) becomes 6–7,
+    // and old black (7) becomes 9.
+    expect(parseProgress(v3).kana).toEqual({
+      あ: { box: 0, at: 100 },
+      い: { box: 2, at: 100 },
+      う: { box: 4, at: 10 * DAY },
+      え: { box: 6, at: 10 * DAY },
+      お: { box: 7, at: 10 * DAY },
+      か: { box: 9, at: 30 * DAY },
+    });
+  });
+
+  it('drops damaged kana entries from a version 4 save', () => {
+    const damaged = JSON.stringify({
+      version: 4,
+      progress: {
+        kana: { あ: { box: 9, at: 5 }, い: { box: 10, at: 5 }, う: { box: 2, dueAt: 5 }, え: { box: 2 } },
+        confusions: [],
+        stats: {},
+        completed: [],
+      },
+    });
+    expect(parseProgress(damaged).kana).toEqual({ あ: { box: 9, at: 5 } });
   });
 
   it('keeps valid entries and drops damaged ones', () => {
@@ -87,11 +132,11 @@ describe('saving progress', () => {
       },
     });
     expect(parseProgress(damaged)).toEqual({
-      kana: { あ: { box: 3, dueAt: 1_000_000 } },
+      kana: { あ: { box: 3, at: 0 } },
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false },
     });
   });
 
@@ -146,5 +191,15 @@ describe('saving the haptics setting', () => {
     expect(parseProgress(save({ onboarded: true, haptics: false })).settings.haptics).toBe(false);
     expect(parseProgress(save({ onboarded: true })).settings.haptics).toBe(true);
     expect(parseProgress(save({ onboarded: true, haptics: 'buzzy' })).settings.haptics).toBe(true);
+  });
+});
+
+describe('saving the typing setting', () => {
+  it('keeps typing on if it was turned on, and otherwise has answers tapped', () => {
+    const save = (settings: unknown) =>
+      JSON.stringify({ version: 4, progress: { kana: {}, confusions: [], stats: {}, completed: [], settings } });
+    expect(parseProgress(save({ onboarded: true, typing: true })).settings.typing).toBe(true);
+    expect(parseProgress(save({ onboarded: true })).settings.typing).toBe(false);
+    expect(parseProgress(save({ onboarded: true, typing: 'yes' })).settings.typing).toBe(false);
   });
 });

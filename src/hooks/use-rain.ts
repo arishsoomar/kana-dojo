@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
-import { bestScore, completeLesson, markDue, recordAnswer, type Progress } from '@/core/answers';
+import { bestScore, completeLesson, recordAnswer, type Progress } from '@/core/answers';
 import type { Kana } from '@/core/kana';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { pickNext } from '@/core/pick';
@@ -39,7 +39,7 @@ export type Pop = {
 // Runs Kana Rain: once per screen refresh, moves the rain forward by the time that passed,
 // and applies what the player types. The learning engine chooses which kana fall, and sees
 // how each one went: cleared is a correct answer; landing while locked on is a wrong answer;
-// landing before the player started on it just makes it due again (see `landed` below).
+// landing before the player started on it isn't recorded at all (see `landed` below).
 export function useRain(pool: readonly Kana[]) {
   const { changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
@@ -60,7 +60,7 @@ export function useRain(pool: readonly Kana[]) {
   // sees the latest values (like `pool`) without the loop having to restart when they change.
   const onFrame = useEffectEvent((time: number, ms: number) => {
     const locked = targetOf(game.current.drops, typed);
-    const pick = () => pickNext(currentProgress(), pool, Date.now(), Math.random);
+    const pick = () => pickNext(currentProgress(), pool, Math.random);
     const wasOver = game.current.over;
     const step = stepRain(game.current, ms, pick, Math.random);
     game.current = step.state;
@@ -97,17 +97,17 @@ export function useRain(pool: readonly Kana[]) {
 
   // A kana reached the ground. If the player was locked on to it, they tried and didn't get
   // it: a wrong answer. If they never started on it, it most likely landed because they were
-  // busy with others, which says nothing about knowing it, so it's only made due again.
+  // busy with others, which says nothing about knowing it, so it isn't recorded.
   function landed(drop: Drop, wasLockedOn: boolean) {
     haptics.miss(); // a life is lost either way
     if (wasLockedOn) record(drop, false);
-    else changeProgress((current) => markDue(current, drop.kana.char, Date.now()));
   }
 
   // Records a kana as an answer: cleared means correct, timed by how long it had been falling.
   function record(drop: Drop, cleared: boolean) {
     const ms = Math.round(drop.age);
-    const answer = { char: drop.kana.char, guess: cleared ? drop.kana.char : null, ms, now: Date.now() };
+    // Typed, like a lesson in typing mode.
+    const answer = { char: drop.kana.char, guess: cleared ? drop.kana.char : null, ms, now: Date.now(), typed: true };
     changeProgress((current) => recordAnswer(current, answer));
     answers.current = [...answers.current, { char: drop.kana.char, correct: cleared, ms }];
   }

@@ -18,12 +18,12 @@ export type GuideSection = { title: string; topics: GuideTopic[] };
 const FAST = `${FAST_MS / 1000} seconds`;
 const GOALS = DAILY_GOALS.map((g) => `${g.minutes} minutes (${g.lessons} ${g.lessons === 1 ? 'lesson' : 'lessons'})`);
 
-// How each belt is reached, for the ladder picture.
+// How each belt is reached, for the ladder picture: 3 steps each, and faster each time.
 export const BELT_STEPS = [
   { belt: 'white', how: 'Every kana starts here.' },
-  { belt: 'green', how: '3 quick right answers. No waiting.' },
-  { belt: 'brown', how: '2 more quick right answers: one at least 20 minutes later, then one at least 6 hours after that.' },
-  { belt: 'black', how: '2 more: one at least 2 days later, then one at least a week after that.' },
+  { belt: 'green', how: '3 right answers, each under 4s (typed: under 6s).' },
+  { belt: 'brown', how: '3 more, each under 2.5s (typed: under 4s).' },
+  { belt: 'black', how: '3 more, each under 1.5s (typed: under 3s).' },
 ] as const;
 
 export const GUIDE: GuideSection[] = [
@@ -42,11 +42,11 @@ export const GUIDE: GuideSection[] = [
         id: 'lesson',
         question: 'How does a lesson work?',
         answer: [
-          `Each lesson is ${LESSON_LENGTH} questions. You see a kana and tap its sound from four answers.`,
+          `Each lesson is ${LESSON_LENGTH} questions. You see a kana and give its sound: tap it from four answers, or type it.`,
           {
             bullets: [
               'The answers always sit in kana-chart order (a, i, u, e, o), so your eyes stay on the kana, not on hunting for the answer.',
-              `Answer quickly: a right answer in under ${FAST} is what moves a kana up.`,
+              'Answer quickly: a quick right answer is what moves a kana up.',
               "After you answer, you hear the kana spoken, and Karasu hops (or shakes his head if you missed).",
               'Get one wrong and you see the right answer, with a tip for telling it apart from the one you picked.',
             ],
@@ -85,10 +85,10 @@ export const GUIDE: GuideSection[] = [
         id: 'belts',
         question: 'How do kana level up?',
         answer: [
-          'Every kana has its own belt: white, green, brown, then black.',
+          'Every kana has its own belt: white, green, brown, then black. Each belt is 3 steps, and each step is one quick right answer. Each belt asks for more speed, because the goal is reading at a glance.',
           { belts: true },
-          `A quick right answer (under ${FAST}) moves a kana up a step. A right answer that's slower keeps it where it is. A wrong answer drops it 2 steps, and it comes back soon.`,
-          "From green up, a kana only moves up once it's due. Answering it again early is still good practice, but it won't move up. The waits are what prove you still know it after a break.",
+          "A right answer that's too slow keeps a kana where it is. A wrong answer drops it 2 steps. There's no waiting: you can climb as fast as you can read.",
+          'To see what a kana needs next, tap it on the Kana tab.',
         ],
       },
       {
@@ -96,7 +96,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How do I open the next row?',
         answer: [
           "The next row opens once 4 in 5 of this row's kana are green belt. For the あ row, that's 4 of its 5 kana.",
-          "Green only takes 3 quick right answers per kana, so one good session can open a row. Karasu says how many more are needed, and the next row's board says it too.",
+          "Green only takes 3 quick right answers per kana (or 2 typed), so one good session can open a row. Karasu says how many more are needed, and the next row's board says it too.",
           "A new row's kana only come up once a plaque has taught them. Until then, practice sticks to kana you've met.",
           'Hiragana and katakana are separate paths. Switch between them with the picker at the top of the Learn screen.',
         ],
@@ -114,7 +114,16 @@ export const GUIDE: GuideSection[] = [
               'Fail and you can try again whenever you like.',
             ],
           },
-          "A row's belt never shows higher than its kana are now. If its kana slip back, practise them and the belt returns.",
+          "A row's belt never shows higher than its kana are now. If its kana slip back after wrong answers, practise them and the belt returns.",
+        ],
+      },
+      {
+        id: 'typing',
+        question: 'Should I tap or type my answers?',
+        answer: [
+          'Typing is harder, since you have to recall the sound instead of recognising it, so it counts double: each quick right answer typed moves a kana up 2 steps instead of 1. Typing also gets more time, since typing takes longer than tapping.',
+          'Switch with Tap / Type at the top of any lesson, or with Type answers on the Profile tab. You can type any common spelling, like shi or si.',
+          'Belt exams and duels are always tapped.',
         ],
       },
       {
@@ -149,7 +158,7 @@ export const GUIDE: GuideSection[] = [
         id: 'practice',
         question: "What do I do once a row's plaques are done?",
         answer: [
-          "Karasu suggests Practice: lessons on kana you've met, which choose the ones due, and the ones you find hard, more often.",
+          "Karasu suggests Practice: lessons on kana you've met, which pick the ones on lower belts more often.",
           'To work on a single kana, open the Kana tab, tap the kana, and tap Drill. A drill mixes it with the kana you confuse it with.',
         ],
       },
@@ -161,7 +170,7 @@ export const GUIDE: GuideSection[] = [
           {
             bullets: [
               'Its accuracy, and its strike speed (your typical time for a right answer).',
-              'When it next comes up for review.',
+              'What its next belt takes: how many more quick right answers, and how quick.',
               'The kana you mix it up with, and a memory tip for its shape.',
               'A button to hear it, and one to drill it.',
             ],
@@ -213,7 +222,7 @@ export const GUIDE: GuideSection[] = [
               'Clearing one higher up scores more.',
               `You have ${RAIN_LIVES} lives. Each kana that lands costs one.`,
               'Every wave falls a little faster.',
-              "It uses the hiragana you've opened, and it counts as practice: clearing a kana is a right answer. One that lands while you were typing it counts as a miss.",
+              "It uses the hiragana you've opened, and it counts as typed practice: clearing a kana is a right answer. One that lands while you were typing it counts as a miss.",
             ],
           },
         ],

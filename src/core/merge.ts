@@ -28,9 +28,9 @@ function mergeRecords<T>(a: Readonly<Record<string, T>>, b: Readonly<Record<stri
   return merged;
 }
 
-// The copy answered most recently: the later due time, or on a tie, the higher box.
+// The copy answered most recently, or on a tie, the higher box.
 function laterKana(x: KanaProgress, y: KanaProgress): KanaProgress {
-  if (x.dueAt !== y.dueAt) return x.dueAt > y.dueAt ? x : y;
+  if (x.at !== y.at) return x.at > y.at ? x : y;
   return x.box >= y.box ? x : y;
 }
 

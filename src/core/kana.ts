@@ -37,9 +37,29 @@ export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, fi
   ];
 });
 
+function cleaned(input: string): string {
+  return input.trim().toLowerCase();
+}
+
 export function matchesRomaji(kana: Kana, input: string): boolean {
-  const answer = input.trim().toLowerCase();
-  return kana.romaji.includes(answer);
+  return kana.romaji.includes(cleaned(input));
+}
+
+// Every accepted spelling, of every kana.
+const SPELLINGS: readonly string[] = [...new Set(KANA.flatMap((k) => k.romaji))];
+
+// Whether a typed answer is finished: a whole spelling that no longer spelling starts with,
+// so it can be checked without pressing Enter. "n" (ん) is the one that waits, since it could
+// be the start of na, ni, nu, ne or no.
+export function typingDone(input: string): boolean {
+  const typed = cleaned(input);
+  return SPELLINGS.includes(typed) && !SPELLINGS.some((s) => s !== typed && s.startsWith(typed));
+}
+
+// The kana in `script` that a typed answer spells, or null if it spells none.
+export function kanaForRomaji(input: string, script: Script): Kana | null {
+  const typed = cleaned(input);
+  return KANA.find((k) => k.script === script && k.romaji.includes(typed)) ?? null;
 }
 
 // The kana that look like `char`: the other kana of every named pair it's in.

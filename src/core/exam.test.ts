@@ -3,7 +3,7 @@ import { awardedBelt, EXAM_LENGTH, EXAM_PASS, examDue, examId, examQuestions, ex
 
 // Progress where every kana in the hiragana a row is in `box`.
 function aRowAt(box: number): Progress {
-  return { ...EMPTY_PROGRESS, kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box, dueAt: 0 }])) };
+  return { ...EMPTY_PROGRESS, kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box, at: 0 }])) };
 }
 
 function passed(progress: Progress, belt: 'green' | 'brown' | 'black', score = EXAM_PASS): Progress {
@@ -17,7 +17,7 @@ describe('examDue', () => {
 
   it('offers the exam for the belt a row qualifies for', () => {
     expect(examDue(aRowAt(3), 'hiragana', 'a')).toBe('green');
-    expect(examDue(aRowAt(5), 'hiragana', 'a')).toBe('brown');
+    expect(examDue(aRowAt(6), 'hiragana', 'a')).toBe('brown');
   });
 
   it('offers nothing once that belt has been passed', () => {
@@ -25,7 +25,7 @@ describe('examDue', () => {
   });
 
   it('offers the next exam when the row qualifies for a higher belt', () => {
-    expect(examDue(passed(aRowAt(5), 'green'), 'hiragana', 'a')).toBe('brown');
+    expect(examDue(passed(aRowAt(6), 'green'), 'hiragana', 'a')).toBe('brown');
   });
 
   it("doesn't count a failed attempt as passed", () => {
@@ -35,11 +35,11 @@ describe('examDue', () => {
 
 describe('awardedBelt', () => {
   it('is white until an exam is passed, even if the row qualifies', () => {
-    expect(awardedBelt(aRowAt(5), 'hiragana', 'a')).toBe('white');
+    expect(awardedBelt(aRowAt(6), 'hiragana', 'a')).toBe('white');
   });
 
   it('is the highest belt passed', () => {
-    expect(awardedBelt(passed(passed(aRowAt(5), 'green'), 'brown'), 'hiragana', 'a')).toBe('brown');
+    expect(awardedBelt(passed(passed(aRowAt(6), 'green'), 'brown'), 'hiragana', 'a')).toBe('brown');
   });
 
   it("never shows higher than the row's kana currently are", () => {

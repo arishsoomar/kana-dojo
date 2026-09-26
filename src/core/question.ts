@@ -24,10 +24,10 @@ export function avoiding(options: readonly Kana[], avoid?: string, fallback: rea
 
 // Picks what to ask from the kana the learner has met (all unlocked kana, for someone who
 // hasn't met any yet), and builds its answer options from every unlocked kana.
-export function makeQuestion(progress: Progress, script: Script, now: number, rng: Rng, avoid?: string): Question {
+export function makeQuestion(progress: Progress, script: Script, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, script);
   const met = metKana(progress, script);
-  const kana = pickNext(progress, avoiding(met.length > 0 ? met : unlocked, avoid), now, rng);
+  const kana = pickNext(progress, avoiding(met.length > 0 ? met : unlocked, avoid), rng);
   return { kana, choices: makeChoices(kana, unlocked, rng) };
 }
 
@@ -37,7 +37,7 @@ const DRILL_FOCUS_SHARE = 0.5;
 // A question for drilling one kana: about half the time the kana itself, otherwise a kana
 // it gets mixed up with, or one it looks like that the learner has met. Choices come from
 // the kana unlocked in its script.
-export function makeDrillQuestion(progress: Progress, focus: Kana, now: number, rng: Rng, avoid?: string): Question {
+export function makeDrillQuestion(progress: Progress, focus: Kana, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, focus.script);
   const mixUps = new Set(mixUpsOf(progress, focus.char).map((m) => m.char));
   const met = new Set(metKana(progress, focus.script));
@@ -46,6 +46,6 @@ export function makeDrillQuestion(progress: Progress, focus: Kana, now: number, 
 
   const preferFocus = partners.length === 0 || rng() < DRILL_FOCUS_SHARE;
   const options = avoiding(preferFocus ? [focus] : partners, avoid, [focus, ...partners]);
-  const kana = pickNext(progress, options, now, rng);
+  const kana = pickNext(progress, options, rng);
   return { kana, choices: makeChoices(kana, unlocked, rng) };
 }

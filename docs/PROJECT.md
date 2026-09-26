@@ -122,21 +122,26 @@ src/app/
 
 ## The engine
 
-Leitner box system. Every kana has a box number 0–7 and a due timestamp.
+Every kana has a box number 0–9: three steps to each belt. A kana climbs
+by being answered right, quickly, and each belt asks for more speed, since
+the goal is reading at a glance. There is no waiting: a kana can climb as
+fast as the learner can read it.
 
 ```
-Box:       0     1     2     3      4     5     6     7
-Interval:  now   now   now   20m    6h    2d    7d    21d
-Belt:      white white white green green brown brown black
+Box:              0  1  2   3  4  5   6  7  8   9
+Belt:             white     green     brown     black
+Climb if tapped   under 4s  under 2.5s under 1.5s  (top)
+Climb if typed    under 6s  under 4s   under 3s
 ```
 
 Rules:
-- White belt (boxes 0–2): correct in under 4 seconds → box + 1, any time.
-  Green belt takes 3 quick right answers, not waiting.
-- Green and up: correct, answered when due, in under 4 seconds → box + 1
-- Green and up, correct but not yet due → box unchanged (no free promotions)
-- Wrong → box − 2 (floor 0), due immediately, and the confusion is logged
-  as a pair (what it was, what the learner guessed)
+- Right and under the limit for its belt → box + 1 if tapped, box + 2 if
+  typed (recalling the sound is harder than recognising it)
+- Right but at or over the limit → box unchanged
+- Wrong → box − 2 (floor 0), and the confusion is logged as a pair (what
+  it was, what the learner guessed)
+- Each kana also keeps when it was last answered, which decides which copy
+  wins when two devices' progress is merged
 
 Core functions:
 

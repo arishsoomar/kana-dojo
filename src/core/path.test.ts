@@ -31,7 +31,7 @@ describe('plaquesFor', () => {
 
 describe('rowBelt', () => {
   it("is the lowest belt among the row's kana", () => {
-    const progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 7, dueAt: 0 }, い: { box: 5, dueAt: 0 }, う: { box: 3, dueAt: 0 }, え: { box: 3, dueAt: 0 }, お: { box: 3, dueAt: 0 } } };
+    const progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 9, at: 0 }, い: { box: 6, at: 0 }, う: { box: 3, at: 0 }, え: { box: 3, at: 0 }, お: { box: 3, at: 0 } } };
     expect(rowBelt(progress, 'hiragana', 'a')).toBe('green');
     expect(rowBelt(EMPTY_PROGRESS, 'hiragana', 'a')).toBe('white');
   });
@@ -62,7 +62,7 @@ describe('learnPath', () => {
   });
 
   it("moves on to the next row's plaques once that row unlocks", () => {
-    const green = { あ: { box: 3, dueAt: 0 }, い: { box: 3, dueAt: 0 }, う: { box: 3, dueAt: 0 }, え: { box: 3, dueAt: 0 } };
+    const green = { あ: { box: 3, at: 0 }, い: { box: 3, at: 0 }, う: { box: 3, at: 0 }, え: { box: 3, at: 0 } };
     const progress = done({ ...EMPTY_PROGRESS, kana: green }, 'hiragana:a:0', 'hiragana:a:1', 'hiragana:a:2', 'hiragana:a:mixed');
     const path = learnPath(progress, 'hiragana');
     expect(path.units[1]?.open).toBe(true);
@@ -81,28 +81,28 @@ describe('makePlaqueQuestion', () => {
 
   it("mostly asks the plaque's own kana", () => {
     if (!first) throw new Error('missing plaque');
-    const { kana } = makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, () => 0.2);
+    const { kana } = makePlaqueQuestion(EMPTY_PROGRESS, first, () => 0.2);
     expect(['あ', 'い']).toContain(kana.char);
   });
 
   it('sometimes reviews other unlocked kana the learner has met', () => {
     if (!first) throw new Error('missing plaque');
-    const met: Progress = { ...EMPTY_PROGRESS, kana: { う: { box: 1, dueAt: 0 } } };
-    const { kana } = makePlaqueQuestion(met, first, NOW, () => 0.9);
+    const met: Progress = { ...EMPTY_PROGRESS, kana: { う: { box: 1, at: 0 } } };
+    const { kana } = makePlaqueQuestion(met, first, () => 0.9);
     expect(kana.char).toBe('う');
   });
 
   it("never reviews a kana that hasn't been taught yet", () => {
     if (!first) throw new Error('missing plaque');
     for (const rng of [() => 0, () => 0.5, () => 0.99]) {
-      const { kana } = makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, rng);
+      const { kana } = makePlaqueQuestion(EMPTY_PROGRESS, first, rng);
       expect(['あ', 'い']).toContain(kana.char);
     }
   });
 
   it('offers four choices that include the answer', () => {
     if (!first) throw new Error('missing plaque');
-    const { kana, choices } = makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, () => 0.5);
+    const { kana, choices } = makePlaqueQuestion(EMPTY_PROGRESS, first, () => 0.5);
     expect(choices).toHaveLength(4);
     expect(choices).toContain(kana);
     expect(KANA).toContain(kana);
@@ -121,7 +121,7 @@ describe('plaqueById', () => {
 
 describe('learnPath: belt exams', () => {
   it('shows the awarded belt, and an exam once the row qualifies', () => {
-    const green = { ...EMPTY_PROGRESS, kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, dueAt: 0 }])) };
+    const green = { ...EMPTY_PROGRESS, kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, at: 0 }])) };
     const unit = learnPath(green, 'hiragana').units[0];
     expect(unit?.belt).toBe('white');
     expect(unit?.exam).toBe('green');
@@ -137,7 +137,7 @@ describe('makePlaqueQuestion: no repeats', () => {
     const [first] = plaquesFor('hiragana', 'a');
     if (!first) throw new Error('missing plaque');
     for (const rng of [() => 0, () => 0.2, () => 0.5]) {
-      expect(makePlaqueQuestion(EMPTY_PROGRESS, first, NOW, rng, 'あ').kana.char).not.toBe('あ');
+      expect(makePlaqueQuestion(EMPTY_PROGRESS, first, rng, 'あ').kana.char).not.toBe('あ');
     }
   });
 });

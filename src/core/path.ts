@@ -104,13 +104,13 @@ export function learnPath(progress: Progress, script: Script): LearnPath {
 // other kana the learner has met.
 const PLAQUE_FOCUS_SHARE = 0.7;
 
-export function makePlaqueQuestion(progress: Progress, plaque: Plaque, now: number, rng: Rng, avoid?: string): Question {
+export function makePlaqueQuestion(progress: Progress, plaque: Plaque, rng: Rng, avoid?: string): Question {
   const unlocked = unlockedKana(progress, plaque.script);
   const review = metKana(progress, plaque.script).filter((k) => !plaque.kana.includes(k));
   const pool = [...new Set([...unlocked, ...plaque.kana])];
 
   const preferPlaque = review.length === 0 || rng() < PLAQUE_FOCUS_SHARE;
   const options = avoiding(preferPlaque ? plaque.kana : review, avoid, [...plaque.kana, ...review]);
-  const kana = pickNext(progress, options, now, rng);
+  const kana = pickNext(progress, options, rng);
   return { kana, choices: makeChoices(kana, pool, rng) };
 }

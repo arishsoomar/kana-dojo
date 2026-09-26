@@ -1,4 +1,4 @@
-import { intervalFor, isDue, MAX_BOX, tierOf, type KanaProgress } from './boxes';
+import { MAX_BOX, tierOf, type Belt, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
 
@@ -30,6 +30,7 @@ export type Settings = {
   script: Script; // the script the Learn screen shows
   sound: boolean; // kana are spoken aloud after each answer
   haptics: boolean; // the phone taps and buzzes on answers and big moments
+  typing: boolean; // lessons ask for the romaji to be typed, instead of tapped from four
 };
 
 export type Progress = {
@@ -46,7 +47,7 @@ export const EMPTY_PROGRESS: Progress = {
   confusions: [],
   stats: {},
   completed: [],
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false },
 };
 
 export type Answer = {
@@ -54,29 +55,48 @@ export type Answer = {
   guess: string | null; // the kana the learner picked, or null if they gave no answer
   ms: number; // how long they took to answer
   now: number; // timestamp of the answer
+  typed?: boolean; // typed out instead of picked from the choices: harder, so it counts double
 };
 
-// Answers must be faster than this to earn a promotion.
+// A quick answer: it earns bonus XP, and scores in a duel.
 export const FAST_MS = 4000;
 
-function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
-  // From green belt up, only a due kana can move up (no free promotions). Below green,
-  // every quick right answer counts, even with a due time left over from an older save.
-  if (tierOf(current.box) !== 'white' && !isDue(current, answer.now)) return current;
+// How fast a right answer must be to move a kana up, by the belt it's climbing from. Each
+// belt asks for more speed, since reading at a glance is the goal. Typing takes longer than
+// tapping, so typed answers get more time.
+const CLIMB_MS: Readonly<Record<Exclude<Belt, 'black'>, { tap: number; type: number }>> = {
+  white: { tap: 4000, type: 6000 },
+  green: { tap: 2500, type: 4000 },
+  brown: { tap: 1500, type: 3000 },
+};
 
-  const box = answer.ms < FAST_MS ? Math.min(current.box + 1, MAX_BOX) : current.box;
-  return { box, dueAt: answer.now + intervalFor(box) };
+export function climbLimit(box: number, typed: boolean): number {
+  const belt = tierOf(box);
+  // A black-belt kana has nowhere left to climb; it's held to the brown limit.
+  const limits = CLIMB_MS[belt === 'black' ? 'brown' : belt];
+  return typed ? limits.type : limits.tap;
+}
+
+// Steps up for a quick right answer. Typing the romaji is harder than picking it, so it's worth two.
+const TAP_STEPS = 1;
+const TYPED_STEPS = 2;
+
+function afterCorrect(current: KanaProgress, answer: Answer): KanaProgress {
+  const typed = answer.typed ?? false;
+  const quick = answer.ms < climbLimit(current.box, typed);
+  const steps = quick ? (typed ? TYPED_STEPS : TAP_STEPS) : 0;
+  return { box: Math.min(current.box + steps, MAX_BOX), at: answer.now };
 }
 
 // Wrong answers drop this many boxes.
 const WRONG_DROP = 2;
 
 function afterWrong(current: KanaProgress, answer: Answer): KanaProgress {
-  return { box: Math.max(current.box - WRONG_DROP, 0), dueAt: answer.now };
+  return { box: Math.max(current.box - WRONG_DROP, 0), at: answer.now };
 }
 
-// Progress for a kana the learner has never answered: lowest box, due now.
-export const NEW_KANA: KanaProgress = { box: 0, dueAt: 0 };
+// Progress for a kana the learner has never answered: lowest box.
+export const NEW_KANA: KanaProgress = { box: 0, at: 0 };
 
 const NEW_STATS: KanaStats = { seen: 0, correct: 0, recentMs: [] };
 
@@ -107,7 +127,8 @@ export function recordAnswer(progress: Progress, answer: Answer): Progress {
     };
   }
 
-  // No guess (a kana left to land in Kana Rain) is wrong, but nothing was confused with it.
+  // No guess (typed nonsense, or a kana left to land in Kana Rain) is wrong, but nothing
+  // was confused with it.
   const confusions =
     answer.guess === null
       ? progress.confusions
@@ -133,14 +154,6 @@ export function bestScore(progress: Progress, lesson: string): number | null {
   return scores.length === 0 ? null : Math.max(...scores);
 }
 
-// Makes a kana due now, without scoring anything: its box, stats and mix-ups stay the same.
-// Used when a kana went unanswered for a reason that says nothing about knowing it
-// (in Kana Rain, one that landed before the player had started on it).
-export function markDue(progress: Progress, char: string, now: number): Progress {
-  const current = progress.kana[char] ?? NEW_KANA;
-  return { ...progress, kana: { ...progress.kana, [char]: { ...current, dueAt: Math.min(current.dueAt, now) } } };
-}
-
 // Marks the welcome as seen, so it isn't shown again.
 export function finishOnboarding(progress: Progress): Progress {
   return { ...progress, settings: { ...progress.settings, onboarded: true } };
@@ -159,6 +172,11 @@ export function setSound(progress: Progress, sound: boolean): Progress {
 // Turns the phone's taps and buzzes on or off.
 export function setHaptics(progress: Progress, haptics: boolean): Progress {
   return { ...progress, settings: { ...progress.settings, haptics } };
+}
+
+// Switches lessons between typing answers and tapping them.
+export function setTyping(progress: Progress, typing: boolean): Progress {
+  return { ...progress, settings: { ...progress.settings, typing } };
 }
 
 // True when nothing has been trained yet (settings like the daily goal don't count).

@@ -29,7 +29,7 @@ describe('masteryGrid', () => {
   it('gives each kana the belt for its box, and counts belts past white', () => {
     const progress: Progress = {
       ...EMPTY_PROGRESS,
-      kana: { あ: { box: 7, dueAt: 0 }, い: { box: 5, dueAt: 0 }, う: { box: 3, dueAt: 0 }, え: { box: 4, dueAt: 0 } },
+      kana: { あ: { box: 9, at: 0 }, い: { box: 6, at: 0 }, う: { box: 3, at: 0 }, え: { box: 4, at: 0 } },
     };
     const grid = masteryGrid(progress, 'hiragana');
     expect(grid.rows[0]?.cells.map((c) => c.belt)).toEqual(['black', 'brown', 'green', 'green', 'white']);
@@ -38,7 +38,7 @@ describe('masteryGrid', () => {
   });
 
   it('keeps each script separate', () => {
-    const progress: Progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 7, dueAt: 0 } } };
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 9, at: 0 } } };
     expect(masteryGrid(progress, 'katakana').pastWhite).toBe(0);
   });
 });
@@ -48,11 +48,11 @@ describe('masteryGrid: row belts', () => {
     const progress: Progress = {
       ...EMPTY_PROGRESS,
       kana: {
-        あ: { box: 7, dueAt: 0 },
-        い: { box: 7, dueAt: 0 },
-        う: { box: 5, dueAt: 0 },
-        え: { box: 3, dueAt: 0 },
-        お: { box: 7, dueAt: 0 },
+        あ: { box: 9, at: 0 },
+        い: { box: 9, at: 0 },
+        う: { box: 6, at: 0 },
+        え: { box: 3, at: 0 },
+        お: { box: 9, at: 0 },
       },
     };
     const [aRow, kaRow] = masteryGrid(progress, 'hiragana').rows;
@@ -63,7 +63,7 @@ describe('masteryGrid: row belts', () => {
   it('shows white until the belt exam is passed', () => {
     const progress: Progress = {
       ...EMPTY_PROGRESS,
-      kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, dueAt: 0 }])),
+      kana: Object.fromEntries([...'あいうえお'].map((c) => [c, { box: 3, at: 0 }])),
     };
     expect(masteryGrid(progress, 'hiragana').rows[0]?.belt).toBe('white');
     const passed = completeLesson(progress, examId('hiragana', 'a', 'green'), 1000, EXAM_PASS);

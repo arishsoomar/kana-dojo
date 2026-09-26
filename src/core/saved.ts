@@ -4,9 +4,9 @@ import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
 // Version 1 had no stats and version 2 had no finished lessons; both are still read,
-// with those parts empty.
-const SAVE_VERSION = 3;
-const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3];
+// with those parts empty. Versions 1 to 3 had 8 boxes with waiting times (see oldKana).
+const SAVE_VERSION = 4;
+const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, 4];
 
 const EMPTY = EMPTY_PROGRESS;
 
@@ -30,7 +30,7 @@ export function parseProgress(text: string | null): Progress {
 
   const { kana, confusions, stats, completed, settings } = data.progress;
   const progress = {
-    kana: isObject(kana) ? validEntries(kana, isKanaProgress) : {},
+    kana: !isObject(kana) ? {} : data.version === SAVE_VERSION ? validEntries(kana, isKanaProgress) : oldKana(kana),
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
     stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
     completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
@@ -44,7 +44,9 @@ export function parseProgress(text: string | null): Progress {
   // Sound and haptics are on unless they were saved as off.
   const sound = !(isObject(settings) && settings.sound === false);
   const haptics = !(isObject(settings) && settings.haptics === false);
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics } };
+  // Typing is off (answers are tapped) unless it was saved as on.
+  const typing = isObject(settings) && settings.typing === true;
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing } };
 }
 
 // Keeps the entries whose value passes `isValid`.
@@ -61,15 +63,29 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isBox(value: unknown, max: number): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max;
+}
+
 function isKanaProgress(value: unknown): value is KanaProgress {
-  return (
-    isObject(value) &&
-    typeof value.box === 'number' &&
-    Number.isInteger(value.box) &&
-    value.box >= 0 &&
-    value.box <= MAX_BOX &&
-    typeof value.dueAt === 'number'
-  );
+  return isObject(value) && isBox(value.box, MAX_BOX) && typeof value.at === 'number';
+}
+
+// Before version 4 there were 8 boxes (0–7) and each had a waiting time, saved as when the
+// kana was next due. Each old box maps to the new box at the same belt (green was 3–4,
+// brown 5–6, black 7), and the last answer is the due time minus the old box's wait.
+const OLD_BOX_TO_NEW = [0, 1, 2, 3, 4, 6, 7, 9];
+const OLD_WAITS = [0, 0, 0, 20 * 60_000, 6 * 3_600_000, 2 * 86_400_000, 7 * 86_400_000, 21 * 86_400_000];
+const OLD_MAX_BOX = 7;
+
+function oldKana(saved: Record<string, unknown>): Record<string, KanaProgress> {
+  const out: Record<string, KanaProgress> = {};
+  for (const [char, value] of Object.entries(saved)) {
+    if (!isObject(value) || !isBox(value.box, OLD_MAX_BOX) || typeof value.dueAt !== 'number') continue;
+    // Safe: the box was checked to be 0–7, a valid index into both lists.
+    out[char] = { box: OLD_BOX_TO_NEW[value.box]!, at: Math.max(value.dueAt - OLD_WAITS[value.box]!, 0) };
+  }
+  return out;
 }
 
 function isCount(value: unknown): value is number {

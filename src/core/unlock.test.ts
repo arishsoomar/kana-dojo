@@ -6,7 +6,7 @@ import { greenNeeded, metKana, unlockedKana } from './unlock';
 function withBox(chars: string[], box: number): Progress {
   return {
     ...EMPTY_PROGRESS,
-    kana: Object.fromEntries(chars.map((char) => [char, { box, dueAt: 0 }])),
+    kana: Object.fromEntries(chars.map((char) => [char, { box, at: 0 }])),
   };
 }
 
@@ -48,12 +48,12 @@ describe('greenNeeded', () => {
 
 describe('metKana', () => {
   it('is the unlocked kana that have progress (answered or placed)', () => {
-    const progress: Progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 1, dueAt: 0 }, う: { box: 0, dueAt: 0 } } };
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { あ: { box: 1, at: 0 }, う: { box: 0, at: 0 } } };
     expect(metKana(progress, 'hiragana').map((k) => k.char)).toEqual(['あ', 'う']);
   });
 
   it('leaves out kana in rows that are still locked', () => {
-    const progress: Progress = { ...EMPTY_PROGRESS, kana: { か: { box: 1, dueAt: 0 } } };
+    const progress: Progress = { ...EMPTY_PROGRESS, kana: { か: { box: 1, at: 0 } } };
     expect(metKana(progress, 'hiragana')).toEqual([]);
   });
 });

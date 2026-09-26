@@ -165,7 +165,7 @@ describe('scrolls', () => {
 
   it('lists won scrolls first, then ready ones, then locked ones', () => {
     // The a and ka rows are green, so the sa row is open and き さ can be ready.
-    const green = { box: 3, dueAt: 0 };
+    const green = { box: 3, at: 0 };
     const opened = {
       ...withMixUps(['き', 'さ'], ['さ', 'き'], ['き', 'さ']),
       kana: Object.fromEntries([...'あいうえおかきくけこ'].map((char) => [char, green])),

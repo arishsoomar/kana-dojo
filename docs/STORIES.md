@@ -241,7 +241,7 @@ faster, down to 3.5s falls and a kana every 0.7s. No combo multiplier.)
 Every hit and miss calls `recordAnswer()` like a lesson answer would.
 (A cleared kana is correct, timed by how long it was falling. A kana that
 lands while the player is locked on to it is wrong, with no mix-up logged. A
-kana that lands before the player started on it only becomes due again: box
+kana that lands before the player started on it isn't recorded at all: box
 and stats unchanged, since it most likely landed because they were busy.
 The engine's pickNext chooses which kana fall.)
 
@@ -494,8 +494,19 @@ Done when:
 - Learn: Karasu says what opens the next row (how many kana still need
   green belt, and that 3 quick right answers make a kana green). The first
   locked row repeats the rule.
-- White belt is count-based: no waits below green, so a row can open in
-  one good practice session. Waits start at green (see PROJECT.md).
+- Belts are speed-based, with no waiting (see PROJECT.md): 3 steps to a
+  belt, each a quick right answer, under 4s for green, 2.5s for brown and
+  1.5s for black. The first version waited 20 minutes to 21 days between
+  steps above green; it felt too slow and was replaced. Saves from before
+  (version 3) are upgraded, keeping each kana's belt.
+- Typing mode: a Tap / Type ×2 switch in the lesson bar (and a Type
+  answers switch on Profile). A typed right answer moves a kana 2 steps,
+  with more time (6s, 4s, 3s). The answer is checked as soon as a whole
+  spelling is typed; "n" waits for Enter or Check, since it may start
+  na, ni... A wrong typed answer logs the kana it spells as the mix-up.
+  Exams and duels stay tapped. Kana Rain answers count as typed.
+- The Kana tab's detail sheet shows what the next belt takes ("To brown:
+  2 more", and how quick) instead of a wait.
 - Practice and plaque reviews only ask kana the learner has met (answered
   or placed). A newly opened row waits for its plaques. Drills still ask
   any kana it's been mixed up with.

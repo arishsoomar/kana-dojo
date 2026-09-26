@@ -1,80 +1,106 @@
-import { bestScore, completeLesson, EMPTY_PROGRESS, finishOnboarding, isEmptyProgress, markDue, recordAnswer, setHaptics, setSound, type Progress } from './answers';
-import { intervalFor } from './boxes';
+import {
+  bestScore,
+  climbLimit,
+  completeLesson,
+  EMPTY_PROGRESS,
+  finishOnboarding,
+  isEmptyProgress,
+  recordAnswer,
+  setHaptics,
+  setSound,
+  setTyping,
+  type Progress,
+} from './answers';
 
 const NOW = 1_000_000;
 
-// Progress where シ is in `box` and due at `dueAt` (right now by default).
-function progressWith(box: number, dueAt = NOW): Progress {
+// Progress where シ is in `box`, last answered a while ago.
+function progressWith(box: number): Progress {
   return {
     ...EMPTY_PROGRESS,
-    kana: { シ: { box, dueAt } },
+    kana: { シ: { box, at: 1 } },
   };
 }
 
-describe('recordAnswer: correct, due, fast', () => {
-  it('moves the kana up one box', () => {
-    const next = recordAnswer(progressWith(2), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
-    expect(next.kana['シ']?.box).toBe(3);
+const tap = (ms: number) => ({ char: 'シ', guess: 'シ', ms, now: NOW });
+const typed = (ms: number) => ({ char: 'シ', guess: 'シ', ms, now: NOW, typed: true });
+
+describe('climbLimit: how fast a right answer must be to move a kana up', () => {
+  it('gets faster at each belt: 4s at white, 2.5s at green, 1.5s at brown', () => {
+    expect([0, 2, 3, 5, 6, 8].map((box) => climbLimit(box, false))).toEqual([4000, 4000, 2500, 2500, 1500, 1500]);
   });
 
-  it('schedules it at the new box interval', () => {
-    const next = recordAnswer(progressWith(2), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
-    expect(next.kana['シ']?.dueAt).toBe(NOW + intervalFor(3));
-  });
-
-  it('never goes above box 7', () => {
-    const next = recordAnswer(progressWith(7), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
-    expect(next.kana['シ']?.box).toBe(7);
+  it('gives typed answers more time: 6s, 4s and 3s', () => {
+    expect([0, 3, 6].map((box) => climbLimit(box, true))).toEqual([6000, 4000, 3000]);
   });
 });
 
-describe('recordAnswer: correct but not due', () => {
-  it('leaves a green-or-better kana alone', () => {
-    const dueLater = NOW + 60_000;
-    const next = recordAnswer(progressWith(3, dueLater), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
-    expect(next.kana['シ']).toEqual({ box: 3, dueAt: dueLater });
+describe('recordAnswer: a right tapped answer', () => {
+  it('moves the kana up one step when it beats the limit', () => {
+    expect(recordAnswer(progressWith(2), tap(3999)).kana['シ']).toEqual({ box: 3, at: NOW });
   });
 
-  it('still promotes a white-belt kana: below green, right answers count, not time', () => {
-    const dueLater = NOW + 60_000;
-    const next = recordAnswer(progressWith(2, dueLater), { char: 'シ', guess: 'シ', ms: 1500, now: NOW });
-    expect(next.kana['シ']).toEqual({ box: 3, dueAt: NOW + intervalFor(3) });
+  it('keeps it where it is at or over the limit', () => {
+    expect(recordAnswer(progressWith(2), tap(4000)).kana['シ']).toEqual({ box: 2, at: NOW });
+  });
+
+  it('needs under 2.5 seconds to climb from green', () => {
+    expect(recordAnswer(progressWith(3), tap(2600)).kana['シ']?.box).toBe(3);
+    expect(recordAnswer(progressWith(3), tap(2400)).kana['シ']?.box).toBe(4);
+  });
+
+  it('needs under 1.5 seconds to climb from brown', () => {
+    expect(recordAnswer(progressWith(8), tap(1600)).kana['シ']?.box).toBe(8);
+    expect(recordAnswer(progressWith(8), tap(1400)).kana['シ']?.box).toBe(9);
+  });
+
+  it('never goes above black', () => {
+    expect(recordAnswer(progressWith(9), tap(500)).kana['シ']?.box).toBe(9);
+  });
+
+  it('has no waiting: answering again straight away still counts', () => {
+    let progress = progressWith(3);
+    progress = recordAnswer(progress, tap(1000));
+    progress = recordAnswer(progress, tap(1000));
+    expect(progress.kana['シ']?.box).toBe(5);
   });
 });
 
-describe('recordAnswer: correct and due, but slow', () => {
-  it('counts 4 seconds or more as slow: same box, rescheduled', () => {
-    const next = recordAnswer(progressWith(2), { char: 'シ', guess: 'シ', ms: 4000, now: NOW });
-    expect(next.kana['シ']).toEqual({ box: 2, dueAt: NOW + intervalFor(2) });
+describe('recordAnswer: a right typed answer', () => {
+  it('moves the kana up two steps', () => {
+    expect(recordAnswer(progressWith(0), typed(5000)).kana['シ']).toEqual({ box: 2, at: NOW });
   });
 
-  it('still promotes just under 4 seconds', () => {
-    const next = recordAnswer(progressWith(2), { char: 'シ', guess: 'シ', ms: 3999, now: NOW });
-    expect(next.kana['シ']?.box).toBe(3);
+  it('keeps it where it is when slower than the typing limit', () => {
+    expect(recordAnswer(progressWith(3), typed(4000)).kana['シ']?.box).toBe(3);
+  });
+
+  it('can cross into the next belt, and never goes above black', () => {
+    expect(recordAnswer(progressWith(2), typed(3000)).kana['シ']?.box).toBe(4);
+    expect(recordAnswer(progressWith(8), typed(1000)).kana['シ']?.box).toBe(9);
   });
 });
 
 describe('recordAnswer: wrong', () => {
   const wrong = { char: 'シ', guess: 'ツ', ms: 1500, now: NOW };
 
-  it('drops two boxes and is due immediately', () => {
-    const next = recordAnswer(progressWith(5), wrong);
-    expect(next.kana['シ']).toEqual({ box: 3, dueAt: NOW });
+  it('drops two steps', () => {
+    expect(recordAnswer(progressWith(6), wrong).kana['シ']).toEqual({ box: 4, at: NOW });
   });
 
   it('never drops below box 0', () => {
-    const next = recordAnswer(progressWith(1), wrong);
-    expect(next.kana['シ']?.box).toBe(0);
-  });
-
-  it('drops even when the kana was not due yet', () => {
-    const next = recordAnswer(progressWith(5, NOW + 60_000), wrong);
-    expect(next.kana['シ']?.box).toBe(3);
+    expect(recordAnswer(progressWith(1), wrong).kana['シ']?.box).toBe(0);
   });
 
   it('logs what was shown and what was guessed', () => {
     const next = recordAnswer(progressWith(5), wrong);
     expect(next.confusions).toEqual([{ shown: 'シ', guessed: 'ツ' }]);
+  });
+
+  it('logs no mix-up when nothing was guessed (typed nonsense, or a Kana Rain kana that landed)', () => {
+    const next = recordAnswer(progressWith(5), { ...wrong, guess: null });
+    expect(next.confusions).toEqual([]);
+    expect(next.kana['シ']?.box).toBe(3);
   });
 
   it('adds to earlier confusions instead of replacing them', () => {
@@ -90,14 +116,14 @@ describe('recordAnswer: wrong', () => {
 describe('recordAnswer: a kana with no progress yet', () => {
   const empty: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
-  it('treats it as box 0 and due, so a fast correct answer promotes it', () => {
+  it('treats it as box 0, so a quick right answer moves it up', () => {
     const next = recordAnswer(empty, { char: 'ア', guess: 'ア', ms: 1500, now: NOW });
-    expect(next.kana['ア']).toEqual({ box: 1, dueAt: NOW + intervalFor(1) });
+    expect(next.kana['ア']).toEqual({ box: 1, at: NOW });
   });
 
   it('keeps it at box 0 on a wrong answer', () => {
     const next = recordAnswer(empty, { char: 'ア', guess: 'マ', ms: 1500, now: NOW });
-    expect(next.kana['ア']).toEqual({ box: 0, dueAt: NOW });
+    expect(next.kana['ア']).toEqual({ box: 0, at: NOW });
   });
 });
 
@@ -105,7 +131,7 @@ describe('recordAnswer: immutability', () => {
   it('never changes the progress it was given', () => {
     const before: Progress = {
       ...EMPTY_PROGRESS,
-      kana: { シ: { box: 4, dueAt: NOW } },
+      kana: { シ: { box: 4, at: NOW } },
       confusions: [{ shown: 'ぬ', guessed: 'め' }],
     };
     const snapshot = structuredClone(before);
@@ -120,7 +146,7 @@ describe('recordAnswer: immutability', () => {
 describe('recordAnswer: stats', () => {
   const empty: Progress = { ...EMPTY_PROGRESS, kana: {} };
 
-  it('counts every answer and every correct one, due or not', () => {
+  it('counts every answer and every correct one', () => {
     let progress = recordAnswer(empty, { char: 'シ', guess: 'シ', ms: 900, now: NOW });
     progress = recordAnswer(progress, { char: 'シ', guess: 'ツ', ms: 1200, now: NOW });
     progress = recordAnswer(progress, { char: 'シ', guess: 'シ', ms: 1100, now: NOW });
@@ -145,37 +171,6 @@ describe('completeLesson', () => {
       { lesson: 'review:hiragana', at: 2000 },
     ]);
     expect(EMPTY_PROGRESS.completed).toEqual([]);
-  });
-});
-
-describe('recordAnswer: no answer given', () => {
-  it('counts as wrong but logs no mix-up, since nothing was confused', () => {
-    const next = recordAnswer(progressWith(5), { char: 'シ', guess: null, ms: 9000, now: NOW });
-    expect(next.kana['シ']).toEqual({ box: 3, dueAt: NOW });
-    expect(next.confusions).toEqual([]);
-    expect(next.stats['シ']).toEqual({ seen: 1, correct: 0, recentMs: [] });
-  });
-});
-
-describe('markDue', () => {
-  it('makes a kana due now without changing its box, stats or mix-ups', () => {
-    const before = { ...progressWith(5, NOW + 60_000), stats: { シ: { seen: 4, correct: 4, recentMs: [900] } } };
-    const next = markDue(before, 'シ', NOW);
-    expect(next.kana['シ']).toEqual({ box: 5, dueAt: NOW });
-    expect(next.stats).toEqual(before.stats);
-    expect(next.confusions).toEqual(before.confusions);
-  });
-
-  it('leaves a kana that is already due alone', () => {
-    const before = progressWith(5, NOW - 1000);
-    expect(markDue(before, 'シ', NOW).kana['シ']).toEqual({ box: 5, dueAt: NOW - 1000 });
-  });
-
-  it('never changes the progress it was given', () => {
-    const before = progressWith(5, NOW + 60_000);
-    const snapshot = structuredClone(before);
-    markDue(before, 'シ', NOW);
-    expect(before).toEqual(snapshot);
   });
 });
 
@@ -233,5 +228,15 @@ describe('haptics', () => {
     expect(off.settings.haptics).toBe(false);
     expect(setHaptics(off, true).settings.haptics).toBe(true);
     expect(EMPTY_PROGRESS.settings.haptics).toBe(true);
+  });
+});
+
+describe('typing', () => {
+  it('starts off (answers are tapped), and setTyping turns it on and off without changing the input', () => {
+    expect(EMPTY_PROGRESS.settings.typing).toBe(false);
+    const on = setTyping(EMPTY_PROGRESS, true);
+    expect(on.settings.typing).toBe(true);
+    expect(setTyping(on, false).settings.typing).toBe(false);
+    expect(EMPTY_PROGRESS.settings.typing).toBe(false);
   });
 });

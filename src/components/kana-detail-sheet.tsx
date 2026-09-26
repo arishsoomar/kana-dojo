@@ -3,7 +3,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '@/constants/theme';
 import type { KanaDetails } from '@/core/details';
-import { formatWait } from '@/core/details';
 import type { Kana } from '@/core/kana';
 
 import { BeltIcon } from './belt-icon';
@@ -51,8 +50,17 @@ export function KanaDetailSheet({ kana, details, tip, onDrill, onSpeak, onClose 
         <View style={styles.metrics}>
           <Metric label="Accuracy" value={accuracy} />
           <Metric label="Strike speed" value={speed} />
-          <Metric label="Next drill" value={formatWait(details.dueInMs)} />
+          <Metric
+            label={details.nextBelt ? `To ${details.nextBelt.belt}` : 'Top belt'}
+            value={details.nextBelt ? `${details.nextBelt.steps} more` : 'Black'}
+          />
         </View>
+        {details.nextBelt && (
+          <Text style={styles.nextNote}>
+            Each right answer under {seconds(details.nextBelt.tapMs)} moves it up a step. Typed under{' '}
+            {seconds(details.nextBelt.typeMs)}, two steps.
+          </Text>
+        )}
 
         {tip && (
           <View style={styles.tip}>
@@ -93,11 +101,23 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
+// 2500 as "2.5s", 4000 as "4s".
+function seconds(ms: number): string {
+  return `${ms / 1000}s`;
+}
+
 function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 const styles = StyleSheet.create({
+  nextNote: {
+    marginTop: 8,
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.ink2,
+  },
   speak: {
     alignItems: 'center',
     justifyContent: 'center',

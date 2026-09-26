@@ -4,7 +4,7 @@ import { EXAM_PASS, examId } from './exam';
 import { KANA, ROWS, type RowId, type Script } from './kana';
 import { overallRank } from './rank';
 
-const BOX_FOR: Record<Belt, number> = { white: 0, green: 3, brown: 5, black: 7 };
+const BOX_FOR: Record<Belt, number> = { white: 0, green: 3, brown: 6, black: 9 };
 const EVERY_ROW: [Script, RowId][] = (['hiragana', 'katakana'] as const).flatMap((script) =>
   ROWS.map((row): [Script, RowId] => [script, row]),
 );
@@ -15,7 +15,7 @@ function rowsEarned(count: number, belt: Belt, base: Progress = EMPTY_PROGRESS):
   let progress = base;
   for (const [script, row] of EVERY_ROW.slice(0, count)) {
     const kana = KANA.filter((k) => k.script === script && k.row === row);
-    progress = { ...progress, kana: { ...progress.kana, ...Object.fromEntries(kana.map((k) => [k.char, { box: BOX_FOR[belt], dueAt: 0 }])) } };
+    progress = { ...progress, kana: { ...progress.kana, ...Object.fromEntries(kana.map((k) => [k.char, { box: BOX_FOR[belt], at: 0 }])) } };
     progress = completeLesson(progress, examId(script, row, belt), 1000, EXAM_PASS);
   }
   return progress;
@@ -46,7 +46,7 @@ describe('overallRank', () => {
   });
 
   it('only counts belts earned by exam, not just qualified for', () => {
-    const qualifiedOnly = { ...EMPTY_PROGRESS, kana: Object.fromEntries(KANA.map((k) => [k.char, { box: 7, dueAt: 0 }])) };
+    const qualifiedOnly = { ...EMPTY_PROGRESS, kana: Object.fromEntries(KANA.map((k) => [k.char, { box: 9, at: 0 }])) };
     expect(overallRank(qualifiedOnly)).toBe('white');
   });
 });

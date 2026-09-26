@@ -13,7 +13,7 @@ export const SENSEI_LINES: readonly string[] = [
   'Every mistake shows you where to look next.',
   'Every master was once a white belt.',
   'Look at the shape itself, not the one you expect to see.',
-  'A belt means you still knew it after a break.',
+  'Each belt asks for a quicker eye than the last.',
 ];
 
 // A pair counts as a habit after this many mix-ups, and a kana needs this many answers

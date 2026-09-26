@@ -89,9 +89,7 @@ export default function KanaScreen() {
 
 function DetailSheet({ kana, onDrill, onClose }: { kana: Kana; onDrill: () => void; onClose: () => void }) {
   const { progress } = useProgress();
-  // The time when the sheet opened; reading the clock during every render isn't allowed.
-  const [now] = useState(() => Date.now());
-  const details = kanaDetails(progress, kana, now);
+  const details = kanaDetails(progress, kana);
   // Tip: how to tell it from its most common mix-up or a lookalike, else its own memory tip.
   const tip =
     pairTipFor(kana.char, [...details.mixUps.map((m) => m.char), ...lookalikesOf(kana.char)]) ?? kanaTip(kana.char);

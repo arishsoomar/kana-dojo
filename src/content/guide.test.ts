@@ -1,6 +1,6 @@
-import { intervalFor, tierOf } from '@/core/boxes';
+import { tierOf } from '@/core/boxes';
 import { KANA } from '@/core/kana';
-import { EMPTY_PROGRESS } from '@/core/answers';
+import { climbLimit, EMPTY_PROGRESS } from '@/core/answers';
 import { greenNeeded } from '@/core/unlock';
 
 import { BELT_STEPS, GUIDE } from './guide';
@@ -8,19 +8,14 @@ import { BELT_STEPS, GUIDE } from './guide';
 // Some of the guide is written out by hand. These fail if the rules it describes change,
 // as a reminder to update the guide too.
 
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
-
 describe('the guide', () => {
   it('describes the belt ladder the engine uses', () => {
     expect(BELT_STEPS.map((s) => s.belt)).toEqual(['white', 'green', 'brown', 'black']);
-    // Green after 3 steps, brown after 5, black after 7.
-    expect([tierOf(2), tierOf(3), tierOf(4), tierOf(5), tierOf(6), tierOf(7)]).toEqual([
-      'white', 'green', 'green', 'brown', 'brown', 'black',
-    ]);
-    // No waits below green, then 20 minutes, 6 hours, 2 days and a week.
-    expect([0, 1, 2, 3, 4, 5, 6].map(intervalFor)).toEqual([0, 0, 0, 20 * MINUTE, 6 * HOUR, 2 * DAY, 7 * DAY]);
+    // Three steps to each belt.
+    expect([2, 3, 5, 6, 8, 9].map(tierOf)).toEqual(['white', 'green', 'green', 'brown', 'brown', 'black']);
+    // The speed limits it quotes, tapped and typed.
+    expect([0, 3, 6].map((box) => climbLimit(box, false))).toEqual([4000, 2500, 1500]);
+    expect([0, 3, 6].map((box) => climbLimit(box, true))).toEqual([6000, 4000, 3000]);
   });
 
   it('says the next row opens at 4 of the あ row\'s 5 kana', () => {

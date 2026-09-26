@@ -2,12 +2,13 @@ import { useState } from 'react';
 
 import { pronounce } from '@/audio/pronounce';
 
-import { completeLesson, FAST_MS, recordAnswer, setSound, type Progress } from '@/core/answers';
+import { completeLesson, FAST_MS, recordAnswer, setSound, setTyping, type Progress } from '@/core/answers';
 import { beltChange, tipFor, type BeltChange } from '@/core/feedback';
-import type { Kana, Script } from '@/core/kana';
+import { kanaForRomaji, matchesRomaji, type Kana, type Script } from '@/core/kana';
 import { combo, COMBO_MILESTONES, LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { makePlaqueQuestion, type Plaque } from '@/core/path';
 import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question';
+import { kanaTip } from '@/core/tips';
 
 import { useHaptics } from './use-haptics';
 import { useSoundEffects } from './use-sound-effects';
@@ -17,7 +18,8 @@ import { postWallNews } from './wall-news';
 // What happened on the last answer, for the feedback sheet.
 export type Result = {
   kana: Kana;
-  guess: Kana;
+  guess: Kana | null; // the kana picked, or the one typed; null if what was typed spells none
+  typed: string | null; // what was typed, in typing mode
   correct: boolean;
   fast: boolean;
   ms: number;
@@ -30,10 +32,9 @@ export type LessonMode = { plaque: Plaque } | { script: Script } | { drill: Kana
 
 // `avoid` is the kana just asked, so the same one never comes twice in a row.
 function newQuestion(progress: Progress, mode: LessonMode, avoid?: string): Question {
-  const now = Date.now();
-  if ('plaque' in mode) return makePlaqueQuestion(progress, mode.plaque, now, Math.random, avoid);
-  if ('drill' in mode) return makeDrillQuestion(progress, mode.drill, now, Math.random, avoid);
-  return makeQuestion(progress, mode.script, now, Math.random, avoid);
+  if ('plaque' in mode) return makePlaqueQuestion(progress, mode.plaque, Math.random, avoid);
+  if ('drill' in mode) return makeDrillQuestion(progress, mode.drill, Math.random, avoid);
+  return makeQuestion(progress, mode.script, Math.random, avoid);
 }
 
 
@@ -63,20 +64,33 @@ export function useLesson(mode: LessonMode) {
   // counts answers, so the same reaction twice in a row still plays twice.
   const [reaction, setReaction] = useState<{ kind: 'hop' | 'shake'; id: number } | null>(null);
   const sound = progress.settings.sound;
+  const typing = progress.settings.typing;
   const haptics = useHaptics();
   const sounds = useSoundEffects();
 
+  // A tapped answer: one of the choices.
   function check(guess: Kana) {
+    answer(guess === question.kana, guess, null);
+  }
+
+  // A typed answer. Any accepted spelling counts. If it's wrong, the kana it spells (if any)
+  // is logged as the mix-up, the same as picking that kana.
+  function checkTyped(input: string) {
+    const { kana } = question;
+    const correct = matchesRomaji(kana, input);
+    answer(correct, correct ? kana : kanaForRomaji(input, kana.script), input.trim());
+  }
+
+  function answer(correct: boolean, guess: Kana | null, typed: string | null) {
     const now = Date.now();
     const ms = now - shownAt;
     const { kana } = question;
-    const correct = guess === kana;
     setHeard(kana);
     if (sound) pronounce(kana);
     if (correct) haptics.right();
     else haptics.miss();
     setReaction({ kind: correct ? 'hop' : 'shake', id: answers.length });
-    const next = recordAnswer(progress, { char: kana.char, guess: guess.char, ms, now });
+    const next = recordAnswer(progress, { char: kana.char, guess: guess?.char ?? null, ms, now, typed: typed !== null });
 
     updateProgress(next);
     const nextAnswers = [...answers, { char: kana.char, correct, ms }];
@@ -93,11 +107,13 @@ export function useLesson(mode: LessonMode) {
     setResult({
       kana,
       guess,
+      typed,
       correct,
       fast: ms < FAST_MS,
       ms,
       beltChange: beltChange(progress, next, kana.char),
-      tip: correct ? null : tipFor(kana, guess),
+      // Its tip against the kana picked or typed, or else its own memory tip.
+      tip: correct ? null : guess ? tipFor(kana, guess) : kanaTip(kana.char),
     });
   }
 
@@ -130,8 +146,14 @@ export function useLesson(mode: LessonMode) {
     updateProgress(setSound(currentProgress(), !sound));
   }
 
+  function toggleTyping() {
+    updateProgress(setTyping(currentProgress(), !typing));
+  }
+
   return {
     question,
+    // Changes with each new question (not with an answer), for giving each question its own answer box.
+    questionKey: shownAt,
     result,
     summary,
     heard,
@@ -139,8 +161,11 @@ export function useLesson(mode: LessonMode) {
     combo: combo(answers),
     sound,
     toggleSound,
+    typing,
+    toggleTyping,
     fraction: answers.length / LESSON_LENGTH,
     check,
+    checkTyped,
     goToNext,
   };
 }

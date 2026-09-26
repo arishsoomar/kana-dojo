@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BoltIcon } from '@/components/bolt-icon';
 import { HeartIcon } from '@/components/heart-icon';
+import { kanaFit } from '@/components/kana-fit';
 import { LessonComplete } from '@/components/lesson-complete';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts, rainColors } from '@/constants/theme';
@@ -171,6 +172,14 @@ type FallingKanaProps = {
   typed: string; // shown above the locked kana
 };
 
+// A yōon (like きゃ) is drawn smaller, so its two characters fit across the tag.
+function fitted(char: string, locked: boolean) {
+  const fit = kanaFit(char, 0.68);
+  if (fit === 1) return null;
+  const base = locked ? styles.lockedTagKana : styles.tagKana;
+  return { fontSize: base.fontSize * fit, lineHeight: base.lineHeight * fit };
+}
+
 // One kana on its paper tag. Its lane sets how far across it is, and y sets how far down,
 // so that at y = 1 the tag rests on the ground. The locked-on kana is dark and a bit bigger.
 function FallingKana({ drop, field, locked, typed }: FallingKanaProps) {
@@ -189,7 +198,7 @@ function FallingKana({ drop, field, locked, typed }: FallingKanaProps) {
       <View
         style={[styles.tag, { width: size, height: size }, locked && styles.lockedTag]}
         aria-label={`Falling ${drop.kana.char}${locked ? ', locked on' : ''}`}>
-        <Text style={[styles.tagKana, locked && styles.lockedTagKana]}>{drop.kana.char}</Text>
+        <Text style={[styles.tagKana, locked && styles.lockedTagKana, fitted(drop.kana.char, locked)]}>{drop.kana.char}</Text>
       </View>
     </View>
   );

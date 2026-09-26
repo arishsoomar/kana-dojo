@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 
+import { kanaFit } from './kana-fit';
+
 type Props = {
   char: string;
   // A fixed square size. Without it, the frame fills the space it's given.
@@ -13,9 +15,8 @@ type Props = {
 // The kana is sized from the frame's height, so it fills the frame on any screen.
 export function KanaFrame({ char, size }: Props) {
   const [height, setHeight] = useState(0);
-  const fontSize = size
-    ? size * FIXED_KANA_SHARE
-    : Math.min(Math.max(height * KANA_SHARE, MIN_KANA), MAX_KANA);
+  const fontSize =
+    (size ? size * FIXED_KANA_SHARE : Math.min(Math.max(height * KANA_SHARE, MIN_KANA), MAX_KANA)) * kanaFit(char);
 
   function onLayout(event: LayoutChangeEvent) {
     setHeight(event.nativeEvent.layout.height);

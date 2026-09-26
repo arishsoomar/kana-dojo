@@ -14,6 +14,7 @@ import { colors, fonts, wallColors } from "@/constants/theme";
 import type { Plaque, PlaqueState } from "@/core/path";
 
 import { CheckIcon } from "./check-icon";
+import { kanaFit } from "./kana-fit";
 import { LockIcon } from "./lock-icon";
 
 type Props = {
@@ -151,7 +152,11 @@ export function PlaqueTile({
             plaque.kana.map((k) => (
               <Text
                 key={k.char}
-                style={[styles.kana, current && styles.currentKana]}
+                style={[
+                  styles.kana,
+                  current && styles.currentKana,
+                  fitted(k.char, current),
+                ]}
               >
                 {k.char}
               </Text>
@@ -186,6 +191,14 @@ export function PlaqueTile({
       )}
     </View>
   );
+}
+
+// A yōon (like きゃ) is drawn smaller, so its two characters fit across the plaque.
+function fitted(char: string, current: boolean) {
+  const fit = kanaFit(char, 0.72);
+  if (fit === 1) return null;
+  const base = current ? styles.currentKana : styles.kana;
+  return { fontSize: base.fontSize * fit, lineHeight: base.lineHeight * fit };
 }
 
 const styles = StyleSheet.create({

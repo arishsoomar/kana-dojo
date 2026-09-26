@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { beltColors, colors, fonts } from '@/constants/theme';
 import type { GridCell } from '@/core/grid';
 
+import { kanaFit } from './kana-fit';
 import { LockIcon } from './lock-icon';
 
 // One kana in the belt grid: character, romaji, and a stripe in its belt color.
@@ -25,7 +26,7 @@ export function KanaCell({ cell, onPress }: { cell: GridCell; onPress: () => voi
       onPress={onPress}
       style={[styles.cell, black && styles.blackCell]}
       aria-label={`${kana.char}, ${kana.romaji[0]}, ${belt} belt`}>
-      <Text style={[styles.kana, black && styles.onBlack]}>{kana.char}</Text>
+      <Text style={[styles.kana, black && styles.onBlack, kanaFit(kana.char) !== 1 && styles.yoon]}>{kana.char}</Text>
       <Text style={[styles.romaji, black && styles.romajiOnBlack]}>{kana.romaji[0]}</Text>
       <View
         style={[
@@ -65,6 +66,11 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 22,
     color: colors.sumi,
+  },
+  // A yōon (like きゃ) is two characters, so it's drawn smaller to fit the cell.
+  yoon: {
+    fontSize: 15,
+    lineHeight: 22,
   },
   onBlack: {
     color: colors.card,

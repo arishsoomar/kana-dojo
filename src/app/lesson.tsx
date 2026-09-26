@@ -141,9 +141,8 @@ export default function LessonScreen() {
           <ComboChip count={combo} />
         </View>
 
-        {/* A fresh box for each question: it clears, and opens the keyboard. */}
         {typing ? (
-          <TypeAnswer key={questionKey} wrong={wrong} onSubmit={checkTyped} />
+          <TypeAnswer questionKey={questionKey} wrong={wrong} onSubmit={checkTyped} />
         ) : (
           <View style={styles.choices}>
             {question.choices.map((choice) => (

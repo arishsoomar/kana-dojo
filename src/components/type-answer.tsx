@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextStyle } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 import { typingDone } from '@/core/kana';
 
 type Props = {
+  // Changes with each new question, which clears the box.
+  questionKey: number;
   // Set once this question is answered wrong: the box locks, showing what was typed in red.
   wrong: boolean;
   onSubmit: (typed: string) => void;
@@ -14,15 +16,28 @@ type Props = {
 const hideWebFocusRing = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as unknown as TextStyle) : null;
 
 // The answer box in typing mode. It checks the answer as soon as a whole spelling is typed
-// (see typingDone), or on Enter. The lesson gives each question a fresh box, which opens the
-// keyboard by itself.
-export function TypeAnswer({ wrong, onSubmit }: Props) {
+// (see typingDone), or on Enter.
+//
+// It's the same box for the whole lesson, and stays focused from one question to the next:
+// it only clears. (A new box for each question made the keyboard start to close and open
+// again, which jolted the screen between questions.)
+export function TypeAnswer({ questionKey, wrong, onSubmit }: Props) {
+  const input = useRef<TextInput>(null);
   const [text, setText] = useState('');
+  // A new question clears the box. This is React's way to reset state when a prop changes:
+  // compare with the value it was last set for, during render, instead of in an effect.
+  const [textFor, setTextFor] = useState(questionKey);
+  if (textFor !== questionKey) {
+    setTextFor(questionKey);
+    setText('');
+  }
 
-  // A wrong answer puts the keyboard away, so the feedback sheet can be seen.
+  // A wrong answer puts the keyboard away, so the feedback sheet can be seen. The next
+  // question brings it back.
   useEffect(() => {
     if (wrong) Keyboard.dismiss();
-  }, [wrong]);
+    else input.current?.focus();
+  }, [wrong, questionKey]);
 
   function change(next: string) {
     if (wrong) return;
@@ -37,6 +52,7 @@ export function TypeAnswer({ wrong, onSubmit }: Props) {
   return (
     <View style={[styles.box, wrong && styles.boxWrong]}>
       <TextInput
+        ref={input}
         value={text}
         onChangeText={change}
         onSubmitEditing={submit}

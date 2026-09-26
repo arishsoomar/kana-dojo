@@ -152,7 +152,7 @@ export function useLesson(mode: LessonMode) {
 
   return {
     question,
-    // Changes with each new question (not with an answer), for giving each question its own answer box.
+    // Changes with each new question (not with an answer), so the typing box knows to clear.
     questionKey: shownAt,
     result,
     summary,

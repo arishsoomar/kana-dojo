@@ -31,10 +31,11 @@ Files are listed roughly in the order they build on each other.
 | `exam.ts` | Belt exams: which are due, which were passed, and the questions |
 | `path.ts` | The plaques on the Learn screen, and plaque questions |
 | `rank.ts` | The learner's overall rank (Karasu's form) |
-| `duel.ts` | Duels: weak pairs, duel rules and scores, and the scroll collection |
+| `duel.ts` | Duels: weak pairs, duel rules and scores, the scroll collection, and where duel plaques hang |
 | `tips.ts` | A memory tip for every kana |
 | `feedback.ts` | Belt changes and tips for the wrong-answer sheet |
-| `lesson.ts` | Lesson length, and the summary at the end (XP, accuracy, speed) |
+| `lesson.ts` | Lesson length, the summary at the end (XP, accuracy, speed, rows opened), and combos |
+| `sayings.ts` | What Karasu says when he's tapped |
 | `saved.ts` | Turning progress into text to save, and reading it back safely |
 | `merge.ts` | Combining two copies of progress (phone and cloud) |
 | `grid.ts` | The data behind the belt grid on the Kana tab |
@@ -981,10 +982,12 @@ A duel is fast rounds on one named pair that you keep mixing up. Winning one ear
 
 **Lines 15–19**: `WeakPair`, one named pair with how many times you've mixed it up (`mixUps`) and whether its duel is `ready`.
 
-**Lines 23–33**
+**Lines 22–24**: `openChars`, every unlocked kana in both scripts, as a `Set` of characters. `weakPairs` and `scrolls` both use it.
+
+**Lines 28–38**
 ```ts
 export function weakPairs(progress: Progress): WeakPair[] {
-  const open = new Set(SCRIPTS.flatMap((script) => unlockedKana(progress, script)).map((k) => k.char));
+  const open = openChars(progress);
 
   return NAMED_PAIRS.map((pair) => {
     const [a, b] = pair.kana;
@@ -995,18 +998,17 @@ export function weakPairs(progress: Progress): WeakPair[] {
   }).sort((x, y) => y.mixUps - x.mixUps);
 }
 ```
-- `open`: every unlocked kana in both scripts, as a `Set` of characters.
 - For each named pair, count the mistakes where one of the two was shown and the other was picked, either way round.
 - It's `ready` with 3 or more mix-ups, as long as both kana are unlocked.
 - Sorted most mixed-up first. `.sort` keeps equal items in their original order, so pairs with the same count stay in `NAMED_PAIRS` order.
 
-**Lines 37–38**: `DUEL_WIN = 10`, `DUEL_LOSS = 5`. You win at 10 points; the opponent wins at 5, so you can miss at most 4 times.
+**Lines 42–43**: `DUEL_WIN = 10`, `DUEL_LOSS = 5`. You win at 10 points; the opponent wins at 5, so you can miss at most 4 times.
 
-**Line 40**: `DuelScore`, `{ mine, theirs }`.
+**Line 45**: `DuelScore`, `{ mine, theirs }`.
 
-**Lines 44–48**: `duelStatus`, `'won'` at 10 of mine, `'lost'` at 5 of theirs, otherwise `'going'`.
+**Lines 49–53**: `duelStatus`, `'won'` at 10 of mine, `'lost'` at 5 of theirs, otherwise `'going'`.
 
-**Lines 52–56**
+**Lines 57–61**
 ```ts
 export function scorePoint(score: DuelScore, answer: { correct: boolean; ms: number }): DuelScore {
   if (duelStatus(score) !== 'going') return score;
@@ -1019,7 +1021,7 @@ export function scorePoint(score: DuelScore, answer: { correct: boolean; ms: num
 - A wrong answer is the opponent's point. A right answer under 4 seconds is yours. A right but slow answer is nobody's.
 - It returns a new score object; the one passed in is never changed.
 
-**Lines 61–66**
+**Lines 66–70**
 ```ts
 export function duelQuestion(pair: NamedPair, rng: Rng): Question {
   const choices = KANA.filter((k) => pair.kana.includes(k.char));
@@ -1031,9 +1033,9 @@ export function duelQuestion(pair: NamedPair, rng: Rng): Question {
 - The kana asked is either one, at random. Unlike lessons, the same kana can come twice in a row: with only two kana, taking turns would tell you every answer.
 - It returns a `Question`, the same shape lessons use, so the screen can reuse the answer tiles.
 
-**Lines 69–71**: `duelId`, how a duel is named in the finished-lesson records: `'duel:シツ'`.
+**Lines 74–76**: `duelId`, how a duel is named in the finished-lesson records: `'duel:シツ'`.
 
-**Lines 74–77**
+**Lines 79–82**
 ```ts
 export function completeDuel(progress: Progress, pair: NamedPair, score: DuelScore, now: number): Progress {
   const record: Completion = { lesson: duelId(pair), at: now, score: score.mine, opponent: score.theirs };
@@ -1042,9 +1044,9 @@ export function completeDuel(progress: Progress, pair: NamedPair, score: DuelSco
 ```
 Records a finished duel, won or lost, with both scores. Like any finished record, it counts toward the streak and the daily goal.
 
-**Lines 79–88**: `ScrollState` is `'won'`, `'ready'` or `'locked'`. `Scroll` is one slot in the collection: the pair, its mix-ups, its state, and its first win (when, and the score), or `null`.
+**Lines 84–94**: `ScrollState` is `'won'`, `'ready'` or `'locked'`. `Scroll` is one slot in the collection: the pair, its mix-ups, its state, its first win (when, and the score) or `null`, and `opensWith`: for a pair with a kana still locked, the first kana of the row that has to open (so the screen can say "Opens with the か row").
 
-**Lines 94–106**: `scrolls`, the whole collection.
+**Lines 100–113**: `scrolls`, the whole collection.
 
 ```ts
       const wins = progress.completed
@@ -1066,6 +1068,31 @@ Every finished duel for this pair, turned into a time and a score, keeping only 
 ```
 Won scrolls first, then ready, then locked. Within each group, the order from `weakPairs` stays: most mixed-up first.
 
+**Lines 117–122**
+```ts
+function rowToOpen(pair: NamedPair, open: Set<string>): Kana | null {
+  const locked = KANA.filter((k) => pair.kana.includes(k.char) && !open.has(k.char));
+  const last = locked[locked.length - 1];
+  if (!last) return null;
+  return KANA.find((k) => k.script === last.script && k.row === last.row) ?? null;
+}
+```
+- `locked`: the pair's kana that aren't open yet, in `KANA` order. `KANA` lists rows in the order they unlock, so the last one is in the row that opens latest.
+- No locked kana means nothing to wait for: `null`.
+- Otherwise, the first kana of that row (like か for the か row), which is how rows are named on screen.
+
+**Lines 126–131**
+```ts
+export function duelRow(pair: NamedPair): { script: Script; row: RowId } {
+  const kana = KANA.filter((k) => pair.kana.includes(k.char));
+  const last = kana[kana.length - 1]!;
+  return { script: last.script, row: last.row };
+}
+```
+- Where a pair's red duel plaque hangs on the Learn wall: in the later of its two kana's rows, since that's the row whose opening makes the duel possible.
+- Example: あ and お are both in the あ row, so their duel hangs there. ソ and ン are in different rows, and it hangs in the later one, the ン row.
+- The `!` is safe: every named pair is two real kana, which `pairs.test.ts` checks.
+
 ---
 
 ## tips.ts: a memory tip for every kana
@@ -1079,6 +1106,66 @@ export function kanaTip(char: string): string | null {
 }
 ```
 The tip for a kana, or `null` if there isn't one (for something that isn't a kana).
+
+---
+
+## sayings.ts: what Karasu says when he's tapped
+
+Tap Karasu on the Learn floor and he says one line. Half the time, when there's something to say, it's about your own weak spots; otherwise it's sensei wisdom.
+
+**Lines 9–17**: `SENSEI_LINES`, seven short lines of wisdom, like `'Slow is smooth, and smooth is fast.'`
+
+**Lines 21–22**: `HABIT = 2`: a pair counts as a habit after 2 mix-ups. `MIN_SEEN = 3`: a kana needs 3 answers before its accuracy means much.
+
+**Line 25**: `PERSONAL_SHARE = 0.5`, the share of taps that get a personal line, when there is one.
+
+**Lines 28–40**: `mostMixedPair`
+```ts
+  for (const { shown, guessed } of progress.confusions) {
+    const key = [shown, guessed].sort().join('\t');
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+```
+- Counts the mix-ups for each pair of kana. Sorting the two before joining them makes あ→お and お→あ the same key, so it doesn't matter which way round the mistake went.
+- `'\t'` is a tab character, used to join the two because it can never be part of a kana.
+- Then it keeps the pair with the most mix-ups, as long as it has at least `HABIT`. None counts: `null`.
+
+**Lines 43–51**: `trickiestKana`, the kana with the lowest accuracy (correct ÷ seen). It skips kana answered fewer than 3 times, and kana never missed, so a perfect record is never called tricky.
+
+**Lines 54–80**: `karasuSays(progress, rng, previous?)`
+```ts
+  const pair = mostMixedPair(progress);
+  if (pair) {
+    const named = NAMED_PAIRS.find(({ kana }) => kana.includes(pair.a) && kana.includes(pair.b));
+    personal.push(
+      named
+        ? `You keep mixing up ${pair.a} and ${pair.b}. ${named.tip}`
+        : `You've mixed up ${pair.a} and ${pair.b} ${pair.count} times. Look closely at both.`,
+    );
+  }
+```
+- If the most mixed-up pair is a named pair, the line uses its tip. Otherwise it just says how many times.
+
+```ts
+  const tricky = trickiestKana(progress);
+  const tip = tricky ? kanaTip(tricky) : null;
+  if (tricky && tip) personal.push(`${tricky} is your trickiest kana. ${tip}`);
+```
+- The trickiest kana, with its memory tip from `tips.ts`.
+
+```ts
+  const fresh = (lines: readonly string[]) => lines.filter((line) => line !== previous);
+  const mine = fresh(personal);
+  if (mine.length > 0 && rng() < PERSONAL_SHARE) {
+    return mine[Math.floor(rng() * mine.length)]!;
+  }
+  const wisdom = fresh(SENSEI_LINES);
+  return wisdom[Math.floor(rng() * wisdom.length)]!;
+```
+- `fresh` drops whatever he said last time (`previous`), so tapping twice never gives the same line twice.
+- If there's a personal line, a coin toss (`rng() < 0.5`) decides whether to use one. Then a second random number picks which.
+- Otherwise, a random line of wisdom. There are seven, so even with one dropped there are always six to choose from.
+- Randomness comes in as `rng`, like everywhere in `src/core/`, so the tests can pass `() => 0` and know exactly which line comes back.
 
 ---
 
@@ -1129,15 +1216,30 @@ The tip on the wrong-answer sheet. The `??` chain tries each in turn and uses th
 
 ## lesson.ts: lesson length and the end-of-lesson summary
 
-**Line 4**: `LESSON_LENGTH = 10` questions.
+**Line 6**: `LESSON_LENGTH = 10` questions.
 
-**Lines 6–7**: 10 XP per correct answer, and 5 more if it was fast.
+**Lines 8–9**: 10 XP per correct answer, and 5 more if it was fast.
 
-**Lines 9–13**: `LessonAnswer`, one answer during a lesson: which kana, right or wrong, and how long.
+**Lines 11–15**: `LessonAnswer`, one answer during a lesson: which kana, right or wrong, and how long.
 
-**Lines 15–20**: `LessonSummary`, what the completion screen shows: XP, accuracy (0 to 1), strike speed in milliseconds (or `null` if nothing was right), and the kana that reached a new belt.
+**Lines 17–23**: `LessonSummary`, what the completion screen shows: XP, accuracy (0 to 1), strike speed in milliseconds (or `null` if nothing was right), the kana that reached a new belt, and the rows that opened during the lesson.
 
-**Lines 23–29**
+**Lines 28–34**
+```ts
+function openedRows(before: Progress, after: Progress): { script: Script; row: RowId }[] {
+  return SCRIPTS.flatMap((script) => {
+    const wasOpen = new Set(unlockedKana(before, script).map((k) => k.row));
+    const nowOpen = [...new Set(unlockedKana(after, script).map((k) => k.row))];
+    return nowOpen.filter((row) => !wasOpen.has(row)).map((row) => ({ script, row }));
+  });
+}
+```
+- For each script, the rows open at the start (`wasOpen`) and at the end (`nowOpen`, each row once).
+- Any row open now that wasn't before is new. The completion screen says "The か row is open!" for each, with confetti, and the Learn wall flips that row's plaques over.
+- `flatMap` runs the function for both scripts and joins the two lists into one.
+- Any finished activity can open a row, not just lessons: exams, duels and Kana Rain all record answers, so they use this too.
+
+**Lines 37–43**
 ```ts
 export function median(values: readonly number[]): number | null {
   if (values.length === 0) return null;
@@ -1152,9 +1254,9 @@ export function median(values: readonly number[]): number | null {
 - Example: `[3000, 900, 1200]` sorts to `[900, 1200, 3000]`, and the median is 1200.
 - The median is used instead of the average so one slow answer doesn't drag the number up.
 
-**Lines 31–33**: `beltIndex`, a kana's belt as a number (white 0 to black 3).
+**Lines 45–47**: `beltIndex`, a kana's belt as a number (white 0 to black 3).
 
-**Lines 36–51**: `summarizeLesson` takes progress at the start and end of the lesson, and every answer given.
+**Lines 50–66**: `summarizeLesson` takes progress at the start and end of the lesson, and every answer given.
 
 ```ts
   const correct = answers.filter((a) => a.correct);
@@ -1176,6 +1278,21 @@ XP adds 10 for each correct answer, plus 5 for each that took under 4 seconds. T
     strikeSpeedMs: median(correct.map((a) => a.ms)),
 ```
 Accuracy is correct answers divided by all answers. Strike speed is the median time of the correct answers only.
+
+**Lines 69–70**: `COMBO_SHOWS_AT = 3` and `COMBO_MILESTONES = [5, 10]`. The combo chip in a lesson appears at 3 right in a row, and grows (with a buzz) at 5 and 10. `as const` makes the list's type exactly `readonly [5, 10]` instead of any list of numbers.
+
+**Lines 73–77**
+```ts
+export function combo(answers: readonly LessonAnswer[]): number {
+  let count = 0;
+  for (let i = answers.length - 1; i >= 0 && answers[i]?.correct; i--) count += 1;
+  return count;
+}
+```
+- How many right answers in a row end the list: the lesson's current combo.
+- It counts backwards from the newest answer (`i` starts at the last index and goes down) and stops at the first wrong one, or at the start of the list.
+- Examples: right, wrong, right, right gives 2. Wrong as the newest answer gives 0. An empty list gives 0.
+- `answers[i]?.correct`: the `?.` is there because TypeScript can't tell `i` is a valid index.
 
 ---
 
@@ -1730,7 +1847,7 @@ What each file checks:
 - **kana.test.ts**: 46 + 46 kana, no duplicates; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes.
 - **boxes.test.ts**: each box's belt and waiting time (0 below green); "due" is true at or after the due time.
 - **goal.test.ts**: the four goals, the default of 2, changing the goal without changing the input, counting lessons on a day.
-- **answers.test.ts**: every rule of `recordAnswer` (up a box, capped at 7, slow, wrong, floor at 0, mistakes logged, new kana, a green kana not due stays put, a white kana moves up even with a future due time, input never changed), the stats it keeps, finished lessons, best scores, `markDue`, onboarding, sound, and `isEmptyProgress`.
+- **answers.test.ts**: every rule of `recordAnswer` (up a box, capped at 7, slow, wrong, floor at 0, mistakes logged, new kana, a green kana not due stays put, a white kana moves up even with a future due time, input never changed), the stats it keeps, finished lessons, best scores, `markDue`, onboarding, sound, haptics, and `isEmptyProgress`.
 - **unlock.test.ts**: only the あ row at first; the next row opens at 4 of 5 green but not 3 of 5; scripts are separate; `greenNeeded`; `metKana` only lists open kana with progress.
 - **random.test.ts**: shuffle keeps every item, is repeatable, and doesn't change the original.
 - **choices.test.ts**: 4 choices including the answer, lookalikes included, no repeated spellings, kana-chart order.
@@ -1740,11 +1857,12 @@ What each file checks:
 - **exam.test.ts**: which exam is due, awarded belts (never above the kana now), exam questions (20, from the row, no repeats in a row), and when an exam passes or fails.
 - **path.test.ts**: plaques per row (including 3-kana rows), `rowBelt`, which plaque is current, rows opening, scripts separate, plaque questions (mostly the plaque's kana, review only kana you've met, no repeats), exams on the path.
 - **rank.test.ts**: rank thresholds, higher belts counting toward lower ranks, only exam-earned belts count.
-- **duel.test.ts**: `weakPairs` (counting both ways, order, ready at 3 and only when unlocked), duel questions (only the two kana, chart order, repeats allowed), scoring (fast, wrong, slow, after the end, input unchanged), win and loss, `completeDuel`, and `scrolls` (locked, ready, first win kept, a loss isn't a win, order).
+- **duel.test.ts**: `weakPairs` (counting both ways, order, ready at 3 and only when unlocked), duel questions (only the two kana, chart order, repeats allowed), scoring (fast, wrong, slow, after the end, input unchanged), win and loss, `completeDuel`, `scrolls` (locked, ready, first win kept, a loss isn't a win, order, which row has to open), and `duelRow`.
 - **tips.test.ts**: every kana has a tip, and each tip mentions the kana's sound.
 - **feedback.test.ts**: belt changes up, down and none; pair tips, the kana's own tip as the fallback, and `pairTipFor`.
-- **lesson.test.ts**: lesson length, `median`, and the lesson summary (XP, accuracy, strike speed, promotions).
-- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound.
+- **lesson.test.ts**: lesson length, `median`, the lesson summary (XP, accuracy, strike speed, promotions, rows opened), and `combo`.
+- **sayings.test.ts**: a new learner gets sensei lines; the most mixed-up pair with its tip; the trickiest kana (answered at least 3 times) with its tip; input never changed; never the same line twice in a row.
+- **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound and haptics.
 - **merge.test.ts**: the later due time wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.

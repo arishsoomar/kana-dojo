@@ -493,14 +493,17 @@ Done when:
   any kana it's been mixed up with.
 - Answer tiles come in kana-chart order, not shuffled, so the eyes stay
   on the kana instead of hunting for the answer.
-- Sound: each kana is spoken (the device's Japanese voice, `expo-speech`)
-  right after it's answered, never before, since hearing it first would
-  give the answer away. Karasu's bubble then shows the kana with a replay
-  button. A speaker button in the lesson bar mutes it (saved in settings);
-  the kana detail sheet has a speaker button that always plays. Katakana is
-  spoken even for hiragana, so は and へ aren't read as particles. All of it
-  goes through `src/audio/pronounce.ts`, so recordings could replace the
-  voice there. On iOS nothing plays while the phone is on silent.
+- Sound: each kana's sound is played right after it's answered, never
+  before, since hearing it first would give the answer away. Karasu's
+  bubble then shows the kana with a replay button. A speaker button in the
+  lesson bar mutes it (saved in settings); the kana detail sheet has a
+  speaker button that always plays. The clips are a native speaker saying
+  each sound three times: public-domain recordings from Wikimedia Commons,
+  converted to MP3 with shorter gaps and levelled volume
+  (`assets/audio/kana/SOURCES.md`). Played with `expo-audio` through
+  `src/audio/pronounce.ts`; it plays with the phone on silent (the app's
+  mute is the off switch). The audio plugin has microphone and background
+  playback turned off.
 
 ## Later
 

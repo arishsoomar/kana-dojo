@@ -240,3 +240,25 @@ describe('typing', () => {
     expect(EMPTY_PROGRESS.settings.typing).toBe(false);
   });
 });
+
+describe('recordAnswer: a helped answer (given after looking at the mnemonic)', () => {
+  const helped = { char: 'シ', guess: 'シ', ms: 800, now: NOW, helped: true };
+
+  it("doesn't move the kana up, or change its stats", () => {
+    const before = { ...progressWith(2), stats: { シ: { seen: 3, correct: 2, recentMs: [900] } } };
+    const next = recordAnswer(before, helped);
+    expect(next.kana['シ']).toEqual({ box: 2, at: NOW });
+    expect(next.stats).toEqual(before.stats);
+  });
+
+  it('still marks a brand-new kana as met', () => {
+    const next = recordAnswer({ ...EMPTY_PROGRESS, kana: {} }, helped);
+    expect(next.kana['シ']).toEqual({ box: 0, at: NOW });
+  });
+
+  it('counts a wrong answer as usual, even after looking', () => {
+    const next = recordAnswer(progressWith(4), { ...helped, guess: 'ツ' });
+    expect(next.kana['シ']?.box).toBe(2);
+    expect(next.confusions).toEqual([{ shown: 'シ', guessed: 'ツ' }]);
+  });
+});

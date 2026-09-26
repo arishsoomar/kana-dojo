@@ -575,7 +575,7 @@ that** I can read words whenever I like.
       streak and daily goal
 - Each word's card shows a picture and its English meaning. The pictures are
   Microsoft's Fluent Emoji in 3D (MIT licence), downloaded by
-  `scripts/fetch-word-pictures.mjs` into `assets/images/words/` (256 px,
+  `scripts/fetch-pictures.mjs` into `assets/images/pictures/` (256 px,
   about 4 MB in all), which also writes `src/constants/word-pictures.ts`.
   The set has no flags, so countries use a stand-in (🗽 for America). The
   licence notice is in the guide, under Credits.
@@ -706,6 +706,29 @@ others.
       the card turned up, found pairs faded, and Karasu saying what matched
 - [ ] The end shows the moves, the time, and whether it's a new best
 - [ ] The Games tab card shows the best
+
+---
+
+## Epic Q — Mnemonic cards
+
+Inspired by Tofugu's hiragana guide (but with our own words and pictures):
+every kana gets a picture that ties its shape to its sound, and in a lesson
+the kana card flips over to show it.
+
+### Q1. Pictures and helped answers
+- [ ] Each of the 92 basic kana has a picture (Fluent Emoji 3D, MIT) that
+      matches its tip; the other kana use their base kana's picture (が
+      uses か's, きゃ uses き's, ファ uses フ's), found by `mnemonicBase`,
+      test-first
+- [ ] Tips that didn't fit a picture are rewritten, in our own words
+- [ ] A "helped" answer (given after looking at the back of the card)
+      doesn't move the kana or change its stats, but still marks it met
+
+### Q2. Flipping the card
+- [ ] In a lesson, tapping the kana card flips it to its picture, tip and
+      sound, and back; looking makes that question's answer a helped one
+- [ ] The first time a kana is ever shown, its card starts flipped
+- [ ] The Kana tab's detail sheet shows the picture with the tip
 
 ---
 

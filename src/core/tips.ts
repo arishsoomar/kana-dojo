@@ -1,10 +1,13 @@
-// A memory tip for every kana: a picture of its shape tied to its sound.
-// These are first drafts, meant to be rewritten in the app's own voice.
+import { KANA, rowKind, type Kana, type RowId } from './kana';
+
+// A memory tip for every kana: a picture of its shape tied to its sound. The 46 basic kana in
+// each script also have a matching picture (src/constants/kana-pictures.ts); the other kana
+// are built on them, and use their base kana's picture (see mnemonicBase).
 
 const KANA_TIPS: Readonly<Record<string, string>> = {
   // Hiragana
   あ: 'A cross with a big loop swung around it, like an acrobat mid-flip shouting "ah!": a.',
-  い: 'Two short strokes standing side by side, like two eels: i.',
+  い: 'Two short strokes hanging side by side, like icicles dripping: i.',
   う: 'A small dash over a hooked back, like someone doubled over going "ooh": u.',
   え: 'A dash over a zig-zag that kicks out at the bottom, like someone tripping and saying "eh?": e.',
   お: 'Like あ with an extra dash flying off to the right, an "oh!" of surprise: o.',
@@ -15,13 +18,13 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
   こ: 'Two short strokes stacked, like two coins lying flat: ko.',
   さ: 'A crossbar and a stroke through it, with a curve at the bottom like a hanging saddle: sa.',
   し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.',
-  す: 'A crossbar with a stroke that loops once and drops, like a swing: su.',
+  す: 'A crossbar with a stroke that loops once and drops, like a straw in a drink. Slurp: su.',
   せ: 'A crossbar on two posts, one bending back underneath, like a setting sun behind a fence: se.',
   そ: 'A zig, a zag and a long sweep, like a thread being sewn: so.',
   た: 'A cross next to two short strokes, like a table with two plates: ta.',
-  ち: 'A crossbar with a curve bulging right, like the bottom of a 5 puffing out its cheek: chi.',
+  ち: 'A crossbar with a curve bulging right, like a hamster\'s cheek stuffed with food: chi.',
   つ: 'One wave curling over to the left, like a small tsunami: tsu.',
-  て: 'A crossbar with a stroke curving down and back, like a tail hanging off a table: te.',
+  て: 'A crossbar with one stroke curving down, like an arm reaching out its hand. Te means hand: te.',
   と: 'A short tick leaning on a curve, like a splinter in a toe: to.',
   な: 'A cross on the left and a loop on the right, like a nun kneeling in prayer: na.',
   に: 'A tall line with two short strokes beside it, like a knee next to two steps: ni.',
@@ -32,7 +35,7 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
   ひ: 'One wide curve, like a big grin going "hee hee": hi.',
   ふ: 'Four strokes around a peak, like Mount Fuji with clouds: fu.',
   へ: 'A simple peak, like a hill that makes you go "heh" when you climb it: he.',
-  ほ: 'Like は with an extra bar on top, a taller laugh: "ho ho!": ho.',
+  ほ: 'Like は with an extra bar on top, a bigger laugh: "ho ho ho!": ho.',
   ま: 'Two crossbars on a stem that loops at the bottom, like a mast with a rope: ma.',
   み: 'A loop with a tail crossing it, like the number 21. Me at twenty-one: mi.',
   む: 'A stroke with a loop and a little dash, like a cow turning its head to moo: mu.',
@@ -44,7 +47,7 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
   ら: 'A dash over a curve, like a rabbit with one ear up: ra.',
   り: 'Two strokes, the right one longer, like reeds by a river: ri.',
   る: 'A zig-zag that ends in a loop, like a road that loops back home. Route: ru.',
-  れ: 'A stem with a tail kicking out to the right, like a ray swimming off: re.',
+  れ: 'A stem with a leg kicking out to the right, like a runner racing off: re.',
   ろ: 'Like る with no loop at the end, an open road: ro.',
   わ: 'A stem with a curve that rounds back in, like a duck waddling: wa.',
   を: 'A figure pulling back on reins, "whoa!": wo.',
@@ -119,7 +122,7 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
   カ: 'Like か without its extra stroke, a karate chop: ka.',
   キ: 'Two crossbars on a stem, like a key: ki.',
   ク: 'A short tick and a long bent stroke, like a cuckoo bird\'s beak: ku.',
-  ケ: 'A small slash, a crossbar and a long leg, like a K leaning over: ke.',
+  ケ: 'A little slash, a bar and a long spout, like a kettle pouring: ke.',
   コ: 'Three sides of a box, like a corner: ko.',
   サ: 'A crossbar on two posts, one bending down, like a saw: sa.',
   シ: 'Two short strokes on the left and a long one sweeping up, like a smile turned sideways. She smiles: shi.',
@@ -130,7 +133,7 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
   チ: 'A slanted cap over a cross, like a cheerleader\'s pom-pom stick: chi.',
   ツ: 'Short strokes on top and a long one sweeping down, like a tsunami crashing: tsu.',
   テ: 'A T with an extra bar on top, like a telephone pole: te.',
-  ト: 'A pole with one branch, like a totem pole: to.',
+  ト: 'A pole with one branch sticking out, like a tomato plant\'s stake: to.',
   ナ: 'A cross whose down stroke bends left, like a knife: na.',
   ニ: 'Two lines, like two knees. 二 is also the number two: ni.',
   ヌ: 'Like フ with a small slash across it, noodles held by chopsticks: nu.',
@@ -236,4 +239,24 @@ const KANA_TIPS: Readonly<Record<string, string>> = {
 // The memory tip for a kana, or null if there isn't one.
 export function kanaTip(char: string): string | null {
   return KANA_TIPS[char] ?? null;
+}
+
+// The row under each marked row: が's row is か's, and ぱ's (like ば's) is は's.
+const PLAIN_ROW: Partial<Record<RowId, RowId>> = { ga: 'ka', za: 'sa', da: 'ta', ba: 'ha', pa: 'ha' };
+
+// The basic kana whose mnemonic picture a kana uses: itself for the 46 basic kana; the plain
+// kana under a dakuten or handakuten (が uses か); and for a yōon or extended katakana, its
+// big first kana, and that one's plain kana (ぎょ uses き, ディ uses テ).
+export function mnemonicBase(kana: Kana): Kana {
+  const kind = rowKind(kana.row);
+  if (kind === 'basic') return kana;
+  if (kind === 'yoon' || kind === 'extended') {
+    const first = KANA.find((k) => k.script === kana.script && k.char === kana.char.charAt(0));
+    return first ? mnemonicBase(first) : kana;
+  }
+  const plainRow = PLAIN_ROW[kana.row];
+  const marked = KANA.filter((k) => k.script === kana.script && k.row === kana.row);
+  const plain = KANA.filter((k) => k.script === kana.script && k.row === plainRow);
+  // The same place in the plain row: ぢ is the second of the だ row, like ち in the た row.
+  return plain[marked.indexOf(kana)] ?? kana;
 }

@@ -56,6 +56,7 @@ export type Answer = {
   ms: number; // how long they took to answer
   now: number; // timestamp of the answer
   typed?: boolean; // typed out instead of picked from the choices: harder, so it counts double
+  helped?: boolean; // given after looking at the kana's mnemonic, so a right answer proves nothing
 };
 
 // A quick answer: it earns bonus XP, and scores in a duel.
@@ -118,6 +119,12 @@ export function recordAnswer(progress: Progress, answer: Answer): Progress {
     ...progress.stats,
     [answer.char]: afterAnswer(progress.stats[answer.char] ?? NEW_STATS, correct, answer.ms),
   };
+
+  // A right answer given after looking at the mnemonic: the kana counts as met, but nothing
+  // else changes. (A wrong one still counts as wrong, below.)
+  if (correct && answer.helped) {
+    return { ...progress, kana: { ...progress.kana, [answer.char]: { box: current.box, at: answer.now } } };
+  }
 
   if (correct) {
     return {

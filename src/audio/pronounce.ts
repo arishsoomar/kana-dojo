@@ -27,12 +27,19 @@ export function pronounce(kana: Kana) {
 
   // Cut off whatever is still playing, so two clips never overlap.
   playing?.pause();
-  let player = players.get(sound);
-  if (!player) {
-    player = createAudioPlayer(clip);
-    players.set(sound, player);
+  const existing = players.get(sound);
+  if (existing) {
+    // Rewind first, then play. Seeking takes a moment: playing without waiting for it starts
+    // the clip, then jumps back to the start once the seek lands, so the first sound repeats.
+    playing = existing;
+    void existing.seekTo(0).then(() => {
+      if (playing === existing) existing.play();
+    });
+    return;
   }
-  void player.seekTo(0);
+  // A new player is already at the start.
+  const player = createAudioPlayer(clip);
+  players.set(sound, player);
   player.play();
   playing = player;
 }

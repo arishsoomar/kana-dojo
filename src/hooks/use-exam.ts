@@ -9,6 +9,7 @@ import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/l
 import { unlockedKana } from '@/core/unlock';
 
 import { useHaptics } from './use-haptics';
+import { useSoundEffects } from './use-sound-effects';
 import { useProgress } from './use-progress';
 import { postWallNews } from './wall-news';
 
@@ -58,6 +59,7 @@ export type ExamResult = {
 export function useExam(script: Script, row: RowId, belt: Belt) {
   const { progress, changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
+  const sounds = useSoundEffects();
   const [attempt, setAttempt] = useState(() => newAttempt(progress, script, row));
   const [now, setNow] = useState(() => Date.now());
   const [flash, setFlash] = useState<{ guess: Kana; correct: boolean } | null>(null);
@@ -92,8 +94,12 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     const status = examStatus({ correct: right, misses: done.answers.length - right, timeUp });
     if (status === 'going') return;
     finished.current = true;
+    // A pass rings the gong later, in the belt ceremony, as the belt is tied on.
     if (status === 'passed') haptics.success();
-    else haptics.thunk();
+    else {
+      haptics.thunk();
+      sounds.play('taiko');
+    }
     changeProgress((current) => completeLesson(current, examId(script, row, belt), Date.now(), right));
     const summary = summarizeLesson(done.startProgress, currentProgress(), done.answers);
     postWallNews({ opened: summary.rowsOpened });

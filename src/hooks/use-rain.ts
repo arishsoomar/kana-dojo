@@ -7,6 +7,7 @@ import { pickNext } from '@/core/pick';
 import { pointsFor, startRain, stepRain, targetOf, typeKey, type Drop, type RainState, type TypeResult } from '@/core/rain';
 
 import { useHaptics } from './use-haptics';
+import { useSoundEffects } from './use-sound-effects';
 import { useProgress } from './use-progress';
 import { postWallNews } from './wall-news';
 
@@ -42,6 +43,7 @@ export type Pop = {
 export function useRain(pool: readonly Kana[]) {
   const { changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
+  const sounds = useSoundEffects();
   // Progress, best score and answers for the current game, to build the results at the end.
   const startProgress = useRef<Progress | null>(null);
   const bestBefore = useRef<number | null>(null);
@@ -112,6 +114,7 @@ export function useRain(pool: readonly Kana[]) {
 
   // The last life is gone: save the game with its score, and show the results.
   function finish(score: number) {
+    sounds.play('taiko');
     changeProgress((current) => completeLesson(current, RAIN_LESSON_ID, Date.now(), score));
     const before = startProgress.current ?? currentProgress();
     const summary = summarizeLesson(before, currentProgress(), answers.current);

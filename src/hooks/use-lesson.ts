@@ -10,6 +10,7 @@ import { makePlaqueQuestion, type Plaque } from '@/core/path';
 import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question';
 
 import { useHaptics } from './use-haptics';
+import { useSoundEffects } from './use-sound-effects';
 import { useProgress } from './use-progress';
 import { postWallNews } from './wall-news';
 
@@ -63,6 +64,7 @@ export function useLesson(mode: LessonMode) {
   const [reaction, setReaction] = useState<{ kind: 'hop' | 'shake'; id: number } | null>(null);
   const sound = progress.settings.sound;
   const haptics = useHaptics();
+  const sounds = useSoundEffects();
 
   function check(guess: Kana) {
     const now = Date.now();
@@ -106,6 +108,7 @@ export function useLesson(mode: LessonMode) {
     if (answersSoFar.length >= LESSON_LENGTH) {
       updateProgress(completeLesson(latest, lessonId(mode), Date.now()));
       haptics.thunk();
+      sounds.play('taiko');
       const done = summarizeLesson(startProgress, latest, answersSoFar);
       // A plaque finished for the first time gets its seal stamped on the wall.
       const firstTime = 'plaque' in mode && !startProgress.completed.some((c) => c.lesson === mode.plaque.id);

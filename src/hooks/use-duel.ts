@@ -15,6 +15,7 @@ import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/l
 import type { NamedPair } from '@/core/pairs';
 
 import { useHaptics } from './use-haptics';
+import { useSoundEffects } from './use-sound-effects';
 import { useProgress } from './use-progress';
 import { postWallNews } from './wall-news';
 
@@ -34,6 +35,7 @@ export type DuelResult = {
 export function useDuel(pair: NamedPair) {
   const { progress, changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
+  const sounds = useSoundEffects();
   const [startProgress, setStartProgress] = useState(progress);
   // How often the pair had been mixed up when the duel opened.
   const [mixUps] = useState(() => weakPairs(progress).find((w) => w.pair === pair)?.mixUps ?? 0);
@@ -69,6 +71,7 @@ export function useDuel(pair: NamedPair) {
     if (status !== 'going') {
       if (status === 'won') haptics.success();
       else haptics.thunk();
+      sounds.play('taiko');
       changeProgress((current) => completeDuel(current, pair, nextScore, now));
       const summary = summarizeLesson(startProgress, currentProgress(), nextAnswers);
       postWallNews({ opened: summary.rowsOpened });

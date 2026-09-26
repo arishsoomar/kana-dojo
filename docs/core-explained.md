@@ -17,7 +17,7 @@ Files are listed roughly in the order they build on each other.
 | File | What it's for |
 |---|---|
 | `pairs.ts` | The named lookalike pairs: each pair's name and tip |
-| `kana.ts` | The 208 kana, their rows and spellings, what kind each row is, and which kana look alike |
+| `kana.ts` | The 221 kana, their rows and spellings, each script's rows, what kind each row is, and which kana look alike |
 | `boxes.ts` | Box numbers (steps) and the belt each one is |
 | `goal.ts` | The daily goal choices, and counting lessons on a day |
 | `answers.ts` | The learner's progress, and what one answer does to it |
@@ -106,7 +106,7 @@ Every file has a `.test.ts` file next to it, except `belts.ts`, whose one functi
 
 ---
 
-## kana.ts: the 208 kana and facts about them
+## kana.ts: the 221 kana and facts about them
 
 **Line 1**: imports the named pairs from `pairs.ts`, which `lookalikesOf` uses at the bottom of this file.
 
@@ -116,40 +116,43 @@ export type Script = 'hiragana' | 'katakana';
 ```
 A `Script` can only be the exact text `'hiragana'` or `'katakana'`. `|` means "or".
 
-**Lines 7–11**
+**Lines 8–13**
 ```ts
 export const ROWS = [
   'a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa',
   'ga', 'za', 'da', 'ba', 'pa',
   'kya', 'sha', 'cha', 'nya', 'hya', 'mya', 'rya', 'gya', 'ja', 'bya', 'pya',
+  'fa', 'ti', 'wi', 'she',
 ] as const;
 ```
-The 26 row names, in the order they unlock: the ten basic rows, the five made by adding a mark, then the eleven yōon rows. `as const` tells TypeScript to remember these exact strings in this exact order.
+The 30 row names, in the order they unlock: the ten basic rows, the five made by adding a mark, the eleven yōon rows, then the four extended katakana rows, which only katakana has (see `rowsOf`). `as const` tells TypeScript to remember these exact strings in this exact order.
 
-**Line 13**
+**Line 15**
 ```ts
 export type RowId = (typeof ROWS)[number];
 ```
 `RowId` means "one of the strings in `ROWS`". `typeof ROWS` is the type of the list, and `[number]` means "any one item from it". The names are written once, in `ROWS`.
 
-**Lines 20–30**
+**Lines 23–35**
 ```ts
-export type RowKind = 'basic' | 'dakuten' | 'handakuten' | 'yoon';
+export type RowKind = 'basic' | 'dakuten' | 'handakuten' | 'yoon' | 'extended';
 
 const DAKUTEN_ROWS: readonly RowId[] = ['ga', 'za', 'da', 'ba'];
+const EXTENDED_ROWS: readonly RowId[] = ['fa', 'ti', 'wi', 'she'];
 
 export function rowKind(row: RowId): RowKind {
   if (DAKUTEN_ROWS.includes(row)) return 'dakuten';
   if (row === 'pa') return 'handakuten';
+  if (EXTENDED_ROWS.includes(row)) return 'extended';
   if (ROWS.indexOf(row) > ROWS.indexOf('pa')) return 'yoon';
   return 'basic';
 }
 ```
-- What kind of kana a row holds. **Basic**: the 46 plain kana. **Dakuten** ゛, two little strokes, voices a sound: か ka → が ga. **Handakuten** ゜, a little circle, turns the h-row into p: は ha → ぱ pa. **Yōon**: a kana with a small ゃ, ゅ or ょ, read as one sound: き + ゃ → きゃ kya.
-- The yōon rows are all the ones after the ぱ row, so `ROWS.indexOf` (a row's position in the list) is enough to spot them.
+- What kind of kana a row holds. **Basic**: the 46 plain kana. **Dakuten** ゛, two little strokes, voices a sound: か ka → が ga. **Handakuten** ゜, a little circle, turns the h-row into p: は ha → ぱ pa. **Yōon**: a kana with a small ゃ, ゅ or ょ, read as one sound: き + ゃ → きゃ kya. **Extended**: katakana with a small ァ ィ ゥ ェ ォ, for sounds from other languages: フ + ォ → フォ fo.
+- The extended rows are checked before the last test: the yōon rows are the rest of the rows after the ぱ row, so `ROWS.indexOf` (a row's position in the list) is enough to spot them.
 - The Learn wall and the Kana tab use it to label and group the rows.
 
-**Lines 32–38**
+**Lines 37–43**
 ```ts
 export type Kana = {
   char: string;
@@ -164,35 +167,48 @@ The shape of one kana:
 - `row`: which row it's in, like `'sa'`.
 - `romaji`: its spellings. `[string, ...string[]]` means "one string, then any number more". So there is always at least one. The first is the standard spelling; the others are also accepted. `readonly` means nobody can change the list.
 
-**Line 41**
+**Line 46**
 ```ts
 const TABLE: readonly [RowId, string, string, string, ...string[]][] = [
 ```
 A list named `TABLE`, only used in this file. Each line in it has: a row name, the hiragana, the katakana, the first spelling, then any extra spellings.
 
-**Lines 42–71**: the data, one entry per sound: the 46 basic sounds, 25 made with a mark, then 33 yōon. `['sa', 'し', 'シ', 'shi', 'si']` means row `sa`, hiragana し, katakana シ, spellings `shi` and `si`.
+**Lines 47–76**: the data, one entry per sound: the 46 basic sounds, 25 made with a mark, then 33 yōon. `['sa', 'し', 'シ', 'shi', 'si']` means row `sa`, hiragana し, katakana シ, spellings `shi` and `si`.
 - ぢ and づ sound the same as じ and ず, so they share the spellings `ji` and `zu`. (Each also has its own alternate, `di` and `du`.) Two kana with the same spelling never both appear as answer tiles, because `makeChoices` skips any spelling already used.
 - A yōon like `'きゃ'` is two characters in one string. The rest of the code treats it as one kana like any other; only the screens that draw it (see `kana-fit.ts`) make it smaller to fit.
 - ぢゃ, ぢゅ and ぢょ are left out: they're very rare, and sound the same as じゃ, じゅ and じょ.
 
-**Lines 74–80**
+**Lines 82–87**: `EXTENDED_TABLE`, the extended katakana: `['fa', 'ファ', 'fa']` means row `fa`, katakana ファ, spelling `fa`. There's no hiragana column: only katakana has these. ディ shares `di` with ヂ, and ウォ shares `wo` with ヲ. トゥ and ドゥ are left out, since `tu` is already ツ.
+
+**Lines 89–98**
 ```ts
-export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, first, ...rest]) => {
-  const romaji: Kana['romaji'] = [first, ...rest];
-  return [
-    { char: hiragana, script: 'hiragana', row, romaji },
-    { char: katakana, script: 'katakana', row, romaji },
-  ];
-});
+export const KANA: readonly Kana[] = [
+  ...TABLE.flatMap(([row, hiragana, katakana, first, ...rest]): Kana[] => {
+    const romaji: Kana['romaji'] = [first, ...rest];
+    return [
+      { char: hiragana, script: 'hiragana', row, romaji },
+      { char: katakana, script: 'katakana', row, romaji },
+    ];
+  }),
+  ...EXTENDED_TABLE.map(([row, char, first, ...rest]): Kana => ({ char, script: 'katakana', row, romaji: [first, ...rest] })),
+];
 ```
-- Builds `KANA`, the list of all 208 kana, from `TABLE`.
+- Builds `KANA`, the list of all 221 kana, from the two tables.
 - `([row, hiragana, katakana, first, ...rest])` splits one table line into named parts. `...rest` collects everything left over (extra spellings) into a list.
-- Line 33 puts the spellings back together: `[first, ...rest]`. `Kana['romaji']` means "the type of the `romaji` field of `Kana`".
-- Each table line becomes **two** kana: one hiragana, one katakana, with the same row and spellings. 104 × 2 = 208.
+- `[first, ...rest]` puts the spellings back together. `Kana['romaji']` means "the type of the `romaji` field of `Kana`".
+- Each `TABLE` line becomes **two** kana: one hiragana, one katakana, with the same row and spellings. 104 × 2 = 208, plus 13 extended katakana = 221.
 - `row,` on its own is short for `row: row`.
 - The order of `KANA` is the kana chart: あ い う え お, then か き く け こ, and so on. `choices.ts` uses that order to line up the answer tiles.
 
-**Lines 82–88**
+**Lines 102–104**
+```ts
+export function rowsOf(script: Script): RowId[] {
+  return ROWS.filter((row) => KANA.some((k) => k.script === script && k.row === row));
+}
+```
+The rows a script has, in unlock order: every row with at least one kana in that script. Katakana has all 30; hiragana has 26, without the extended rows. Everything built on rows (unlocking, the Learn wall, the grid, rank, the placement test) goes through this, so hiragana never gets an empty unit.
+
+**Lines 106–112**
 ```ts
 function cleaned(input: string): string {
   return input.trim().toLowerCase();
@@ -205,9 +221,9 @@ export function matchesRomaji(kana: Kana, input: string): boolean {
 - `cleaned` tidies typed text: `.trim()` removes spaces at the start and end, and `.toLowerCase()` makes capital letters small. `' Shi '` becomes `'shi'`.
 - `matchesRomaji` checks whether typed text is a correct spelling of a kana, including alternates like `si`.
 
-**Line 91**: `SPELLINGS`, every accepted spelling of every kana, each once (`new Set` drops the repeats, since hiragana and katakana share spellings).
+**Line 115**: `SPELLINGS`, every accepted spelling of every kana, each once (`new Set` drops the repeats, since hiragana and katakana share spellings).
 
-**Lines 96–99**
+**Lines 120–123**
 ```ts
 export function typingDone(input: string): boolean {
   const typed = cleaned(input);
@@ -217,7 +233,7 @@ export function typingDone(input: string): boolean {
 - Whether a typed answer is finished, so a lesson can check it without waiting for Enter.
 - It's finished when it's a whole spelling **and** no other spelling starts with it. `ka` is finished. `n` is a whole spelling (ん) but `na`, `ni` and others start with it, so it waits for Enter. `kx` spells nothing, so it waits too, and the typo can be fixed.
 
-**Lines 102–105**
+**Lines 126–129**
 ```ts
 export function kanaForRomaji(input: string, script: Script): Kana | null {
   const typed = cleaned(input);
@@ -226,7 +242,7 @@ export function kanaForRomaji(input: string, script: Script): Kana | null {
 ```
 The kana in a script that a typed answer spells: `kanaForRomaji('ka', 'hiragana')` is か. `null` if it spells none. For `ji` and `zu` it finds じ and ず, which come first in `KANA`. When a typed answer is wrong, this is the kana logged as the mix-up, just as if it had been tapped.
 
-**Lines 108–112**
+**Lines 132–136**
 ```ts
 export function lookalikesOf(char: string): string[] {
   return NAMED_PAIRS.filter(({ kana }) => kana.includes(char)).flatMap(({ kana }) =>
@@ -530,7 +546,7 @@ function isGreenOrBetter(progress: Progress, kana: Kana): boolean {
 ```ts
 export function unlockedKana(progress: Progress, script: Script): Kana[] {
   const unlocked: Kana[] = [];
-  for (const row of ROWS) {
+  for (const row of rowsOf(script)) {
     const rowKana = KANA.filter((k) => k.script === script && k.row === row);
     unlocked.push(...rowKana);
     const green = rowKana.filter((k) => isGreenOrBetter(progress, k)).length;
@@ -540,7 +556,7 @@ export function unlockedKana(progress: Progress, script: Script): Kana[] {
 }
 ```
 - Starts with an empty list.
-- `for (const row of ROWS)` runs the block once for each row, in order.
+- `for (const row of rowsOf(script))` runs the block once for each of the script's rows, in order.
 - Line 17 gets that row's kana in the chosen script.
 - Line 18 adds them to the list. `.push` adds items to the end. Changing `unlocked` is fine because this function created it.
 - Line 20 counts how many of the row are green or better.
@@ -980,7 +996,7 @@ const ROWS_NEEDED: Record<Belt, number> = {
   white: 0,
   green: 3,
   brown: 10,
-  black: SCRIPTS.length * ROWS.length,
+  black: SCRIPTS.reduce((sum, script) => sum + rowsOf(script).length, 0),
 };
 ```
 How many rows (out of 20: 10 hiragana and 10 katakana) must have **earned** a belt, by exam, for your overall rank to reach it. Black needs all 20.
@@ -988,7 +1004,7 @@ How many rows (out of 20: 10 hiragana and 10 katakana) must have **earned** a be
 **Lines 18–27**
 ```ts
 export function overallRank(progress: Progress): Belt {
-  const earned = SCRIPTS.flatMap((script) => ROWS.map((row) => BELTS.indexOf(awardedBelt(progress, script, row))));
+  const earned = SCRIPTS.flatMap((script) => rowsOf(script).map((row) => BELTS.indexOf(awardedBelt(progress, script, row))));
   let rank: Belt = 'white';
   BELTS.forEach((belt, index) => {
     const rows = earned.filter((e) => e >= index).length;
@@ -997,7 +1013,7 @@ export function overallRank(progress: Progress): Belt {
   return rank;
 }
 ```
-- `earned`: all 52 rows' awarded belts (26 per script), as numbers.
+- `earned`: all 56 rows' awarded belts (26 hiragana, 30 katakana), as numbers.
 - For each belt, lowest first: count the rows at that belt **or higher** (a brown row also counts toward green). If that's enough, that becomes the rank. Later belts overwrite earlier ones, so the result is the highest rank reached.
 - The rank sets Karasu's form.
 
@@ -1126,7 +1142,7 @@ export function duelRow(pair: NamedPair): { script: Script; row: RowId } {
 
 ## tips.ts: a memory tip for every kana
 
-**Lines 4–220**: `KANA_TIPS`, an object with one tip for each of the 208 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. A marked kana's tip names the kana it's built on and what the mark does, like `が: 'か with dakuten, the two little strokes (゛) that voice a sound: ka becomes ga.'`, and a yōon's names both parts, like `しゃ: 'し with a small ゃ: shi and ya run together into one sound, sha.'`. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
+**Lines 4–234**: `KANA_TIPS`, an object with one tip for each of the 221 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. A marked kana's tip names the kana it's built on and what the mark does, like `が: 'か with dakuten, the two little strokes (゛) that voice a sound: ka becomes ga.'`, and a yōon's names both parts, like `しゃ: 'し with a small ゃ: shi and ya run together into one sound, sha.'`. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
 
 **Lines 103–105**
 ```ts
@@ -1532,7 +1548,7 @@ function mergeCompleted(a: readonly Completion[], b: readonly Completion[]): Com
 Puts the unlocked kana in a `Set`, so checking "is this one unlocked?" is quick.
 
 ```ts
-  const rows = ROWS.map((row) => ({
+  const rows = rowsOf(script).map((row) => ({
     row,
     belt: awardedBelt(progress, script, row),
     qualified: rowBelt(progress, script, row),
@@ -1575,7 +1591,7 @@ Every answer ever given, across all kana: correct divided by seen. `Object.value
 
 **Lines 24–26**: `overallStrikeSpeed`, the median of every kana's recent correct times, all put into one list with `.flatMap`.
 
-**Lines 29–32**: `rowBeltsEarned`, how many of the 52 rows have been awarded a belt above white. It feeds the "Graded" badge.
+**Lines 29–32**: `rowBeltsEarned`, how many of the 56 rows have been awarded a belt above white. It feeds the "Graded" badge.
 
 **Lines 35–38**: `trainingSince`, the time of the earliest finished lesson, or `null`.
 
@@ -1881,10 +1897,10 @@ Any other key is added to what's typed. If no falling kana's spelling starts wit
 
 **Lines 5–10**: `Word`, one word: its `text` as written (in hiragana or katakana), its `meaning` in English, and its `picture`, named by an emoji. The emoji is just a name here: the app shows a 3D drawing for it, looked up in `src/constants/word-pictures.ts`.
 
-**Lines 12–188**: `WORDS`, 170 words: common words like `{ text: 'ねこ', meaning: 'cat', picture: '🐱' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera). Each script ends with words that use small っ or ー, like `'きって'` and `'コーヒー'`.
+**Lines 12–200**: `WORDS`, 181 words: common words like `{ text: 'ねこ', meaning: 'cat', picture: '🐱' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera). Each script ends with words that use small っ or ー, like `'きって'` and `'コーヒー'`, and katakana with words using the extended katakana, like `'パーティー'`.
 
 Rules for the list, all checked by `words.test.ts`:
-- Every word is written only with kana the app teaches, plus small っ and ー. So no small ィ or ォ yet (パーティー, party; フォーク, fork).
+- Every word is written only with kana the app teaches, plus small っ and ー. Small ィ and ォ only as part of the extended katakana combos (パーティー, フォーク).
 - Every word's own romaji is accepted when it's typed.
 - Words without っ or ー read back from their romaji as the same kana, so a typed answer can't be read two ways.
 
@@ -2001,7 +2017,7 @@ Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and 
 
 What each file checks:
 - **pairs.test.ts**: every pair is two different real kana from one script, listed once, with a name and a tip that mentions both; both scripts covered; `pairId` and `pairById`.
-- **kana.test.ts**: 104 + 104 kana, no duplicates; ぢ and づ spelled like じ and ず; yōon spellings; what kind each row is; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes; `typingDone` (finished spellings, waiting on "n" and typos) and `kanaForRomaji`.
+- **kana.test.ts**: 104 hiragana and 117 katakana (with the 13 extended), each script's rows, no duplicates; ぢ and づ spelled like じ and ず; yōon spellings; what kind each row is; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes; `typingDone` (finished spellings, waiting on "n" and typos) and `kanaForRomaji`.
 - **boxes.test.ts**: each box's belt (three to a belt), and 9 as the top box.
 - **goal.test.ts**: the four goals, the default of 2, changing the goal without changing the input, counting lessons on a day.
 - **answers.test.ts**: `climbLimit` at each belt, tapped and typed; every rule of `recordAnswer` (up a step under the limit, not at it, faster limits at green and brown, capped at 9, no waiting, typed answers up two steps, wrong drops two, floor at 0, mistakes logged, none for a `null` guess, new kana, input never changed), the stats it keeps, finished lessons, best scores, onboarding, sound, haptics, typing, and `isEmptyProgress`.

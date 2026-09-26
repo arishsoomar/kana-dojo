@@ -1,5 +1,5 @@
-// Words for Word Forge: common words written only with kana the app teaches (and small っ or
-// the long mark ー), with their meanings and pictures. Each word's own romaji is accepted when
+// Words for Word Forge: common words written only with kana the app teaches (including the
+// extended katakana, small っ and the long mark ー), with their meanings and pictures. Each word's own romaji is accepted when
 // it's typed (checked in words.test.ts).
 
 export type Word = {
@@ -185,4 +185,16 @@ export const WORDS: readonly Word[] = [
   { text: 'ペンギン', meaning: 'penguin', picture: '🐧' },
   { text: 'トイレ', meaning: 'toilet', picture: '🚽' },
   { text: 'サンドイッチ', meaning: 'sandwich', picture: '🥪' },
+  // With extended katakana, like フォ and ティ
+  { text: 'パーティー', meaning: 'party', picture: '🎉' },
+  { text: 'フォーク', meaning: 'fork', picture: '🍴' },
+  { text: 'カフェ', meaning: 'café', picture: '🫖' },
+  { text: 'ジェット', meaning: 'jet (plane)', picture: '✈️' },
+  { text: 'フィルム', meaning: 'film', picture: '🎞️' },
+  { text: 'チェス', meaning: 'chess', picture: '♟️' },
+  { text: 'シェフ', meaning: 'chef', picture: '🧑‍🍳' },
+  { text: 'ジェットコースター', meaning: 'roller coaster', picture: '🎢' },
+  { text: 'ティッシュ', meaning: 'tissue', picture: '🧻' },
+  { text: 'ディナー', meaning: 'dinner', picture: '🍽️' },
+  { text: 'フェリー', meaning: 'ferry', picture: '⛴️' },
 ];

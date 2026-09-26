@@ -184,6 +184,17 @@ const FOLDERS = {
   '🚽': 'Toilet',
   '🥪': 'Sandwich',
   '🛋️': 'Couch and lamp',
+  '🎉': 'Party popper',
+  '🍴': 'Fork and knife',
+  '🫖': 'Teapot',
+  '✈️': 'Airplane',
+  '🎞️': 'Film frames',
+  '♟️': 'Chess pawn',
+  '🧑‍🍳': 'Cook',
+  '🎢': 'Roller coaster',
+  '🧻': 'Roll of paper',
+  '🍽️': 'Fork and knife with plate',
+  '⛴️': 'Ferry',
 };
 
 const tree = await (await fetch(`https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`)).json();

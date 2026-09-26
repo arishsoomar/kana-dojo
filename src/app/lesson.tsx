@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
 import { ComboChip } from '@/components/combo-chip';
-import { FeedbackCard, FeedbackSheet } from '@/components/feedback-sheet';
+import { FeedbackCard, FeedbackSheet, type Correction } from '@/components/feedback-sheet';
 import { KanaFrame } from '@/components/kana-frame';
 import { AliveKarasu } from '@/components/alive-karasu';
 import type { KarasuMood } from '@/components/karasu';
@@ -142,7 +142,7 @@ export default function LessonScreen() {
           {/* In typing mode a wrong answer's correction takes the kana card's place, so the
               keyboard can stay up (see TypeAnswer). */}
           {typing && wrong ? (
-            <FeedbackCard result={result} />
+            <FeedbackCard correction={correctionFor(result)} picture={<KanaFrame char={result.kana.char} size={76} />} />
           ) : (
             <>
               <KanaFrame char={question.kana.char} />
@@ -170,12 +170,26 @@ export default function LessonScreen() {
 
       {/* The bottom padding lives here, so the white sheet reaches the bottom edge. */}
       <View style={[sheet && styles.sheetArea, { paddingBottom: insets.bottom + (sheet ? 22 : 12) }]}>
-        {sheet && <FeedbackSheet result={result} onContinue={goToNext} />}
+        {sheet && <FeedbackSheet correction={correctionFor(result)} onContinue={goToNext} />}
       </View>
 
       <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={leaveLesson} />
     </KeyboardAvoidingView>
   );
+}
+
+// What a wrong answer's correction says: the answer, what was picked or typed, and the tip.
+function correctionFor(result: Result): Correction {
+  const { kana, guess, typed } = result;
+  const detail =
+    typed !== null
+      ? guess
+        ? `You typed ${typed}, which is ${guess.char}.`
+        : `You typed "${typed}".`
+      : guess
+        ? `You picked ${guess.romaji[0]}, which is ${guess.char}.`
+        : '';
+  return { title: `That's ${kana.romaji[0]}`, detail, tip: result.tip };
 }
 
 function moodFor(result: Result | null): KarasuMood {

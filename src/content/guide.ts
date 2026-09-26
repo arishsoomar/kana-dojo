@@ -1,6 +1,7 @@
 import { FAST_MS } from '@/core/answers';
 import { DUEL_LOSS, DUEL_READY_MIXUPS, DUEL_WIN } from '@/core/duel';
 import { EXAM_LENGTH, EXAM_PASS, EXAM_TIME_MS } from '@/core/exam';
+import { FORGE_MIN_WORDS, FORGE_ROUND } from '@/core/forge';
 import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
@@ -229,6 +230,21 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'forge',
+        question: 'How does Word Forge work?',
+        answer: [
+          `Read real words, like ねこ (cat) or しゃしん (photo), made only of kana you've met. It opens once you know the kana for ${FORGE_MIN_WORDS} words, and more words join as you learn more kana.`,
+          {
+            bullets: [
+              `A round is ${FORGE_ROUND} words, from the script the Learn screen is on.`,
+              "Tap the word's romaji from four options, or type it. Each wrong option is the word with one kana misread, often as a lookalike.",
+              'After each word you hear it and see what it means.',
+              "It counts as practice for every kana in the word: a word read right moves them all up (typed counts double, like lessons), and a misread kana is logged as a mix-up.",
+            ],
+          },
+        ],
+      },
+      {
         id: 'rain',
         question: 'How does Kana Rain work?',
         answer: [
@@ -253,7 +269,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels and Kana Rain games all count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, Word Forge rounds and Kana Rain games all count. Change your goal on the Profile tab.',
         ],
       },
       {

@@ -61,6 +61,7 @@ export default function RootLayout() {
           <Stack.Screen name="scrolls" options={{ headerShown: false }} />
           <Stack.Screen name="guide" options={{ headerShown: false }} />
           <Stack.Screen name="games/rain" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="games/forge" options={{ headerShown: false, gestureEnabled: false }} />
         </Stack>
       </ProgressProvider>
     </AuthProvider>

@@ -43,6 +43,8 @@ Files are listed roughly in the order they build on each other.
 | `streak.ts` | The streak, rest days, and the week strip |
 | `placement.ts` | The placement test for learners who already know some hiragana |
 | `rain.ts` | The Kana Rain game |
+| `words.ts` | The word list for Word Forge |
+| `forge.ts` | Word Forge: splitting words into kana, reading them tapped or typed, and recording it |
 
 Every file has a `.test.ts` file next to it, except `belts.ts`, whose one function is tested in `path.test.ts`. See the last section.
 
@@ -1875,6 +1877,94 @@ Any other key is added to what's typed. If no falling kana's spelling starts wit
 
 ---
 
+## words.ts: the word list for Word Forge
+
+**Lines 5–8**: `Word`, one word: its `text` as written (in hiragana or katakana) and its `meaning` in English.
+
+**Lines 10–136**: `WORDS`, the list: common words like `{ text: 'ねこ', meaning: 'cat' }`, hiragana first, then katakana loanwords like `'カメラ'` (camera).
+
+Two rules for the list, both checked by `words.test.ts`:
+- Every word is written only with kana the app teaches. So no small っ (きって, stamp) or long mark ー (コーヒー, coffee) yet.
+- Every word's romaji reads back as the same kana. ほんや ("honya", bookshop) is left out, because "honya" could also be read ほにゃ.
+
+---
+
+## forge.ts: Word Forge
+
+Word Forge shows a word and asks for its romaji, tapped from four options or typed. The answer is then recorded one kana at a time, so reading words is practice for the kana in them.
+
+**Lines 11–13**: `FORGE_ROUND = 10` words in a round, `FORGE_MIN_WORDS = 5` ready words before the game opens, and `FORGE_LESSON_ID`, the name a finished round is saved under.
+
+**Line 16**: `ForgeWord`, a word with the kana it's made of (`units`) and its script.
+
+**Lines 21–31**: `splitWord`
+```ts
+  while (at < text.length) {
+    const found = KANA.find((k) => k.char.length === 2 && text.startsWith(k.char, at)) ?? KANA.find((k) => text.startsWith(k.char, at));
+    if (!found) return null;
+    units.push(found);
+    at += found.char.length;
+  }
+```
+- Walks through the word, finding the kana at each point. `text.startsWith(k.char, at)` asks "does the text, from position `at`, start with this kana?".
+- Two-character kana are tried first, so しゃしん splits as しゃ, し, ん, not し, ゃ...
+- If nothing matches (a character the app doesn't teach, like っ), the word can't be used: `null`.
+
+**Lines 34–36**: `wordRomaji`, each kana's standard spelling joined: しゃしん → `'shashin'`.
+
+**Lines 39–46**: `readyWords`, the words the learner can read now: every kana in them is in `metKana` (open, and answered at least once), and in the script asked for.
+
+**Lines 51–52**: `UnitResult`, how one kana in a word was read: right or wrong, and `guess`, the kana read in its place (`null` if nothing). `Reading` is the whole word: right or wrong, and the kana that could be judged.
+
+**Lines 55–60**: `spellingsOf`, every spelling of every kana in a script, longest first, for reading typed romaji.
+
+**Lines 64–83**: `readTyped`
+```ts
+  for (const kana of word.units) {
+    const own = [...kana.romaji].sort((a, b) => b.length - a.length).find((s) => typed.startsWith(s, at));
+    if (own !== undefined) {
+      units.push({ kana, correct: true, guess: kana });
+      at += own.length;
+      continue;
+    }
+    const other = all.find(({ spelling }) => typed.startsWith(spelling, at));
+    units.push({ kana, correct: false, guess: other?.kana ?? null });
+    if (!other) break;
+    at += other.spelling.length;
+  }
+```
+- Checks the typing one kana at a time, keeping its place in the text with `at`.
+- If the typing continues with one of this kana's spellings (any of them, so "susi" reads すし), it's right. `continue` jumps to the next kana.
+- If not, it looks for any kana whose spelling was typed there: that's what the learner read it as. For ねこ typed "reko", ね was read as れ.
+- If no kana at all matches ("saxana"), judging stops there (`break`), since there's no telling what came next.
+- The word is right only if every kana was right **and** nothing is left over, so "nekoo" is wrong.
+
+**Line 86**: `ForgeOption`, one tap-mode option: its romaji, and which kana it misreads (`null` for the right answer).
+
+**Lines 92–116**: `forgeOptions`
+- Starts with the right answer, then adds up to three wrong ones. Each is the word with one kana swapped for another from `pool` (the kana the learner has met).
+- The kana to swap takes turns through the word's positions, in a random order.
+- For each, the swapped kana's lookalikes come first, then any other kana. A swap with the same spelling (じ for ぢ) is skipped, and so is any option already offered.
+- `.sort((a, b) => a.romaji.localeCompare(b.romaji))` puts them in alphabetical order, so the answer isn't always in the same place.
+
+**Lines 119–124**: `readChosen`, the reading for a tapped option. The right one judges every kana right. A wrong one judges only the misread kana: the others might well have been read right.
+
+**Lines 128–145**: `recordReading`
+```ts
+  const each = Math.round(ms / word.units.length);
+  for (const { kana, correct, guess } of reading.units) {
+    next = recordAnswer(next, { char: kana.char, guess: correct ? kana.char : (guess?.char ?? null), ms: each, now, typed });
+    answers.push({ char: kana.char, correct, ms: each });
+  }
+```
+- Every judged kana goes through `recordAnswer`, like any lesson answer. The time for the word is shared evenly: ねこ read in 3 seconds is 1.5 seconds per kana.
+- A wrong kana is recorded with what it was read as, which logs the mix-up.
+- It also returns the answers, for the end-of-round summary.
+
+**Lines 148–156**: `forgeRound`, ten words, shuffled. If fewer than ten are ready, the list is shuffled again and added on; when a new batch would start with the word just used, that word is moved to the end, so no word comes twice in a row.
+
+---
+
 ## The test files
 
 Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and so on). They all use the same pieces:
@@ -1915,6 +2005,8 @@ What each file checks:
 - **sayings.test.ts**: a new learner gets sensei lines; the most mixed-up pair with its tip; the trickiest kana (answered at least 3 times) with its tip; input never changed; never the same line twice in a row.
 - **saved.test.ts**: save then load gives the same progress; first launch, broken text and unknown versions start fresh; older saves are upgraded; damaged entries are dropped (including a duel with a broken opponent score); settings are checked, including sound, haptics and typing; a version 3 save's 8 boxes become 10 at the same belts, with due times turned into last-answered times.
 - **merge.test.ts**: the copy answered later wins, mix-ups keep the larger count, stats keep the copy that saw more, finished lessons once each, settings from the first copy, the same result in either order, merging with itself changes nothing, inputs never changed.
+- **words.test.ts**: every word splits into kana the app teaches, all in one script; its romaji reads back as the same kana; no word twice; words in both scripts.
+- **forge.test.ts**: `splitWord` (yōon kept together, っ and ー refused), `wordRomaji`, `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged), and rounds with no word twice in a row.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

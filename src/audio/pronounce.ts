@@ -21,3 +21,10 @@ function spokenForm(kana: Kana): string {
   const katakana = KANA.find((k) => k.script === 'katakana' && k.romaji[0] === kana.romaji[0])?.char ?? kana.char;
   return katakana === 'ン' ? katakana : `${katakana}ー`;
 }
+
+// Says a whole word aloud, a little slower than normal speech.
+export function speakWord(text: string) {
+  void Speech.stop().then(() => Speech.speak(text, { language: 'ja-JP', rate: WORD_RATE }));
+}
+
+const WORD_RATE = 0.8;

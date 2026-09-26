@@ -1,81 +1,63 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
-import type { Result } from '@/hooks/use-lesson';
 
 import { BulbIcon } from './bulb-icon';
-import { KanaFrame } from './kana-frame';
 import { PrimaryButton } from './primary-button';
 
-type Props = {
-  result: Result;
-  onContinue: () => void;
-};
+// What a wrong answer's correction says: the right answer ("That's ka"), what was given
+// instead, and a tip for next time.
+export type Correction = { title: string; detail: string; tip: string | null };
 
-// Shown after Check: what the answer was, and what it changed.
-export function FeedbackSheet({ result, onContinue }: Props) {
-  const tone = result.correct ? 'pine' : 'vermilion';
-  const answer = result.kana.romaji[0];
-
+// The correction in a sheet at the bottom of the screen, with Continue.
+export function FeedbackSheet({ correction, onContinue }: { correction: Correction; onContinue: () => void }) {
   return (
     <View style={styles.sheet}>
       <View style={styles.row}>
-        <View style={[styles.bar, { backgroundColor: colors[tone] }]} />
-        <View style={styles.text}>
-          <Text style={[styles.title, { color: result.correct ? colors.pineDark : colors.vermilionDark }]}>
-            {result.correct ? `${result.fast ? 'Clean hit' : 'Got it'}, that's ${answer}` : `That's ${answer}`}
-          </Text>
-          <Text style={styles.detail}>{detailText(result)}</Text>
-        </View>
+        <View style={[styles.bar, { backgroundColor: colors.vermilion }]} />
+        <Words correction={correction} />
       </View>
-
-      {result.tip && (
-        <View style={styles.tip}>
-          <BulbIcon />
-          <Text style={styles.tipText}>{result.tip}</Text>
-        </View>
-      )}
-
+      <Tip tip={correction.tip} />
       <View style={styles.button}>
-        <PrimaryButton label="Continue" tone={tone} onPress={onContinue} />
+        <PrimaryButton label="Continue" tone="vermilion" onPress={onContinue} />
       </View>
     </View>
   );
 }
 
-// The same correction for typing mode, shown in place of the kana card instead of in a sheet
-// at the bottom. The keyboard stays up, so nothing on screen has to move; the answer box
-// below it has the Continue button, and return continues too.
-export function FeedbackCard({ result }: { result: Result }) {
+// The same correction for typing mode, shown in place of the question's card instead of in a
+// sheet at the bottom. The keyboard stays up, so nothing on screen has to move; the answer box
+// below it has the Continue button, and return continues too. `picture` is the kana or word.
+export function FeedbackCard({ correction, picture }: { correction: Correction; picture: ReactNode }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <KanaFrame char={result.kana.char} size={76} />
-        <View style={styles.text}>
-          <Text style={[styles.title, { color: colors.vermilionDark }]}>That&apos;s {result.kana.romaji[0]}</Text>
-          <Text style={styles.detail}>{detailText(result)}</Text>
-        </View>
+        {picture}
+        <Words correction={correction} />
       </View>
-      {result.tip && (
-        <View style={styles.tip}>
-          <BulbIcon />
-          <Text style={styles.tipText}>{result.tip}</Text>
-        </View>
-      )}
+      <Tip tip={correction.tip} />
     </View>
   );
 }
 
-function detailText(result: Result): string {
-  if (!result.correct) {
-    if (result.typed !== null) {
-      return result.guess ? `You typed ${result.typed}, which is ${result.guess.char}.` : `You typed "${result.typed}".`;
-    }
-    return result.guess ? `You picked ${result.guess.romaji[0]}, which is ${result.guess.char}.` : '';
-  }
-  const seconds = `${(result.ms / 1000).toFixed(1)} seconds.`;
-  // Only promotions are mentioned; a correct answer can't lower a belt.
-  return result.beltChange ? `${seconds} ${result.kana.char} earned its ${result.beltChange.to} belt.` : seconds;
+function Words({ correction }: { correction: Correction }) {
+  return (
+    <View style={styles.text}>
+      <Text style={[styles.title, { color: colors.vermilionDark }]}>{correction.title}</Text>
+      {correction.detail !== '' && <Text style={styles.detail}>{correction.detail}</Text>}
+    </View>
+  );
+}
+
+function Tip({ tip }: { tip: string | null }) {
+  if (!tip) return null;
+  return (
+    <View style={styles.tip}>
+      <BulbIcon />
+      <Text style={styles.tipText}>{tip}</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

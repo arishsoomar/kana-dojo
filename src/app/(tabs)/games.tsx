@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, duelColors, fonts, rainColors } from '@/constants/theme';
 import { bestScore } from '@/core/answers';
 import { scrolls } from '@/core/duel';
+import { FORGE_MIN_WORDS, readyWords } from '@/core/forge';
 import { useProgress } from '@/hooks/use-progress';
 import { RAIN_LESSON_ID } from '@/hooks/use-rain';
 
@@ -16,6 +17,7 @@ export default function GamesScreen() {
   const allScrolls = scrolls(progress);
   const won = allScrolls.filter((s) => s.state === 'won').length;
   const ready = allScrolls.filter((s) => s.state === 'ready').length;
+  const words = readyWords(progress, progress.settings.script).length;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
@@ -43,6 +45,18 @@ export default function GamesScreen() {
           <Text style={styles.name}>Duels</Text>
           <Text style={styles.sub}>
             {ready > 0 ? `${ready} ready to duel` : `${won} of ${allScrolls.length} scrolls`}
+          </Text>
+        </Pressable>
+
+        <Pressable role="button" aria-label="Word Forge" onPress={() => router.push('/games/forge')} style={styles.card}>
+          <View style={[styles.art, styles.forgeArt]}>
+            <View style={styles.forgeBoard}>
+              <Text style={styles.forgeWord}>ねこ</Text>
+            </View>
+          </View>
+          <Text style={styles.name}>Word Forge</Text>
+          <Text style={styles.sub}>
+            {words >= FORGE_MIN_WORDS ? `${words} words to read` : `Opens at ${FORGE_MIN_WORDS} words (${words} so far)`}
           </Text>
         </Pressable>
       </View>
@@ -112,6 +126,23 @@ const styles = StyleSheet.create({
   tagKana: {
     fontFamily: fonts.jp,
     fontSize: 15,
+    color: colors.sumi,
+  },
+  // A word on a small wooden board, over the wood of a workshop.
+  forgeArt: {
+    backgroundColor: colors.woodDark,
+  },
+  forgeBoard: {
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: colors.sumi,
+    backgroundColor: colors.wood,
+  },
+  forgeWord: {
+    fontFamily: fonts.jp,
+    fontSize: 20,
     color: colors.sumi,
   },
   duelArt: {

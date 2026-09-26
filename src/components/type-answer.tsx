@@ -12,6 +12,10 @@ type Props = {
   wrong: boolean;
   onSubmit: (typed: string) => void;
   onContinue: () => void;
+  // Check a single kana as soon as a whole spelling is typed. Off for words, which could
+  // always be longer: those wait for return or Check.
+  checksItself?: boolean;
+  placeholder?: string;
 };
 
 // Browsers draw their own focus ring around inputs; the box's border already shows focus.
@@ -23,7 +27,7 @@ const hideWebFocusRing = Platform.OS === 'web' ? ({ outlineStyle: 'none' } as un
 // It's the same box for the whole lesson, and it keeps the keyboard up the whole time, even
 // after a wrong answer: it only clears. (Any time the keyboard closed and opened again, the
 // screen resized around it, which jolted it between questions.)
-export function TypeAnswer({ questionKey, wrong, onSubmit, onContinue }: Props) {
+export function TypeAnswer({ questionKey, wrong, onSubmit, onContinue, checksItself = true, placeholder = 'Type its sound' }: Props) {
   const input = useRef<TextInput>(null);
   const [text, setText] = useState('');
   // A new question clears the box. This is React's way to reset state when a prop changes:
@@ -43,7 +47,7 @@ export function TypeAnswer({ questionKey, wrong, onSubmit, onContinue }: Props) 
   function change(next: string) {
     if (wrong) return;
     setText(next);
-    if (typingDone(next)) onSubmit(next);
+    if (checksItself && typingDone(next)) onSubmit(next);
   }
 
   // Return checks the answer, or after a wrong answer, goes on to the next question.
@@ -68,9 +72,9 @@ export function TypeAnswer({ questionKey, wrong, onSubmit, onContinue }: Props) 
         spellCheck={false}
         autoComplete="off"
         returnKeyType="done"
-        placeholder="Type its sound"
+        placeholder={placeholder}
         placeholderTextColor={colors.muted}
-        aria-label="Type its sound"
+        aria-label={placeholder}
         style={[styles.input, wrong && styles.inputWrong, hideWebFocusRing]}
       />
       {/* Check is for "n", which waits for more letters in case it's the start of na, ni,

@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { pronounce } from '@/audio/pronounce';
 
-import { completeLesson, FAST_MS, recordAnswer, setSound, setTyping, type Progress } from '@/core/answers';
-import { beltChange, tipFor, type BeltChange } from '@/core/feedback';
+import { completeLesson, recordAnswer, setSound, setTyping, type Progress } from '@/core/answers';
+import { tipFor } from '@/core/feedback';
 import { kanaForRomaji, matchesRomaji, type Kana, type Script } from '@/core/kana';
 import { combo, COMBO_MILESTONES, LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { makePlaqueQuestion, type Plaque } from '@/core/path';
@@ -21,9 +21,7 @@ export type Result = {
   guess: Kana | null; // the kana picked, or the one typed; null if what was typed spells none
   typed: string | null; // what was typed, in typing mode
   correct: boolean;
-  fast: boolean;
   ms: number;
-  beltChange: BeltChange | null;
   tip: string | null;
 };
 
@@ -109,9 +107,7 @@ export function useLesson(mode: LessonMode) {
       guess,
       typed,
       correct,
-      fast: ms < FAST_MS,
       ms,
-      beltChange: beltChange(progress, next, kana.char),
       // Its tip against the kana picked or typed, or else its own memory tip.
       tip: correct ? null : guess ? tipFor(kana, guess) : kanaTip(kana.char),
     });

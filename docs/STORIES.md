@@ -537,6 +537,45 @@ that** nothing overflows or gets cut off.
 
 ---
 
+## Epic L — Word Forge
+
+Reading single kana is the means; reading words is the goal. Word Forge is
+a game of short rounds reading real words built only from kana the learner
+has met, each shown with its meaning and spoken after the answer. Every
+word answer feeds the kana inside it back into the engine.
+
+### L1. Words and reading them
+**As a** learner, **I want** real words made from kana I know, **so that**
+I practise reading, not just recognising.
+
+- [ ] A word list in `src/core/words.ts`: hiragana and katakana words with
+      meanings, none needing small っ or ー yet (test-checked)
+- [ ] `splitWord` turns a word into its kana, taking yōon like しゃ as one
+- [ ] A word is ready once the learner has met all of its kana
+- [ ] Tap mode: the answer and up to three options that each differ by one
+      kana, lookalikes first
+- [ ] Type mode: the typed romaji is matched kana by kana; any accepted
+      spelling counts (sushi or susi)
+- [ ] Each word answer goes through `recordAnswer()` for its kana: all of
+      them when read right, and only the misread kana when wrong, with the
+      mix-up logged. The time is shared evenly between the word's kana
+- Notes: every word's romaji must read back as the same kana (so no
+  "honya", which could be ほにゃ), which the tests check.
+
+### L2. The Word Forge screen
+**As a** learner, **I want** to play Word Forge from the Games tab, **so
+that** I can read words whenever I like.
+
+- [ ] A Word Forge card on the Games tab, opening once 5 words are ready
+- [ ] Rounds of 10 words from the Learn screen's script, tapped or typed
+      (the same Tap / Type switch as lessons, typed counting double)
+- [ ] After each answer: the word's romaji and meaning, spoken aloud
+- [ ] A wrong answer shows which kana was misread, with its tip
+- [ ] The end shows the usual summary, and the round counts toward the
+      streak and daily goal
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

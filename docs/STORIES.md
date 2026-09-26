@@ -524,6 +524,13 @@ Done when:
   when the wall comes back into view (`wall-news.ts`); tapped plaques swing.
   In lessons, a combo chip from 3 right in a row, growing at 5 and 10. All
   motion is skipped with the phone's Reduce Motion setting.
+- Belt ceremony: the new belt falls onto Karasu's waist, wraps round him,
+  he tugs the knot tight, and a gong rings as he cheers.
+- Sound effects: a taiko drum when a lesson, duel, failed exam or Kana Rain
+  game ends, and a gong when a belt is tied on. Both are made from plain
+  maths by `scripts/make-sounds.mjs` (no recordings, no licence), played
+  with `expo-audio`, follow the same Sound switch as the spoken kana, and
+  stay quiet when the phone is on silent.
 
 ## Later
 

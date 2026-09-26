@@ -6,7 +6,7 @@ import type { Belt } from '@/core/boxes';
 
 import { Karasu, type KarasuMood } from './karasu';
 
-export type KarasuMove = 'hop' | 'shake' | 'cheer';
+export type KarasuMove = 'hop' | 'shake' | 'cheer' | 'tug';
 
 type Props = {
   mood: KarasuMood;
@@ -26,7 +26,8 @@ const BLINK_MS = 130;
 // One slow breath, in and out.
 const BREATH_MS = 1600;
 
-// Karasu, alive: he blinks, breathes, and can hop, shake his head, or jump for joy. With the
+// Karasu, alive: he blinks, breathes, and can hop, shake his head, jump for joy, or tug his
+// belt tight. With the
 // phone's Reduce Motion setting on, he only blinks.
 export function AliveKarasu({ mood, size = 58, rank, belt, move = null }: Props) {
   const reduceMotion = useReducedMotion();
@@ -35,6 +36,7 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null }: Props)
   const [breath] = useState(() => new Animated.Value(0)); // 0 = breathed out, 1 = in
   const [lift] = useState(() => new Animated.Value(0)); // 0 = standing, 1 = at the top of a jump
   const [tilt] = useState(() => new Animated.Value(0)); // -1 to 1, for shaking his head
+  const [squeeze] = useState(() => new Animated.Value(0)); // 1 = pulled in at the waist, -1 = puffed out
 
   // Blinks: wait, shut the eyes briefly, and schedule the next one.
   useEffect(() => {
@@ -83,10 +85,13 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null }: Props)
         ? Animated.sequence([to(tilt, -1, 60), to(tilt, 1, 100), to(tilt, -0.6, 90), to(tilt, 0, 80)])
         : moveKind === 'cheer'
           ? Animated.sequence([jumpOnce(1), jumpOnce(0.7), jumpOnce(0.4)])
-          : jumpOnce(0.45);
+          : moveKind === 'tug'
+            ? // Two pulls on the knot: in, out a little, in again, and settle.
+              Animated.sequence([to(squeeze, 1, 80), to(squeeze, -0.4, 90), to(squeeze, 1, 80), to(squeeze, 0, 160)])
+            : jumpOnce(0.45);
     animation.start();
     return () => animation.stop();
-  }, [moveId, moveKind, lift, tilt, reduceMotion]);
+  }, [moveId, moveKind, lift, tilt, squeeze, reduceMotion]);
 
   return (
     <Animated.View
@@ -97,6 +102,7 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null }: Props)
           { translateY: lift.interpolate({ inputRange: [0, 1], outputRange: [0, -size * 0.28] }) },
           { rotate: tilt.interpolate({ inputRange: [-1, 1], outputRange: ['-9deg', '9deg'] }) },
           { scaleY: breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.035] }) },
+          { scaleX: squeeze.interpolate({ inputRange: [-1, 0, 1], outputRange: [1.05, 1, 0.9] }) },
         ],
       }}>
       <Karasu mood={mood} size={size} rank={rank} belt={belt} blink={blink} />

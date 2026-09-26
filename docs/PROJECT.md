@@ -14,7 +14,7 @@ spaced-repetition engine in games and a visible progression system keeps
 people practicing long enough to actually finish.
 
 **Target:** someone can read all 46 basic hiragana and all 46 basic
-katakana, plus their dakuten and handakuten forms (142 kana in all), on
+katakana, plus their dakuten, handakuten and yōon forms (208 in all), on
 sight, in under a second each, after a few weeks of short daily sessions.
 
 ## Theme: Dojo

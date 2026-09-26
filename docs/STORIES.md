@@ -508,6 +508,35 @@ that** I know what the marks mean.
 
 ---
 
+## Epic K — Yōon
+
+Yōon are the combined sounds: a kana from the i-column followed by a small
+ゃ, ゅ or ょ, read as one sound (き + ゃ = きゃ, kya). There are 33 per
+script, in 11 rows of three, after the ぱ row. Each is written with two
+characters but read as one kana.
+
+### K1. The yōon rows
+**As a** learner, **I want** to learn きゃ, しゃ, ちゃ and the rest, **so
+that** I can read words like しゃしん and きょう.
+
+- [ ] `KANA` gains the 11 yōon rows in both scripts (104 + 104), test-first,
+      in the order きゃ しゃ ちゃ にゃ ひゃ みゃ りゃ ぎゃ じゃ びゃ ぴゃ
+- [ ] Common spellings are accepted: sha/sya, cha/tya/cya, ja/zya/jya
+- [ ] Every yōon has a memory tip that mentions its sound
+- [ ] Rows are grouped by kind (basic, dakuten, handakuten, yōon), and the
+      Learn wall and Kana tab label the yōon rows like the marked ones
+- Notes: ぢゃ ぢゅ ぢょ are left out; they're very rare and sound the same
+  as じゃ じゅ じょ.
+
+### K2. Two-character kana on screen
+**As a** learner, **I want** きゃ to fit wherever a kana is shown, **so
+that** nothing overflows or gets cut off.
+
+- [ ] The kana card, the detail sheet, plaques and Kana Rain's falling tags
+      shrink a two-character kana to fit
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

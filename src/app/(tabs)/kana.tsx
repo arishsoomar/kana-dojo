@@ -14,7 +14,7 @@ import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
-import { KANA, lookalikesOf, rowMark, type Kana, type RowId, type Script } from '@/core/kana';
+import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
 import { kanaTip } from '@/core/tips';
 import { useProgress } from '@/hooks/use-progress';
 
@@ -63,12 +63,12 @@ export default function KanaScreen() {
 
       <View style={styles.rows}>
         {grid.rows.map(({ row, belt, cells }, i) => {
-          // A heading where the marked rows begin, saying what the mark does.
+          // A heading where each kind of row after the basic ones begins, saying what it is.
           const previous = grid.rows[i - 1];
-          const newMark = rowMark(row) !== null && rowMark(row) !== (previous ? rowMark(previous.row) : null);
+          const newKind = previous !== undefined && rowKind(row) !== rowKind(previous.row);
           return (
             <Fragment key={row}>
-              {newMark && <MarkHeading row={row} script={script} />}
+              {newKind && <KindHeading row={row} script={script} />}
               <View style={styles.row}>
                 {/* The row's name and its belt: the belt of its weakest kana. */}
                 <View style={styles.rowLabel} aria-label={`${row} row, ${belt} belt`}>
@@ -95,18 +95,24 @@ export default function KanaScreen() {
   );
 }
 
-// "Dakuten ゛" with an example from this script, like か ka → が ga.
-function MarkHeading({ row, script }: { row: RowId; script: Script }) {
-  const mark = rowMark(row);
-  if (!mark) return null;
-  const [plain, marked] = mark === 'dakuten' ? ['ka', 'ga'] : ['ha', 'pa'];
+// What each kind of row after the basic ones is, with an example from this script: the
+// kana it's made from, and the kana it makes.
+const KIND_HEADINGS = {
+  dakuten: { title: 'Dakuten ゛', about: 'Two little strokes voice the sound:', from: 'ka', to: 'ga' },
+  handakuten: { title: 'Handakuten ゜', about: 'A little circle turns h into p:', from: 'ha', to: 'pa' },
+  yoon: { title: 'Yōon', about: 'A small ゃ, ゅ or ょ joins the kana before it into one sound:', from: 'ki', to: 'kya' },
+} as const;
+
+function KindHeading({ row, script }: { row: RowId; script: Script }) {
+  const kind = rowKind(row);
+  if (kind === 'basic') return null;
+  const { title, about, from, to } = KIND_HEADINGS[kind];
   const char = (romaji: string) => KANA.find((k) => k.script === script && k.romaji[0] === romaji)?.char ?? '';
   return (
-    <View style={styles.markHeading}>
-      <Text style={styles.markTitle}>{mark === 'dakuten' ? 'Dakuten ゛' : 'Handakuten ゜'}</Text>
-      <Text style={styles.markSub}>
-        {mark === 'dakuten' ? 'Two little strokes voice the sound: ' : 'A little circle turns h into p: '}
-        <Text style={styles.markKana}>{char(plain)}</Text> {plain} → <Text style={styles.markKana}>{char(marked)}</Text> {marked}
+    <View style={styles.kindHeading}>
+      <Text style={styles.kindTitle}>{title}</Text>
+      <Text style={styles.kindAbout}>
+        {about} <Text style={styles.kindKana}>{char(from)}</Text> {from} → <Text style={styles.kindKana}>{char(to)}</Text> {to}
       </Text>
     </View>
   );
@@ -181,22 +187,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  markHeading: {
+  kindHeading: {
     marginTop: 14,
     marginBottom: 2,
     gap: 2,
   },
-  markTitle: {
+  kindTitle: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 16,
     color: colors.sumi,
   },
-  markSub: {
+  kindAbout: {
     fontFamily: fonts.uiSemiBold,
     fontSize: 13,
     color: colors.ink2,
   },
-  markKana: {
+  kindKana: {
     fontFamily: fonts.jp,
     color: colors.sumi,
   },

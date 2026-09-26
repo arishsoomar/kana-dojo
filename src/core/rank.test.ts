@@ -42,7 +42,7 @@ describe('overallRank', () => {
 
   it('is black only when every row, in both scripts, is black', () => {
     const allRows = 2 * ROWS.length;
-    expect(allRows).toBe(30);
+    expect(allRows).toBe(52);
     expect(overallRank(rowsEarned(allRows - 1, 'black'))).toBe('brown');
     expect(overallRank(rowsEarned(allRows, 'black'))).toBe('black');
   });

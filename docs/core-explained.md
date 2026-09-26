@@ -17,7 +17,7 @@ Files are listed roughly in the order they build on each other.
 | File | What it's for |
 |---|---|
 | `pairs.ts` | The named lookalike pairs: each pair's name and tip |
-| `kana.ts` | The 142 kana, their rows and spellings, which rows carry a mark, and which kana look alike |
+| `kana.ts` | The 208 kana, their rows and spellings, what kind each row is, and which kana look alike |
 | `boxes.ts` | Box numbers (steps) and the belt each one is |
 | `goal.ts` | The daily goal choices, and counting lessons on a day |
 | `answers.ts` | The learner's progress, and what one answer does to it |
@@ -104,7 +104,7 @@ Every file has a `.test.ts` file next to it, except `belts.ts`, whose one functi
 
 ---
 
-## kana.ts: the 142 kana and facts about them
+## kana.ts: the 208 kana and facts about them
 
 **Line 1**: imports the named pairs from `pairs.ts`, which `lookalikesOf` uses at the bottom of this file.
 
@@ -114,33 +114,40 @@ export type Script = 'hiragana' | 'katakana';
 ```
 A `Script` can only be the exact text `'hiragana'` or `'katakana'`. `|` means "or".
 
-**Line 6**
+**Lines 7–11**
 ```ts
-export const ROWS = ['a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa', 'ga', 'za', 'da', 'ba', 'pa'] as const;
+export const ROWS = [
+  'a', 'ka', 'sa', 'ta', 'na', 'ha', 'ma', 'ya', 'ra', 'wa',
+  'ga', 'za', 'da', 'ba', 'pa',
+  'kya', 'sha', 'cha', 'nya', 'hya', 'mya', 'rya', 'gya', 'ja', 'bya', 'pya',
+] as const;
 ```
-The fifteen row names, in the order they unlock: the ten basic rows, then the five rows made by adding a mark. `as const` tells TypeScript to remember these exact strings in this exact order.
+The 26 row names, in the order they unlock: the ten basic rows, the five made by adding a mark, then the eleven yōon rows. `as const` tells TypeScript to remember these exact strings in this exact order.
 
-**Line 8**
+**Line 13**
 ```ts
 export type RowId = (typeof ROWS)[number];
 ```
-`RowId` means "one of the strings in `ROWS`". `typeof ROWS` is the type of the list, and `[number]` means "any one item from it". The names are written once, on line 6.
+`RowId` means "one of the strings in `ROWS`". `typeof ROWS` is the type of the list, and `[number]` means "any one item from it". The names are written once, in `ROWS`.
 
-**Lines 12–18**
+**Lines 20–30**
 ```ts
-export type RowMark = 'dakuten' | 'handakuten';
+export type RowKind = 'basic' | 'dakuten' | 'handakuten' | 'yoon';
 
-export function rowMark(row: RowId): RowMark | null {
+const DAKUTEN_ROWS: readonly RowId[] = ['ga', 'za', 'da', 'ba'];
+
+export function rowKind(row: RowId): RowKind {
+  if (DAKUTEN_ROWS.includes(row)) return 'dakuten';
   if (row === 'pa') return 'handakuten';
-  if (row === 'ga' || row === 'za' || row === 'da' || row === 'ba') return 'dakuten';
-  return null;
+  if (ROWS.indexOf(row) > ROWS.indexOf('pa')) return 'yoon';
+  return 'basic';
 }
 ```
-- The mark a row's kana carry. **Dakuten** ゛, two little strokes, voices a sound: か ka → が ga. **Handakuten** ゜, a little circle, turns the h-row into p: は ha → ぱ pa.
-- `null` for the ten basic rows. `||` means "or".
-- The Learn wall and the Kana tab use it to label those rows.
+- What kind of kana a row holds. **Basic**: the 46 plain kana. **Dakuten** ゛, two little strokes, voices a sound: か ka → が ga. **Handakuten** ゜, a little circle, turns the h-row into p: は ha → ぱ pa. **Yōon**: a kana with a small ゃ, ゅ or ょ, read as one sound: き + ゃ → きゃ kya.
+- The yōon rows are all the ones after the ぱ row, so `ROWS.indexOf` (a row's position in the list) is enough to spot them.
+- The Learn wall and the Kana tab use it to label and group the rows.
 
-**Lines 20–26**
+**Lines 32–38**
 ```ts
 export type Kana = {
   char: string;
@@ -155,16 +162,18 @@ The shape of one kana:
 - `row`: which row it's in, like `'sa'`.
 - `romaji`: its spellings. `[string, ...string[]]` means "one string, then any number more". So there is always at least one. The first is the standard spelling; the others are also accepted. `readonly` means nobody can change the list.
 
-**Line 29**
+**Line 41**
 ```ts
 const TABLE: readonly [RowId, string, string, string, ...string[]][] = [
 ```
 A list named `TABLE`, only used in this file. Each line in it has: a row name, the hiragana, the katakana, the first spelling, then any extra spellings.
 
-**Lines 30–46**: the data, one entry per sound: the 46 basic sounds, then 25 made with a mark. `['sa', 'し', 'シ', 'shi', 'si']` means row `sa`, hiragana し, katakana シ, spellings `shi` and `si`.
+**Lines 42–71**: the data, one entry per sound: the 46 basic sounds, 25 made with a mark, then 33 yōon. `['sa', 'し', 'シ', 'shi', 'si']` means row `sa`, hiragana し, katakana シ, spellings `shi` and `si`.
 - ぢ and づ sound the same as じ and ず, so they share the spellings `ji` and `zu`. (Each also has its own alternate, `di` and `du`.) Two kana with the same spelling never both appear as answer tiles, because `makeChoices` skips any spelling already used.
+- A yōon like `'きゃ'` is two characters in one string. The rest of the code treats it as one kana like any other; only the screens that draw it (see `kana-fit.ts`) make it smaller to fit.
+- ぢゃ, ぢゅ and ぢょ are left out: they're very rare, and sound the same as じゃ, じゅ and じょ.
 
-**Lines 49–55**
+**Lines 74–80**
 ```ts
 export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, first, ...rest]) => {
   const romaji: Kana['romaji'] = [first, ...rest];
@@ -174,14 +183,14 @@ export const KANA: readonly Kana[] = TABLE.flatMap(([row, hiragana, katakana, fi
   ];
 });
 ```
-- Builds `KANA`, the list of all 142 kana, from `TABLE`.
+- Builds `KANA`, the list of all 208 kana, from `TABLE`.
 - `([row, hiragana, katakana, first, ...rest])` splits one table line into named parts. `...rest` collects everything left over (extra spellings) into a list.
 - Line 33 puts the spellings back together: `[first, ...rest]`. `Kana['romaji']` means "the type of the `romaji` field of `Kana`".
-- Each table line becomes **two** kana: one hiragana, one katakana, with the same row and spellings. 71 × 2 = 142.
+- Each table line becomes **two** kana: one hiragana, one katakana, with the same row and spellings. 104 × 2 = 208.
 - `row,` on its own is short for `row: row`.
 - The order of `KANA` is the kana chart: あ い う え お, then か き く け こ, and so on. `choices.ts` uses that order to line up the answer tiles.
 
-**Lines 57–63**
+**Lines 82–88**
 ```ts
 function cleaned(input: string): string {
   return input.trim().toLowerCase();
@@ -194,9 +203,9 @@ export function matchesRomaji(kana: Kana, input: string): boolean {
 - `cleaned` tidies typed text: `.trim()` removes spaces at the start and end, and `.toLowerCase()` makes capital letters small. `' Shi '` becomes `'shi'`.
 - `matchesRomaji` checks whether typed text is a correct spelling of a kana, including alternates like `si`.
 
-**Line 66**: `SPELLINGS`, every accepted spelling of every kana, each once (`new Set` drops the repeats, since hiragana and katakana share spellings).
+**Line 91**: `SPELLINGS`, every accepted spelling of every kana, each once (`new Set` drops the repeats, since hiragana and katakana share spellings).
 
-**Lines 71–74**
+**Lines 96–99**
 ```ts
 export function typingDone(input: string): boolean {
   const typed = cleaned(input);
@@ -206,7 +215,7 @@ export function typingDone(input: string): boolean {
 - Whether a typed answer is finished, so a lesson can check it without waiting for Enter.
 - It's finished when it's a whole spelling **and** no other spelling starts with it. `ka` is finished. `n` is a whole spelling (ん) but `na`, `ni` and others start with it, so it waits for Enter. `kx` spells nothing, so it waits too, and the typo can be fixed.
 
-**Lines 77–80**
+**Lines 102–105**
 ```ts
 export function kanaForRomaji(input: string, script: Script): Kana | null {
   const typed = cleaned(input);
@@ -215,7 +224,7 @@ export function kanaForRomaji(input: string, script: Script): Kana | null {
 ```
 The kana in a script that a typed answer spells: `kanaForRomaji('ka', 'hiragana')` is か. `null` if it spells none. For `ji` and `zu` it finds じ and ず, which come first in `KANA`. When a typed answer is wrong, this is the kana logged as the mix-up, just as if it had been tapped.
 
-**Lines 83–87**
+**Lines 108–112**
 ```ts
 export function lookalikesOf(char: string): string[] {
   return NAMED_PAIRS.filter(({ kana }) => kana.includes(char)).flatMap(({ kana }) =>
@@ -986,7 +995,7 @@ export function overallRank(progress: Progress): Belt {
   return rank;
 }
 ```
-- `earned`: all 30 rows' awarded belts (15 per script), as numbers.
+- `earned`: all 52 rows' awarded belts (26 per script), as numbers.
 - For each belt, lowest first: count the rows at that belt **or higher** (a brown row also counts toward green). If that's enough, that becomes the rank. Later belts overwrite earlier ones, so the result is the highest rank reached.
 - The rank sets Karasu's form.
 
@@ -1115,7 +1124,7 @@ export function duelRow(pair: NamedPair): { script: Script; row: RowId } {
 
 ## tips.ts: a memory tip for every kana
 
-**Lines 4–152**: `KANA_TIPS`, an object with one tip for each of the 142 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. A marked kana's tip names the kana it's built on and what the mark does, like `が: 'か with dakuten, the two little strokes (゛) that voice a sound: ka becomes ga.'`. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
+**Lines 4–220**: `KANA_TIPS`, an object with one tip for each of the 208 kana, like `し: 'One stroke that dips and curves up, like a fishing hook. She went fishing: shi.'`. Each tip ties the kana's shape to its sound. A marked kana's tip names the kana it's built on and what the mark does, like `が: 'か with dakuten, the two little strokes (゛) that voice a sound: ka becomes ga.'`, and a yōon's names both parts, like `しゃ: 'し with a small ゃ: shi and ya run together into one sound, sha.'`. `Readonly<Record<string, string>>` means "an object from character to text, which can't be changed".
 
 **Lines 103–105**
 ```ts
@@ -1564,7 +1573,7 @@ Every answer ever given, across all kana: correct divided by seen. `Object.value
 
 **Lines 24–26**: `overallStrikeSpeed`, the median of every kana's recent correct times, all put into one list with `.flatMap`.
 
-**Lines 29–32**: `rowBeltsEarned`, how many of the 30 rows have been awarded a belt above white. It feeds the "Graded" badge.
+**Lines 29–32**: `rowBeltsEarned`, how many of the 52 rows have been awarded a belt above white. It feeds the "Graded" badge.
 
 **Lines 35–38**: `trainingSince`, the time of the earliest finished lesson, or `null`.
 
@@ -1886,7 +1895,7 @@ Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and 
 
 What each file checks:
 - **pairs.test.ts**: every pair is two different real kana from one script, listed once, with a name and a tip that mentions both; both scripts covered; `pairId` and `pairById`.
-- **kana.test.ts**: 71 + 71 kana, no duplicates; ぢ and づ spelled like じ and ず; which rows are dakuten and handakuten; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes; `typingDone` (finished spellings, waiting on "n" and typos) and `kanaForRomaji`.
+- **kana.test.ts**: 104 + 104 kana, no duplicates; ぢ and づ spelled like じ and ず; yōon spellings; what kind each row is; spellings accepted, including alternates, capitals and spaces; rows in order and the right size; lookalikes found both ways, and every named pair counts as lookalikes; `typingDone` (finished spellings, waiting on "n" and typos) and `kanaForRomaji`.
 - **boxes.test.ts**: each box's belt (three to a belt), and 9 as the top box.
 - **goal.test.ts**: the four goals, the default of 2, changing the goal without changing the input, counting lessons on a day.
 - **answers.test.ts**: `climbLimit` at each belt, tapped and typed; every rule of `recordAnswer` (up a step under the limit, not at it, faster limits at green and brown, capped at 9, no waiting, typed answers up two steps, wrong drops two, floor at 0, mistakes logged, none for a `null` guess, new kana, input never changed), the stats it keeps, finished lessons, best scores, onboarding, sound, haptics, typing, and `isEmptyProgress`.

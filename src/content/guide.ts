@@ -35,7 +35,7 @@ export const GUIDE: GuideSection[] = [
         id: 'what',
         question: 'What is Kana Dojo?',
         answer: [
-          `A dojo for learning to read the Japanese kana: hiragana and katakana, ${KANA.length / 2} of each, counting the 46 basic kana and their dakuten and handakuten forms. The goal is to read each one at a glance, without having to stop and recall it.`,
+          `A dojo for learning to read the Japanese kana: hiragana and katakana, ${KANA.length / 2} of each. That's the 46 basic kana, their dakuten and handakuten forms, and the yōon combos like きゃ. The goal is to read each one at a glance, without having to stop and recall it.`,
           'Karasu, the crow, is your sensei. He grows as you do.',
         ],
       },
@@ -71,17 +71,17 @@ export const GUIDE: GuideSection[] = [
       },
       {
         id: 'marks',
-        question: 'What are dakuten and handakuten?',
+        question: 'What are dakuten, handakuten and yōon?',
         answer: [
-          'Two small marks that change a kana\'s sound. After the わ row, the wall has five more rows made with them:',
+          'After the basic rows, the wall goes on to the kana made from them:',
           {
             bullets: [
               'Dakuten ゛, two little strokes, voice the sound: か ka → が ga, さ sa → ざ za, た ta → だ da, は ha → ば ba.',
               'Handakuten ゜, a little circle, turns h into p: は ha → ぱ pa.',
               'ぢ and づ sound just like じ (ji) and ず (zu), so either spelling is right when you type them. They\'re rare; じ and ず are the usual way to write those sounds.',
+              'Yōon join a kana to a small ゃ, ゅ or ょ, read as one sound: き ki + ゃ → きゃ kya, し shi + ょ → しょ sho. They\'re written with two characters but count as one kana.',
             ],
           },
-          'Combos like きゃ (kya), called yōon, are still to come.',
         ],
       },
       {

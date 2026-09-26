@@ -2,11 +2,13 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, duelColors, fonts, rainColors } from '@/constants/theme';
+import { colors, duelColors, fonts, memoryColors, rainColors } from '@/constants/theme';
 import { bestScore } from '@/core/answers';
 import { scrolls } from '@/core/duel';
 import { dungeonId } from '@/core/dungeon';
 import { FORGE_MIN_WORDS, readyWords } from '@/core/forge';
+import { fewestMoves } from '@/core/memory';
+import { CardsIcon } from '@/components/cards-icon';
 import { Yokai } from '@/components/yokai';
 import { useProgress } from '@/hooks/use-progress';
 import { RAIN_LESSON_ID } from '@/hooks/use-rain';
@@ -21,6 +23,11 @@ export default function GamesScreen() {
   const ready = allScrolls.filter((s) => s.state === 'ready').length;
   const words = readyWords(progress, progress.settings.script).length;
   // The deeper of the two scripts' best runs.
+  // The fewest moves in any memory match mode.
+  const fewest = (['hiragana', 'katakana', 'both'] as const)
+    .map((mode) => fewestMoves(progress, mode))
+    .filter((m): m is number => m !== null)
+    .reduce<number | null>((best, m) => (best === null || m < best ? m : best), null);
   const deepest = Math.max(bestScore(progress, dungeonId('hiragana')) ?? 0, bestScore(progress, dungeonId('katakana')) ?? 0);
 
   return (
@@ -58,6 +65,14 @@ export default function GamesScreen() {
           </View>
           <Text style={styles.name}>Yokai dungeon</Text>
           <Text style={styles.sub}>{deepest > 0 ? `Deepest: floor ${deepest}` : 'Read them before they attack'}</Text>
+        </Pressable>
+
+        <Pressable role="button" aria-label="Memory match" onPress={() => router.push('/games/memory')} style={styles.card}>
+          <View style={[styles.art, styles.memoryArt]}>
+            <CardsIcon color={colors.woodDark} />
+          </View>
+          <Text style={styles.name}>Memory match</Text>
+          <Text style={styles.sub}>{fewest !== null ? `Best: ${fewest} moves` : 'Find the pairs'}</Text>
         </Pressable>
 
         <Pressable role="button" aria-label="Word Forge" onPress={() => router.push('/games/forge')} style={styles.card}>
@@ -139,6 +154,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.jp,
     fontSize: 15,
     color: colors.sumi,
+  },
+  memoryArt: {
+    backgroundColor: memoryColors.table,
   },
   dungeonArt: {
     backgroundColor: colors.night,

@@ -142,6 +142,14 @@ export const charmColors = {
   doorLines: '#231B3B',
 } as const;
 
+// Memory match: a warm table, the pattern on face-down cards, and found pairs left faded.
+export const memoryColors = {
+  table: '#F1EDE4',
+  backMark: '#6E727E',
+  foundEdge: '#C3C8D2',
+  foundText: '#B2B7C2',
+} as const;
+
 export const beltEdges = {
   light: '#C3C8D2',
   dark: 'rgba(0, 0, 0, 0.35)',

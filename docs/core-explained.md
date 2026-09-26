@@ -46,6 +46,7 @@ Files are listed roughly in the order they build on each other.
 | `words.ts` | The word list for Word Forge |
 | `forge.ts` | Word Forge: splitting words into kana, reading them tapped or typed, and recording it |
 | `dungeon.ts` | The Yokai dungeon's rules: floors, yokai, the attack timer, hearts and charms |
+| `memory.ts` | Memory match: modes, dealing pairs, turning cards, and the fewest moves |
 
 Every file has a `.test.ts` file next to it, except `belts.ts`, whose one function is tested in `path.test.ts`. See the last section.
 
@@ -2056,6 +2057,44 @@ A run down floor after floor of yokai. Each shows a kana (chosen by the screen f
 
 ---
 
+## memory.ts: memory match
+
+Sixteen cards face down, eight pairs. A pair is a kana and its romaji, or in "both", the same sound in hiragana and in katakana.
+
+**Line 10**: `MEMORY_PAIRS = 8`.
+
+**Line 13**: `MemoryMode`: `'hiragana'` (あ with a), `'katakana'` (ア with a), or `'both'` (あ with ア).
+
+**Lines 16–18**: `memoryId`, where a mode's games are saved, with the moves taken as the score.
+
+**Lines 22–24**: `katakanaOf`, the same sound in katakana for a hiragana kana: the katakana in the same row with the same spelling.
+
+**Lines 28–35**: `memoryKana`, the kana a mode can use: the met kana of its script, or for "both", the hiragana whose katakana partner has been met too (a `Set` makes checking that quick).
+
+**Lines 38–40**: `memoryReady`, whether there are at least 8 of them.
+
+**Line 44**: `MemoryCard`, one card: its place in the deal (`id`), its `pair`, what's written on it (`face`), and the kana it stands for.
+
+**Lines 46–53**: `MemoryGame`: the cards, the ones turned up (`up`: none, one, or a missed two waiting to turn back), the pairs `found`, the `moves`, and whether it's `done`.
+
+**Lines 57–80**: `dealMemory`
+- Chooses 8 kana with `pickNext`, so weaker kana come up more often. Each time, any kana sharing a spelling with one already chosen is left out, so じ and ぢ (both "ji") never both appear: their cards would be impossible to tell apart.
+- Each kana becomes two cards: the kana, and its romaji (or its katakana, in "both").
+- `shuffle` mixes them, and `.map((card, id) => ...)` numbers them in their shuffled order.
+
+**Line 84**: `Flip`, what turning a card did: the first of two, a pair (and which), a miss, or nothing.
+
+**Lines 86–101**: `flipCard`
+- Nothing happens for a card that's already up or found, while a missed two are still showing, or once the game is done.
+- The first card of two just turns up.
+- The second is a move. If it belongs to the same pair as the first, the pair is found and both stay face up; when every pair is found, the game is done. Otherwise it's a miss, and both stay up until `hideMiss`.
+
+**Lines 104–106**: `hideMiss`, turning a missed two back over. The screen calls it after a moment, so there's time to see them.
+
+**Lines 109–112**: `fewestMoves`, the best for a mode: the lowest score saved, since fewer moves is better (unlike `bestScore`, which takes the highest).
+
+---
+
 ## The test files
 
 Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and so on). They all use the same pieces:
@@ -2099,6 +2138,7 @@ What each file checks:
 - **words.test.ts**: every word splits into kana the app teaches, all in one script; its romaji reads back as the same kana; no word twice, each with a meaning and a picture; words in both scripts. (`src/constants/word-pictures.test.ts` checks every picture has an image.)
 - **forge.test.ts**: `splitWord` (yōon kept together, っ and ー kept as marks, a mark with nothing to change refused), `wordRomaji` (including っ and ー), `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged, marks not recorded), marks typed and missed (kite, kohii, ko-hi-, maccha), the option that leaves a mark out, and rounds with no word twice in a row.
 - **dungeon.test.ts**: floors (yokai count, HP, attack time, the lantern), a new run, strikes (clean, the bokken, next yokai, clearing a floor), getting hit (wrong, timeout, the end, the omamori), and charms (choices, fewer when fewer are left, tea, hints and the omamori refilled each floor).
+- **memory.test.ts**: which kana each mode can use and when it's ready, dealing (8 pairs, kana with romaji or with katakana, no shared spellings, all face down), turning cards (first, pair, miss, what's ignored, done, input unchanged), and the fewest moves per mode.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

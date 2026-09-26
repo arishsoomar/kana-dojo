@@ -6,6 +6,7 @@ import { FORGE_MIN_WORDS, FORGE_ROUND } from '@/core/forge';
 import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
+import { MEMORY_PAIRS } from '@/core/memory';
 import { NAMED_PAIRS } from '@/core/pairs';
 import { RAIN_LIVES } from '@/core/rain';
 
@@ -277,6 +278,20 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'memory',
+        question: 'How does memory match work?',
+        answer: [
+          `Sixteen cards lie face down: ${MEMORY_PAIRS} pairs, from kana you've learned. Turn over two at a time; a pair stays up, anything else turns back over. Find them all in as few moves as you can.`,
+          {
+            bullets: [
+              'Choose what to pair: hiragana with romaji (あ and a), katakana with romaji (ア and a), or hiragana with katakana (あ and ア).',
+              'Each pair you find counts as a right answer for its kana. A miss doesn\'t count against you: forgetting where a card was isn\'t misreading it.',
+              'Your best (the fewest moves) is kept for each of the three.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'rain',
         question: 'How does Kana Rain work?',
         answer: [
@@ -301,7 +316,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, Word Forge rounds, dungeon runs and Kana Rain games all count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, and every game (Word Forge, the dungeon, memory match, Kana Rain) count. Change your goal on the Profile tab.',
         ],
       },
       {

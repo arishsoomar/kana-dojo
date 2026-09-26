@@ -64,3 +64,14 @@ export function summarizeLesson(before: Progress, after: Progress, answers: read
     rowsOpened: openedRows(before, after),
   };
 }
+
+// A combo is shown once there are this many right answers in a row, and celebrated at the milestones.
+export const COMBO_SHOWS_AT = 3;
+export const COMBO_MILESTONES = [5, 10] as const;
+
+// How many right answers in a row end the list: the current streak within a lesson.
+export function combo(answers: readonly LessonAnswer[]): number {
+  let count = 0;
+  for (let i = answers.length - 1; i >= 0 && answers[i]?.correct; i--) count += 1;
+  return count;
+}

@@ -4,6 +4,7 @@ import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ChoiceTile, type TileState } from '@/components/choice-tile';
+import { ComboChip } from '@/components/combo-chip';
 import { FeedbackSheet } from '@/components/feedback-sheet';
 import { KanaFrame } from '@/components/kana-frame';
 import { AliveKarasu } from '@/components/alive-karasu';
@@ -54,7 +55,8 @@ export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
   const [mode] = useState(() => modeFrom(params));
-  const { question, result, summary, heard, reaction, sound, toggleSound, fraction, check, goToNext } = useLesson(mode);
+  const { question, result, summary, heard, reaction, combo, sound, toggleSound, fraction, check, goToNext } =
+    useLesson(mode);
   const [leaving, setLeaving] = useState(false);
   const rank = useRank();
 
@@ -108,7 +110,10 @@ export default function LessonScreen() {
         </View>
 
         {/* The frame grows to fill the middle; the answers sit at the bottom, near the thumb. */}
-        <KanaFrame char={question.kana.char} />
+        <View style={styles.frame}>
+          <KanaFrame char={question.kana.char} />
+          <ComboChip count={combo} />
+        </View>
 
         <View style={styles.choices}>
           {question.choices.map((choice) => (
@@ -181,6 +186,10 @@ const styles = StyleSheet.create({
   },
   heardKana: {
     fontFamily: fonts.jp,
+  },
+  // Holds the frame (which grows to fill the middle) and the combo chip in its corner.
+  frame: {
+    flex: 1,
   },
   choices: {
     flexDirection: 'row',

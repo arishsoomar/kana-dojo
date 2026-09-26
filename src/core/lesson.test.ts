@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
-import { LESSON_LENGTH, median, summarizeLesson } from './lesson';
+import { combo, LESSON_LENGTH, median, summarizeLesson } from './lesson';
 
 const NOW = 1_000_000;
 const empty: Progress = { ...EMPTY_PROGRESS, kana: {} };
@@ -69,5 +69,20 @@ describe('summarizeLesson: rows opened', () => {
   it('lists nothing when no new row opened', () => {
     expect(summarizeLesson(aRowDone, aRowDone, []).rowsOpened).toEqual([]);
     expect(summarizeLesson(empty, aRowAlmost, []).rowsOpened).toEqual([]);
+  });
+});
+
+describe('combo', () => {
+  const right = { char: 'あ', correct: true, ms: 900 };
+  const wrong = { char: 'あ', correct: false, ms: 900 };
+
+  it('counts the right answers in a row at the end', () => {
+    expect(combo([right, right, right])).toBe(3);
+    expect(combo([right, wrong, right, right])).toBe(2);
+  });
+
+  it('is 0 after a miss, and before any answers', () => {
+    expect(combo([right, right, wrong])).toBe(0);
+    expect(combo([])).toBe(0);
   });
 });

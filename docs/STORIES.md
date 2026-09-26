@@ -513,6 +513,18 @@ Done when:
   nothing plays while the phone is on silent. Public-domain recordings of a
   native speaker were tried and set aside: the device voice sounded better.
 
+- Feel: haptics (a tap for right, a buzz for a miss, a thunk when a lesson
+  ends or a seal lands, a success buzz for big wins), with a Haptics switch
+  on Profile. Karasu blinks and breathes, hops on a right answer and shakes
+  his head on a miss, and says something when tapped on the Learn floor
+  (`karasuSays`: often the learner's most mixed-up pair or trickiest kana).
+  Confetti and a cheering Karasu for a belt, a duel win, a new row (the
+  completion screen says which) and a Kana Rain record. On the Learn wall a
+  new plaque's seal stamps down and a new row's plaques flip over, played
+  when the wall comes back into view (`wall-news.ts`); tapped plaques swing.
+  In lessons, a combo chip from 3 right in a row, growing at 5 and 10. All
+  motion is skipped with the phone's Reduce Motion setting.
+
 ## Later
 
 Yokai dungeon and charms, memory match, word forge,

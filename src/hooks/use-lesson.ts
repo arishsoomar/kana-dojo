@@ -5,7 +5,7 @@ import { pronounce } from '@/audio/pronounce';
 import { completeLesson, FAST_MS, recordAnswer, setSound, type Progress } from '@/core/answers';
 import { beltChange, tipFor, type BeltChange } from '@/core/feedback';
 import type { Kana, Script } from '@/core/kana';
-import { LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
+import { combo, COMBO_MILESTONES, LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { makePlaqueQuestion, type Plaque } from '@/core/path';
 import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question';
 
@@ -79,6 +79,8 @@ export function useLesson(mode: LessonMode) {
     updateProgress(next);
     const nextAnswers = [...answers, { char: kana.char, correct, ms }];
     setAnswers(nextAnswers);
+    // A bigger buzz when the combo reaches a milestone (see ComboChip).
+    if (COMBO_MILESTONES.some((m) => m === combo(nextAnswers))) haptics.success();
 
     // A correct answer goes straight to the next question.
     if (correct) {
@@ -131,6 +133,7 @@ export function useLesson(mode: LessonMode) {
     summary,
     heard,
     reaction,
+    combo: combo(answers),
     sound,
     toggleSound,
     fraction: answers.length / LESSON_LENGTH,

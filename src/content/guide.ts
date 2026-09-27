@@ -303,7 +303,7 @@ export const GUIDE: GuideSection[] = [
           `Kana ride down a track to the beat of ${SONG_NAME}, a festival drum song. Tap each one's sound as it reaches the ring. Choose hiragana or katakana; each opens once its た row is.`,
           {
             bullets: [
-              `There are ${TAIKO_NOTES} notes: every other beat to warm up, then every beat.`,
+              `There are ${TAIKO_NOTES} notes: one a bar to warm up, then one every other beat, slow enough to read each one.`,
               "The closer to the beat you hit, the more it scores: Perfect, Good or OK. Hits in a row build a combo, which adds to every hit; a wrong sound, or a note let past, breaks it.",
               'Every note counts as practice: a hit is a right answer, and a wrong sound is logged as a mix-up.',
               'Your best score is kept for each script.',

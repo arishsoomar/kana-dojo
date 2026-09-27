@@ -23,8 +23,8 @@ import { useTaiko } from '@/hooks/use-taiko';
 
 const useNativeDriver = Platform.OS !== 'web';
 
-// How many beats ahead a note appears at the top of the track.
-const TRAVEL_BEATS = 3;
+// How many beats ahead a note appears at the top of the track: 3 seconds to see it coming.
+const TRAVEL_BEATS = 4;
 const TAG = 52; // the next note's tag; later ones are smaller
 const RING = 76;
 

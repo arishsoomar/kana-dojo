@@ -77,12 +77,12 @@ function gong() {
 }
 
 // The Taiko drill's song, to the chart in src/core/taiko.ts (keep these in step with it):
-// 100 beats a minute, 4 beats to count in, a note every other beat for 16 notes, then a note
-// every beat for 32, and 3 beats to finish: 71 beats.
-const BPM = 100;
-const SONG_BEATS = 71;
+// 80 beats a minute, 4 beats to count in, a note a bar for 12 notes, then a note every other
+// beat for 28, and 4 beats to finish: 110 beats.
+const BPM = 80;
+const SONG_BEATS = 110;
 const COUNT_IN = 4;
-const WARM_UP_END = COUNT_IN + 32; // the beat the every-beat part starts
+const WARM_UP_END = COUNT_IN + 48; // the beat the every-other-beat part starts
 
 // A rim shot: a short, bright click of noise.
 function ka(seed) {
@@ -123,7 +123,7 @@ function taikoSong() {
   const beat = 60 / BPM;
   const song = new Float32Array(Math.round((SONG_BEATS * beat + 1.2) * RATE));
   const don = taiko();
-  // A melody in the Japanese yo scale (D E G A B), one note a beat in the fast part.
+  // A melody in the Japanese yo scale (D E G A B), one note a beat in the second part.
   const YO = [587, 659, 784, 880, 988];
   const tune = [0, 1, 2, 1, 3, 2, 1, 0, 2, 3, 4, 3, 2, 1, 2, 0];
   for (let b = 0; b < SONG_BEATS; b++) {
@@ -133,14 +133,14 @@ function taikoSong() {
       mixIn(song, ka(b + 1), at, 1.1);
       continue;
     }
-    const noteBeat = b < WARM_UP_END ? (b - COUNT_IN) % 2 === 0 : b < SONG_BEATS - 3;
+    const noteBeat = b < WARM_UP_END ? (b - COUNT_IN) % 4 === 0 : b < SONG_BEATS - 3 && (b - WARM_UP_END) % 2 === 0;
     // A drum on every note, bigger on the first of each four beats.
     if (noteBeat) mixIn(song, don, at, b % 4 === 0 ? 1 : 0.75);
     // Rim clicks between: on the off-beats, and on the beats without a note.
     mixIn(song, ka(100 + b), at + beat / 2, 0.55);
-    if (!noteBeat && b < SONG_BEATS - 3) mixIn(song, ka(200 + b), at, 0.7);
-    // The flute joins for the fast part.
-    if (b >= WARM_UP_END && b < SONG_BEATS - 3) mixIn(song, fue(YO[tune[(b - WARM_UP_END) % tune.length]], beat * 0.9), at, 1);
+    if (!noteBeat && b < SONG_BEATS - 4) mixIn(song, ka(200 + b), at, 0.7);
+    // The flute joins for the second part.
+    if (b >= WARM_UP_END && b < SONG_BEATS - 4) mixIn(song, fue(YO[tune[(b - WARM_UP_END) % tune.length]], beat * 0.9), at, 1);
   }
   // A last big drum to finish.
   mixIn(song, don, (SONG_BEATS - 3) * beat, 1.2);

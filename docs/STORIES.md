@@ -774,8 +774,9 @@ pushes reading toward automatic.
 
 ### S1. Taiko rules
 - [ ] Pure functions in `src/core/taiko.ts`, test-first
-- [ ] The song's chart: 48 notes at 100 BPM, every other beat for the first
-      16, then every beat, after 4 beats to count in
+- [ ] The song's chart: 40 notes at 80 BPM, one a bar for the first 12,
+      then every other beat (1.5 s apart, time to read each), after 4 beats
+      to count in
 - [ ] A hit is judged by how far from the note's beat it lands: Perfect,
       Good or OK; a wrong sound, or a note let past the ring, is a miss.
       A tap far too early does nothing

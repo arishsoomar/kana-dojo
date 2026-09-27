@@ -2166,31 +2166,31 @@ Mon are earned by training and spent in the supply shed. They're never stored: w
 
 Kana ride down a track to a festival drumbeat, and the learner hits the right sound as each reaches the ring. Time here is milliseconds from the start of the song.
 
-**Lines 10–24**: the song, "Tanuki matsuri": 100 beats a minute (`BEAT_MS` is 600, the length of one beat), 48 notes, 4 beats to count in, the first 16 notes every other beat, and `SONG_BEATS`, the whole song. The drum track in `assets/audio/effects/taiko-song.wav` is made by `scripts/make-sounds.mjs` to the same tempo and length.
+**Lines 10–26**: the song, "Tanuki matsuri": 80 beats a minute (`BEAT_MS` is 750, the length of one beat), 40 notes, 4 beats to count in, the first 12 notes once a bar (`WARM_UP_GAP`, 4 beats: 3 seconds), the rest every other beat (`GAP`: 1.5 seconds, time to read each kana), and `SONG_BEATS`, the whole song. The drum track in `assets/audio/effects/taiko-song.wav` is made by `scripts/make-sounds.mjs` to the same tempo and length.
 
 **Lines 13–15**: `taikoId`, where a script's scores are saved.
 
-**Line 27**: `WINDOWS`, how close to the beat, either way, a hit must be: 90 ms for Perfect, 180 for Good, 280 for OK.
+**Line 29**: `WINDOWS`, how close to the beat, either way, a hit must be: 90 ms for Perfect, 180 for Good, 280 for OK.
 
-**Lines 32–36**: `chartBeats`, the beat each note lands on: 4, 6, 8 ... 34 to warm up, then 36, 37, 38 ... one a beat.
+**Lines 34–40**: `chartBeats`, the beat each note lands on: 4, 8, 12 ... 48 to warm up, then 52, 54, 56 ... every other beat.
 
-**Lines 40–46**: `judge`, the judgement for a hit this far from its beat. `Math.abs` makes early and late the same. Too far off is `null`: the tap wasn't aimed at that note.
+**Lines 44–50**: `judge`, the judgement for a hit this far from its beat. `Math.abs` makes early and late the same. Too far off is `null`: the tap wasn't aimed at that note.
 
-**Lines 48–54**: `taikoPoints`: 300 for Perfect, 150 for Good, 50 for OK, plus 10 for each note of combo before the hit. A miss scores nothing.
+**Lines 52–58**: `taikoPoints`: 300 for Perfect, 150 for Good, 50 for OK, plus 10 for each note of combo before the hit. A miss scores nothing.
 
-**Line 58**: `Note`, one note: its kana, the three sounds to pick from, the moment it reaches the ring (`at`), how it went (`null` until judged), and the kana hit for it if that was wrong.
+**Line 62**: `Note`, one note: its kana, the three sounds to pick from, the moment it reaches the ring (`at`), how it went (`null` until judged), and the kana hit for it if that was wrong.
 
-**Lines 60–67**: `TaikoState`: the notes, the score, the current and best combo, the hits, and whether every note has been judged.
+**Lines 64–71**: `TaikoState`: the notes, the score, the current and best combo, the hits, and whether every note has been judged.
 
-**Lines 71–80**: `startTaiko` gives each beat of the chart a kana from the learner's met kana with `pickNext` (never the one just before it), and three sounds to pick from with `makeChoices`, asking for 3 instead of the usual 4.
+**Lines 75–84**: `startTaiko` gives each beat of the chart a kana from the learner's met kana with `pickNext` (never the one just before it), and three sounds to pick from with `makeChoices`, asking for 3 instead of the usual 4.
 
-**Lines 83–85**: `nextNote`, the first note not yet judged: the one the buttons are for.
+**Lines 87–89**: `nextNote`, the first note not yet judged: the one the buttons are for.
 
-**Lines 88–100**: `withResult` judges one note: its result, the score, and the combo (up by one for a hit, back to 0 for a miss), keeping the best combo.
+**Lines 92–104**: `withResult` judges one note: its result, the score, and the combo (up by one for a hit, back to 0 for a miss), keeping the best combo.
 
-**Lines 106–117**: `tapTaiko`, a tap on a sound. It's aimed at the next note. If that note is too far off in time, nothing happens (so tapping early can't lose it). Otherwise the right sound is judged by its timing, and the wrong one is a miss, with the sound hit kept as the mix-up.
+**Lines 110–121**: `tapTaiko`, a tap on a sound. It's aimed at the next note. If that note is too far off in time, nothing happens (so tapping early can't lose it). Otherwise the right sound is judged by its timing, and the wrong one is a miss, with the sound hit kept as the mix-up.
 
-**Lines 120–124**: `sweepTaiko`, run every frame: any note that has gone past the ring by more than the OK window is a miss.
+**Lines 124–128**: `sweepTaiko`, run every frame: any note that has gone past the ring by more than the OK window is a miss.
 
 ---
 
@@ -2265,7 +2265,7 @@ What each file checks:
 - **memory.test.ts**: which kana each mode can use and when it's ready, dealing (8 pairs, kana with romaji or with katakana, no shared spellings, all face down), turning cards (first, pair, miss, what's ignored, done, input unchanged), and the fewest moves per mode.
 - **gear.test.ts**: the list (nine to buy, five to earn), unlocking and owning, buying (enough mon, not twice, never an unlockable), rest days (at most 2 held), and wearing (one per slot, taking off, input unchanged).
 - **mon.test.ts**: what lessons, games, exams (passed or not), duels (won or not) and days earn, and spending and the balance.
-- **taiko.test.ts**: the chart (48 notes, count-in, warm-up then every beat), judging by timing, points and combo, dealing the notes (a kana a beat, never twice in a row, three sounds each), and tapping (a hit, a wrong sound, too early, notes let past, done, input unchanged).
+- **taiko.test.ts**: the chart (40 notes, count-in, warm-up then every other beat, never under 1.5 seconds apart), judging by timing, points and combo, dealing the notes (a kana a beat, never twice in a row, three sounds each), and tapping (a hit, a wrong sound, too early, notes let past, done, input unchanged).
 - **calligraphy.test.ts**: evening out a line, judging strokes (on the line, a little off, far off, backwards, a tap or too short, however many points), and a round's kana. (`src/constants/strokes.test.ts` checks every single-character kana has strokes, 24 points each.)
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.

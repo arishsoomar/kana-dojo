@@ -19,12 +19,17 @@ const pool: Kana[] = KANA.filter((k) => rows.includes(k.char));
 const LEARNER: Progress = { ...EMPTY_PROGRESS, kana: Object.fromEntries(rows.map((c) => [c, { box: 3, at: 1 }])) };
 
 describe('the chart', () => {
-  it('has 48 notes: every other beat for 16 after a 4-beat count-in, then every beat', () => {
+  it('has 40 notes: one a bar for 12 after a 4-beat count-in, then every other beat', () => {
     const beats = chartBeats();
     expect(beats).toHaveLength(TAIKO_NOTES);
-    expect(beats.slice(0, 3)).toEqual([4, 6, 8]);
-    expect(beats[15]).toBe(34);
-    expect(beats.slice(16, 19)).toEqual([36, 37, 38]);
+    expect(beats.slice(0, 3)).toEqual([4, 8, 12]);
+    expect(beats[11]).toBe(48);
+    expect(beats.slice(12, 15)).toEqual([52, 54, 56]);
+  });
+
+  it('is slow enough to read: at least 1.5 seconds between notes', () => {
+    const beats = chartBeats();
+    beats.slice(1).forEach((beat, i) => expect((beat - beats[i]!) * BEAT_MS).toBeGreaterThanOrEqual(1500));
   });
 });
 

@@ -14,24 +14,28 @@ export function taikoId(script: Script): string {
   return `game:taiko:${script}`;
 }
 
-export const TAIKO_BPM = 100;
-export const BEAT_MS = 60_000 / TAIKO_BPM; // 600
-export const TAIKO_NOTES = 48;
+export const TAIKO_BPM = 80;
+export const BEAT_MS = 60_000 / TAIKO_BPM; // 750
+export const TAIKO_NOTES = 40;
 const COUNT_IN_BEATS = 4; // beats before the first note, to feel the tempo
-const WARM_UP_NOTES = 16; // the first notes come every other beat
+const WARM_UP_NOTES = 12; // the first notes come once a bar
+const WARM_UP_GAP = 4; // beats between warm-up notes: 3 seconds
+const GAP = 2; // beats between the rest: 1.5 seconds, time to read each one
 // The whole song, in beats: the last note, then a little to finish. (scripts/make-sounds.mjs
 // writes the drum track to this length, at this tempo.)
-export const SONG_BEATS = COUNT_IN_BEATS + 2 * WARM_UP_NOTES + (TAIKO_NOTES - WARM_UP_NOTES) + 3;
+export const SONG_BEATS = COUNT_IN_BEATS + WARM_UP_GAP * WARM_UP_NOTES + GAP * (TAIKO_NOTES - WARM_UP_NOTES - 1) + 1 + 3;
 
 // How close to the beat a hit must be, either way, for each judgement.
 export const WINDOWS = { perfect: 90, good: 180, ok: 280 } as const;
 
 export type Judgement = 'perfect' | 'good' | 'ok' | 'miss';
 
-// The beat each note lands on: every other beat to warm up, then every beat.
+// The beat each note lands on: once a bar to warm up, then every other beat.
 export function chartBeats(): number[] {
   return Array.from({ length: TAIKO_NOTES }, (_, i) =>
-    i < WARM_UP_NOTES ? COUNT_IN_BEATS + 2 * i : COUNT_IN_BEATS + 2 * WARM_UP_NOTES + (i - WARM_UP_NOTES),
+    i < WARM_UP_NOTES
+      ? COUNT_IN_BEATS + WARM_UP_GAP * i
+      : COUNT_IN_BEATS + WARM_UP_GAP * WARM_UP_NOTES + GAP * (i - WARM_UP_NOTES),
   );
 }
 

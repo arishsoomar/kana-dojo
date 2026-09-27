@@ -798,6 +798,33 @@ pushes reading toward automatic.
 
 ---
 
+## Epic T — Calligraphy
+
+From the mock: trace each kana stroke by stroke with a finger. A faint
+guide shows where strokes go and numbered dots show the order. Writing
+locks in recognition.
+
+### T1. Strokes and judging them
+- [ ] Stroke data for the 142 single-character kana (basic, dakuten and
+      handakuten) from KanjiVG (CC BY-SA 3.0), fetched by
+      `scripts/fetch-strokes.mjs` into `src/constants/strokes.ts`: each
+      stroke's path, and points along it
+- [ ] `judgeStroke` in `src/core/calligraphy.ts`, test-first: a drawn stroke
+      is clean, okay, off, or drawn backwards, by how far it strays from
+      the real one, point by point from start to end
+
+### T2. The calligraphy screen
+- [ ] Choose hiragana or katakana; a round is 5 met kana, weaker first
+- [ ] The frame from the mock: centre guides, the faint kana, numbered start
+      dots, finished strokes in green, the stroke being drawn, "Stroke 2 of
+      3", and a note on each stroke; Undo and Show order
+- [ ] Each kana is spoken when it's written
+- [ ] A round counts toward the streak and daily goal; tracing over a guide
+      is copying, not reading, so it doesn't move kana up
+- Notes: yōon and extended katakana (two characters) aren't written yet.
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

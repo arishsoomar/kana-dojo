@@ -1,4 +1,4 @@
-import type { Completion, Confusion, KanaStats, Progress } from './answers';
+import type { Completion, Confusion, KanaStats, Progress, Purchase } from './answers';
 import type { KanaProgress } from './boxes';
 
 // Combines two copies of one learner's progress (say, the phone's and the cloud's) so that
@@ -10,6 +10,7 @@ export function mergeProgress(mine: Progress, theirs: Progress): Progress {
     confusions: mergeConfusions(mine.confusions, theirs.confusions),
     stats: mergeRecords(mine.stats, theirs.stats, moreStats),
     completed: mergeCompleted(mine.completed, theirs.completed),
+    purchases: mergePurchases(mine.purchases, theirs.purchases),
     settings: { ...mine.settings, onboarded: mine.settings.onboarded || theirs.settings.onboarded },
   };
 }
@@ -62,6 +63,14 @@ function mergeConfusions(a: readonly Confusion[], b: readonly Confusion[]): Conf
 }
 
 // Every finished lesson from either copy, once each, oldest first.
+// Every purchase from either copy, once each, oldest first. (One made on both devices at the
+// same moment for the same item is the same purchase.)
+function mergePurchases(a: readonly Purchase[], b: readonly Purchase[]): Purchase[] {
+  const byKey = new Map<string, Purchase>();
+  for (const p of [...a, ...b]) byKey.set(`${p.at}\t${p.item}`, p);
+  return [...byKey.entries()].sort(([kx, x], [ky, y]) => x.at - y.at || (kx < ky ? -1 : kx > ky ? 1 : 0)).map(([, p]) => p);
+}
+
 function mergeCompleted(a: readonly Completion[], b: readonly Completion[]): Completion[] {
   const byKey = new Map<string, Completion>();
   for (const c of [...a, ...b]) byKey.set(`${c.at}\t${c.lesson}\t${c.score ?? ''}`, c);

@@ -16,6 +16,7 @@ export type Streak = {
   restDays: number; // rest days available now
   maxRestDays: number;
   previous: number | null; // length of the most recent streak that broke, if any
+  best: number; // the longest streak ever
   week: StreakDay[]; // the last seven days, oldest first, ending today
 };
 
@@ -40,20 +41,31 @@ export function addDays(day: string, days: number): string {
   return date.toISOString().slice(0, 10);
 }
 
-// Works out the streak by walking every day from the first lesson to today.
-export function streakOf(trainedDays: readonly string[], today: string): Streak {
+// Works out the streak by walking every day from the first lesson to today. `boughtRestDays`
+// are the days a rest day was bought in the supply shed: each adds one from that day on.
+export function streakOf(trainedDays: readonly string[], today: string, boughtRestDays: readonly string[] = []): Streak {
   const trained = new Set(trainedDays);
   const statuses = new Map<string, DayStatus>();
   let current = 0;
+  let best = 0;
   let restDays = STARTING_REST_DAYS;
   let previous: number | null = null;
+  // Bought rest days not yet added, oldest first.
+  let unadded = [...boughtRestDays].sort();
+  const addBought = (upTo: string) => {
+    const now = unadded.filter((d) => d <= upTo);
+    unadded = unadded.filter((d) => d > upTo);
+    restDays = Math.min(restDays + now.length, MAX_REST_DAYS);
+  };
 
   // "YYYY-MM-DD" strings sort in date order, so the smallest is the first day.
   const first = [...trained].sort()[0];
   if (first !== undefined) {
     for (let day = first; day <= today; day = addDays(day, 1)) {
+      addBought(day);
       if (trained.has(day)) {
         current += 1;
+        best = Math.max(best, current);
         if (current % REST_DAY_EVERY === 0) restDays = Math.min(restDays + 1, MAX_REST_DAYS);
         statuses.set(day, 'trained');
       } else if (day === today) {
@@ -70,6 +82,9 @@ export function streakOf(trainedDays: readonly string[], today: string): Streak 
     }
   }
 
+  // Any bought before the first lesson, or with no lessons yet.
+  addBought(today);
+
   const week = Array.from({ length: 7 }, (_, i) => {
     const day = addDays(today, i - 6);
     return {
@@ -85,6 +100,7 @@ export function streakOf(trainedDays: readonly string[], today: string): Streak 
     restDays,
     maxRestDays: MAX_REST_DAYS,
     previous,
+    best,
     week,
   };
 }

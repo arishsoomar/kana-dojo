@@ -1,5 +1,6 @@
-import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Progress } from './answers';
+import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Progress, type Purchase } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
+import { gearById } from './gear';
 import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
@@ -28,12 +29,13 @@ export function parseProgress(text: string | null): Progress {
   }
   if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions, stats, completed, settings } = data.progress;
+  const { kana, confusions, stats, completed, purchases, settings } = data.progress;
   const progress = {
     kana: !isObject(kana) ? {} : data.version === SAVE_VERSION ? validEntries(kana, isKanaProgress) : oldKana(kana),
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
     stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
     completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
+    purchases: Array.isArray(purchases) ? purchases.filter(isPurchase) : [],
   };
   // Saves from before onboarding existed have no settings. Anyone with saved progress
   // has clearly been using the app, so they count as onboarded.
@@ -46,7 +48,9 @@ export function parseProgress(text: string | null): Progress {
   const haptics = !(isObject(settings) && settings.haptics === false);
   // Typing is off (answers are tapped) unless it was saved as on.
   const typing = isObject(settings) && settings.typing === true;
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing } };
+  // Gear Karasu is wearing: only ids of real gear.
+  const gear = isObject(settings) && Array.isArray(settings.gear) ? settings.gear.filter((id): id is string => typeof id === 'string' && gearById(id) !== null) : [];
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear } };
 }
 
 // Keeps the entries whose value passes `isValid`.
@@ -104,6 +108,10 @@ function isKanaStats(value: unknown): value is KanaStats {
 
 function isConfusion(value: unknown): value is Confusion {
   return isObject(value) && typeof value.shown === 'string' && typeof value.guessed === 'string';
+}
+
+function isPurchase(value: unknown): value is Purchase {
+  return isObject(value) && typeof value.item === 'string' && typeof value.at === 'number';
 }
 
 function isCompletion(value: unknown): value is Completion {

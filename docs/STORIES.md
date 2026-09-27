@@ -732,6 +732,40 @@ the kana card flips over to show it.
 
 ---
 
+## Epic R — Supply shed
+
+From the mock: spend mon, the old square-holed coin, on rest days and gear
+for Karasu. Everything is cosmetic or a small safety net, never an
+advantage, and mon can't be bought with money.
+
+### R1. Mon
+- [ ] Mon are earned by training, worked out from the learner's history
+      (test-first): 10 per lesson or game, 10 per duel and 20 more for a
+      win, 50 per belt exam passed, 20 per day trained
+- [ ] Purchases are saved (and merged across devices); the balance is what
+      was earned less what was spent
+- [ ] Nothing can be bought without enough mon
+
+### R2. Gear
+- [ ] A gear list in `src/core/gear.ts`: nine items to buy and five
+      unlockables earned by achievements (dungeon floor 10, 5 duels won, a
+      30-day streak, 10 row belts, 100 words read)
+- [ ] One item per slot (head, face, body, neck, hand), equipped or taken
+      off freely once owned; saved in settings
+- [ ] Karasu wears his equipped gear everywhere he appears
+
+### R3. The shed
+- [ ] The Supply shed screen from the mock: the mon balance, supplies, and
+      Karasu's gear with a preview of each
+- [ ] A rest day costs 50 mon and can be bought while fewer than 2 are held;
+      the streak uses it
+- [ ] Mon show on the Games tab (tap to open the shed) and on Profile; a
+      passed belt exam shows "+50 mon"
+- Notes: the mock's Double XP waits for leagues, since XP doesn't do
+  anything yet.
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

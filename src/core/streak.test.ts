@@ -65,6 +65,26 @@ describe('streakOf', () => {
     expect(streakOf(days(14), TODAY).restDays).toBe(2);
   });
 
+  it('adds a bought rest day from the day it was bought', () => {
+    // The starting rest day covers ago(4); the one bought on ago(3) covers ago(2).
+    const days = [ago(6), ago(5), ago(3), ago(1)];
+    expect(streakOf(days, TODAY).current).toBe(1);
+    const streak = streakOf(days, TODAY, [ago(3)]);
+    expect(streak.current).toBe(4);
+    expect(streak.week.find((d) => d.day === ago(2))?.status).toBe('rest');
+  });
+
+  it('still holds at most 2 rest days with bought ones', () => {
+    expect(streakOf([], TODAY, [ago(1)]).restDays).toBe(2);
+    expect(streakOf([], TODAY, [ago(2), ago(1)]).restDays).toBe(2);
+  });
+
+  it('remembers the longest streak ever', () => {
+    expect(streakOf([ago(6), ago(5), ago(4), ago(1)], TODAY).best).toBe(3);
+    expect(streakOf([ago(1), TODAY], TODAY).best).toBe(2);
+    expect(streakOf([], TODAY).best).toBe(0);
+  });
+
   it('shows the last seven days, oldest first, with weekday letters', () => {
     const streak = streakOf([ago(1)], TODAY);
     expect(streak.week.map((d) => d.letter).join('')).toBe('TFSSMTW');

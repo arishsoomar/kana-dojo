@@ -23,6 +23,10 @@ export type Completion = {
   opponent?: number;
 };
 
+// Something bought in the supply shed with mon: a piece of gear (by its id) or a rest day
+// ('rest-day'), and when.
+export type Purchase = { item: string; at: number };
+
 // The learner's choices, as opposed to their training record.
 export type Settings = {
   onboarded: boolean; // has been through the welcome and chosen a goal
@@ -31,6 +35,7 @@ export type Settings = {
   sound: boolean; // kana are spoken aloud after each answer
   haptics: boolean; // the phone taps and buzzes on answers and big moments
   typing: boolean; // lessons ask for the romaji to be typed, instead of tapped from four
+  gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
 };
 
 export type Progress = {
@@ -38,6 +43,7 @@ export type Progress = {
   confusions: readonly Confusion[];
   stats: Readonly<Record<string, KanaStats>>;
   completed: readonly Completion[];
+  purchases: readonly Purchase[]; // everything bought with mon, oldest first
   settings: Settings;
 };
 
@@ -47,7 +53,8 @@ export const EMPTY_PROGRESS: Progress = {
   confusions: [],
   stats: {},
   completed: [],
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false },
+  purchases: [],
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] },
 };
 
 export type Answer = {

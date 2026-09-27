@@ -766,6 +766,38 @@ advantage, and mon can't be bought with money.
 
 ---
 
+## Epic S — Taiko drill
+
+From the mock: kana ride down a track to a festival drumbeat, and the
+learner hits the right sound as each reaches the ring. Timing pressure
+pushes reading toward automatic.
+
+### S1. Taiko rules
+- [ ] Pure functions in `src/core/taiko.ts`, test-first
+- [ ] The song's chart: 48 notes at 100 BPM, every other beat for the first
+      16, then every beat, after 4 beats to count in
+- [ ] A hit is judged by how far from the note's beat it lands: Perfect,
+      Good or OK; a wrong sound, or a note let past the ring, is a miss.
+      A tap far too early does nothing
+- [ ] Score: more for Perfect than Good than OK, plus a bonus for the combo;
+      a miss breaks the combo
+- [ ] Three sound buttons: the next note's answer and two others (its
+      lookalikes first), in kana-chart order
+
+### S2. The taiko screen
+- [ ] Choose hiragana or katakana; each opens once its た row is open
+- [ ] The track from the mock: notes riding down to the ring, beat lines,
+      the song's name, score and combo, the judgement, Karasu
+- [ ] A synthesized festival drum song plays along (with sound on)
+- [ ] Every note goes through `recordAnswer()`: a hit is right; a wrong
+      sound logs the mix-up; a note let past is wrong with nothing picked
+- [ ] The end shows the score, hits and best combo; the best is kept per
+      script and shown on the Games card
+- Notes: the mock colours each note to match its button, which would give
+  the answer away, so notes stay neutral.
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

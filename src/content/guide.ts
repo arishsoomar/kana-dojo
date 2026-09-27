@@ -312,6 +312,21 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'calligraphy',
+        question: 'How does calligraphy work?',
+        answer: [
+          "Trace five of your kana, stroke by stroke, with your finger. A faint guide shows the kana, and numbered dots show where each stroke starts and in what order. Writing a kana helps fix its shape in your memory.",
+          {
+            bullets: [
+              "Each stroke is checked against the real one: a clean stroke, a good one, or try again. It also notices a stroke drawn the wrong way round.",
+              'Stuck? Show order plays the strokes in turn, and Undo takes back the last one.',
+              "Tracing over a guide is copying, not reading, so it doesn't move kana up a belt. A round still counts for your streak and daily goal.",
+              'Combined kana like きゃ are practised through their parts.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'rain',
         question: 'How does Kana Rain work?',
         answer: [
@@ -336,7 +351,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, and every game (Word Forge, the dungeon, memory match, the Taiko drill, Kana Rain) count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal on the Profile tab.',
         ],
       },
       {
@@ -412,6 +427,13 @@ export const GUIDE: GuideSection[] = [
   {
     title: 'Credits',
     topics: [
+      {
+        id: 'strokes',
+        question: 'Where does the stroke order come from?',
+        answer: [
+          'From KanjiVG (kanjivg.tagaini.net), by Ulrich Apel, shared under the Creative Commons Attribution-ShareAlike 3.0 licence (creativecommons.org/licenses/by-sa/3.0). The app keeps its copy of that data under the same licence.',
+        ],
+      },
       {
         id: 'credits',
         question: 'Where do the Word Forge pictures come from?',

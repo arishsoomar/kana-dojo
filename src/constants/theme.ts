@@ -163,6 +163,13 @@ export const taikoColors = {
   tag: '#F4EFE4',
 } as const;
 
+// Calligraphy: the faint guide of the kana, the frame's centre lines, and dots for strokes still to come.
+export const calligraphyColors = {
+  guide: '#EDEFF3',
+  centreLine: '#E4E7EC',
+  laterDot: '#F1F2F5',
+} as const;
+
 // Mon, the square-holed coin.
 export const monColors = {
   coin: '#C9A227',

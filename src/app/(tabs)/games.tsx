@@ -10,6 +10,7 @@ import { FORGE_MIN_WORDS, readyWords } from '@/core/forge';
 import { fewestMoves } from '@/core/memory';
 import { taikoId } from '@/core/taiko';
 import { unlockedKana } from '@/core/unlock';
+import { BrushIcon } from '@/components/brush-icon';
 import { CardsIcon } from '@/components/cards-icon';
 import { DrumIcon } from '@/components/drum-icon';
 import { MonIcon } from '@/components/mon-icon';
@@ -99,6 +100,15 @@ export default function GamesScreen() {
           <Text style={styles.sub}>
             {!taikoOpen ? 'Opens at the た row' : taikoBest > 0 ? `Best: ${taikoBest.toLocaleString('en-US')}` : 'Hit them on the beat'}
           </Text>
+        </Pressable>
+
+        <Pressable role="button" aria-label="Calligraphy" onPress={() => router.push('/games/calligraphy')} style={styles.card}>
+          <View style={[styles.art, styles.calligraphyArt]}>
+            <Text style={styles.calligraphyKana}>か</Text>
+            <BrushIcon color={colors.goldDark} />
+          </View>
+          <Text style={styles.name}>Calligraphy</Text>
+          <Text style={styles.sub}>Stroke practice</Text>
         </Pressable>
 
         <Pressable role="button" aria-label="Word Forge" onPress={() => router.push('/games/forge')} style={styles.card}>
@@ -201,6 +211,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.jp,
     fontSize: 15,
     color: colors.sumi,
+  },
+  calligraphyArt: {
+    backgroundColor: colors.goldLight,
+  },
+  calligraphyKana: {
+    fontFamily: fonts.jp,
+    fontSize: 28,
+    color: colors.gold,
   },
   memoryArt: {
     backgroundColor: memoryColors.table,

@@ -50,6 +50,7 @@ Files are listed roughly in the order they build on each other.
 | `gear.ts` | The supply shed: Karasu's gear, unlockables, buying, and wearing |
 | `mon.ts` | Mon: what training earns, what's been spent, and the balance |
 | `taiko.ts` | The Taiko drill: the song's chart, judging hits by timing, score and combo |
+| `calligraphy.ts` | Calligraphy: judging a drawn stroke against the real one, and a round's kana |
 
 Every file has a `.test.ts` file next to it, except `belts.ts`, whose one function is tested in `path.test.ts`. See the last section.
 
@@ -2193,6 +2194,31 @@ Kana ride down a track to a festival drumbeat, and the learner hits the right so
 
 ---
 
+## calligraphy.ts: calligraphy
+
+Tracing each kana stroke by stroke. The real strokes come from KanjiVG (CC BY-SA 3.0), fetched by `scripts/fetch-strokes.mjs` into `src/constants/strokes.ts`: for each of the 142 single-character kana, its strokes in order, each as an SVG path on a 109-unit grid and as 24 points evenly along it. A drawn stroke is judged against those points, on the same grid.
+
+**Line 9**: `Point`, an x and a y.
+
+**Lines 11–13**: 5 kana to a round, where finished rounds are saved, and the 24 points strokes are compared at.
+
+**Lines 16–17**: how far a drawn stroke may stray from the real one, on average and at its worst point, to be clean (7 and 14 units) or okay (13 and 24).
+
+**Lines 19–23**: `lengthOf`, a line's length: the distance from each point to the next, added up. `Math.hypot(dx, dy)` is the straight-line distance.
+
+**Lines 26–48**: `resample`, the same line as `n` points evenly spaced along it. A finger gives points bunched up where it moved slowly and spread out where it moved fast; evening them out means two lines can be compared point by point, whatever speed they were drawn at. It walks along the line, and for each new point finds which segment it falls in and how far along that segment.
+
+**Lines 51–54**: `strays`, how far one line is from another with the same number of points: the gap between each pair of matching points, averaged, and the worst gap.
+
+**Lines 63–72**
+- A tap, or a stroke under 40% of the real one's length, is `'off'`.
+- Otherwise both are evened out to 24 points and compared from start to end, so the direction matters: point 1 against point 1, and so on.
+- Close enough is `'clean'` or `'okay'`. If not, it's compared again backwards: a stroke that matches that way was drawn the wrong way round, `'backwards'`, a common habit worth pointing out. Anything else is `'off'`.
+
+**Lines 75–83**: `calligraphyKana`, a round's kana: up to 5 different ones, picked with `pickNext` so weaker kana come first.
+
+---
+
 ## The test files
 
 Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and so on). They all use the same pieces:
@@ -2240,6 +2266,7 @@ What each file checks:
 - **gear.test.ts**: the list (nine to buy, five to earn), unlocking and owning, buying (enough mon, not twice, never an unlockable), rest days (at most 2 held), and wearing (one per slot, taking off, input unchanged).
 - **mon.test.ts**: what lessons, games, exams (passed or not), duels (won or not) and days earn, and spending and the balance.
 - **taiko.test.ts**: the chart (48 notes, count-in, warm-up then every beat), judging by timing, points and combo, dealing the notes (a kana a beat, never twice in a row, three sounds each), and tapping (a hit, a wrong sound, too early, notes let past, done, input unchanged).
+- **calligraphy.test.ts**: evening out a line, judging strokes (on the line, a little off, far off, backwards, a tap or too short, however many points), and a round's kana. (`src/constants/strokes.test.ts` checks every single-character kana has strokes, 24 points each.)
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

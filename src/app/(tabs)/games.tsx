@@ -8,7 +8,10 @@ import { scrolls } from '@/core/duel';
 import { dungeonId } from '@/core/dungeon';
 import { FORGE_MIN_WORDS, readyWords } from '@/core/forge';
 import { fewestMoves } from '@/core/memory';
+import { taikoId } from '@/core/taiko';
+import { unlockedKana } from '@/core/unlock';
 import { CardsIcon } from '@/components/cards-icon';
+import { DrumIcon } from '@/components/drum-icon';
 import { MonIcon } from '@/components/mon-icon';
 import { Yokai } from '@/components/yokai';
 import { useMon } from '@/hooks/use-mon';
@@ -26,6 +29,9 @@ export default function GamesScreen() {
   const ready = allScrolls.filter((s) => s.state === 'ready').length;
   const words = readyWords(progress, progress.settings.script).length;
   // The deeper of the two scripts' best runs.
+  // The better of the two scripts' Taiko drill scores, and whether either is open yet.
+  const taikoBest = Math.max(bestScore(progress, taikoId('hiragana')) ?? 0, bestScore(progress, taikoId('katakana')) ?? 0);
+  const taikoOpen = (['hiragana', 'katakana'] as const).some((s) => unlockedKana(progress, s).some((k) => k.row === 'ta'));
   // The fewest moves in any memory match mode.
   const fewest = (['hiragana', 'katakana', 'both'] as const)
     .map((mode) => fewestMoves(progress, mode))
@@ -83,6 +89,16 @@ export default function GamesScreen() {
           </View>
           <Text style={styles.name}>Memory match</Text>
           <Text style={styles.sub}>{fewest !== null ? `Best: ${fewest} moves` : 'Find the pairs'}</Text>
+        </Pressable>
+
+        <Pressable role="button" aria-label="Taiko drill" onPress={() => router.push('/games/taiko')} style={styles.card}>
+          <View style={[styles.art, styles.memoryArt]}>
+            <DrumIcon size={34} />
+          </View>
+          <Text style={styles.name}>Taiko drill</Text>
+          <Text style={styles.sub}>
+            {!taikoOpen ? 'Opens at the た row' : taikoBest > 0 ? `Best: ${taikoBest.toLocaleString('en-US')}` : 'Hit them on the beat'}
+          </Text>
         </Pressable>
 
         <Pressable role="button" aria-label="Word Forge" onPress={() => router.push('/games/forge')} style={styles.card}>

@@ -1,6 +1,6 @@
 import type { Progress } from './answers';
 import { makeChoices } from './choices';
-import type { Kana } from './kana';
+import type { Kana, Script } from './kana';
 import { pickNext } from './pick';
 import type { Rng } from './random';
 
@@ -8,6 +8,12 @@ import type { Rng } from './random';
 // right sound as each reaches the ring. Time here is milliseconds from the start of the song.
 
 export const SONG_NAME = 'Tanuki matsuri';
+
+// Where a script's scores are saved.
+export function taikoId(script: Script): string {
+  return `game:taiko:${script}`;
+}
+
 export const TAIKO_BPM = 100;
 export const BEAT_MS = 60_000 / TAIKO_BPM; // 600
 export const TAIKO_NOTES = 48;

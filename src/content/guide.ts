@@ -11,6 +11,7 @@ import { MEMORY_PAIRS } from '@/core/memory';
 import { MON } from '@/core/mon';
 import { NAMED_PAIRS } from '@/core/pairs';
 import { RAIN_LIVES } from '@/core/rain';
+import { SONG_NAME, TAIKO_NOTES } from '@/core/taiko';
 
 // The in-app guide: how the dojo works, as questions a learner might ask. Numbers come from
 // the engine itself, so the guide stays right if a rule changes.
@@ -296,6 +297,21 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'taiko',
+        question: 'How does the Taiko drill work?',
+        answer: [
+          `Kana ride down a track to the beat of ${SONG_NAME}, a festival drum song. Tap each one's sound as it reaches the ring. Choose hiragana or katakana; each opens once its た row is.`,
+          {
+            bullets: [
+              `There are ${TAIKO_NOTES} notes: every other beat to warm up, then every beat.`,
+              "The closer to the beat you hit, the more it scores: Perfect, Good or OK. Hits in a row build a combo, which adds to every hit; a wrong sound, or a note let past, breaks it.",
+              'Every note counts as practice: a hit is a right answer, and a wrong sound is logged as a mix-up.',
+              'Your best score is kept for each script.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'rain',
         question: 'How does Kana Rain work?',
         answer: [
@@ -320,7 +336,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, and every game (Word Forge, the dungeon, memory match, Kana Rain) count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, and every game (Word Forge, the dungeon, memory match, the Taiko drill, Kana Rain) count. Change your goal on the Profile tab.',
         ],
       },
       {

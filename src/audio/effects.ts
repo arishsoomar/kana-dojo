@@ -33,3 +33,14 @@ export function playEffect(name: SoundEffect) {
   players.set(name, player);
   player.play();
 }
+
+// The Taiko drill's song, "Tanuki matsuri" (also made by scripts/make-sounds.mjs, to the chart
+// in src/core/taiko.ts). Plays from the start; the function it returns stops it.
+export function playTaikoSong(): () => void {
+  const player = createAudioPlayer(require('../../assets/audio/effects/taiko-song.wav'));
+  player.play();
+  return () => {
+    player.pause();
+    player.remove();
+  };
+}

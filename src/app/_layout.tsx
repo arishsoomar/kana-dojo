@@ -65,6 +65,7 @@ export default function RootLayout() {
           <Stack.Screen name="games/forge" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="games/dungeon" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="games/memory" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="games/taiko" options={{ headerShown: false, gestureEnabled: false }} />
         </Stack>
       </ProgressProvider>
     </AuthProvider>

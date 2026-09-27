@@ -150,6 +150,19 @@ export const memoryColors = {
   foundText: '#B2B7C2',
 } as const;
 
+// The Taiko drill: the drum's skin and wood, the track, and the ring notes are hit at.
+export const taikoColors = {
+  skin: '#F3E6CF',
+  body: '#B8341D',
+  sticks: '#C9A77A',
+  track: '#1D1F24',
+  trackEdge: '#3A3D46',
+  beatLine: '#2A2D34',
+  ring: '#3B82C4',
+  ringGlow: 'rgba(59, 130, 196, 0.2)',
+  tag: '#F4EFE4',
+} as const;
+
 // Mon, the square-holed coin.
 export const monColors = {
   coin: '#C9A227',

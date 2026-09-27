@@ -4,6 +4,7 @@
 //
 // - taiko.wav: one "don" on a big drum, for the end of a lesson.
 // - gong.wav: a temple gong, for a belt tied on.
+// - taiko-song.wav: "Tanuki matsuri", the Taiko drill's festival song.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -75,6 +76,77 @@ function gong() {
   return fadeOut(room(out, 0.25), 0.5);
 }
 
+// The Taiko drill's song, to the chart in src/core/taiko.ts (keep these in step with it):
+// 100 beats a minute, 4 beats to count in, a note every other beat for 16 notes, then a note
+// every beat for 32, and 3 beats to finish: 71 beats.
+const BPM = 100;
+const SONG_BEATS = 71;
+const COUNT_IN = 4;
+const WARM_UP_END = COUNT_IN + 32; // the beat the every-beat part starts
+
+// A rim shot: a short, bright click of noise.
+function ka(seed) {
+  const noise = seeded(seed);
+  const out = new Float32Array(Math.round(0.06 * RATE));
+  let last = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / RATE;
+    const white = noise() * 2 - 1;
+    const bright = white - last; // only the fizz, without the rumble
+    last = white;
+    out[i] = 0.6 * bright * Math.exp(-t / 0.012);
+  }
+  return out;
+}
+
+// A festival flute (fue) note: a pure tone with a breathy start and a little vibrato.
+function fue(freq, seconds) {
+  const noise = seeded(Math.round(freq));
+  const out = new Float32Array(Math.round(seconds * RATE));
+  for (let i = 0; i < out.length; i++) {
+    const t = i / RATE;
+    const swell = Math.min(1, t / 0.04) * Math.min(1, (seconds - t) / 0.08);
+    const vibrato = 1 + 0.006 * Math.sin(2 * Math.PI * 5.5 * t);
+    const breath = 0.05 * (noise() * 2 - 1) * Math.exp(-t / 0.05);
+    out[i] = swell * (0.28 * Math.sin(2 * Math.PI * freq * vibrato * t) + breath);
+  }
+  return out;
+}
+
+// Adds a sound into the song at a time, at a loudness.
+function mixIn(song, sound, seconds, gain) {
+  const start = Math.round(seconds * RATE);
+  for (let i = 0; i < sound.length && start + i < song.length; i++) song[start + i] += gain * sound[i];
+}
+
+function taikoSong() {
+  const beat = 60 / BPM;
+  const song = new Float32Array(Math.round((SONG_BEATS * beat + 1.2) * RATE));
+  const don = taiko();
+  // A melody in the Japanese yo scale (D E G A B), one note a beat in the fast part.
+  const YO = [587, 659, 784, 880, 988];
+  const tune = [0, 1, 2, 1, 3, 2, 1, 0, 2, 3, 4, 3, 2, 1, 2, 0];
+  for (let b = 0; b < SONG_BEATS; b++) {
+    const at = b * beat;
+    if (b < COUNT_IN) {
+      // Counting in: the sticks clicked together.
+      mixIn(song, ka(b + 1), at, 1.1);
+      continue;
+    }
+    const noteBeat = b < WARM_UP_END ? (b - COUNT_IN) % 2 === 0 : b < SONG_BEATS - 3;
+    // A drum on every note, bigger on the first of each four beats.
+    if (noteBeat) mixIn(song, don, at, b % 4 === 0 ? 1 : 0.75);
+    // Rim clicks between: on the off-beats, and on the beats without a note.
+    mixIn(song, ka(100 + b), at + beat / 2, 0.55);
+    if (!noteBeat && b < SONG_BEATS - 3) mixIn(song, ka(200 + b), at, 0.7);
+    // The flute joins for the fast part.
+    if (b >= WARM_UP_END && b < SONG_BEATS - 3) mixIn(song, fue(YO[tune[(b - WARM_UP_END) % tune.length]], beat * 0.9), at, 1);
+  }
+  // A last big drum to finish.
+  mixIn(song, don, (SONG_BEATS - 3) * beat, 1.2);
+  return fadeOut(song, 0.6);
+}
+
 // Fades out the last part, so the sound ends in silence instead of a click.
 function fadeOut(samples, seconds) {
   const fade = Math.round(seconds * RATE);
@@ -124,3 +196,4 @@ function writeWav(name, samples) {
 mkdirSync(OUT, { recursive: true });
 writeWav('taiko.wav', taiko());
 writeWav('gong.wav', gong());
+writeWav('taiko-song.wav', taikoSong());

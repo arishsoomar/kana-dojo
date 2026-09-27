@@ -47,6 +47,8 @@ Files are listed roughly in the order they build on each other.
 | `forge.ts` | Word Forge: splitting words into kana, reading them tapped or typed, and recording it |
 | `dungeon.ts` | The Yokai dungeon's rules: floors, yokai, the attack timer, hearts and charms |
 | `memory.ts` | Memory match: modes, dealing pairs, turning cards, and the fewest moves |
+| `gear.ts` | The supply shed: Karasu's gear, unlockables, buying, and wearing |
+| `mon.ts` | Mon: what training earns, what's been spent, and the balance |
 
 Every file has a `.test.ts` file next to it, except `belts.ts`, whose one function is tested in `path.test.ts`. See the last section.
 
@@ -1631,7 +1633,7 @@ Days here are text like `"2026-09-25"`. Turning a timestamp into a day needs the
 
 **Line 5**: each day in the week strip is `'trained'`, `'rest'` (covered by a rest day), `'missed'`, `'today'` (not trained yet, but not over), or `'none'` (before you started).
 
-**Lines 7–20**: `StreakDay` is one day in the strip. `Streak` is everything the streak screen shows: the current streak, whether today is trained, rest days available, the most rest days you can hold, the last streak that broke, and the last seven days.
+**Lines 7–21**: `StreakDay` is one day in the strip. `Streak` is everything the streak screen shows: the current streak, whether today is trained, rest days available, the most rest days you can hold, the last streak that broke, the longest streak ever (`best`, which earns the Sakura crown), and the last seven days.
 
 **Lines 24–26**: you start with 1 rest day, earn 1 more every 7 days in a row, and can hold at most 2.
 
@@ -1658,16 +1660,19 @@ export function addDays(day: string, days: number): string {
 ```
 The day `days` after `day` (negative for before). `setUTCDate` handles month ends: 31 plus 1 becomes the 1st of the next month. `.toISOString()` writes the date as `"2026-09-26T00:00:00.000Z"`, and `.slice(0, 10)` keeps the first 10 characters.
 
-**Lines 44–90**: `streakOf` works out the whole streak by walking every day from your first lesson to today.
+**Lines 46–106**: `streakOf` works out the whole streak by walking every day from your first lesson to today. `boughtRestDays` are the days a rest day was bought in the supply shed.
 
 ```ts
   const trained = new Set(trainedDays);
   const statuses = new Map<string, DayStatus>();
   let current = 0;
+  let best = 0;
   let restDays = STARTING_REST_DAYS;
   let previous: number | null = null;
+  let unadded = [...boughtRestDays].sort();
+  const addBought = (upTo: string) => { ... };
 ```
-The days you trained (each once, however many lessons), a `Map` to note what happened on each day, and the running counts.
+The days you trained (each once, however many lessons), a `Map` to note what happened on each day, and the running counts. `best` keeps the longest streak seen along the way. `addBought` adds any bought rest days up to a given day (still holding at most 2), and takes them off the `unadded` list so each is added once. It runs at the start of each day of the walk, so a rest day bought on a day can cover a day missed after it, and once more at the end for any bought before the first lesson.
 
 ```ts
   const first = [...trained].sort()[0];
@@ -1682,7 +1687,7 @@ Day text sorts in date order, so the smallest is the first day you trained. If t
         if (current % REST_DAY_EVERY === 0) restDays = Math.min(restDays + 1, MAX_REST_DAYS);
         statuses.set(day, 'trained');
 ```
-A trained day adds 1 to the streak. Every 7th day in a row earns a rest day, up to 2.
+A trained day adds 1 to the streak (and `best` keeps the longest). Every 7th day in a row earns a rest day, up to 2.
 
 ```ts
       } else if (day === today) {
@@ -2109,6 +2114,52 @@ Sixteen cards face down, eight pairs. A pair is a kana and its romaji, or in "bo
 
 ---
 
+## gear.ts: the supply shed
+
+Karasu's gear, bought with mon or earned by a feat. It's all for looks: nothing here makes training easier.
+
+**Lines 7–8**: the shed's one supply, a rest day for the streak: 50 mon, saved as a purchase of `'rest-day'`.
+
+**Line 10**: `Slot`, where a piece goes on Karasu: head, face, body, neck or hand. He wears one per slot.
+
+**Lines 13–20**: `Feats`, the achievements that earn gear (deepest dungeon floor, duels won, longest streak, rows with a belt exam passed, words read in Word Forge), and `Unlock`, which feat and how much of it. The screen works the feats out from the learner's history (see `use-mon.ts`); they only ever go up, so earned gear stays earned.
+
+**Lines 22–47**: `GearItem` and `GEAR`, the fourteen pieces. Nine have a `price` in mon; five have `price: null` and an `unlock` instead.
+
+**Lines 49–51**: `gearById`, a piece by its id, or `null`.
+
+**Lines 54–56**: `unlocked`, whether a piece is available: always for bought gear; for an unlockable, once its feat reaches the count. `feats[item.unlock.feat]` reads the feat named in the unlock.
+
+**Lines 59–62**: `owns`: bought gear once it's in `purchases`; an unlockable once it's unlocked (it's never bought).
+
+**Lines 66–69**: `buyGear` adds a purchase, or returns `null` if the piece can't be bought: an unlockable, already owned, or dearer than the balance.
+
+**Lines 72–75**: `buyRestDay`, the same for a rest day: only while fewer than 2 are held.
+
+**Lines 78–81**: `equip` takes off whatever is in the piece's slot, then puts it on. The ids of worn gear live in `settings.gear`, since what he wears is a choice, not training.
+
+**Lines 83–85**: `unequip` takes a piece off.
+
+**Lines 88–90**: `wornGear`, the pieces he's wearing. `flatMap` with `?? []` skips any id that isn't real gear.
+
+---
+
+## mon.ts: mon
+
+Mon are earned by training and spent in the supply shed. They're never stored: what's been earned is worked out from the learner's history, so they can't be faked, and merging two devices can't lose or double them. Only purchases are saved.
+
+**Lines 11–33**: `MON`, what each thing earns: a lesson or game 10, a duel 10 and 20 more for a win, a belt exam passed 50, and each day trained 20.
+
+**Lines 22–33**: `monEarned` goes through every finished record and adds what it earned, by the kind of record its name shows: `exam:` (only if passed), `duel:` (more if won), `game:`, or a lesson. Then 20 for each different day in `trainedDays`, the days with any training in the learner's own timezone (worked out outside the engine, like the streak's).
+
+**Lines 36–39**: `priceOf`, what a purchase cost: a rest day, or a piece of gear.
+
+**Lines 42–44**: `monSpent`, everything bought, added up.
+
+**Lines 46–48**: `monBalance`, earned less spent.
+
+---
+
 ## The test files
 
 Test files sit next to the code they test (`kana.test.ts`, `boxes.test.ts`, and so on). They all use the same pieces:
@@ -2153,6 +2204,8 @@ What each file checks:
 - **forge.test.ts**: `splitWord` (yōon kept together, っ and ー kept as marks, a mark with nothing to change refused), `wordRomaji` (including っ and ー), `readyWords`, typed readings (alternate spellings, the misread kana, stopping at nonsense, extra letters), options (four, one kana off, lookalikes first, alphabetical), tapped readings, recording (time shared, typed counts double, mix-ups logged, marks not recorded), marks typed and missed (kite, kohii, ko-hi-, maccha), the option that leaves a mark out, and rounds with no word twice in a row.
 - **dungeon.test.ts**: floors (yokai count, HP, attack time, the lantern), a new run, strikes (clean, the bokken, next yokai, clearing a floor), getting hit (wrong, timeout, the end, the omamori), and charms (choices, fewer when fewer are left, tea, hints and the omamori refilled each floor).
 - **memory.test.ts**: which kana each mode can use and when it's ready, dealing (8 pairs, kana with romaji or with katakana, no shared spellings, all face down), turning cards (first, pair, miss, what's ignored, done, input unchanged), and the fewest moves per mode.
+- **gear.test.ts**: the list (nine to buy, five to earn), unlocking and owning, buying (enough mon, not twice, never an unlockable), rest days (at most 2 held), and wearing (one per slot, taking off, input unchanged).
+- **mon.test.ts**: what lessons, games, exams (passed or not), duels (won or not) and days earn, and spending and the balance.
 - **grid.test.ts**: every row in order, locks for a new learner, belts and counts, scripts separate.
 - **profile.test.ts**: kana learned, accuracy, strike speed, rows earned, training since, lessons since, badge levels.
 - **streak.test.ts**: month ends, counting days, today not breaking it, rest days covering a missed day, breaking and remembering the old streak, earning rest days, the week strip.

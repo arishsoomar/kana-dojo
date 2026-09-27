@@ -2,6 +2,9 @@ import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
 
 import { beltColors, colors, karasuColors as k } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
+import { useWornGear } from '@/hooks/use-worn-gear';
+
+import { GearBehind, GearInFront, GearOnBody, GearOnHead, holdsSomething, wearsHeadgear } from './karasu-gear';
 
 export type KarasuMood = 'focus' | 'proud' | 'stern' | 'cheer' | 'gentle';
 
@@ -15,10 +18,15 @@ type Props = {
   belt?: Belt;
   // Eyes shut for a moment (see AliveKarasu, which blinks him every few seconds).
   blink?: boolean;
+  // Gear to draw him in (ids from src/core/gear.ts). Left out, he wears what the learner has
+  // equipped; the supply shed passes gear to preview it.
+  gear?: readonly string[];
 };
 
 // Karasu, drawn from the mocks. Rank changes his form; mood changes his face.
-export function Karasu({ mood, size = 58, rank, belt = rank, blink = false }: Props) {
+export function Karasu({ mood, size = 58, rank, belt = rank, blink = false, gear }: Props) {
+  const worn = useWornGear();
+  const ids = gear ?? worn;
   const fledgling = rank === 'white';
   const master = rank === 'black';
   const body = fledgling ? k.fledglingBody : k.body;
@@ -31,7 +39,8 @@ export function Karasu({ mood, size = 58, rank, belt = rank, blink = false }: Pr
       height={wide ? (size * 122) / 164 : size}
       viewBox={wide ? '-32 -4 164 122' : '-8 -4 122 122'}
       accessibilityLabel={`Karasu, ${rank} belt, ${mood}`}>
-      <Wings master={master} cheer={mood === 'cheer'} />
+      <GearBehind ids={ids} />
+      <Wings master={master} cheer={mood === 'cheer'} staff={!holdsSomething(ids)} />
       <Tuft fledgling={fledgling} body={body} />
 
       {/* Shadow, body, chest */}
@@ -45,10 +54,11 @@ export function Karasu({ mood, size = 58, rank, belt = rank, blink = false }: Pr
       <Ellipse cx={50} cy={84} rx={17} ry={14} fill={k.chest} />
       <Path d="M42 80l8 5 8-5M44 88l6 4 6-4" fill="none" stroke={k.chestLines} strokeWidth={2} strokeLinecap="round" />
       <Ellipse cx={36} cy={28} rx={6} ry={3} transform="rotate(-30 36 28)" fill={k.sheen} />
+      <GearOnBody ids={ids} />
 
       {/* Green and brown belts wear a headband (gold at brown); the master wears a small hat. */}
-      {!fledgling && !master && <Headband color={rank === 'brown' ? colors.gold : colors.vermilion} />}
-      {master && (
+      {!fledgling && !master && !wearsHeadgear(ids) && <Headband color={rank === 'brown' ? colors.gold : colors.vermilion} />}
+      {master && !wearsHeadgear(ids) && (
         <Path d="M42 30L50 17 58 30 55 36H45Z" fill={k.hat} stroke={k.hatEdge} strokeWidth={1.5} strokeLinejoin="round" />
       )}
 
@@ -64,11 +74,13 @@ export function Karasu({ mood, size = 58, rank, belt = rank, blink = false }: Pr
       )}
       <BeltKnot belt={belt} master={master} />
       <Path d="M40 106v6M36 112h8M60 106v6M56 112h8" stroke={k.beak} strokeWidth={2.6} strokeLinecap="round" />
+      <GearOnHead ids={ids} />
+      <GearInFront ids={ids} />
     </Svg>
   );
 }
 
-function Wings({ master, cheer }: { master: boolean; cheer: boolean }) {
+function Wings({ master, cheer, staff }: { master: boolean; cheer: boolean; staff: boolean }) {
   if (master) {
     return (
       <>
@@ -86,9 +98,13 @@ function Wings({ master, cheer }: { master: boolean; cheer: boolean }) {
           strokeWidth={2.5}
           strokeLinejoin="round"
         />
-        {/* The staff, with a gold ring at the top */}
-        <Path d="M108 8v104" stroke={k.staff} strokeWidth={3.5} strokeLinecap="round" />
-        <Circle cx={108} cy={10} r={7} fill="none" stroke={colors.gold} strokeWidth={2.5} />
+        {/* The staff, with a gold ring at the top (unless he's holding gear instead) */}
+        {staff && (
+          <>
+            <Path d="M108 8v104" stroke={k.staff} strokeWidth={3.5} strokeLinecap="round" />
+            <Circle cx={108} cy={10} r={7} fill="none" stroke={colors.gold} strokeWidth={2.5} />
+          </>
+        )}
       </>
     );
   }

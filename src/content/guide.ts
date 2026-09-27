@@ -6,7 +6,9 @@ import { FORGE_MIN_WORDS, FORGE_ROUND } from '@/core/forge';
 import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
+import { GEAR, REST_DAY_PRICE } from '@/core/gear';
 import { MEMORY_PAIRS } from '@/core/memory';
+import { MON } from '@/core/mon';
 import { NAMED_PAIRS } from '@/core/pairs';
 import { RAIN_LIVES } from '@/core/rain';
 
@@ -328,12 +330,22 @@ export const GUIDE: GuideSection[] = [
           'Train on a day (finish any lesson, exam, duel or game) and your streak grows by one.',
           {
             bullets: [
-              'You start with 1 rest day, and earn another for every 7 days in a row. You can hold 2.',
+              'You start with 1 rest day, and earn another for every 7 days in a row. You can also buy one in the supply shed. You can hold 2.',
               'Miss a day and a rest day is used automatically, so your streak survives. A rest day keeps the streak but doesn\'t add to it.',
               'Miss a day with no rest days left and the streak starts again.',
             ],
           },
           'Tap the flame on the Learn screen to see your week.',
+        ],
+      },
+      {
+        id: 'mon',
+        question: 'What are mon, and what is the supply shed?',
+        answer: [
+          `Mon are the old square-holed coins you earn by training: ${MON.lesson} for each lesson or game, ${MON.duel} for each duel (${MON.duel + MON.duelWin} if you win), ${MON.exam} for each belt exam passed, and ${MON.day} for each day you train. They can't be bought with money.`,
+          `Spend them in the supply shed (tap your mon on the Games tab, or open it from Profile): a rest day for your streak is ${REST_DAY_PRICE} mon, and there's gear for Karasu, one piece for his head, face, body, neck and hand.`,
+          'Some gear can only be earned: ' + GEAR.filter((g) => g.unlock).map((g) => `the ${g.name} (${g.unlock?.about.toLowerCase()})`).join(', ') + '.',
+          "Gear is just for looks: nothing in the shed makes the training easier. Karasu wears what you've picked everywhere you see him.",
         ],
       },
       {

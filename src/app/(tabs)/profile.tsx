@@ -23,6 +23,7 @@ import {
 } from '@/core/profile';
 import { KANA } from '@/core/kana';
 import { useAuth } from '@/hooks/use-auth';
+import { useMon } from '@/hooks/use-mon';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
@@ -45,6 +46,7 @@ export default function ProfileScreen() {
   const speed = overallStrikeSpeed(progress);
   const goal = DAILY_GOALS.find((g) => g.lessons === progress.settings.dailyGoal);
   const auth = useAuth();
+  const mon = useMon();
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -148,6 +150,14 @@ export default function ProfileScreen() {
         <View style={styles.goalText}>
           <Text style={styles.goalTitle}>How the dojo works</Text>
           <Text style={styles.goalSub}>Belts, exams, duels, streaks, and everything else</Text>
+        </View>
+        <Text style={styles.goalChange}>Open</Text>
+      </Pressable>
+
+      <Pressable role="button" onPress={() => router.push('/shed')} style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>Supply shed</Text>
+          <Text style={styles.goalSub}>Gear for Karasu and rest days, for {mon.balance} mon you&apos;ve earned</Text>
         </View>
         <Text style={styles.goalChange}>Open</Text>
       </Pressable>

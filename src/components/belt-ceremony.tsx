@@ -5,12 +5,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
+import { MON } from '@/core/mon';
 import { useHaptics } from '@/hooks/use-haptics';
 import { useSoundEffects } from '@/hooks/use-sound-effects';
 
 import { BeltIcon } from './belt-icon';
 import { AliveKarasu } from './alive-karasu';
 import { Confetti } from './confetti';
+import { MonIcon } from './mon-icon';
 import { PrimaryButton } from './primary-button';
 
 type Props = {
@@ -149,8 +151,14 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
             )}
           </Text>
           {grew && <Text style={styles.grew}>Karasu has grown into a {rank} belt.</Text>}
-          <View style={styles.chip}>
-            <Text style={styles.chipText}>Plaque added</Text>
+          <View style={styles.chips}>
+            <View style={[styles.chip, styles.monChip]}>
+              <MonIcon size={14} />
+              <Text style={[styles.chipText, styles.monChipText]}>+{MON.exam} mon</Text>
+            </View>
+            <View style={styles.chip}>
+              <Text style={styles.chipText}>Plaque added</Text>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -215,8 +223,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.gold,
   },
-  chip: {
+  chips: {
+    flexDirection: 'row',
+    gap: 8,
     marginTop: 16,
+  },
+  monChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  monChipText: {
+    color: colors.gold,
+  },
+  chip: {
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 6,

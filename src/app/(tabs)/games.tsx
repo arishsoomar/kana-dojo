@@ -9,7 +9,9 @@ import { dungeonId } from '@/core/dungeon';
 import { FORGE_MIN_WORDS, readyWords } from '@/core/forge';
 import { fewestMoves } from '@/core/memory';
 import { CardsIcon } from '@/components/cards-icon';
+import { MonIcon } from '@/components/mon-icon';
 import { Yokai } from '@/components/yokai';
+import { useMon } from '@/hooks/use-mon';
 import { useProgress } from '@/hooks/use-progress';
 import { RAIN_LESSON_ID } from '@/hooks/use-rain';
 
@@ -17,6 +19,7 @@ import { RAIN_LESSON_ID } from '@/hooks/use-rain';
 export default function GamesScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
+  const mon = useMon();
   const best = bestScore(progress, RAIN_LESSON_ID);
   const allScrolls = scrolls(progress);
   const won = allScrolls.filter((s) => s.state === 'won').length;
@@ -32,7 +35,14 @@ export default function GamesScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
-      <Text style={styles.title}>Training hall</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>Training hall</Text>
+        {/* Mon, from the mock's header: tap to spend them in the supply shed. */}
+        <Pressable role="button" aria-label={`${mon.balance} mon. Open the supply shed`} onPress={() => router.push('/shed')} style={styles.mon}>
+          <MonIcon />
+          <Text style={styles.monText}>{mon.balance}</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.grid}>
         <Pressable role="button" aria-label="Kana Rain" onPress={() => router.push('/games/rain')} style={styles.card}>
@@ -100,6 +110,27 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingHorizontal: 18,
     paddingBottom: 24,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  mon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.card,
+  },
+  monText: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    color: colors.sumi,
   },
   title: {
     marginTop: 4,

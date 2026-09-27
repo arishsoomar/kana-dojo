@@ -150,6 +150,49 @@ export const memoryColors = {
   foundText: '#B2B7C2',
 } as const;
 
+// Mon, the square-holed coin.
+export const monColors = {
+  coin: '#C9A227',
+  rim: '#7A5A22',
+  ring: '#E8CF7A',
+  hole: '#EEF0F3',
+} as const;
+
+// Karasu's gear from the supply shed.
+export const gearColors = {
+  hachimaki: '#E0492F',
+  hachimakiSun: '#FFFFFF',
+  straw: '#E3C27A',
+  strawLines: '#B8923E',
+  sakura: '#FFB7C9',
+  sakuraCenter: '#F2C14E',
+  eboshi: '#1B1D26',
+  eboshiTie: '#8C2F22',
+  kitsune: '#FFFFFF',
+  kitsuneMarks: '#E0492F',
+  oni: '#C8412B',
+  oniHorn: '#EFE6D2',
+  oniEyes: '#F2C14E',
+  glasses: '#2B2B33',
+  glassesShine: '#DCE6EF',
+  haori: '#8C2F22',
+  haoriMon: '#F2C14E',
+  nightHaori: '#1D2340',
+  scarf: '#2D5B9A',
+  scarfStripe: '#9EC8F0',
+  bokken: '#C9A77A',
+  bokkenEdge: '#8A6A43',
+  grip: '#1B1D26',
+  golden: '#E8C24A',
+  goldenEdge: '#9A7A1E',
+  fanPaper: '#FFF1D6',
+  fanRib: '#8A6A43',
+  fanRim: '#E0492F',
+  wagasa: '#D9432F',
+  wagasaRib: '#8C2F22',
+  handle: '#6B4E35',
+} as const;
+
 export const beltEdges = {
   light: '#C3C8D2',
   dark: 'rgba(0, 0, 0, 0.35)',

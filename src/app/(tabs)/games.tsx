@@ -7,14 +7,18 @@ import { bestScore } from '@/core/answers';
 import { scrolls } from '@/core/duel';
 import { dungeonId } from '@/core/dungeon';
 import { FORGE_MIN_WORDS, readyWords } from '@/core/forge';
+import { KATA_LENGTH, kataMet, kataNumber, kataOpen } from '@/core/kata';
 import { fewestMoves } from '@/core/memory';
 import { taikoId } from '@/core/taiko';
 import { unlockedKana } from '@/core/unlock';
 import { BrushIcon } from '@/components/brush-icon';
+import { CalendarIcon } from '@/components/calendar-icon';
 import { CardsIcon } from '@/components/cards-icon';
 import { DrumIcon } from '@/components/drum-icon';
 import { MonIcon } from '@/components/mon-icon';
+import { PlayIcon } from '@/components/play-icon';
 import { Yokai } from '@/components/yokai';
+import { useKataCard } from '@/hooks/use-kata';
 import { useMon } from '@/hooks/use-mon';
 import { useProgress } from '@/hooks/use-progress';
 import { RAIN_LESSON_ID } from '@/hooks/use-rain';
@@ -24,6 +28,8 @@ export default function GamesScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const mon = useMon();
+  const kata = useKataCard();
+  const kataReady = kataOpen(progress);
   const best = bestScore(progress, RAIN_LESSON_ID);
   const allScrolls = scrolls(progress);
   const won = allScrolls.filter((s) => s.state === 'won').length;
@@ -50,6 +56,28 @@ export default function GamesScreen() {
           <Text style={styles.monText}>{mon.balance}</Text>
         </Pressable>
       </View>
+
+      {/* The daily kata, from the mock: today's number, and whether it's been played. */}
+      <Pressable role="button" aria-label={`Daily kata number ${kataNumber(kata.today)}`} onPress={() => router.push('/games/kata')} style={styles.kata}>
+        <View style={styles.kataBadge}>
+          <CalendarIcon />
+        </View>
+        <View style={styles.kataText}>
+          <Text style={styles.kataName}>Daily kata #{kataNumber(kata.today)}</Text>
+          <Text style={styles.kataSub}>
+            {kata.result
+              ? `Done: ${kata.result.right}/${kata.result.marks.length}. Next in ${kata.hoursLeft}h`
+              : kataReady
+                ? `${KATA_LENGTH} kana, one attempt. Resets in ${kata.hoursLeft}h`
+                : `Opens at ${KATA_LENGTH} kana met (${kataMet(progress)} so far)`}
+          </Text>
+        </View>
+        {kataReady && !kata.result && (
+          <View style={styles.kataPlay}>
+            <PlayIcon />
+          </View>
+        )}
+      </Pressable>
 
       <View style={styles.grid}>
         <Pressable role="button" aria-label="Kana Rain" onPress={() => router.push('/games/rain')} style={styles.card}>
@@ -163,6 +191,44 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBlack,
     fontSize: 25,
     color: colors.sumi,
+  },
+  kata: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: colors.sumi,
+  },
+  kataBadge: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 42,
+    height: 42,
+    borderRadius: 6,
+    backgroundColor: colors.nightRaised,
+  },
+  kataText: {
+    flex: 1,
+  },
+  kataName: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 16,
+    color: colors.card,
+  },
+  kataSub: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12.5,
+    color: colors.muted,
+  },
+  kataPlay: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.card,
   },
   grid: {
     flexDirection: 'row',

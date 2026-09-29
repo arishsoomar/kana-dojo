@@ -8,16 +8,25 @@ type Props = {
   visible: boolean;
   onStay: () => void;
   onLeave: () => void;
+  // What to say, when leaving means more than for a lesson.
+  title?: string;
+  body?: string;
 };
 
 // Asks before leaving a lesson part-way. Built in-app because the system alert has no buttons on web.
-export function LeaveDialog({ visible, onStay, onLeave }: Props) {
+export function LeaveDialog({
+  visible,
+  onStay,
+  onLeave,
+  title = 'Leave this lesson?',
+  body = 'Your answers so far are already saved.',
+}: Props) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onStay}>
       <View style={styles.backdrop}>
         <View style={styles.card}>
-          <Text style={styles.title}>Leave this lesson?</Text>
-          <Text style={styles.body}>Your answers so far are already saved.</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.body}>{body}</Text>
           <View style={styles.buttons}>
             <PrimaryButton label="Keep training" onPress={onStay} />
             <PrimaryButton label="Leave" tone="vermilion" onPress={onLeave} />

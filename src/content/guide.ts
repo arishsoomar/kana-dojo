@@ -7,6 +7,7 @@ import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
 import { GEAR, REST_DAY_PRICE } from '@/core/gear';
+import { KATA_LENGTH } from '@/core/kata';
 import { MEMORY_PAIRS } from '@/core/memory';
 import { MON } from '@/core/mon';
 import { NAMED_PAIRS } from '@/core/pairs';
@@ -312,6 +313,21 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'kata',
+        question: 'What is the daily kata?',
+        answer: [
+          `One short challenge a day, at the top of the Games tab: ${KATA_LENGTH} kana, one attempt. Everyone gets the day's kana in the same order, drawn from the ones they've met. It opens once you've met ${KATA_LENGTH} kana.`,
+          {
+            bullets: [
+              `Each answer is fast (right, under ${FAST}), slow (right, but slower) or missed. The clock only runs while you answer.`,
+              "Leaving part-way uses up the day's attempt: kana you didn't reach count as missed.",
+              "Your result is a grid of coloured squares with no kana in it, so you can share it without giving today's kata away.",
+              'Every answer counts as practice, and the kata counts for your streak, daily goal and mon. A new one starts at midnight.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'calligraphy',
         question: 'How does calligraphy work?',
         answer: [
@@ -351,7 +367,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, the daily kata, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal on the Profile tab.',
         ],
       },
       {

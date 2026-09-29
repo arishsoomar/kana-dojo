@@ -9,6 +9,9 @@ import { AliveKarasu, type KarasuMove } from './alive-karasu';
 // bottom edge; the wall above leaves this much space so nothing hides behind them.
 export const FLOOR_HEIGHT = 78;
 export const FLOOR_SPACE = 150;
+// Where Karasu stands on it, and his size: the flight that hangs a belt plaque starts and ends
+// exactly here.
+export const FLOOR_KARASU = { left: 14, bottom: 20, size: 96 } as const;
 
 // The gaps between floor planks.
 const PLANK_WIDTH = 74;
@@ -20,11 +23,12 @@ type Props = {
   action: { label: string; onPress: () => void } | null;
   onKarasuPress: () => void; // tapping Karasu himself
   move: { kind: KarasuMove; id: number } | null;
+  away?: boolean; // he's off hanging a plaque (see KarasuFlight): his spot is empty
 };
 
 // The dojo floor at the bottom of the Learn screen: Karasu standing on it, saying what to do
 // next. When there's something to do, tapping the bubble does it.
-export function CoachFloor({ rank, line, action, onKarasuPress, move }: Props) {
+export function CoachFloor({ rank, line, action, onKarasuPress, move, away = false }: Props) {
   const bubble = (
     <>
       <View style={styles.tail} />
@@ -41,8 +45,13 @@ export function CoachFloor({ rank, line, action, onKarasuPress, move }: Props) {
           <View key={i} style={[styles.plank, { left: (i + 1) * PLANK_WIDTH }]} />
         ))}
       </View>
-      <Pressable role="button" aria-label="Talk to Karasu" onPress={onKarasuPress} style={styles.karasu}>
-        <AliveKarasu mood="focus" size={96} rank={rank} move={move} />
+      <Pressable
+        role="button"
+        aria-label="Talk to Karasu"
+        onPress={onKarasuPress}
+        disabled={away}
+        style={[styles.karasu, away && styles.away]}>
+        <AliveKarasu mood="focus" size={FLOOR_KARASU.size} rank={rank} move={move} />
       </Pressable>
       {action ? (
         <Pressable role="button" aria-label={`${line} ${action.label}`} onPress={action.onPress} style={styles.bubble}>
@@ -83,8 +92,11 @@ const styles = StyleSheet.create({
   },
   karasu: {
     position: 'absolute',
-    left: 14,
-    bottom: 20,
+    left: FLOOR_KARASU.left,
+    bottom: FLOOR_KARASU.bottom,
+  },
+  away: {
+    opacity: 0,
   },
   bubble: {
     position: 'absolute',

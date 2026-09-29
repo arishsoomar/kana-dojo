@@ -1,14 +1,18 @@
 import { Redirect, router, useIsFocused } from 'expo-router';
 import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
-import { BeltPlaque, HANG_LANDS_MS } from '@/components/belt-plaque';
-import { CoachFloor, FLOOR_SPACE } from '@/components/coach-floor';
+import { type KarasuMove } from '@/components/alive-karasu';
+import { BeltPlaque } from '@/components/belt-plaque';
+import { CoachFloor, FLOOR_KARASU, FLOOR_SPACE } from '@/components/coach-floor';
 import { DuelPlaque } from '@/components/duel-plaque';
 import { ExamPlaque } from '@/components/exam-plaque';
 import { FlameIcon } from '@/components/flame-icon';
+import { karasuFeet } from '@/components/karasu';
+import { KarasuFlight, type Point } from '@/components/karasu-flight';
 import { PlaqueIcon } from '@/components/plaque-icon';
 import { PlaqueTile, STAMP_LANDS_MS } from '@/components/plaque-tile';
 import { ProgressRing } from '@/components/progress-ring';
@@ -41,6 +45,22 @@ function perRailFor(width: number): number {
 const SAID_MS = 6000;
 // How long wall news is kept after the Learn screen shows it: long enough for it to play.
 const NEWS_MS = 3000;
+// A belt plaque being hung clears the news itself when Karasu lands; this is in case he
+// never does.
+const FLIGHT_NEWS_MS = 8000;
+// How long the wall takes to scroll to the row before Karasu sets off.
+const SCROLL_SETTLES_MS = 550;
+
+// Karasu hanging a belt plaque: the row, where he flies between, and whether it's on its peg.
+type Flight = { row: RowId; from: Point; to: Point; width: number; placed: boolean };
+
+type Box = { x: number; y: number; width: number; height: number };
+function measure(view: View | null): Promise<Box | null> {
+  return new Promise((resolve) => {
+    if (!view) resolve(null);
+    else view.measureInWindow((x, y, width, height) => resolve({ x, y, width, height }));
+  });
+}
 
 // Beside a unit's board: what kind of kana the row holds, for rows after the basic ones.
 const KIND_TAGS = {
@@ -70,7 +90,7 @@ export default function LearnScreen() {
   const haptics = useHaptics();
   // What Karasu says when tapped, shown for a few seconds instead of his usual line.
   const [said, setSaid] = useState<string | null>(null);
-  const [karasuMove, setKarasuMove] = useState<{ kind: 'hop'; id: number } | null>(null);
+  const [karasuMove, setKarasuMove] = useState<{ kind: KarasuMove; id: number } | null>(null);
   const saidTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // What happened while a lesson was open: seals to stamp, rows to flip, and belt plaques to
   // hang. It's only shown
@@ -78,21 +98,67 @@ export default function LearnScreen() {
   const focused = useIsFocused();
   const waiting = useWallNews();
   const news = focused ? waiting : NO_NEWS;
+  const reduceMotion = useReducedMotion();
+  // With motion, Karasu flies each new belt plaque up to its peg (and thunks it on himself).
+  const flies = news.hung.length > 0 && !reduceMotion;
 
   const feel = useEffectEvent((stamped: boolean, opened: boolean, hung: boolean) => {
     if (stamped) setTimeout(() => haptics.thunk(), STAMP_LANDS_MS);
-    if (hung) setTimeout(() => haptics.thunk(), HANG_LANDS_MS);
+    if (hung && !flies) haptics.thunk();
     if (opened) haptics.success();
   });
   useEffect(() => {
     if (news === NO_NEWS) return;
     feel(news.stamped.length > 0, news.opened.length > 0, news.hung.length > 0);
     // Once it has played, clear it, so it doesn't play again.
-    const timer = setTimeout(clearWallNews, NEWS_MS);
+    const timer = setTimeout(clearWallNews, flies ? FLIGHT_NEWS_MS : NEWS_MS);
     return () => clearTimeout(timer);
-  }, [news]);
+  }, [news, flies]);
   // The script shown here is remembered, and chosen during onboarding.
   const script = progress.settings.script;
+
+  // The belt plaque Karasu is about to hang, if any. The wall scrolls to its row, then once it
+  // has settled, Karasu's flight is measured out: from his feet on the floor to its peg.
+  const hanging = flies ? (news.hung.find((h) => h.script === script) ?? null) : null;
+  const [flight, setFlight] = useState<Flight | null>(null);
+  const wallArea = useRef<View>(null);
+  const peg = useRef<View>(null);
+  const takeOff = useEffectEvent(async (row: RowId) => {
+    const [area, target] = await Promise.all([measure(wallArea.current), measure(peg.current)]);
+    if (!area || !target) {
+      // Nowhere to fly: it's simply hung.
+      clearWallNews();
+      return;
+    }
+    const feet = karasuFeet(rank, FLOOR_KARASU.size);
+    setFlight({
+      row,
+      from: { x: FLOOR_KARASU.left + feet.x, y: area.height - FLOOR_KARASU.bottom - feet.height + feet.y },
+      to: { x: target.x - area.x + target.width / 2, y: target.y - area.y + target.height },
+      width: area.width,
+      placed: false,
+    });
+  });
+  useEffect(() => {
+    if (!hanging) return;
+    const timer = setTimeout(() => void takeOff(hanging.row), SCROLL_SETTLES_MS);
+    return () => {
+      clearTimeout(timer);
+      // Leaving the tab mid-flight: it plays again from the start next time.
+      setFlight(null);
+    };
+  }, [hanging]);
+  const flying = hanging && flight?.row === hanging.row ? flight : null;
+
+  function hooked() {
+    setFlight((f) => f && { ...f, placed: true });
+    haptics.thunk();
+  }
+
+  function landed() {
+    clearWallNews();
+    setKarasuMove((m) => ({ kind: 'cheer', id: (m?.id ?? 0) + 1 }));
+  }
   const chooseScript = (next: Script) => updateProgress(setScript(progress, next));
   const path = learnPath(progress, script);
   const unit = path.currentUnit;
@@ -155,8 +221,8 @@ export default function LearnScreen() {
         <BeltPlaque
           key="belt"
           belt={u.belt}
-          rank={rank}
-          hang={news.hung.some((h) => h.script === script && h.row === u.row)}
+          waiting={hanging?.row === u.row && !flying?.placed}
+          pegRef={hanging?.row === u.row ? peg : undefined}
         />
       ),
       u.exam && <ExamPlaque key="exam" belt={u.exam} onPress={() => takeExam(u)} />,
@@ -216,13 +282,14 @@ export default function LearnScreen() {
         </View>
       </View>
 
-      <View style={styles.wallArea}>
+      <View ref={wallArea} style={styles.wallArea}>
         <Shoji width={width} />
         {/* A new script or a new current unit is a new wall, which scrolls to that unit. While a
             belt plaque is being hung, it shows that plaque's row instead. */}
         <Wall
           key={`${script}:${unit.row}`}
           perRail={perRailFor(width)}
+          still={flying !== null}
           showRow={news.hung.find((h) => h.script === script)?.row ?? unit.row}
           units={path.units.map((u) => ({
             unit: u,
@@ -239,7 +306,20 @@ export default function LearnScreen() {
           action={action}
           onKarasuPress={talk}
           move={karasuMove}
+          away={flying !== null}
         />
+        {flying && hanging && (
+          <KarasuFlight
+            from={flying.from}
+            to={flying.to}
+            width={flying.width}
+            rank={rank}
+            belt={path.units.find((u) => u.row === hanging.row)?.belt ?? 'green'}
+            size={FLOOR_KARASU.size}
+            onHung={hooked}
+            onLanded={landed}
+          />
+        )}
       </View>
     </View>
   );
@@ -264,7 +344,8 @@ function Shoji({ width }: { width: number }) {
 
 // The dojo wall: every unit's plaques on rails. It scrolls, and opens at `showRow` (normally
 // the current unit), so its rails are the ones in view. If `showRow` changes, it glides there.
-function Wall({ units, showRow, perRail }: { units: WallUnit[]; showRow: RowId; perRail: number }) {
+// While `still`, it can't be scrolled (Karasu is flying to a peg on it).
+function Wall({ units, showRow, perRail, still }: { units: WallUnit[]; showRow: RowId; perRail: number; still: boolean }) {
   const scroller = useRef<ScrollView>(null);
   const scrolled = useRef(false);
   // Where each unit starts, once it's been laid out.
@@ -284,7 +365,7 @@ function Wall({ units, showRow, perRail }: { units: WallUnit[]; showRow: RowId; 
   }, [showRow]);
 
   return (
-    <ScrollView ref={scroller} contentContainerStyle={{ paddingBottom: FLOOR_SPACE }}>
+    <ScrollView ref={scroller} scrollEnabled={!still} contentContainerStyle={{ paddingBottom: FLOOR_SPACE }}>
       {units.map(({ unit, items, note }) => (
         <View key={unit.row} style={styles.unit} onLayout={(e) => onUnitLayout(unit.row, e)}>
           <View style={styles.unitLabel}>

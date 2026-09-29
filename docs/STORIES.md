@@ -1033,6 +1033,36 @@ added by a short code; nobody can be searched for. Needs an account.
 
 ---
 
+## Epic AB — Motion
+
+Karasu himself hangs a new belt plaque, and every animation moves to Reanimated (already
+installed): animations run on the UI thread, with springs instead of fixed curves.
+
+### AB1. Karasu hangs the plaque
+
+After a belt exam, back on the Learn tab, the wall scrolls to the row and its peg waits
+empty. Karasu, the one standing on the floor, crouches, leaps and flaps up the wall with the
+plaque hanging from his feet, hooks it on the peg (it swings, the phone thunks), does a
+flip for joy, and glides back down to his spot, landing with a squash. Then he cheers.
+
+Done when:
+- [ ] The floor Karasu leaves the floor and comes back; no second Karasu
+- [ ] The plaque ends on its peg, wherever the peg is on the wall
+- [ ] Leaving the tab mid-flight leaves nothing stuck; coming back plays it again
+- [ ] Reduce Motion: the plaque is simply there
+
+### AB2. Everything on Reanimated
+
+Every animation drawn with React Native's `Animated` moves to Reanimated, and gets better on
+the way: springs for pops and swings, real 3D flips for cards (turning edge-on, then showing
+the other side), and confetti that flutters like paper.
+
+Done when:
+- [ ] No `Animated` from `react-native` is left
+- [ ] Plaque tap swings like a pendulum; seals stamp with a spring
+- [ ] The mnemonic card and memory cards turn over in 3D
+- [ ] Reduce Motion still turns motion off everywhere
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

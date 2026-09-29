@@ -21,10 +21,21 @@ type Props = {
   // Gear to draw him in (ids from src/core/gear.ts). Left out, he wears what the learner has
   // equipped; the supply shed passes gear to preview it.
   gear?: readonly string[];
+  // Wings raised or lowered, whatever his mood (flapping is the two in turn). Left out, they're
+  // up when he cheers.
+  wings?: 'up' | 'down';
 };
 
+// Where his feet are in his picture, for anything that has to line up with them: across and
+// down as shares of its width and height. The master's picture is wider, which moves them.
+export function karasuFeet(rank: Belt, size: number): { x: number; y: number; height: number } {
+  const [left, top, width, height] = rank === 'black' ? [-32, -4, 164, 122] : [-8, -4, 122, 122];
+  const scale = size / width;
+  return { x: (50 - left) * scale, y: (112 - top) * scale, height: height * scale };
+}
+
 // Karasu, drawn from the mocks. Rank changes his form; mood changes his face.
-export function Karasu({ mood, size = 58, rank, belt = rank, blink = false, gear }: Props) {
+export function Karasu({ mood, size = 58, rank, belt = rank, blink = false, gear, wings }: Props) {
   const worn = useWornGear();
   const ids = gear ?? worn;
   const fledgling = rank === 'white';
@@ -40,7 +51,7 @@ export function Karasu({ mood, size = 58, rank, belt = rank, blink = false, gear
       viewBox={wide ? '-32 -4 164 122' : '-8 -4 122 122'}
       accessibilityLabel={`Karasu, ${rank} belt, ${mood}`}>
       <GearBehind ids={ids} />
-      <Wings master={master} cheer={mood === 'cheer'} staff={!holdsSomething(ids)} />
+      <Wings master={master} cheer={wings ? wings === 'up' : mood === 'cheer'} staff={!holdsSomething(ids)} />
       <Tuft fledgling={fledgling} body={body} />
 
       {/* Shadow, body, chest */}

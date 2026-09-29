@@ -1,4 +1,4 @@
-import { parseFriendSummary, type FriendSummary } from '@/core/friends';
+import { parseFriendSummary, type FriendSummary, type Link } from '@/core/friends';
 
 import { supabase } from './supabase';
 
@@ -8,11 +8,7 @@ import { supabase } from './supabase';
 
 export type Profile = { name: string; code: string };
 
-export type Friend = {
-  userId: string;
-  name: string;
-  // accepted: friends. incoming: they asked you. outgoing: you asked them.
-  state: 'accepted' | 'incoming' | 'outgoing';
+export type Friend = Link & {
   summary: FriendSummary | null; // accepted friends only, once they've synced
 };
 

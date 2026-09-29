@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { colors } from '@/constants/theme';
+import { useFriends } from '@/hooks/use-friends';
 
 import { DojoIcon, GamesIcon, HomeIcon, KanaIcon, RanksIcon, type TabIconProps } from './tab-icons';
 
@@ -15,6 +16,8 @@ const icons: Record<string, ComponentType<TabIconProps>> = {
 };
 
 export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {
+  // Friend requests waiting: a dot on the Dojo tab, where Friends is.
+  const { waiting } = useFriends();
   return (
     <View role="tablist" style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
       {state.routes.map((route, index) => {
@@ -26,7 +29,7 @@ export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarP
           <Pressable
             key={route.key}
             role="tab"
-            aria-label={label}
+            aria-label={route.name === 'dojo' && waiting > 0 ? `${label}, friend requests waiting` : label}
             aria-selected={focused}
             style={styles.tab}
             onPress={() => {
@@ -34,6 +37,7 @@ export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarP
             }}>
             <Icon color={focused ? colors.sumi : colors.muted} />
             {focused && <View style={styles.dot} />}
+            {route.name === 'dojo' && waiting > 0 && <View style={styles.news} />}
           </Pressable>
         );
       })}
@@ -56,6 +60,18 @@ const styles = StyleSheet.create({
     height: 38,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // Something waiting on this tab: a red dot on the icon's top corner.
+  news: {
+    position: 'absolute',
+    top: 3,
+    right: 9,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: colors.card,
+    backgroundColor: colors.vermilion,
   },
   dot: {
     position: 'absolute',

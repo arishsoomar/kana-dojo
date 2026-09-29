@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useEffect, useState, type ReactNode } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -26,7 +26,13 @@ function goBack() {
 export default function FriendsScreen() {
   const insets = useSafeAreaInsets();
   const friends = useFriends();
-  const { status, profile } = friends;
+  const { status, profile, refresh } = friends;
+  // The list also updates by itself as things change; opening the screen checks anyway.
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+    }, [refresh]),
+  );
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>

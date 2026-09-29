@@ -1002,6 +1002,25 @@ added by a short code; nobody can be searched for. Needs an account.
 
 ---
 
+### Y3. Friends, live
+
+**As a** learner, **I want** to see requests and acceptances as they happen, **so that** I
+don't have to reload the screen or keep checking.
+
+The friends list lives above every screen and updates as the server says things changed
+(Supabase Realtime, over the same row-level security), when the app comes back to the
+front, and when Friends opens. A request waiting shows as a count on the friends icon and a
+dot on the Dojo tab. A banner slides down anywhere in the app when someone asks to be your
+friend or accepts your request. Needs `supabase/migrations/20261002000000_friends_live.sql`
+run once. Push notifications (with the app closed) need a paid Apple developer account, so
+they wait.
+
+Done when:
+- [ ] Accepting on one phone shows on the other without reloading
+- [ ] A waiting request shows as a count on the friends icon and a dot on the Dojo tab
+- [ ] A banner shows for a new request or an acceptance, and not on the Friends screen
+- [ ] What you did yourself isn't news
+
 ## Epic Z — Visiting a dojo
 
 ### Z1. A friend's room

@@ -177,3 +177,31 @@ export function parseFriendSummary(value: unknown): FriendSummary | null {
     room,
   };
 }
+
+// Someone you're linked to: a friend, or a request either way.
+export type Link = {
+  userId: string;
+  name: string;
+  // accepted: friends. incoming: they asked you. outgoing: you asked them.
+  state: 'accepted' | 'incoming' | 'outgoing';
+};
+
+// Something another learner did that's worth telling you about: they asked to be your friend,
+// or they accepted your request. What you did yourself isn't news.
+export type FriendNews = { kind: 'request' | 'accepted'; userId: string; name: string };
+
+// The news between two loads of the list, in the order of the newer one.
+export function linkNews(before: readonly Link[], after: readonly Link[]): FriendNews[] {
+  const was = new Map(before.map((l) => [l.userId, l.state]));
+  return after.flatMap((l): FriendNews[] => {
+    const then = was.get(l.userId);
+    if (l.state === 'incoming' && then !== 'incoming') return [{ kind: 'request', userId: l.userId, name: l.name }];
+    if (l.state === 'accepted' && then === 'outgoing') return [{ kind: 'accepted', userId: l.userId, name: l.name }];
+    return [];
+  });
+}
+
+// Requests waiting for your answer.
+export function waitingRequests(links: readonly Link[]): number {
+  return links.filter((l) => l.state === 'incoming').length;
+}

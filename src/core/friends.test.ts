@@ -1,6 +1,9 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
 import { examId } from './exam';
 import {
+  linkNews,
+  waitingRequests,
+  type Link,
   formatFriendCode,
   FRIEND_CODE_LENGTH,
   friendSummary,
@@ -122,5 +125,45 @@ describe("reading a friend's summary", () => {
   it('cuts overlong text down to size', () => {
     const read = parseFriendSummary({ ...good, room: { ...good.room, scroll: { kana: ['き', 'さ'], name: 'x'.repeat(500) } } });
     expect(read?.room.scroll?.name.length).toBeLessThanOrEqual(40);
+  });
+});
+
+describe('news about friends', () => {
+  const kenji = (state: Link['state']): Link => ({ userId: 'k', name: 'Kenji', state });
+  const yuki = (state: Link['state']): Link => ({ userId: 'y', name: 'Yuki', state });
+
+  it('is a request when someone new asks', () => {
+    expect(linkNews([], [kenji('incoming')])).toEqual([{ kind: 'request', userId: 'k', name: 'Kenji' }]);
+  });
+
+  it('is an acceptance when someone takes up your request', () => {
+    expect(linkNews([kenji('outgoing')], [kenji('accepted')])).toEqual([{ kind: 'accepted', userId: 'k', name: 'Kenji' }]);
+  });
+
+  it('is nothing when you do it yourself: sending, or accepting theirs', () => {
+    expect(linkNews([], [kenji('outgoing')])).toEqual([]);
+    expect(linkNews([kenji('incoming')], [kenji('accepted')])).toEqual([]);
+  });
+
+  it('is nothing when nothing changed, or someone left', () => {
+    expect(linkNews([kenji('accepted'), yuki('incoming')], [kenji('accepted'), yuki('incoming')])).toEqual([]);
+    expect(linkNews([kenji('accepted')], [])).toEqual([]);
+  });
+
+  it('lists each piece of news, in the order of the new list', () => {
+    expect(linkNews([yuki('outgoing')], [kenji('incoming'), yuki('accepted')]).map((n) => n.kind)).toEqual(['request', 'accepted']);
+  });
+});
+
+describe('waiting requests', () => {
+  it('counts the requests you have to answer, not the ones you sent', () => {
+    const links: Link[] = [
+      { userId: 'a', name: 'A', state: 'incoming' },
+      { userId: 'b', name: 'B', state: 'incoming' },
+      { userId: 'c', name: 'C', state: 'outgoing' },
+      { userId: 'd', name: 'D', state: 'accepted' },
+    ];
+    expect(waitingRequests(links)).toBe(2);
+    expect(waitingRequests([])).toBe(0);
   });
 });

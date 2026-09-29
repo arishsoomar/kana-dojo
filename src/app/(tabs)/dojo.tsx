@@ -8,6 +8,7 @@ import { BoltIcon } from '@/components/bolt-icon';
 import { CheckIcon } from '@/components/check-icon';
 import { DojoRoom } from '@/components/dojo-room';
 import { FlameIcon } from '@/components/flame-icon';
+import { CountBadge } from '@/components/count-badge';
 import { FriendsIcon } from '@/components/friends-icon';
 import { MonIcon } from '@/components/mon-icon';
 import { MoonIcon } from '@/components/moon-icon';
@@ -26,6 +27,7 @@ import {
   type BadgeProgress,
 } from '@/core/profile';
 import { KANA } from '@/core/kana';
+import { useFriends } from '@/hooks/use-friends';
 import { useMon } from '@/hooks/use-mon';
 import { useAssignments } from '@/hooks/use-assignments';
 import { useProgress } from '@/hooks/use-progress';
@@ -46,6 +48,7 @@ export default function DojoTab() {
   const rank = useRank();
   const streak = useStreak();
   const mon = useMon();
+  const { waiting } = useFriends();
   const room = dojoRoom(progress, { streak: streak.current, moons: assignments.moons });
   const since = trainingSince(progress);
   const accuracy = overallAccuracy(progress);
@@ -59,8 +62,13 @@ export default function DojoTab() {
           <MonIcon />
           <Text style={styles.chipText}>{mon.balance}</Text>
         </Pressable>
-        <Pressable role="button" aria-label="Friends" onPress={() => router.push('/friends')} hitSlop={10}>
+        <Pressable
+          role="button"
+          aria-label={waiting > 0 ? `Friends, ${waiting} ${waiting === 1 ? 'request' : 'requests'} waiting` : 'Friends'}
+          onPress={() => router.push('/friends')}
+          hitSlop={10}>
           <FriendsIcon />
+          <CountBadge count={waiting} />
         </Pressable>
         <Pressable role="button" aria-label="Settings" onPress={() => router.push('/settings')} hitSlop={10}>
           <SettingsIcon />

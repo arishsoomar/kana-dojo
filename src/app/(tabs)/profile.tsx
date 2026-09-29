@@ -158,6 +158,14 @@ export default function ProfileScreen() {
         <Text style={styles.goalChange}>Open</Text>
       </Pressable>
 
+      <Pressable role="button" onPress={() => router.push('/dojo')} style={styles.goal}>
+        <View style={styles.goalText}>
+          <Text style={styles.goalTitle}>Your dojo</Text>
+          <Text style={styles.goalSub}>A room that fills with what you&apos;ve earned</Text>
+        </View>
+        <Text style={styles.goalChange}>Open</Text>
+      </Pressable>
+
       <Pressable role="button" onPress={() => router.push('/shed')} style={styles.goal}>
         <View style={styles.goalText}>
           <Text style={styles.goalTitle}>Supply shed</Text>

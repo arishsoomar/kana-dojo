@@ -213,6 +213,25 @@ export const gearColors = {
   handle: '#6B4E35',
 } as const;
 
+// Your dojo: the room's plaster wall, labels on it, dashed outlines of things not yet earned,
+// the weapon rack's wood, the cushion, and the bonsai's pot, trunk, leaves and blossom.
+export const dojoColors = {
+  wall: '#ECE7DE',
+  label: '#6B5A44',
+  empty: '#B9B2A4',
+  emptyInk: '#9A927F',
+  rack: '#C9A77A',
+  cushion: '#8C2F22',
+  cushionEdge: '#5E1E14',
+  pot: '#6E4B35',
+  potEdge: '#23302F',
+  trunk: '#7A5234',
+  leaf: '#6BA35B',
+  leafLight: '#7DB86B',
+  blossom: '#F2A7B8',
+  soil: '#4A3526',
+} as const;
+
 export const beltEdges = {
   light: '#C3C8D2',
   dark: 'rgba(0, 0, 0, 0.35)',

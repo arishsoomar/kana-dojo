@@ -47,12 +47,12 @@ const SAID_MS = 6000;
 const NEWS_MS = 3000;
 // A belt plaque being hung clears the news itself when Karasu lands; this is in case he
 // never does.
-const FLIGHT_NEWS_MS = 8000;
-// How long the wall takes to scroll to the row before Karasu sets off.
-const SCROLL_SETTLES_MS = 550;
+const FLIGHT_NEWS_MS = 14000;
+// How long the wall takes to scroll to the row, and shows the empty peg, before Karasu sets off.
+const SCROLL_SETTLES_MS = 900;
 // Once he's landed, the wall stays on the new plaque this long before going back to the
 // current row.
-const ADMIRE_MS = 1100;
+const ADMIRE_MS = 1500;
 
 // Karasu hanging a belt plaque: the row, where he flies between, whether it's on its peg, and
 // whether he's back on the floor.

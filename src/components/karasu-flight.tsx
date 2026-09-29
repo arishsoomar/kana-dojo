@@ -30,9 +30,11 @@ type Props = {
 
 // How it plays out, and how long each part takes.
 type Stage = 'crouch' | 'rise' | 'hook' | 'joy' | 'glide' | 'land';
-const STAGE_MS: Record<Stage, number> = { crouch: 200, rise: 1100, hook: 280, joy: 520, glide: 950, land: 320 };
+const STAGE_MS: Record<Stage, number> = { crouch: 350, rise: 2000, hook: 600, joy: 1300, glide: 1700, land: 450 };
+// The flip for joy takes part of its stage; he hovers for the rest, admiring the plaque.
+const FLIP_MS = 850;
 // How fast his wings beat while he flies up.
-const FLAP_MS = 110;
+const FLAP_MS = 150;
 // How small he gets in the air, as if flying up the wall away from you.
 const AIR_SCALE = 0.3;
 // How far the peg's hook pulls him down as the plaque goes on.
@@ -40,12 +42,12 @@ const DIP = 10;
 // Keeps his swoop this far from the sides.
 const EDGE = 44;
 
-// Wings and face for each part: beating on the way up, spread for the flip and the glide.
+// Wings and face for each part: beating on the way up and while he hovers, spread to glide.
 const WINGS: Record<Stage, 'up' | 'down' | 'flap'> = {
   crouch: 'down',
   rise: 'flap',
   hook: 'flap',
-  joy: 'up',
+  joy: 'flap',
   glide: 'up',
   land: 'down',
 };
@@ -73,7 +75,7 @@ function across(a: number, c: number, b: number, t: number): number {
 // Karasu hangs a new belt plaque. He takes over from the Karasu standing on the floor, at the
 // same spot and size: crouches, leaps and flaps up the wall with the plaque hanging from his
 // feet, hooks it on its peg, does a flip for joy, and glides back down to land where he
-// started. The Learn screen hides the floor Karasu meanwhile. About 3.4 seconds.
+// started. The Learn screen hides the floor Karasu meanwhile. About 6.4 seconds.
 export function KarasuFlight({ from, to, width, rank, belt, size, onHung, onLanded }: Props) {
   const feet = karasuFeet(rank, size);
   const [stage, setStage] = useState<Stage>('crouch');
@@ -114,8 +116,8 @@ export function KarasuFlight({ from, to, width, rank, belt, size, onHung, onLand
       setStage('rise');
       // Spring up out of the crouch, stretched, and settle as he climbs.
       squash.set(withSequence(withTiming(-1, { duration: 150 }), withSpring(0, { damping: 8 })));
-      air.set(withTiming(1, { duration: 500, easing: Easing.out(Easing.quad) }));
-      carry.set(withTiming(1, { duration: 320 }));
+      air.set(withTiming(1, { duration: 900, easing: Easing.out(Easing.quad) }));
+      carry.set(withTiming(1, { duration: 500 }));
       path.set(withTiming(1, { duration: STAGE_MS.rise, easing: Easing.inOut(Easing.cubic) }));
     });
     then(STAGE_MS.hook / 2, () => {
@@ -130,13 +132,13 @@ export function KarasuFlight({ from, to, width, rank, belt, size, onHung, onLand
     });
     then(STAGE_MS.joy, () => {
       setStage('joy');
-      spin.set(withTiming(360, { duration: STAGE_MS.joy, easing: Easing.inOut(Easing.cubic) }));
+      spin.set(withTiming(360, { duration: FLIP_MS, easing: Easing.inOut(Easing.cubic) }));
     });
     then(STAGE_MS.glide, () => {
       setStage('glide');
       path.set(withTiming(2, { duration: STAGE_MS.glide, easing: Easing.inOut(Easing.quad) }));
       // Back to full size as he comes in to land.
-      air.set(withDelay(STAGE_MS.glide - 400, withTiming(0, { duration: 400 })));
+      air.set(withDelay(STAGE_MS.glide - 700, withTiming(0, { duration: 700 })));
     });
     then(STAGE_MS.land, () => {
       setStage('land');

@@ -826,6 +826,46 @@ locks in recognition.
 
 ---
 
+## Epic U — Daily kata
+
+From the mock: one short, fixed challenge a day. 20 kana, one attempt,
+timed. The result is a grid of fast, slow and missed squares that doesn't
+give the answers away, so it's safe to share.
+
+### U1. Kata rules
+- [ ] `seededRng(seed)` in `src/core/random.ts`, test-first: the same seed
+      always gives the same numbers, and different seeds give different ones
+- [ ] Pure functions in `src/core/kata.ts`, test-first
+- [ ] The day's order: every kana, shuffled by a seed made from the date.
+      A learner's kata is the first 20 in that order they've met (either
+      script), so learners who know the same kana get the same kata. It
+      opens once 20 kana are met
+- [ ] Each question's choices come from the same seed, so the kata is fixed
+      for the day
+- [ ] Kata numbers count days: #1 is 1 January 2026
+- [ ] Each answer is fast (right, under 4s), slow (right, slower) or missed
+- [ ] One attempt a day: the result is kept with the day's finished games
+      (the marks and the time), so it survives restarts and syncs
+- [ ] The share text: the kata number, the score, the time, and the grid as
+      coloured squares, with no kana in it
+
+### U2. The kata screens
+- [ ] The dark Daily kata card at the top of the Games tab: its number, and
+      "20 kana, one attempt. Resets in 6h", or today's score once it's done,
+      or how many more kana open it
+- [ ] The kata: a kana, four tapped answers, a progress bar and a running
+      clock; no feedback sheet, just a brief right/wrong flash
+- [ ] Every answer goes through `recordAnswer()`. The kata counts toward
+      the streak, the daily goal and mon, like any game
+- [ ] Leaving part-way uses up the day's attempt: the rest count as missed
+- [ ] The result from the mock: Karasu, "18 / 20 in 41.2 seconds", the grid
+      with its legend, the streak, Share result and Back to the hall.
+      Opening the card later shows the same result
+- Notes: the mock's "Faster than 72% today" needs everyone's results, so it
+  waits for the weekly league.
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike
@@ -909,8 +949,6 @@ locks in recognition.
 
 ## Later
 
-Yokai dungeon and charms, memory match, word forge,
-calligraphy, taiko drill, daily kata, the dojo room, assignments,
-tournaments, shadow match, supply shed.
+The dojo room, assignments, tournaments (the weekly league), shadow match.
 
 Each gets expanded into full stories when its epic comes up. Not before.

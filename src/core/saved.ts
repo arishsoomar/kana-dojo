@@ -120,6 +120,8 @@ function isCompletion(value: unknown): value is Completion {
     typeof value.lesson === 'string' &&
     typeof value.at === 'number' &&
     (value.score === undefined || typeof value.score === 'number') &&
-    (value.opponent === undefined || typeof value.opponent === 'number')
+    (value.opponent === undefined || typeof value.opponent === 'number') &&
+    (value.marks === undefined || typeof value.marks === 'string') &&
+    (value.ms === undefined || typeof value.ms === 'number')
   );
 }

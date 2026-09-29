@@ -15,12 +15,15 @@ export type KanaStats = {
 };
 
 // A finished lesson or game: which one, when (a timestamp in milliseconds), and for a
-// game, its score. A duel also keeps the opponent's score.
+// game, its score. A duel also keeps the opponent's score, and a daily kata its marks (one
+// letter per kana: f fast, s slow, m missed) and how long it took in milliseconds.
 export type Completion = {
   lesson: string;
   at: number;
   score?: number;
   opponent?: number;
+  marks?: string;
+  ms?: number;
 };
 
 // Something bought in the supply shed with mon: a piece of gear (by its id) or a rest day

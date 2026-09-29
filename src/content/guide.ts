@@ -9,6 +9,7 @@ import { LESSON_LENGTH } from '@/core/lesson';
 import { GEAR, REST_DAY_PRICE } from '@/core/gear';
 import { ASSIGNMENTS_PER_DAY, MONTH_GOAL } from '@/core/assignments';
 import { KATA_LENGTH } from '@/core/kata';
+import { LIVE_MIN_SHARED, LIVE_ROUND_MS, LIVE_WIN } from '@/core/live-duel';
 import { MEMORY_PAIRS } from '@/core/memory';
 import { MON } from '@/core/mon';
 import { NAMED_PAIRS } from '@/core/pairs';
@@ -314,6 +315,21 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'live',
+        question: 'How do I duel a friend live?',
+        answer: [
+          `On the Games tab, tap Duel a friend and start a room. Send your friend the 4-letter code; they tap Join and type it. You both see the same kana, and the first right answer takes the point. First to ${LIVE_WIN} wins.`,
+          {
+            bullets: [
+              'You each get one tap per kana. If you both get it right, the quicker one scores. Times are measured on each phone, so a slow connection never costs you a point.',
+              `Each kana waits up to ${LIVE_ROUND_MS / 1000} seconds. Only kana you've both met come up, and you need at least ${LIVE_MIN_SHARED} in common.`,
+              'Every answer counts as practice, and the duel counts as a game for your streak, daily goal and mon.',
+              "You both need to be in the app with an internet connection. You don't need an account.",
+            ],
+          },
+        ],
+      },
+      {
         id: 'kata',
         question: 'What is the daily kata?',
         answer: [
@@ -368,7 +384,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, the daily kata, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal in Settings, from the cog on the Dojo tab.',
+          'Lessons, exams, duels (live ones too), the daily kata, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal in Settings, from the cog on the Dojo tab.',
         ],
       },
       {

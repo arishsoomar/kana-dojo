@@ -1,3 +1,4 @@
+import type { Progress } from './answers';
 import { makeChoices } from './choices';
 import { KANA, type Kana } from './kana';
 import type { Question } from './question';
@@ -17,6 +18,9 @@ export const LIVE_MIN_SHARED = 5;
 export const LIVE_ROUND_MS = 6000;
 // Points to win.
 export const LIVE_WIN = 7;
+// The 3-2-1 before the first kana, and how long each round's result shows.
+export const LIVE_COUNTDOWN_MS = 3000;
+export const LIVE_REVEAL_MS = 1200;
 // Questions worked out ahead: more than any duel can use (rounds nobody takes don't end it,
 // so this is generous).
 const LIVE_QUESTIONS = 60;
@@ -107,11 +111,12 @@ export function liveOutcome(score: LiveScore): LiveOutcome {
 }
 
 // What the phones send each other: hello (with the kana this player has met), an answer to a
-// round, or leaving.
+// round, leaving, or a rematch in a new room.
 export type LiveMessage =
   | { type: 'hello'; met: string[] }
   | { type: 'answer'; round: number; correct: boolean; ms: number }
-  | { type: 'leave' };
+  | { type: 'leave' }
+  | { type: 'rematch'; code: string };
 
 const KANA_CHARS = new Set(KANA.map((k) => k.char));
 
@@ -134,7 +139,138 @@ export function parseLiveMessage(value: unknown): LiveMessage | null {
     }
     case 'leave':
       return { type: 'leave' };
+    case 'rematch':
+      return typeof value.code === 'string' && isRoomCode(value.code) ? { type: 'rematch', code: normalizeRoomCode(value.code) } : null;
     default:
       return null;
   }
+}
+
+// A duel as one phone sees it. `liveStep` moves it on by one event; `outbox` collects the
+// messages to send, in order (the phone sends the ones it hasn't yet). Times are this phone's own
+// clock, in milliseconds.
+export type LiveState = {
+  code: string;
+  mine: readonly string[]; // the kana this player has met
+  theirs: readonly string[] | null; // the other player's, once their hello arrives
+  phase: 'waiting' | 'countdown' | 'playing' | 'reveal' | 'over' | 'too-few';
+  questions: Question[];
+  round: number;
+  shownAt: number; // when this round's kana appeared
+  phaseEnds: number; // when the countdown or the reveal ends
+  myAttempt: Attempt | null;
+  theirAttempts: Readonly<Record<number, Attempt>>; // by round, since one can arrive early
+  score: LiveScore;
+  lastResult: RoundResult | null;
+  outbox: LiveMessage[];
+};
+
+export type LiveEvent =
+  | { type: 'joined' } // the other player has arrived in the room
+  | { type: 'message'; message: LiveMessage; now: number }
+  | { type: 'tap'; correct: boolean; now: number }
+  | { type: 'tick'; now: number };
+
+export function startLive(code: string, met: readonly string[]): LiveState {
+  return {
+    code,
+    mine: met,
+    theirs: null,
+    phase: 'waiting',
+    questions: [],
+    round: 0,
+    shownAt: 0,
+    phaseEnds: 0,
+    myAttempt: null,
+    theirAttempts: {},
+    score: { mine: 0, theirs: 0 },
+    lastResult: null,
+    outbox: [],
+  };
+}
+
+const helloFrom = (s: LiveState): LiveMessage => ({ type: 'hello', met: [...s.mine] });
+
+// Records this player's attempt at the round and sends it.
+function attempt(s: LiveState, mine: Attempt, now: number): LiveState {
+  const sent: LiveMessage = { type: 'answer', round: s.round, correct: mine.correct, ms: mine.ms };
+  return settle({ ...s, myAttempt: mine, outbox: [...s.outbox, sent] }, now);
+}
+
+// Once both attempts at the round are in: the point, then the reveal, or the end.
+function settle(s: LiveState, now: number): LiveState {
+  const theirs = s.theirAttempts[s.round];
+  if (!s.myAttempt || !theirs) return s;
+  const result = settleRound(s.myAttempt, theirs);
+  const score = addRound(s.score, result);
+  const over = liveOutcome(score) !== 'going';
+  return { ...s, score, lastResult: result, phase: over ? 'over' : 'reveal', phaseEnds: now + LIVE_REVEAL_MS };
+}
+
+function nextRound(s: LiveState, now: number): LiveState {
+  // Rounds nobody takes don't end the duel, so in theory it could outlast its questions.
+  if (s.round + 1 >= s.questions.length) return { ...s, phase: 'over' };
+  return { ...s, phase: 'playing', round: s.round + 1, shownAt: now, myAttempt: null, lastResult: null };
+}
+
+// Moves the duel on by one event.
+export function liveStep(s: LiveState, event: LiveEvent): LiveState {
+  switch (event.type) {
+    case 'joined':
+      return { ...s, outbox: [...s.outbox, helloFrom(s)] };
+
+    case 'message': {
+      const { message, now } = event;
+      if (message.type === 'hello') {
+        if (s.theirs !== null) return s;
+        // Say hello back, in case ours went out before they were listening.
+        const next = { ...s, theirs: message.met, outbox: [...s.outbox, helloFrom(s)] };
+        const questions = liveQuestions(s.code, sharedKana(s.mine, message.met));
+        if (questions.length === 0) return { ...next, phase: 'too-few' };
+        return { ...next, questions, phase: 'countdown', phaseEnds: now + LIVE_COUNTDOWN_MS };
+      }
+      if (message.type === 'answer') {
+        if (message.round < s.round || s.theirAttempts[message.round]) return s;
+        const theirAttempts = { ...s.theirAttempts, [message.round]: { correct: message.correct, ms: message.ms } };
+        return s.phase === 'playing' ? settle({ ...s, theirAttempts }, now) : { ...s, theirAttempts };
+      }
+      // Leaving and rematches are about the connection, not the duel.
+      return s;
+    }
+
+    case 'tap':
+      if (s.phase !== 'playing' || s.myAttempt) return s;
+      return attempt(s, { correct: event.correct, ms: event.now - s.shownAt }, event.now);
+
+    case 'tick': {
+      const { now } = event;
+      if (s.phase === 'countdown' && now >= s.phaseEnds) {
+        return { ...s, phase: 'playing', round: 0, shownAt: now, myAttempt: null };
+      }
+      if (s.phase === 'reveal' && now >= s.phaseEnds) return settleEarly(nextRound(s, now), now);
+      if (s.phase === 'playing' && !s.myAttempt) {
+        const elapsed = now - s.shownAt;
+        if (elapsed >= LIVE_ROUND_MS) return attempt(s, timedOut(), now);
+        const theirs = s.theirAttempts[s.round];
+        if (theirs && cantWin(theirs, elapsed)) return attempt(s, { correct: false, ms: elapsed }, now);
+      }
+      return s;
+    }
+  }
+}
+
+// A new round whose other answer is already in and can't be beaten is given up straight away.
+function settleEarly(s: LiveState, now: number): LiveState {
+  const theirs = s.theirAttempts[s.round];
+  if (s.phase === 'playing' && theirs && cantWin(theirs, 0)) return attempt(s, { correct: false, ms: 0 }, now);
+  return s;
+}
+
+// The record of a finished live duel: "game:" so it counts as a game, with both scores.
+export function liveDuelId(code: string): string {
+  return `game:live:${code}`;
+}
+
+export function completeLiveDuel(progress: Progress, code: string, now: number, score: LiveScore): Progress {
+  return { ...progress, completed: [...progress.completed, { lesson: liveDuelId(code), at: now, score: score.mine, opponent: score.theirs }] };
 }

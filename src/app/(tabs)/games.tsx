@@ -21,6 +21,7 @@ import { Yokai } from '@/components/yokai';
 import { useKataCard } from '@/hooks/use-kata';
 import { useMon } from '@/hooks/use-mon';
 import { useProgress } from '@/hooks/use-progress';
+import { supabase } from '@/storage/supabase';
 import { RAIN_LESSON_ID } from '@/hooks/use-rain';
 
 // The training hall: every game in one place.
@@ -103,6 +104,17 @@ export default function GamesScreen() {
             {ready > 0 ? `${ready} ready to duel` : `${won} of ${allScrolls.length} scrolls`}
           </Text>
         </Pressable>
+
+        {/* Live duels need Supabase, so the card only shows when it's set up. */}
+        {supabase && (
+          <Pressable role="button" aria-label="Duel a friend" onPress={() => router.push('/live')} style={styles.card}>
+            <View style={[styles.art, styles.duelArt]}>
+              <Text style={styles.versus}>対</Text>
+            </View>
+            <Text style={styles.name}>Duel a friend</Text>
+            <Text style={styles.sub}>Live, first to 7</Text>
+          </Pressable>
+        )}
 
         <Pressable role="button" aria-label="Yokai dungeon" onPress={() => router.push('/games/dungeon')} style={styles.card}>
           <View style={[styles.art, styles.dungeonArt]}>
@@ -317,6 +329,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.jp,
     fontSize: 30,
     lineHeight: 38,
+    color: colors.vermilion,
+  },
+  versus: {
+    fontFamily: fonts.jp,
+    fontSize: 34,
+    lineHeight: 42,
     color: colors.vermilion,
   },
   duelLeft: {

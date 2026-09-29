@@ -1,7 +1,14 @@
+import { EMPTY_PROGRESS } from './answers';
 import { KANA } from './kana';
 import {
   addRound,
   cantWin,
+  completeLiveDuel,
+  LIVE_COUNTDOWN_MS,
+  LIVE_REVEAL_MS,
+  liveStep,
+  startLive,
+  type LiveState,
   isRoomCode,
   LIVE_MIN_SHARED,
   LIVE_ROUND_MS,
@@ -146,5 +153,120 @@ describe('messages', () => {
     for (const bad of [null, 'hello', 42, {}, { type: 'shout' }, { type: 'hello' }, { type: 'answer', round: -1, correct: true, ms: 1 }, { type: 'answer', round: 1.5, correct: true, ms: 1 }, { type: 'answer', round: 1, correct: 'yes', ms: 1 }, { type: 'answer', round: 1, correct: true }]) {
       expect(parseLiveMessage(bad)).toBeNull();
     }
+  });
+});
+
+describe('a duel, step by step', () => {
+  const MET = [...'あいうえおかきくけこ'];
+  const start = () => startLive('KAME', MET);
+  const hello = { type: 'hello', met: MET } as const;
+
+  // Two players connected, counted in, and at the first kana (at time 10_000).
+  function playing() {
+    let s = start();
+    s = liveStep(s, { type: 'joined' });
+    s = liveStep(s, { type: 'message', message: hello, now: 1000 });
+    return liveStep(s, { type: 'tick', now: 10_000 });
+  }
+  const answerOf = (s: LiveState) => s.questions[s.round]!.kana;
+
+  it('says hello when the other player joins, and again when theirs arrives', () => {
+    let s = liveStep(start(), { type: 'joined' });
+    expect(s.outbox).toEqual([{ type: 'hello', met: MET }]);
+    s = liveStep(s, { type: 'message', message: hello, now: 1000 });
+    expect(s.outbox).toEqual([hello, hello]);
+  });
+
+  it('counts down once both have said hello, then shows the first kana', () => {
+    let s = liveStep(start(), { type: 'message', message: hello, now: 1000 });
+    expect(s.phase).toBe('countdown');
+    s = liveStep(s, { type: 'tick', now: 1000 + LIVE_COUNTDOWN_MS - 1 });
+    expect(s.phase).toBe('countdown');
+    s = liveStep(s, { type: 'tick', now: 1000 + LIVE_COUNTDOWN_MS });
+    expect(s).toMatchObject({ phase: 'playing', round: 0, shownAt: 1000 + LIVE_COUNTDOWN_MS });
+  });
+
+  it('stops if there are too few kana in common', () => {
+    const s = liveStep(start(), { type: 'message', message: { type: 'hello', met: ['あ', 'い'] }, now: 1000 });
+    expect(s.phase).toBe('too-few');
+  });
+
+  it('ignores a second hello', () => {
+    const s = playing();
+    expect(liveStep(s, { type: 'message', message: hello, now: 12_000 })).toEqual(s);
+  });
+
+  it('sends my answer with my time, and settles the round once theirs arrives', () => {
+    let s = playing();
+    s = liveStep(s, { type: 'tap', correct: true, now: 10_900 });
+    expect(s.outbox.at(-1)).toEqual({ type: 'answer', round: 0, correct: true, ms: 900 });
+    expect(s.phase).toBe('playing');
+    s = liveStep(s, { type: 'message', message: { type: 'answer', round: 0, correct: true, ms: 1200 }, now: 11_000 });
+    expect(s).toMatchObject({ phase: 'reveal', lastResult: 'mine', score: { mine: 1, theirs: 0 } });
+    expect(answerOf(s)).toBeDefined();
+  });
+
+  it('takes only one tap a round', () => {
+    let s = playing();
+    s = liveStep(s, { type: 'tap', correct: false, now: 10_500 });
+    expect(liveStep(s, { type: 'tap', correct: true, now: 10_600 })).toEqual(s);
+  });
+
+  it("gives up the round once their right answer can't be beaten", () => {
+    let s = playing();
+    s = liveStep(s, { type: 'message', message: { type: 'answer', round: 0, correct: true, ms: 700 }, now: 10_400 });
+    expect(s.phase).toBe('playing');
+    s = liveStep(s, { type: 'tick', now: 10_700 });
+    expect(s.outbox.at(-1)).toEqual({ type: 'answer', round: 0, correct: false, ms: 700 });
+    expect(s).toMatchObject({ phase: 'reveal', lastResult: 'theirs' });
+  });
+
+  it(`times out at ${LIVE_ROUND_MS / 1000}s`, () => {
+    let s = playing();
+    s = liveStep(s, { type: 'tick', now: 10_000 + LIVE_ROUND_MS });
+    expect(s.outbox.at(-1)).toEqual({ type: 'answer', round: 0, correct: false, ms: LIVE_ROUND_MS });
+  });
+
+  it('keeps an answer to the next round that arrives early', () => {
+    let s = playing();
+    s = liveStep(s, { type: 'message', message: { type: 'answer', round: 1, correct: true, ms: 500 }, now: 10_100 });
+    s = liveStep(s, { type: 'tap', correct: true, now: 10_300 });
+    s = liveStep(s, { type: 'message', message: { type: 'answer', round: 0, correct: false, ms: 900 }, now: 10_400 });
+    s = liveStep(s, { type: 'tick', now: 10_400 + LIVE_REVEAL_MS });
+    expect(s).toMatchObject({ phase: 'playing', round: 1 });
+    // Their round-1 answer is already here: a quicker one wins it outright.
+    s = liveStep(s, { type: 'tap', correct: true, now: s.shownAt + 450 });
+    expect(s).toMatchObject({ lastResult: 'mine', score: { mine: 2, theirs: 0 } });
+  });
+
+  it(`ends at ${LIVE_WIN} points`, () => {
+    let s = playing();
+    for (let i = 0; i < LIVE_WIN; i++) {
+      s = liveStep(s, { type: 'tap', correct: true, now: s.shownAt + 500 });
+      s = liveStep(s, { type: 'message', message: { type: 'answer', round: s.round, correct: false, ms: 900 }, now: s.shownAt + 900 });
+      if (s.phase === 'reveal') s = liveStep(s, { type: 'tick', now: s.phaseEnds });
+    }
+    expect(s).toMatchObject({ phase: 'over', score: { mine: LIVE_WIN, theirs: 0 } });
+  });
+
+  it('does not change the state it was given', () => {
+    const s = playing();
+    const before = JSON.stringify(s);
+    liveStep(s, { type: 'tap', correct: true, now: 10_500 });
+    expect(JSON.stringify(s)).toBe(before);
+  });
+});
+
+describe('rematch messages', () => {
+  it('are read, with a valid room code only', () => {
+    expect(parseLiveMessage({ type: 'rematch', code: 'TAKE' })).toEqual({ type: 'rematch', code: 'TAKE' });
+    expect(parseLiveMessage({ type: 'rematch', code: 'no' })).toBeNull();
+  });
+});
+
+describe('the record', () => {
+  it('keeps both scores, and counts as a game', () => {
+    const done = completeLiveDuel(EMPTY_PROGRESS, 'KAME', 5, { mine: 7, theirs: 4 });
+    expect(done.completed).toEqual([{ lesson: 'game:live:KAME', at: 5, score: 7, opponent: 4 }]);
   });
 });

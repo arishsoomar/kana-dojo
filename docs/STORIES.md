@@ -1121,7 +1121,10 @@ single words.
       こんにちは, ありがとう, いただきます, みずを ください…
 - [ ] A question: read the phrase, choose what it means from four
 - [ ] Particles: は read "wa", へ read "e", を read "o" when they mark a word's role. After an
-      answer, the phrase's romaji shows them picked out, with a one-line note the first times
+      answer, the phrase's romaji shows them picked out, with a one-line note
+- Notes: nothing in the kana shows which は is a particle (はな is "hana"), so the phrase list
+  marks them in brackets: みず[を] ください. In romaji a particle is its own word ("mizu o
+  kudasai"), except in a one-word phrase ("konnichiwa").
 
 ### AC3. The reading room
 **As a** learner, **I want** a place for all of this, **so that** reading is something I can

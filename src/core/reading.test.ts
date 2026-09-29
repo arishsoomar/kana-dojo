@@ -1,4 +1,18 @@
-import { placeOpen, readySigns, SIGNS_TO_OPEN, signRomaji, signRound, type Place } from './reading';
+import {
+  PARTICLE_NOTES,
+  phraseParticles,
+  phraseRomaji,
+  phraseRound,
+  phraseText,
+  placeOpen,
+  readyPhrases,
+  readySigns,
+  SIGNS_TO_OPEN,
+  signRomaji,
+  signRound,
+  type Phrase,
+  type Place,
+} from './reading';
 import { seededRng } from './random';
 
 // A small station, made up for the tests.
@@ -70,5 +84,62 @@ describe('a round of signs', () => {
 
   it('is nothing when the place is still locked', () => {
     expect(signRound(station, chars('でぐち'), seededRng('test'), 8)).toEqual([]);
+  });
+});
+
+describe('phrases', () => {
+  const water: Phrase = { text: 'みず[を] ください', meaning: 'Water, please.' };
+  const hello: Phrase = { text: 'こんにち[は]', meaning: 'Hello.' };
+  const flower: Phrase = { text: 'はな', meaning: 'A flower.' };
+  const toilet: Phrase = { text: 'トイレ[は] どこ ですか', meaning: 'Where is the toilet?' };
+  const station: Phrase = { text: 'えき[へ] いきます', meaning: "I'm going to the station." };
+  const joined = (p: Phrase) => phraseRomaji(p).map((s) => s.text).join('');
+
+  it('shows the phrase without the particle marks', () => {
+    expect(phraseText(water)).toBe('みずを ください');
+    expect(phraseText(hello)).toBe('こんにちは');
+  });
+
+  it('reads particles は as wa, へ as e and を as o, and picks them out', () => {
+    expect(joined(water)).toBe('mizu o kudasai');
+    expect(joined(toilet)).toBe('toire wa doko desuka');
+    expect(joined(station)).toBe('eki e ikimasu');
+    expect(phraseRomaji(water).filter((s) => s.particle).map((s) => s.text)).toEqual(['o']);
+  });
+
+  it('keeps a one-word phrase joined, and reads a は that is part of a word as ha', () => {
+    expect(joined(hello)).toBe('konnichiwa');
+    expect(joined(flower)).toBe('hana');
+  });
+
+  it('lists the particles a phrase uses, each once, with a note for each', () => {
+    expect(phraseParticles(toilet)).toEqual(['は']);
+    expect(phraseParticles(flower)).toEqual([]);
+    for (const p of ['は', 'へ', 'を'] as const) expect(PARTICLE_NOTES[p]).toMatch(/read/);
+  });
+
+  const phrases = [water, hello, flower, toilet, station];
+  const known = chars('みずをくださいこんにちはなトイレどでかえへきすま');
+
+  it('is ready once every kana in it has been met, particles included', () => {
+    expect(readyPhrases(phrases, known)).toEqual(phrases);
+    // Without す and ま: not ですか or いきます.
+    expect(readyPhrases(phrases, chars('みずをくださいこんにちはなトイレどでかえへき'))).toEqual([water, hello, flower]);
+    expect(readyPhrases(phrases, chars('はな'))).toEqual([flower]);
+  });
+
+  it('makes rounds of "what does this mean?", with four different meanings to choose from', () => {
+    const round = phraseRound(phrases, known, seededRng('p'), 6);
+    expect(round).toHaveLength(6);
+    for (const q of round) {
+      expect(q.options).toHaveLength(4);
+      expect(new Set(q.options.map((o) => o.meaning)).size).toBe(4);
+      expect(q.options).toContain(q.answer);
+    }
+    round.slice(1).forEach((q, i) => expect(q.answer).not.toBe(round[i]?.answer));
+  });
+
+  it(`needs ${SIGNS_TO_OPEN} ready phrases for a round`, () => {
+    expect(phraseRound(phrases, chars('はな'), seededRng('p'), 6)).toEqual([]);
   });
 });

@@ -1136,6 +1136,9 @@ practise any day.
 - [ ] A round is 8 questions from one place (or Phrases); the end shows what was read, and
       counts as a game (`game:reading`) for mon and assignments
 - [ ] A guide topic, including the particles
+- Notes: like the other game cards, the reading room's card is always there, saying what
+  opens it. Each set shows its signs ready and its best round (from the round's record), not
+  a count of each sign read right, which would need storing per sign.
 
 ## Built outside the stories
 

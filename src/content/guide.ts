@@ -6,6 +6,7 @@ import { FORGE_MIN_WORDS, FORGE_ROUND } from '@/core/forge';
 import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
+import { READING_ROUND, SIGNS_TO_OPEN } from '@/core/reading';
 import { GEAR, REST_DAY_PRICE } from '@/core/gear';
 import { ASSIGNMENTS_PER_DAY, MONTH_GOAL } from '@/core/assignments';
 import { KATA_LENGTH } from '@/core/kata';
@@ -266,6 +267,20 @@ export const GUIDE: GuideSection[] = [
               "Tap the word's romaji from four options, or type it. Each wrong option is the word with one kana misread, often as a lookalike.",
               'Each word comes with a picture and its meaning, and after you answer you hear it spoken.',
               "It counts as practice for every kana in the word: a word read right moves them all up (typed counts double, like lessons), and a misread kana is logged as a mix-up.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'reading',
+        question: 'What is the reading room?',
+        answer: [
+          `Reading Japanese the way it's written up in the world, for its meaning: find the exit among the station's signs, order from a café menu, or say what a phrase like みずを ください means. Word Forge reads words aloud; here the question is what they say.`,
+          {
+            bullets: [
+              `There's the station, a café, a shop, the street, and everyday phrases. Each opens once ${SIGNS_TO_OPEN} of its signs or phrases use only kana you've met, and more join as you learn more.`,
+              `A round is ${READING_ROUND} questions. After each, you see how it's read, and hear it if sound is on. A round counts as a game.`,
+              'In phrases, three kana are read differently when they\'re particles, the little words that mark what a word is doing: は is read "wa" (こんにちは is konnichiwa), へ is read "e", and を is read "o". The romaji picks them out in red.',
             ],
           },
         ],

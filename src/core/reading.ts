@@ -163,3 +163,15 @@ function withOthers<T>(answer: T, items: readonly T[], rng: Rng): T[] {
   ).slice(0, SIGN_OPTIONS - 1);
   return shuffle([answer, ...others], rng);
 }
+
+// A place's signs, or the phrases: what a round of the reading room is from.
+export type ReadingSet = PlaceId | 'phrases';
+
+export const READING_ROUND = 8; // questions in a round
+
+// A round is kept as a game, its score the number read right. Starting with "game:" makes it
+// count as a game everywhere (mon, assignments).
+
+export function readingId(set: ReadingSet): string {
+  return `game:reading:${set}`;
+}

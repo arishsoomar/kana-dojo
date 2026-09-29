@@ -19,6 +19,7 @@ import { MonIcon } from '@/components/mon-icon';
 import { PlayIcon } from '@/components/play-icon';
 import { Yokai } from '@/components/yokai';
 import { useKataCard } from '@/hooks/use-kata';
+import { useReadingRoom } from '@/hooks/use-reading';
 import { useMon } from '@/hooks/use-mon';
 import { useProgress } from '@/hooks/use-progress';
 import { supabase } from '@/storage/supabase';
@@ -30,6 +31,7 @@ export default function GamesScreen() {
   const { progress } = useProgress();
   const mon = useMon();
   const kata = useKataCard();
+  const readingOpen = useReadingRoom().filter((s) => s.open).length;
   const kataReady = kataOpen(progress);
   const best = bestScore(progress, RAIN_LESSON_ID);
   const allScrolls = scrolls(progress);
@@ -161,6 +163,17 @@ export default function GamesScreen() {
           <Text style={styles.sub}>
             {words >= FORGE_MIN_WORDS ? `${words} words to read` : `Opens at ${FORGE_MIN_WORDS} words (${words} so far)`}
           </Text>
+        </Pressable>
+
+        <Pressable role="button" aria-label="Reading room" onPress={() => router.push('/games/reading')} style={styles.card}>
+          <View style={[styles.art, styles.readingArt]}>
+            {/* A station sign: でぐち, "exit". */}
+            <View style={styles.readingSign}>
+              <Text style={styles.readingKana}>でぐち</Text>
+            </View>
+          </View>
+          <Text style={styles.name}>Reading room</Text>
+          <Text style={styles.sub}>{readingOpen > 0 ? `Signs and phrases, ${readingOpen} open` : 'Opens as you meet more kana'}</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -305,6 +318,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.night,
   },
   // A word on a small wooden board, over the wood of a workshop.
+  readingArt: {
+    backgroundColor: colors.indigoLight,
+  },
+  readingSign: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    backgroundColor: colors.indigoDark,
+  },
+  readingKana: {
+    fontFamily: fonts.jp,
+    fontSize: 20,
+    color: colors.card,
+  },
   forgeArt: {
     backgroundColor: colors.woodDark,
   },

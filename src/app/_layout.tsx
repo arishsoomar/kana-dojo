@@ -77,6 +77,8 @@ export default function RootLayout() {
             <Stack.Screen name="games/taiko" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="games/calligraphy" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="games/kata" options={{ headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="games/reading" options={{ headerShown: false }} />
+            <Stack.Screen name="games/read" options={{ headerShown: false, gestureEnabled: false }} />
           </Stack>
           {/* Over every screen: news from friends. */}
           <FriendBanner />

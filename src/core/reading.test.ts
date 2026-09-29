@@ -6,6 +6,7 @@ import {
   phraseText,
   placeOpen,
   readyPhrases,
+  readingId,
   readySigns,
   SIGNS_TO_OPEN,
   signRomaji,
@@ -141,5 +142,12 @@ describe('phrases', () => {
 
   it(`needs ${SIGNS_TO_OPEN} ready phrases for a round`, () => {
     expect(phraseRound(phrases, chars('はな'), seededRng('p'), 6)).toEqual([]);
+  });
+});
+
+describe('recording a round', () => {
+  it('counts as a game, one record per place or the phrases', () => {
+    expect(readingId('station')).toBe('game:reading:station');
+    expect(readingId('phrases')).toBe('game:reading:phrases');
   });
 });

@@ -17,7 +17,7 @@ function goBack() {
 }
 
 // "How the dojo works": every rule a learner might ask about, as questions that open to show
-// their answers. Opened from the Profile tab. `?topic=belts` opens with that question open.
+// their answers. Opened from Settings. `?topic=belts` opens with that question open.
 export default function GuideScreen() {
   const insets = useSafeAreaInsets();
   const rank = useRank();

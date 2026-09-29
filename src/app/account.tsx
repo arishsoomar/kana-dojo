@@ -16,7 +16,7 @@ const CODE_MAX = 10;
 
 function close() {
   if (router.canGoBack()) router.back();
-  else router.replace('/profile');
+  else router.replace('/settings');
 }
 
 // Sign in with an email code, or sign out. Accounts are optional; progress is always kept

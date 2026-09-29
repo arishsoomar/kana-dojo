@@ -10,7 +10,7 @@ export default function TabLayout() {
       <Tabs.Screen name="games" options={{ title: 'Games', headerShown: false }} />
       <Tabs.Screen name="kana" options={{ title: 'Kana', headerShown: false }} />
       <Tabs.Screen name="ranks" options={{ title: 'Ranks', headerShown: false }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile', headerShown: false }} />
+      <Tabs.Screen name="dojo" options={{ title: 'Dojo', headerShown: false }} />
     </Tabs>
   );
 }

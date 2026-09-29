@@ -164,7 +164,7 @@ export const GUIDE: GuideSection[] = [
         question: 'Should I tap or type my answers?',
         answer: [
           'Typing is harder, since you have to recall the sound instead of recognising it, so it counts double: each quick right answer typed moves a kana up 2 steps instead of 1. Typing also gets more time, since typing takes longer than tapping.',
-          'Switch with Tap / Type at the top of any lesson, or with Type answers on the Profile tab. You can type any common spelling, like shi or si.',
+          'Switch with Tap / Type at the top of any lesson, or with Type answers in Settings (the cog on the Dojo tab). You can type any common spelling, like shi or si.',
           'Belt exams and duels are always tapped.',
         ],
       },
@@ -368,7 +368,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How does the daily goal work?',
         answer: [
           `Choose ${GOALS.slice(0, -1).join(', ')} or ${GOALS[GOALS.length - 1]} a day. The ring at the top of the Learn screen shows today's progress.`,
-          'Lessons, exams, duels, the daily kata, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal on the Profile tab.',
+          'Lessons, exams, duels, the daily kata, and every game (Word Forge, the dungeon, memory match, the Taiko drill, calligraphy, Kana Rain) count. Change your goal in Settings, from the cog on the Dojo tab.',
         ],
       },
       {
@@ -395,7 +395,7 @@ export const GUIDE: GuideSection[] = [
             bullets: [
               "Games you've played before get their own assignments, so you're pointed back at them.",
               `Each one done earns ${MON.assignment} mon. There's nothing to claim: they fill in as you train.`,
-              `Finish ${MONTH_GOAL} in a calendar month for that month's moon. Moons level up the Moon-watcher badge on Profile.`,
+              `Finish ${MONTH_GOAL} in a calendar month for that month's moon. Each one hangs a lantern in your dojo and levels up the Moon-watcher badge.`,
             ],
           },
         ],
@@ -405,14 +405,14 @@ export const GUIDE: GuideSection[] = [
         question: 'What are mon, and what is the supply shed?',
         answer: [
           `Mon are the old square-holed coins you earn by training: ${MON.lesson} for each lesson or game, ${MON.duel} for each duel (${MON.duel + MON.duelWin} if you win), ${MON.exam} for each belt exam passed, ${MON.assignment} for each assignment done, and ${MON.day} for each day you train. They can't be bought with money.`,
-          `Spend them in the supply shed (tap your mon on the Games tab, or open it from Profile): a rest day for your streak is ${REST_DAY_PRICE} mon, and there's gear for Karasu, one piece for his head, face, body, neck and hand.`,
+          `Spend them in the supply shed (through the curtained doorway in your dojo, or tap your mon on the Games or Dojo tab): a rest day for your streak is ${REST_DAY_PRICE} mon, and there's gear for Karasu, one piece for his head, face, body, neck and hand.`,
           'Some gear can only be earned: ' + GEAR.filter((g) => g.unlock).map((g) => `the ${g.name} (${g.unlock?.about.toLowerCase()})`).join(', ') + '.',
           "Gear is just for looks: nothing in the shed makes the training easier. Karasu wears what you've picked everywhere you see him.",
         ],
       },
       {
         id: 'profile',
-        question: 'What do the numbers on my Profile mean?',
+        question: 'What do the numbers on the Dojo tab mean?',
         answer: [
           {
             bullets: [
@@ -420,7 +420,26 @@ export const GUIDE: GuideSection[] = [
               'Strike speed: your typical time for a right answer. Half your right answers are faster than this.',
               'Accuracy: your share of right answers, over everything you have answered.',
               'Unbroken badge: streak days, levelling up at 7, 30 and 100.',
+              'Plaques: rows with a belt earned by exam, out of every row in both scripts. Scrolls won: duels won.',
               'Graded badge: row belts earned by exam, levelling up at 5, 10 and 20.',
+              'Moon-watcher badge: monthly challenges met, levelling up at 1, 3 and 12.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'dojo',
+        question: 'What is in my dojo?',
+        answer: [
+          'The Dojo tab is your room, and it fills up as you train. Anything not earned yet is drawn dashed, with a hint of what fills it.',
+          {
+            bullets: [
+              'A plaque on the wall for each row with a belt earned by exam.',
+              'A hanging scroll for the last duel you won.',
+              'A practice sword on the weapon rack for each game record: Kana Rain, the dungeon, the Taiko drill and memory match.',
+              'A lantern for each moon from the monthly challenge.',
+              'A bonsai that grows with your streak: a sprout at 1 day, a young tree at 7, a full tree at 30, and blossom at 100.',
+              'The curtained doorway leads to the supply shed.',
             ],
           },
         ],
@@ -429,7 +448,7 @@ export const GUIDE: GuideSection[] = [
         id: 'ranks',
         question: 'What is the Ranks tab?',
         answer: [
-          'Your division, which follows your rank, and your lessons this week. Weekly leagues against other learners are coming later.',
+          "Today's three assignments and the month's challenge, then your division, which follows your rank, with your lessons this week. Weekly leagues against other learners are coming later.",
         ],
       },
     ],
@@ -441,7 +460,7 @@ export const GUIDE: GuideSection[] = [
         id: 'sound',
         question: 'How do I turn off sound or vibration?',
         answer: [
-          'On the Profile tab, use the Sound and Haptics switches. In a lesson, the speaker button at the top mutes sound too.',
+          'In Settings (the cog on the Dojo tab), use the Sound and Haptics switches. In a lesson, the speaker button at the top mutes sound too.',
           "Sound stays quiet while your phone is on silent. Even with Sound off, you can hear a kana from its page in the Kana tab.",
         ],
       },
@@ -450,7 +469,7 @@ export const GUIDE: GuideSection[] = [
         question: 'Where is my progress saved?',
         answer: [
           'On your phone, after every answer. You never need an account.',
-          'If you want it on more than one device, sign in from the Profile tab with a code sent to your email. Your progress is then saved to your account too, and each device combines its progress with the account instead of replacing it.',
+          'If you want it on more than one device, sign in from Settings (the cog on the Dojo tab) with a code sent to your email. Your progress is then saved to your account too, and each device combines its progress with the account instead of replacing it.',
         ],
       },
     ],

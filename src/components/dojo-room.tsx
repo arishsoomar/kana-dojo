@@ -1,16 +1,12 @@
-import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AliveKarasu } from '@/components/alive-karasu';
-import { BackIcon } from '@/components/back-icon';
-import { Bonsai } from '@/components/bonsai';
 import { beltColors, beltEdges, colors, dojoColors, fonts, scrollColors, wallColors } from '@/constants/theme';
-import { dojoRoom, type RackGame, type RackRecord, type RoomPlaque } from '@/core/dojo';
-import { useAssignments } from '@/hooks/use-assignments';
-import { useProgress } from '@/hooks/use-progress';
-import { useRank } from '@/hooks/use-rank';
-import { useStreak } from '@/hooks/use-streak';
+import type { Belt } from '@/core/boxes';
+import type { DojoRoom as DojoRoomContents, RackGame, RackRecord, RoomPlaque } from '@/core/dojo';
+
+import { AliveKarasu } from './alive-karasu';
+import { Bonsai } from './bonsai';
+import { MonIcon } from './mon-icon';
 
 // Plaques on the wall's rail before the rest are counted as "+ more".
 const WALL_PLAQUES = 8;
@@ -18,124 +14,115 @@ const WALL_PLAQUES = 8;
 const WALL_LANTERNS = 3;
 const PLANK_GAPS = [70, 140, 210, 280];
 
-function goBack() {
-  if (router.canGoBack()) router.back();
-  else router.replace('/profile');
-}
+type Props = {
+  room: DojoRoomContents;
+  rank: Belt; // for Karasu
+  mon: number; // shown on the shed's doorway
+  onShed: () => void;
+};
 
 // Your dojo: a room that fills with what you've earned. Things not yet earned are drawn dashed,
-// with a hint of what fills them.
-export default function DojoScreen() {
-  const insets = useSafeAreaInsets();
-  const { progress } = useProgress();
-  const rank = useRank();
-  const streak = useStreak();
-  const { moons } = useAssignments();
-  const room = dojoRoom(progress, { streak: streak.current, moons });
+// with a hint of what fills them. The supply shed is through the curtained doorway.
+export function DojoRoom({ room, rank, mon, onShed }: Props) {
   const shown = room.plaques.slice(0, WALL_PLAQUES);
   const more = room.plaques.length - shown.length;
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <View style={styles.top}>
-        <Pressable role="button" aria-label="Back" onPress={goBack} hitSlop={10}>
-          <BackIcon color={colors.ink2} />
-        </Pressable>
-        <Text style={styles.title}>Your dojo</Text>
+    <View style={styles.room}>
+      <View style={styles.beam} />
+
+      <View style={styles.wall}>
+        <View style={styles.wallLeft}>
+          {/* Row plaques, hanging from a rail, with a "+" for the next one. */}
+          <View style={styles.plaques}>
+            {shown.map((plaque) => (
+              <Plaque key={`${plaque.script}:${plaque.row}`} plaque={plaque} />
+            ))}
+            {more > 0 ? (
+              <View style={[styles.plaque, styles.emptyPlaque]}>
+                <Text style={styles.moreText}>+{more}</Text>
+              </View>
+            ) : (
+              <View style={[styles.plaque, styles.emptyPlaque]} aria-label="Pass a belt exam to hang a plaque">
+                <Text style={styles.plus}>+</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.rail} />
+          {room.plaques.length === 0 && <Text style={styles.hint}>Pass a belt exam to hang a plaque</Text>}
+
+          {/* The weapon rack: a practice sword for each game's record. */}
+          <View style={styles.rack}>
+            {room.rack.map((record) => (
+              <Weapon key={record.game} record={record} />
+            ))}
+          </View>
+          <View style={styles.rail} />
+          <Text style={styles.label}>Weapon rack</Text>
+        </View>
+
+        <View style={styles.wallRight}>
+          {room.scroll ? (
+            <View style={styles.scroll} aria-label={`Scroll won: ${room.scroll.name}`}>
+              <Text style={styles.scrollKana}>{room.scroll.kana[0]}</Text>
+              <Text style={styles.scrollKana}>{room.scroll.kana[1]}</Text>
+              <View style={styles.hanko}>
+                <Text style={styles.hankoText}>勝</Text>
+              </View>
+            </View>
+          ) : (
+            <View style={[styles.scroll, styles.emptyScroll]}>
+              <Text style={styles.emptyText}>Win a duel</Text>
+            </View>
+          )}
+          <Text style={[styles.label, styles.centered]} numberOfLines={2}>
+            {room.scroll ? room.scroll.name : 'Scroll'}
+          </Text>
+
+          {/* A lantern for each moon, and a dashed one for the next. */}
+          <View style={styles.lanterns}>
+            {Array.from({ length: Math.min(room.lanterns, WALL_LANTERNS) }, (_, i) => (
+              <Lantern key={i} />
+            ))}
+            {room.lanterns < WALL_LANTERNS && <Lantern empty />}
+          </View>
+          <Text style={[styles.label, styles.centered]}>
+            {room.lanterns === 0 ? 'Earn a moon' : `${room.lanterns} ${room.lanterns === 1 ? 'moon' : 'moons'}`}
+          </Text>
+        </View>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
-        <View style={styles.room}>
-          <View style={styles.beam} />
-
-          <View style={styles.wall}>
-            <View style={styles.wallLeft}>
-              {/* Row plaques, hanging from a rail, with a "+" for the next one. */}
-              <View style={styles.plaques}>
-                {shown.map((plaque) => (
-                  <Plaque key={`${plaque.script}:${plaque.row}`} plaque={plaque} />
-                ))}
-                {more > 0 ? (
-                  <View style={[styles.plaque, styles.emptyPlaque]}>
-                    <Text style={styles.moreText}>+{more}</Text>
-                  </View>
-                ) : (
-                  <View style={[styles.plaque, styles.emptyPlaque]} aria-label="Pass a belt exam to hang a plaque">
-                    <Text style={styles.plus}>+</Text>
-                  </View>
-                )}
+      {/* The floor: the bonsai, Karasu in his gear on his cushion, and the doorway to the shed. */}
+      <View style={styles.floor}>
+        {PLANK_GAPS.map((left) => (
+          <View key={left} style={[styles.plank, { left }]} />
+        ))}
+        <View style={styles.floorThing}>
+          <Bonsai stage={room.bonsai} size={62} />
+          <Text style={styles.label}>{room.bonsai === 0 ? 'Train to grow it' : 'Bonsai'}</Text>
+        </View>
+        <View style={styles.karasu}>
+          <AliveKarasu mood="focus" rank={rank} size={112} />
+          <View style={styles.cushion} />
+        </View>
+        <Pressable role="button" aria-label={`Supply shed: ${mon} mon to spend`} onPress={onShed} style={styles.floorThing}>
+          <View style={styles.doorway}>
+            {/* A noren: the split curtain hung in a shop's doorway, with 店 ("shop") on it. */}
+            <View style={styles.noren}>
+              <View style={styles.norenPanel} />
+              <View style={[styles.norenPanel, styles.norenMiddle]}>
+                <Text style={styles.norenText}>店</Text>
               </View>
-              <View style={styles.rail} />
-              {room.plaques.length === 0 && <Text style={styles.hint}>Pass a belt exam to hang a plaque</Text>}
-
-              {/* The weapon rack: a practice sword for each game's record. */}
-              <View style={styles.rack}>
-                {room.rack.map((record) => (
-                  <Weapon key={record.game} record={record} />
-                ))}
-              </View>
-              <View style={styles.rail} />
-              <Text style={styles.label}>Weapon rack</Text>
-            </View>
-
-            <View style={styles.wallRight}>
-              {room.scroll ? (
-                <View style={styles.scroll} aria-label={`Scroll won: ${room.scroll.name}`}>
-                  <Text style={styles.scrollKana}>{room.scroll.kana[0]}</Text>
-                  <Text style={styles.scrollKana}>{room.scroll.kana[1]}</Text>
-                  <View style={styles.hanko}>
-                    <Text style={styles.hankoText}>勝</Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={[styles.scroll, styles.emptyScroll]}>
-                  <Text style={styles.emptyText}>Win a duel</Text>
-                </View>
-              )}
-              <Text style={[styles.label, styles.centered]} numberOfLines={2}>
-                {room.scroll ? room.scroll.name : 'Scroll'}
-              </Text>
-
-              {/* A lantern for each moon, and a dashed one for the next. */}
-              <View style={styles.lanterns}>
-                {Array.from({ length: Math.min(room.lanterns, WALL_LANTERNS) }, (_, i) => (
-                  <Lantern key={i} />
-                ))}
-                {room.lanterns < WALL_LANTERNS && <Lantern empty />}
-              </View>
-              <Text style={[styles.label, styles.centered]}>
-                {room.lanterns === 0 ? 'Earn a moon' : `${room.lanterns} ${room.lanterns === 1 ? 'moon' : 'moons'}`}
-              </Text>
+              <View style={styles.norenPanel} />
             </View>
           </View>
-
-          {/* The floor: the bonsai, Karasu in his gear, a cushion and a training dummy. */}
-          <View style={styles.floor}>
-            {PLANK_GAPS.map((left) => (
-              <View key={left} style={[styles.plank, { left }]} />
-            ))}
-            <View style={styles.floorThing}>
-              <Bonsai stage={room.bonsai} size={62} />
-              <Text style={styles.label}>{room.bonsai === 0 ? 'Train to grow it' : 'Bonsai'}</Text>
-            </View>
-            <View style={styles.karasu}>
-              <AliveKarasu mood="focus" rank={rank} size={112} />
-              <View style={styles.cushion} />
-            </View>
-            <View style={styles.floorThing}>
-              <View style={styles.dummyHead} />
-              <View style={styles.dummyBody} />
-              <Text style={styles.label}>Dummy</Text>
-            </View>
+          <Text style={styles.label}>Supply shed</Text>
+          <View style={styles.mon}>
+            <MonIcon size={13} />
+            <Text style={styles.monText}>{mon}</Text>
           </View>
-        </View>
-
-        <View style={styles.stats}>
-          <Stat value={`${room.plaques.length} / ${room.rowCount}`} label="Plaques" />
-          <Stat value={String(room.scrollsWon)} label={room.scrollsWon === 1 ? 'Scroll' : 'Scrolls'} />
-          <Stat value={String(streak.current)} label="Day streak" />
-        </View>
-      </ScrollView>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -195,37 +182,8 @@ function Lantern({ empty = false }: { empty?: boolean }) {
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <View style={styles.stat}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.paper,
-  },
-  top: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingTop: 6,
-    paddingBottom: 10,
-    paddingHorizontal: 18,
-  },
-  title: {
-    flex: 1,
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 18,
-    color: colors.sumi,
-  },
-  content: {
-    paddingHorizontal: 14,
-  },
   room: {
     overflow: 'hidden',
     borderRadius: 8,
@@ -473,6 +431,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: -40,
   },
+  doorway: {
+    width: 64,
+    height: 92,
+    paddingTop: 5,
+    paddingHorizontal: 5,
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
+    backgroundColor: wallColors.peg,
+  },
+  noren: {
+    flexDirection: 'row',
+    gap: 2,
+    height: 46,
+  },
+  norenPanel: {
+    flex: 1,
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
+    backgroundColor: colors.indigoDark,
+  },
+  norenMiddle: {
+    alignItems: 'center',
+    paddingTop: 10,
+  },
+  norenText: {
+    fontFamily: fonts.jp,
+    fontSize: 13,
+    color: colors.card,
+  },
+  mon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginTop: 2,
+  },
+  monText: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 12,
+    color: colors.sumi,
+  },
   cushion: {
     width: 70,
     height: 14,
@@ -481,38 +479,5 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: dojoColors.cushionEdge,
     backgroundColor: dojoColors.cushion,
-  },
-  dummyHead: {
-    width: 22,
-    height: 14,
-    borderRadius: 6,
-    backgroundColor: wallColors.rail,
-  },
-  dummyBody: {
-    width: 30,
-    height: 54,
-    marginTop: -2,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.woodDark,
-    backgroundColor: colors.wood,
-  },
-  stats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 14,
-  },
-  stat: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontFamily: fonts.uiBlack,
-    fontSize: 17,
-    color: colors.sumi,
-  },
-  statLabel: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 12,
-    color: colors.ink2,
   },
 });

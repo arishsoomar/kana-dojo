@@ -926,7 +926,8 @@ picture of progress that already exists, so nothing new is stored.
 - [ ] A paper lantern for each moon from the monthly challenge
 
 ### W2. The dojo screen
-- [ ] "Your dojo" on Profile opens it
+- [ ] "Your dojo" on Profile opens it (later made its own tab; see Built
+      outside the stories)
 - [ ] The room from the mock: a wooden beam, plaques on a rail (with a
       "+" for the next), the scroll with its 勝 seal, the weapon rack, the
       lanterns, and on the floor the bonsai, a cushion, a training dummy
@@ -1017,6 +1018,14 @@ picture of progress that already exists, so nothing new is stored.
   about, as questions that open to show their answers, with a belt ladder
   picture. The text lives in `src/content/guide.ts` and takes its numbers
   from the engine; `guide.test.ts` fails if a hand-written rule changes.
+
+- Dojo tab: the Profile tab became the Dojo tab, so the room and the shed
+  are part of the main app instead of rows in a settings list. The room is
+  at the top, and the supply shed is through a doorway in it, a noren
+  curtain marked 店 (the training dummy made way for it). Mon and a cog sit
+  in the header. Rank, six numbers (with plaques and scrolls won) and
+  badges are below. Daily goal, sound, haptics, typing, account and the
+  guide moved to a Settings screen behind the cog.
 
 ## Later
 

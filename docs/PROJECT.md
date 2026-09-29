@@ -115,7 +115,7 @@ src/app/
     games.tsx        Training hall — all game modes
     kana.tsx         Belt grid — every kana and its belt
     ranks.tsx        Tournament — weekly league
-    profile.tsx      Profile — rank, stats, badges
+    dojo.tsx         Dojo — your room, rank, stats, badges
   lesson.tsx         pushes over the tabs
   exam.tsx           belt exam, pushes over the tabs
   games/...          individual game modes

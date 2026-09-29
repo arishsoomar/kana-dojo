@@ -66,11 +66,13 @@ export function RanksIcon({ color, size = 22 }: TabIconProps) {
   );
 }
 
-export function ProfileIcon({ color, size = 22 }: TabIconProps) {
+// A dojo: a curved roof over a hall with a doorway.
+export function DojoIcon({ color, size = 22 }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Circle cx={12} cy={8} r={4.5} fill={color} />
-      <Path d="M3.5 21a8.5 8 0 0 1 17 0z" fill={color} />
+      <Path d="M1.5 9.5C5 9 8.5 6.8 12 3.5c3.5 3.3 7 5.5 10.5 6z" fill={color} />
+      <Rect x={4.5} y={11} width={15} height={10} rx={1} fill={color} />
+      <Rect x={10} y={14.5} width={4} height={6.5} fill={cutout} />
     </Svg>
   );
 }

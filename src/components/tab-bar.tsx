@@ -4,14 +4,14 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { colors } from '@/constants/theme';
 
-import { GamesIcon, HomeIcon, KanaIcon, ProfileIcon, RanksIcon, type TabIconProps } from './tab-icons';
+import { DojoIcon, GamesIcon, HomeIcon, KanaIcon, RanksIcon, type TabIconProps } from './tab-icons';
 
 const icons: Record<string, ComponentType<TabIconProps>> = {
   index: HomeIcon,
   games: GamesIcon,
   kana: KanaIcon,
   ranks: RanksIcon,
-  profile: ProfileIcon,
+  dojo: DojoIcon,
 };
 
 export function TabBar({ state, descriptors, navigation, insets }: BottomTabBarProps) {

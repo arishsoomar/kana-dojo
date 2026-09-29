@@ -18,7 +18,7 @@ function goBack() {
 }
 
 // Choose how much to train each day. Part of onboarding for a new learner (after the
-// welcome); from Profile, the same screen changes the goal.
+// welcome); from Settings, the same screen changes the goal.
 export default function GoalScreen() {
   const insets = useSafeAreaInsets();
   const { progress, updateProgress } = useProgress();

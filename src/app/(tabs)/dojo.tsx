@@ -1,18 +1,20 @@
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
 import { BoltIcon } from '@/components/bolt-icon';
 import { CheckIcon } from '@/components/check-icon';
+import { DojoRoom } from '@/components/dojo-room';
 import { FlameIcon } from '@/components/flame-icon';
+import { MonIcon } from '@/components/mon-icon';
 import { MoonIcon } from '@/components/moon-icon';
-import { Karasu } from '@/components/karasu';
+import { PlaqueIcon } from '@/components/plaque-icon';
+import { SettingsIcon } from '@/components/settings-icon';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
-import { setHaptics, setTyping, setSound } from '@/core/answers';
-import { DAILY_GOALS } from '@/core/goal';
+import { dojoRoom } from '@/core/dojo';
 import {
   badgeLevel,
   kanaLearned,
@@ -23,42 +25,50 @@ import {
   type BadgeProgress,
 } from '@/core/profile';
 import { KANA } from '@/core/kana';
-import { useAuth } from '@/hooks/use-auth';
 import { useMon } from '@/hooks/use-mon';
 import { useAssignments } from '@/hooks/use-assignments';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
 
-// On web the switch's knob colour comes from activeThumbColor, not thumbColor. React Native's
-// types don't list it (it only exists on web), hence the cast.
-const webThumbColor = Platform.OS === 'web' ? ({ activeThumbColor: colors.card } as object) : {};
-
 // Badge goals: streak days for Unbroken, row belts earned for Graded, moons for Moon-watcher.
 const UNBROKEN_GOALS = [7, 30, 100];
 const GRADED_GOALS = [5, 10, 20];
 const MOON_GOALS = [1, 3, 12];
 
-export default function ProfileScreen() {
+// The Dojo tab: your room, filled with what you've earned (the supply shed is through its
+// doorway), then your rank, numbers and badges. Settings are behind the cog.
+export default function DojoTab() {
   const insets = useSafeAreaInsets();
+  const { progress } = useProgress();
   const assignments = useAssignments();
-  const { progress, updateProgress } = useProgress();
   const rank = useRank();
   const streak = useStreak();
+  const mon = useMon();
+  const room = dojoRoom(progress, { streak: streak.current, moons: assignments.moons });
   const since = trainingSince(progress);
   const accuracy = overallAccuracy(progress);
   const speed = overallStrikeSpeed(progress);
-  const goal = DAILY_GOALS.find((g) => g.lessons === progress.settings.dailyGoal);
-  const auth = useAuth();
-  const mon = useMon();
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <Karasu mood="focus" rank={rank} size={98} />
-        <Text style={styles.rank}>{capitalize(rank)} belt</Text>
-        <View style={styles.sinceRow}>
-          <BeltIcon belt={rank} width={52} />
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>Your dojo</Text>
+        <Pressable role="button" aria-label={`${mon.balance} mon. Open the supply shed`} onPress={() => router.push('/shed')} style={styles.chip}>
+          <MonIcon />
+          <Text style={styles.chipText}>{mon.balance}</Text>
+        </Pressable>
+        <Pressable role="button" aria-label="Settings" onPress={() => router.push('/settings')} hitSlop={10}>
+          <SettingsIcon />
+        </Pressable>
+      </View>
+
+      <DojoRoom room={room} rank={rank} mon={mon.balance} onShed={() => router.push('/shed')} />
+
+      <View style={styles.rankRow}>
+        <BeltIcon belt={rank} width={46} />
+        <View>
+          <Text style={styles.rank}>{capitalize(rank)} belt</Text>
           <Text style={styles.since}>
             {since === null
               ? 'Finish a lesson to start training'
@@ -80,99 +90,9 @@ export default function ProfileScreen() {
           value={accuracy === null ? '–' : `${Math.round(accuracy * 100)}%`}
           label="Accuracy"
         />
+        <Stat icon={<PlaqueIcon color={colors.wood} lines={colors.woodDark} size={28} />} value={`${room.plaques.length}/${room.rowCount}`} label="Plaques" />
+        <Stat icon={<Text style={styles.hanko}>勝</Text>} value={String(room.scrollsWon)} label="Scrolls won" />
       </View>
-
-      <Pressable role="button" onPress={() => router.push('/goal')} style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>Daily goal</Text>
-          <Text style={styles.goalSub}>
-            {goal ? `${goal.name} · ${goal.minutes} minutes, ${goal.lessons} ${goal.lessons === 1 ? 'lesson' : 'lessons'} a day` : ''}
-          </Text>
-        </View>
-        <Text style={styles.goalChange}>Change</Text>
-      </Pressable>
-
-      {/* The same setting as the speaker button in a lesson's top bar. */}
-      <View style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>Sound</Text>
-          <Text style={styles.goalSub}>Hear each kana spoken after you answer it</Text>
-        </View>
-        <Switch
-          aria-label="Sound"
-          value={progress.settings.sound}
-          onValueChange={(on) => updateProgress(setSound(progress, on))}
-          trackColor={{ false: colors.edge, true: colors.pine }}
-          thumbColor={colors.card}
-          {...webThumbColor}
-        />
-      </View>
-
-      <View style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>Haptics</Text>
-          <Text style={styles.goalSub}>A tap for right answers, a buzz for misses and big moments</Text>
-        </View>
-        <Switch
-          aria-label="Haptics"
-          value={progress.settings.haptics}
-          onValueChange={(on) => updateProgress(setHaptics(progress, on))}
-          trackColor={{ false: colors.edge, true: colors.pine }}
-          thumbColor={colors.card}
-          {...webThumbColor}
-        />
-      </View>
-
-      {/* The same setting as the Tap / Type switch in a lesson's top bar. */}
-      <View style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>Type answers</Text>
-          <Text style={styles.goalSub}>Type each kana&apos;s sound instead of tapping it. Counts double toward belts.</Text>
-        </View>
-        <Switch
-          aria-label="Type answers"
-          value={progress.settings.typing}
-          onValueChange={(on) => updateProgress(setTyping(progress, on))}
-          trackColor={{ false: colors.edge, true: colors.pine }}
-          thumbColor={colors.card}
-          {...webThumbColor}
-        />
-      </View>
-
-      {/* Only shown when this build has accounts set up. */}
-      {auth.available && (
-        <Pressable role="button" onPress={() => router.push('/account')} style={styles.goal}>
-          <View style={styles.goalText}>
-            <Text style={styles.goalTitle}>{auth.email ? 'Account' : 'Save your progress to an account'}</Text>
-            <Text style={styles.goalSub}>{auth.email ? `Signed in as ${auth.email}` : 'Optional. Sign in with a code sent to your email.'}</Text>
-          </View>
-          <Text style={styles.goalChange}>{auth.email ? 'Manage' : 'Sign in'}</Text>
-        </Pressable>
-      )}
-
-      <Pressable role="button" onPress={() => router.push('/guide')} style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>How the dojo works</Text>
-          <Text style={styles.goalSub}>Belts, exams, duels, streaks, and everything else</Text>
-        </View>
-        <Text style={styles.goalChange}>Open</Text>
-      </Pressable>
-
-      <Pressable role="button" onPress={() => router.push('/dojo')} style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>Your dojo</Text>
-          <Text style={styles.goalSub}>A room that fills with what you&apos;ve earned</Text>
-        </View>
-        <Text style={styles.goalChange}>Open</Text>
-      </Pressable>
-
-      <Pressable role="button" onPress={() => router.push('/shed')} style={styles.goal}>
-        <View style={styles.goalText}>
-          <Text style={styles.goalTitle}>Supply shed</Text>
-          <Text style={styles.goalSub}>Gear for Karasu and rest days, for {mon.balance} mon you&apos;ve earned</Text>
-        </View>
-        <Text style={styles.goalChange}>Open</Text>
-      </Pressable>
 
       <Text style={styles.heading}>Badges</Text>
       <Badge
@@ -251,36 +171,71 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
   },
   content: {
+    gap: 12,
+    paddingHorizontal: 14,
     paddingBottom: 24,
   },
-  header: {
-    alignItems: 'center',
-    paddingBottom: 14,
-    backgroundColor: colors.sumi,
-  },
-  rank: {
-    marginTop: 2,
-    fontFamily: fonts.uiBlack,
-    fontSize: 23,
-    color: colors.card,
-  },
-  sinceRow: {
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
+    paddingHorizontal: 4,
+  },
+  title: {
+    flex: 1,
     marginTop: 4,
+    fontFamily: fonts.uiBlack,
+    fontSize: 25,
+    color: colors.sumi,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.card,
+  },
+  chipText: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    color: colors.sumi,
+  },
+  rankRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 4,
+  },
+  rank: {
+    fontFamily: fonts.uiBlack,
+    fontSize: 19,
+    color: colors.sumi,
   },
   since: {
     fontFamily: fonts.uiSemiBold,
     fontSize: 13,
-    color: colors.muted,
+    color: colors.ink2,
+  },
+  hanko: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2.5,
+    borderColor: colors.vermilion,
+    textAlign: 'center',
+    fontFamily: fonts.jp,
+    fontSize: 14,
+    lineHeight: 23,
+    color: colors.vermilion,
   },
   stats: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 12,
-    paddingHorizontal: 18,
   },
   stat: {
     flexBasis: '45%',
@@ -304,39 +259,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.ink2,
   },
-  goal: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    marginHorizontal: 18,
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: colors.line,
-    backgroundColor: colors.card,
-  },
-  goalText: {
-    flex: 1,
-  },
-  goalTitle: {
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 14,
-    color: colors.sumi,
-  },
-  goalSub: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 12,
-    color: colors.ink2,
-  },
-  goalChange: {
-    fontFamily: fonts.uiBold,
-    fontSize: 13,
-    color: colors.vermilionDark,
-  },
   heading: {
-    marginTop: 16,
-    marginBottom: 8,
-    paddingHorizontal: 18,
+    marginTop: 4,
+    paddingHorizontal: 4,
     fontFamily: fonts.uiExtraBold,
     fontSize: 16,
     color: colors.sumi,
@@ -345,8 +270,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginHorizontal: 18,
-    marginBottom: 8,
     padding: 10,
     borderRadius: 10,
     borderWidth: 1.5,

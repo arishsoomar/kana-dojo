@@ -907,6 +907,36 @@ from the finished lessons and games, so they sync with everything else.
 
 ---
 
+## Epic W — Your dojo
+
+From the mock: a room that fills with what the learner has earned. It's a
+picture of progress that already exists, so nothing new is stored.
+
+### W1. What the room holds
+- [ ] Pure functions in `src/core/dojo.ts`, test-first
+- [ ] Plaques: one per row with a belt earned by exam, in either script,
+      showing the row's kana and its belt
+- [ ] The hanging scroll: the most recently won duel's pair, and how many
+      scrolls are won
+- [ ] The weapon rack: records from Kana Rain (best score), the dungeon
+      (deepest floor), the Taiko drill (best score) and memory match
+      (fewest moves); an empty slot for a game not played yet
+- [ ] The bonsai grows with the streak: a bare pot, then a sprout (1 day),
+      a young tree (7), a full tree (30) and one in blossom (100)
+- [ ] A paper lantern for each moon from the monthly challenge
+
+### W2. The dojo screen
+- [ ] "Your dojo" on Profile opens it
+- [ ] The room from the mock: a wooden beam, plaques on a rail (with a
+      "+" for the next), the scroll with its 勝 seal, the weapon rack, the
+      lanterns, and on the floor the bonsai, a cushion, a training dummy
+      and Karasu in his gear
+- [ ] Empty things are drawn dashed, with a hint of what fills them
+- [ ] Under the room: plaques, scrolls and day streak
+- Notes: "Visit a friend" needs friends, so it waits.
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike
@@ -990,7 +1020,7 @@ from the finished lessons and games, so they sync with everything else.
 
 ## Later
 
-The dojo room, tournaments (the weekly league), shadow match, partner
-assignments.
+Tournaments (the weekly league), shadow match, partner assignments,
+visiting a friend's dojo.
 
 Each gets expanded into full stories when its epic comes up. Not before.

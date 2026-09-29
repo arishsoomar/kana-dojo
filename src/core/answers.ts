@@ -14,9 +14,10 @@ export type KanaStats = {
   recentMs: readonly number[]; // times of the most recent correct answers, oldest first
 };
 
-// A finished lesson or game: which one, when (a timestamp in milliseconds), and for a
-// game, its score. A duel also keeps the opponent's score, and a daily kata its marks (one
-// letter per kana: f fast, s slow, m missed) and how long it took in milliseconds.
+// A finished lesson or game: which one, when (a timestamp in milliseconds), and its score:
+// a game's score, an exam's right answers, or the XP a lesson earned. A duel also keeps the
+// opponent's score, and a daily kata its marks (one letter per kana: f fast, s slow, m missed)
+// and how long it took in milliseconds.
 export type Completion = {
   lesson: string;
   at: number;

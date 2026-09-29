@@ -15,11 +15,13 @@ export const MON = {
   duelWin: 20, // ...and this much more for winning it
   exam: 50, // a belt exam passed
   day: 20, // each day with any training
+  assignment: 15, // each daily assignment done
 } as const;
 
 // Everything earned so far. `trainedDays` are the days with any training, as "YYYY-MM-DD" in
 // the learner's own timezone (worked out outside the engine, like the streak's).
-export function monEarned(progress: Progress, trainedDays: readonly string[]): number {
+// `assignments` is how many daily assignments have been done (see assignmentsDone).
+export function monEarned(progress: Progress, trainedDays: readonly string[], assignments = 0): number {
   const fromRecords = progress.completed.reduce((sum, { lesson, score, opponent }) => {
     if (lesson.startsWith('exam:')) return sum + ((score ?? 0) >= EXAM_PASS ? MON.exam : 0);
     if (lesson.startsWith('duel:')) {
@@ -29,7 +31,7 @@ export function monEarned(progress: Progress, trainedDays: readonly string[]): n
     if (lesson.startsWith('game:')) return sum + MON.game;
     return sum + MON.lesson;
   }, 0);
-  return fromRecords + new Set(trainedDays).size * MON.day;
+  return fromRecords + new Set(trainedDays).size * MON.day + assignments * MON.assignment;
 }
 
 // What an item costs: a rest day, or a piece of gear (0 for anything unknown).
@@ -43,6 +45,6 @@ export function monSpent(progress: Progress): number {
   return progress.purchases.reduce((sum, p) => sum + priceOf(p.item), 0);
 }
 
-export function monBalance(progress: Progress, trainedDays: readonly string[]): number {
-  return monEarned(progress, trainedDays) - monSpent(progress);
+export function monBalance(progress: Progress, trainedDays: readonly string[], assignments = 0): number {
+  return monEarned(progress, trainedDays, assignments) - monSpent(progress);
 }

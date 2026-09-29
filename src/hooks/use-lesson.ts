@@ -128,10 +128,11 @@ export function useLesson(mode: LessonMode) {
   function advance(answersSoFar: LessonAnswer[], justAsked: string) {
     const latest = currentProgress();
     if (answersSoFar.length >= LESSON_LENGTH) {
-      updateProgress(completeLesson(latest, lessonId(mode), Date.now()));
+      const done = summarizeLesson(startProgress, latest, answersSoFar);
+      // The lesson keeps the XP it earned, for the XP assignment.
+      updateProgress(completeLesson(latest, lessonId(mode), Date.now(), done.xp));
       haptics.thunk();
       sounds.play('taiko');
-      const done = summarizeLesson(startProgress, latest, answersSoFar);
       // A plaque finished for the first time gets its seal stamped on the wall.
       const firstTime = 'plaque' in mode && !startProgress.completed.some((c) => c.lesson === mode.plaque.id);
       postWallNews({ stamped: firstTime ? [mode.plaque.id] : [], opened: done.rowsOpened });

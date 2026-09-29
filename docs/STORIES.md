@@ -866,6 +866,47 @@ give the answers away, so it's safe to share.
 
 ---
 
+## Epic V — Assignments
+
+From the mock: three small tasks a day that point the learner at useful
+practice, and a monthly challenge on top. Like mon, nothing about them is
+stored: each day's assignments, and whether they're done, are worked out
+from the finished lessons and games, so they sync with everything else.
+
+### V1. Assignment rules
+- [ ] Pure functions in `src/core/assignments.ts`, test-first
+- [ ] Kinds, each with a target: finish 3 lessons; earn 200 XP in lessons;
+      play 2 games; and, once the learner has played it before, a task for
+      each game (Kana Rain twice, floor 3 in the dungeon, a memory board, a
+      Taiko drill, a round of calligraphy, 10 words in Word Forge, the daily
+      kata), and settling 2 mix-ups (drills or duels)
+- [ ] Three a day: one of the first three kinds and two of the rest,
+      chosen by a seed made from the date, so they stay put all day. What
+      counts as "played before" only looks at days before, so finishing
+      something doesn't change today's list
+- [ ] Each shows its progress from the day's finished lessons and games.
+      A finished lesson keeps the XP it earned
+- [ ] Each assignment done earns 15 mon. They start on 28 September 2026,
+      so older history doesn't pay out
+- [ ] The monthly challenge: 30 assignments in a calendar month earns that
+      month's moon
+
+### V2. The assignments screen
+- [ ] On the Ranks tab, from the mock: the title with the hours left today,
+      the month's challenge card, and Today's three, each with its icon, a
+      progress bar and its count, or a check and "+15 mon" once done
+- [ ] "Settle 2 mix-ups" names the learner's worst pair ("Like ぬ and め")
+- [ ] Tapping an assignment goes where it's done: the Learn tab, a game, the
+      daily kata or the scrolls
+- [ ] The division card from before stays below
+- [ ] A Moon badge on Profile: moons earned, levels at 1, 3 and 12
+- [ ] A guide question about assignments
+- Notes: the mock's "Ten clean hits in a row" needs each answer's time of
+  day, which isn't kept, and the partner assignment ("You and Kenji")
+  needs friends. Both wait.
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike
@@ -949,6 +990,7 @@ give the answers away, so it's safe to share.
 
 ## Later
 
-The dojo room, assignments, tournaments (the weekly league), shadow match.
+The dojo room, tournaments (the weekly league), shadow match, partner
+assignments.
 
 Each gets expanded into full stories when its epic comes up. Not before.

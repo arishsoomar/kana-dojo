@@ -461,6 +461,20 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'friends',
+        question: 'How do friends work?',
+        answer: [
+          'Tap the two people at the top of the Dojo tab. Choose a name, then send someone your friend code, or type theirs to add them. Nobody can find you without your code.',
+          {
+            bullets: [
+              "You're friends once they accept. Either of you can remove the other at any time.",
+              "Friends see your name, rank, streak, today's training, and your dojo. Nothing else, and never your email.",
+              'Friends need an account, so sign in from Settings first.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'ranks',
         question: 'What is the Ranks tab?',
         answer: [

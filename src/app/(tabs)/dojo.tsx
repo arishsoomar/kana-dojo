@@ -8,6 +8,7 @@ import { BoltIcon } from '@/components/bolt-icon';
 import { CheckIcon } from '@/components/check-icon';
 import { DojoRoom } from '@/components/dojo-room';
 import { FlameIcon } from '@/components/flame-icon';
+import { FriendsIcon } from '@/components/friends-icon';
 import { MonIcon } from '@/components/mon-icon';
 import { MoonIcon } from '@/components/moon-icon';
 import { PlaqueIcon } from '@/components/plaque-icon';
@@ -37,7 +38,7 @@ const GRADED_GOALS = [5, 10, 20];
 const MOON_GOALS = [1, 3, 12];
 
 // The Dojo tab: your room, filled with what you've earned (the supply shed is through its
-// doorway), then your rank, numbers and badges. Settings are behind the cog.
+// doorway), then your rank, numbers and badges. Friends and settings are in the header.
 export default function DojoTab() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
@@ -57,6 +58,9 @@ export default function DojoTab() {
         <Pressable role="button" aria-label={`${mon.balance} mon. Open the supply shed`} onPress={() => router.push('/shed')} style={styles.chip}>
           <MonIcon />
           <Text style={styles.chipText}>{mon.balance}</Text>
+        </Pressable>
+        <Pressable role="button" aria-label="Friends" onPress={() => router.push('/friends')} hitSlop={10}>
+          <FriendsIcon />
         </Pressable>
         <Pressable role="button" aria-label="Settings" onPress={() => router.push('/settings')} hitSlop={10}>
           <SettingsIcon />

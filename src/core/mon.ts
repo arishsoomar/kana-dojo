@@ -2,6 +2,7 @@ import type { Progress } from './answers';
 import { DUEL_WIN } from './duel';
 import { EXAM_PASS } from './exam';
 import { gearById, REST_DAY_ITEM, REST_DAY_PRICE } from './gear';
+import { partnersDone } from './partner';
 
 // Mon, the old square-holed coin: earned by training and spent in the supply shed. They're
 // never stored: what's been earned is worked out from the learner's history, and the balance
@@ -16,6 +17,7 @@ export const MON = {
   exam: 50, // a belt exam passed
   day: 20, // each day with any training
   assignment: 15, // each daily assignment done
+  partner: 30, // each shared goal finished with a partner
 } as const;
 
 // Everything earned so far. `trainedDays` are the days with any training, as "YYYY-MM-DD" in
@@ -31,7 +33,7 @@ export function monEarned(progress: Progress, trainedDays: readonly string[], as
     if (lesson.startsWith('game:')) return sum + MON.game;
     return sum + MON.lesson;
   }, 0);
-  return fromRecords + new Set(trainedDays).size * MON.day + assignments * MON.assignment;
+  return fromRecords + new Set(trainedDays).size * MON.day + assignments * MON.assignment + partnersDone(progress) * MON.partner;
 }
 
 // What an item costs: a rest day, or a piece of gear (0 for anything unknown).

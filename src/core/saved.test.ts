@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] }, purchases: [] };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] }, purchases: [], partners: [] };
 
 const sample: Progress = {
   kana: { あ: { box: 3, at: 1_000_000 }, シ: { box: 9, at: 5 } },
@@ -16,12 +16,20 @@ const sample: Progress = {
     { item: 'rest-day', at: 4_000_000 },
     { item: 'kasa', at: 5_000_000 },
   ],
+  partners: [{ day: '2026-10-01', friend: 'kenji', at: 6_000_000, done: true }],
   settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true, gear: ['kasa'] },
 };
 
 describe('saving progress', () => {
   it('reads back exactly what was saved', () => {
     expect(parseProgress(serializeProgress(sample))).toEqual(sample);
+  });
+
+  it('reads saves from before partner assignments as having none, and drops broken ones', () => {
+    const { partners: _, ...before } = sample;
+    expect(parseProgress(JSON.stringify({ version: 4, progress: before })).partners).toEqual([]);
+    const broken = { ...sample, partners: [{ day: 'soon', friend: 'k', at: 1, done: true }, { day: '2026-10-01', friend: 7, at: 1, done: true }, 'x'] };
+    expect(parseProgress(JSON.stringify({ version: 4, progress: broken })).partners).toEqual([]);
   });
 
   it('starts fresh when nothing has been saved yet (first launch)', () => {
@@ -50,6 +58,7 @@ describe('saving progress', () => {
       completed: [],
       settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] },
       purchases: [],
+      partners: [],
     });
   });
 
@@ -65,6 +74,7 @@ describe('saving progress', () => {
       completed: [],
       settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] },
       purchases: [],
+      partners: [],
     });
   });
 
@@ -144,6 +154,7 @@ describe('saving progress', () => {
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
       settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] },
       purchases: [],
+      partners: [],
     });
   });
 

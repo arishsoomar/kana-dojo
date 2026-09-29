@@ -1,4 +1,4 @@
-import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Progress, type Purchase } from './answers';
+import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Partnering, type Progress, type Purchase } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
 import { gearById } from './gear';
 import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
@@ -6,6 +6,7 @@ import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
 // Version 1 had no stats and version 2 had no finished lessons; both are still read,
 // with those parts empty. Versions 1 to 3 had 8 boxes with waiting times (see oldKana).
+// Partner assignments came later in version 4; saves without them read as having none.
 const SAVE_VERSION = 4;
 const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, 4];
 
@@ -29,13 +30,14 @@ export function parseProgress(text: string | null): Progress {
   }
   if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions, stats, completed, purchases, settings } = data.progress;
+  const { kana, confusions, stats, completed, purchases, partners, settings } = data.progress;
   const progress = {
     kana: !isObject(kana) ? {} : data.version === SAVE_VERSION ? validEntries(kana, isKanaProgress) : oldKana(kana),
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
     stats: isObject(stats) ? validEntries(stats, isKanaStats) : {},
     completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
     purchases: Array.isArray(purchases) ? purchases.filter(isPurchase) : [],
+    partners: Array.isArray(partners) ? partners.filter(isPartnering) : [],
   };
   // Saves from before onboarding existed have no settings. Anyone with saved progress
   // has clearly been using the app, so they count as onboarded.
@@ -112,6 +114,17 @@ function isConfusion(value: unknown): value is Confusion {
 
 function isPurchase(value: unknown): value is Purchase {
   return isObject(value) && typeof value.item === 'string' && typeof value.at === 'number';
+}
+
+function isPartnering(value: unknown): value is Partnering {
+  return (
+    isObject(value) &&
+    typeof value.day === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(value.day) &&
+    typeof value.friend === 'string' &&
+    typeof value.at === 'number' &&
+    typeof value.done === 'boolean'
+  );
 }
 
 function isCompletion(value: unknown): value is Completion {

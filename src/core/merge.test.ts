@@ -18,6 +18,10 @@ const phone: Progress = {
     { item: 'kasa', at: 40 },
     { item: 'rest-day', at: 50 },
   ],
+  partners: [
+    { day: '2026-10-01', friend: 'kenji', at: 60, done: false },
+    { day: '2026-09-30', friend: 'yuki', at: 55, done: true },
+  ],
   settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'] },
 };
 
@@ -35,6 +39,10 @@ const web: Progress = {
   purchases: [
     { item: 'kasa', at: 40 },
     { item: 'fan', at: 45 },
+  ],
+  partners: [
+    { day: '2026-10-01', friend: 'kenji', at: 70, done: true },
+    { day: '2026-10-01', friend: 'mei', at: 80, done: false },
   ],
   settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [] },
 };
@@ -85,6 +93,14 @@ describe('mergeProgress', () => {
       { item: 'kasa', at: 40 },
       { item: 'fan', at: 45 },
       { item: 'rest-day', at: 50 },
+    ]);
+  });
+
+  it('combines partner assignments, once per day and friend: done if either copy finished it, chosen at the earliest', () => {
+    expect(mergeProgress(phone, web).partners).toEqual([
+      { day: '2026-09-30', friend: 'yuki', at: 55, done: true },
+      { day: '2026-10-01', friend: 'kenji', at: 60, done: true },
+      { day: '2026-10-01', friend: 'mei', at: 80, done: false },
     ]);
   });
 

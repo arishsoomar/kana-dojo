@@ -31,6 +31,11 @@ export type Completion = {
 // ('rest-day'), and when.
 export type Purchase = { item: string; at: number };
 
+// A partner assignment (see partner.ts): the friend chosen for a day's shared goal, when, and
+// whether the two of them finished it. Kept apart from finished lessons because it isn't
+// training: a partner can finish a shared goal alone.
+export type Partnering = { day: string; friend: string; at: number; done: boolean };
+
 // The learner's choices, as opposed to their training record.
 export type Settings = {
   onboarded: boolean; // has been through the welcome and chosen a goal
@@ -48,6 +53,7 @@ export type Progress = {
   stats: Readonly<Record<string, KanaStats>>;
   completed: readonly Completion[];
   purchases: readonly Purchase[]; // everything bought with mon, oldest first
+  partners: readonly Partnering[]; // partner assignments, oldest first
   settings: Settings;
 };
 
@@ -58,6 +64,7 @@ export const EMPTY_PROGRESS: Progress = {
   stats: {},
   completed: [],
   purchases: [],
+  partners: [],
   settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] },
 };
 

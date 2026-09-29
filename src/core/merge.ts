@@ -1,4 +1,4 @@
-import type { Completion, Confusion, KanaStats, Progress, Purchase } from './answers';
+import type { Completion, Confusion, KanaStats, Partnering, Progress, Purchase } from './answers';
 import type { KanaProgress } from './boxes';
 
 // Combines two copies of one learner's progress (say, the phone's and the cloud's) so that
@@ -11,6 +11,7 @@ export function mergeProgress(mine: Progress, theirs: Progress): Progress {
     stats: mergeRecords(mine.stats, theirs.stats, moreStats),
     completed: mergeCompleted(mine.completed, theirs.completed),
     purchases: mergePurchases(mine.purchases, theirs.purchases),
+    partners: mergePartners(mine.partners, theirs.partners),
     settings: { ...mine.settings, onboarded: mine.settings.onboarded || theirs.settings.onboarded },
   };
 }
@@ -69,6 +70,18 @@ function mergePurchases(a: readonly Purchase[], b: readonly Purchase[]): Purchas
   const byKey = new Map<string, Purchase>();
   for (const p of [...a, ...b]) byKey.set(`${p.at}\t${p.item}`, p);
   return [...byKey.entries()].sort(([kx, x], [ky, y]) => x.at - y.at || (kx < ky ? -1 : kx > ky ? 1 : 0)).map(([, p]) => p);
+}
+
+// Every partner assignment from either copy, once per day and friend: finished if either copy
+// finished it, chosen at the earlier time. Oldest day first, then by when chosen.
+function mergePartners(a: readonly Partnering[], b: readonly Partnering[]): Partnering[] {
+  const byKey = new Map<string, Partnering>();
+  for (const p of [...a, ...b]) {
+    const key = `${p.day}\t${p.friend}`;
+    const other = byKey.get(key);
+    byKey.set(key, other ? { ...p, at: Math.min(p.at, other.at), done: p.done || other.done } : p);
+  }
+  return [...byKey.values()].sort((x, y) => (x.day < y.day ? -1 : x.day > y.day ? 1 : x.at - y.at || (x.friend < y.friend ? -1 : 1)));
 }
 
 function mergeCompleted(a: readonly Completion[], b: readonly Completion[]): Completion[] {

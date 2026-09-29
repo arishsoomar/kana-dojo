@@ -14,6 +14,7 @@ import type { Belt } from '@/core/boxes';
 
 import { BELT_PLAQUE_WIDTH, BeltPlaqueCard } from './belt-plaque';
 import { Karasu, karasuFeet, type KarasuMood } from './karasu';
+import { wholePixels } from './whole-pixels';
 
 export type Point = { x: number; y: number };
 
@@ -202,7 +203,7 @@ export function KarasuFlight({ from, to, width, rank, belt, size, onHung, onLand
         <Animated.View
           style={[
             styles.karasu,
-            { left: -feet.x, top: -feet.y, width: size, height: feet.height, transformOrigin: `${feet.x}px ${feet.y}px` },
+            { left: -feet.x, top: -feet.y, width: size, height: feet.height, transformOrigin: wholePixels(feet.x, feet.y) },
             body,
           ]}>
           <Animated.View style={flip}>

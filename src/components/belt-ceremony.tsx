@@ -23,6 +23,7 @@ import { useSoundEffects } from '@/hooks/use-sound-effects';
 import { BeltIcon } from './belt-icon';
 import { AliveKarasu } from './alive-karasu';
 import { Confetti } from './confetti';
+import { wholePixels } from './whole-pixels';
 import { MonIcon } from './mon-icon';
 import { PrimaryButton } from './primary-button';
 
@@ -116,7 +117,7 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
   const beltPlace = {
     left: waist.x - BELT_WIDTH / 2,
     top: waist.y - BELT_HEIGHT * BELT_BAND,
-    transformOrigin: `50% ${BELT_BAND * 100}%`,
+    transformOrigin: wholePixels(BELT_WIDTH / 2, BELT_HEIGHT * BELT_BAND),
   };
   const falling = useAnimatedStyle(() => ({
     opacity: interpolate(drop.get(), [0, 0.2], [0, 1], 'clamp'),

@@ -12,6 +12,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { CloudSync } from '@/hooks/cloud-sync';
+import { FriendSync } from '@/hooks/friend-sync';
 import { AuthProvider } from '@/hooks/use-auth';
 import { ProgressProvider, useSavedProgress } from '@/hooks/use-progress';
 
@@ -46,6 +47,7 @@ export default function RootLayout() {
     <AuthProvider>
       <ProgressProvider initial={saved}>
         <CloudSync />
+        <FriendSync />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           {/* The lesson draws its own top bar with an X, and swiping back is off so X is the way out. */}

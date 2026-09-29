@@ -1157,8 +1157,4 @@ Done when:
 Tournaments (the weekly league) and shadow match were set aside: not
 wanted for now.
 
-Sign-in email only reaches Supabase team members, about twice an hour, so
-friends can't sign up yet and testing Epic Y stopped there. The fix is a
-dashboard setting, not code: see `docs/EMAIL-SETUP.md`.
-
 Each gets expanded into full stories when its epic comes up. Not before.

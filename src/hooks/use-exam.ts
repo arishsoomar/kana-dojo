@@ -24,7 +24,9 @@ type Attempt = {
   choices: Kana[];
   index: number;
   answers: LessonAnswer[];
-  startedAt: number;
+  // When the clock started: at the first answer, so reading the first kana is free. Null
+  // until then.
+  startedAt: number | null;
   shownAt: number; // when the current question appeared
   startProgress: Progress;
 };
@@ -43,7 +45,7 @@ function newAttempt(progress: Progress, script: Script, row: RowId): Attempt {
     choices: makeChoices(questions[0]!, pool, Math.random),
     index: 0,
     answers: [],
-    startedAt: now,
+    startedAt: null,
     shownAt: now,
     startProgress: progress,
   };
@@ -55,7 +57,7 @@ export type ExamResult = {
   summary: LessonSummary;
 };
 
-// Runs a belt exam on one row: 20 questions, 60 seconds, no hints.
+// Runs a belt exam on one row: 20 questions, 60 seconds from the first answer, no hints.
 export function useExam(script: Script, row: RowId, belt: Belt) {
   const { progress, changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
@@ -72,13 +74,16 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
 
   const correct = attempt.answers.filter((a) => a.correct).length;
   const misses = attempt.answers.length - correct;
-  const remainingMs = Math.max(EXAM_TIME_MS - (now - attempt.startedAt), 0);
+  const { startedAt } = attempt;
+  const remainingMs = startedAt === null ? EXAM_TIME_MS : Math.max(EXAM_TIME_MS - (now - startedAt), 0);
 
-  // The countdown. When time runs out, the exam ends with what's been answered.
+  // The countdown, once it's started. When time runs out, the exam ends with what's been
+  // answered.
   const onTick = useEffectEvent(() => {
+    if (startedAt === null) return;
     const time = Date.now();
     setNow(time);
-    if (time - attempt.startedAt >= EXAM_TIME_MS) finish({ ...attempt, answers: liveAnswers.current }, true);
+    if (time - startedAt >= EXAM_TIME_MS) finish({ ...attempt, answers: liveAnswers.current }, true);
   });
 
   useEffect(() => {
@@ -120,13 +125,19 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     const answers = [...attempt.answers, { char: kana.char, correct: right, ms }];
     liveAnswers.current = answers;
     setFlash({ guess, correct: right });
+    // The first answer starts the clock, straight away (not after the flash).
+    const started = attempt.startedAt ?? time;
+    if (attempt.startedAt === null) {
+      setAttempt((a) => ({ ...a, startedAt: started }));
+      setNow(time);
+    }
 
     // After the flash, move on, or end the exam if the result is now certain.
     setTimeout(() => {
       setFlash(null);
       if (finished.current) return; // time ran out during the flash
       const next = attempt.questions[attempt.index + 1];
-      const done = { ...attempt, answers };
+      const done = { ...attempt, startedAt: started, answers };
       const status = examStatus({ correct: answers.filter((a) => a.correct).length, misses: answers.filter((a) => !a.correct).length, timeUp: false });
       if (status !== 'going' || !next) {
         setAttempt(done);
@@ -144,7 +155,7 @@ export function useExam(script: Script, row: RowId, belt: Belt) {
     setFlash(null);
     const fresh = newAttempt(currentProgress(), script, row);
     setAttempt(fresh);
-    setNow(fresh.startedAt);
+    setNow(Date.now());
   }
 
   return {

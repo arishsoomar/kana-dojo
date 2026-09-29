@@ -151,7 +151,7 @@ export const GUIDE: GuideSection[] = [
           "When every kana in a row reaches a belt, that row's belt exam appears on the wall as a gold plaque.",
           {
             bullets: [
-              `${EXAM_LENGTH} questions on the row, in ${EXAM_TIME_MS / 1000} seconds, with no hints.`,
+              `${EXAM_LENGTH} questions on the row, in ${EXAM_TIME_MS / 1000} seconds, with no hints. The clock starts at your first answer.`,
               `You need ${EXAM_PASS} right to pass, so the exam ends as soon as you've missed ${EXAM_LENGTH - EXAM_PASS + 1}.`,
               'Pass and Karasu ties the belt on, and the row earns a belt plaque for the wall.',
               'Fail and you can try again whenever you like.',

@@ -33,3 +33,19 @@ export function useToday(): string {
 
   return today;
 }
+
+// Whole hours left in the day, rounded up (so "1h" in the last hour). Refreshes once a minute.
+export function useHoursLeft(): number {
+  const [hoursLeft, setHoursLeft] = useState(() => hoursToMidnight(Date.now()));
+  useEffect(() => {
+    const timer = setInterval(() => setHoursLeft(hoursToMidnight(Date.now())), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+  return hoursLeft;
+}
+
+function hoursToMidnight(now: number): number {
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  return Math.max(Math.ceil((midnight.getTime() - now) / 3_600_000), 1);
+}

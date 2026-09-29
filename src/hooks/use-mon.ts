@@ -6,15 +6,16 @@ import { FORGE_LESSON_ID } from '@/core/forge';
 import type { Feats } from '@/core/gear';
 import { monBalance } from '@/core/mon';
 
+import { useAssignmentsDone, useFinishedDays } from './use-assignments';
 import { useProgress } from './use-progress';
 import { useStreak } from './use-streak';
-import { localDay } from './use-today';
 
 // The learner's mon, and the feats that earn gear, worked out from their history.
 export function useMon(): { balance: number; feats: Feats } {
   const { progress } = useProgress();
   const streak = useStreak();
-  const trainedDays = progress.completed.map((c) => localDay(c.at));
+  const trainedDays = useFinishedDays();
+  const assignments = useAssignmentsDone();
   // Rows (in either script) with any belt exam passed, ever.
   const rowsPassed = new Set(
     progress.completed
@@ -28,5 +29,5 @@ export function useMon(): { balance: number; feats: Feats } {
     rowBelts: rowsPassed.size,
     wordsRead: progress.completed.filter((c) => c.lesson === FORGE_LESSON_ID).reduce((sum, c) => sum + (c.score ?? 0), 0),
   };
-  return { balance: monBalance(progress, trainedDays), feats };
+  return { balance: monBalance(progress, trainedDays, assignments), feats };
 }

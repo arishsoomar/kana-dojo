@@ -7,6 +7,7 @@ import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
 import { GEAR, REST_DAY_PRICE } from '@/core/gear';
+import { ASSIGNMENTS_PER_DAY, MONTH_GOAL } from '@/core/assignments';
 import { KATA_LENGTH } from '@/core/kata';
 import { MEMORY_PAIRS } from '@/core/memory';
 import { MON } from '@/core/mon';
@@ -386,10 +387,24 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'assignments',
+        question: 'What are assignments?',
+        answer: [
+          `${ASSIGNMENTS_PER_DAY} small tasks a day, on the Ranks tab, like "Finish 3 lessons" or "Settle 2 mix-ups". Tap one to go where it's done. New ones come at midnight.`,
+          {
+            bullets: [
+              "Games you've played before get their own assignments, so you're pointed back at them.",
+              `Each one done earns ${MON.assignment} mon. There's nothing to claim: they fill in as you train.`,
+              `Finish ${MONTH_GOAL} in a calendar month for that month's moon. Moons level up the Moon-watcher badge on Profile.`,
+            ],
+          },
+        ],
+      },
+      {
         id: 'mon',
         question: 'What are mon, and what is the supply shed?',
         answer: [
-          `Mon are the old square-holed coins you earn by training: ${MON.lesson} for each lesson or game, ${MON.duel} for each duel (${MON.duel + MON.duelWin} if you win), ${MON.exam} for each belt exam passed, and ${MON.day} for each day you train. They can't be bought with money.`,
+          `Mon are the old square-holed coins you earn by training: ${MON.lesson} for each lesson or game, ${MON.duel} for each duel (${MON.duel + MON.duelWin} if you win), ${MON.exam} for each belt exam passed, ${MON.assignment} for each assignment done, and ${MON.day} for each day you train. They can't be bought with money.`,
           `Spend them in the supply shed (tap your mon on the Games tab, or open it from Profile): a rest day for your streak is ${REST_DAY_PRICE} mon, and there's gear for Karasu, one piece for his head, face, body, neck and hand.`,
           'Some gear can only be earned: ' + GEAR.filter((g) => g.unlock).map((g) => `the ${g.name} (${g.unlock?.about.toLowerCase()})`).join(', ') + '.',
           "Gear is just for looks: nothing in the shed makes the training easier. Karasu wears what you've picked everywhere you see him.",

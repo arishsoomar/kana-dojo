@@ -7,6 +7,7 @@ import { BeltIcon } from '@/components/belt-icon';
 import { BoltIcon } from '@/components/bolt-icon';
 import { CheckIcon } from '@/components/check-icon';
 import { FlameIcon } from '@/components/flame-icon';
+import { MoonIcon } from '@/components/moon-icon';
 import { Karasu } from '@/components/karasu';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
@@ -24,6 +25,7 @@ import {
 import { KANA } from '@/core/kana';
 import { useAuth } from '@/hooks/use-auth';
 import { useMon } from '@/hooks/use-mon';
+import { useAssignments } from '@/hooks/use-assignments';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useStreak } from '@/hooks/use-streak';
@@ -32,12 +34,14 @@ import { useStreak } from '@/hooks/use-streak';
 // types don't list it (it only exists on web), hence the cast.
 const webThumbColor = Platform.OS === 'web' ? ({ activeThumbColor: colors.card } as object) : {};
 
-// Badge goals: streak days for Unbroken, row belts earned for Graded.
+// Badge goals: streak days for Unbroken, row belts earned for Graded, moons for Moon-watcher.
 const UNBROKEN_GOALS = [7, 30, 100];
 const GRADED_GOALS = [5, 10, 20];
+const MOON_GOALS = [1, 3, 12];
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const assignments = useAssignments();
   const { progress, updateProgress } = useProgress();
   const rank = useRank();
   const streak = useStreak();
@@ -176,6 +180,13 @@ export default function ProfileScreen() {
         icon={<BeltIcon belt="white" width={28} />}
         tint={colors.sumi}
         progress={badgeLevel(rowBeltsEarned(progress), GRADED_GOALS)}
+      />
+      <Badge
+        name="Moon-watcher"
+        about="Monthly challenges met"
+        icon={<MoonIcon size={22} color={colors.card} />}
+        tint={colors.gold}
+        progress={badgeLevel(assignments.moons, MOON_GOALS)}
       />
     </ScrollView>
   );

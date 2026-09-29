@@ -8,7 +8,7 @@ import { summarizeLesson, type LessonAnswer } from '@/core/lesson';
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 import { useSoundEffects } from './use-sound-effects';
-import { localDay, useToday } from './use-today';
+import { localDay, useHoursLeft, useToday } from './use-today';
 import { postWallNews } from './wall-news';
 
 // How long an answer's tile stays lit before the next kana: a right one briefly, a wrong one
@@ -117,20 +117,6 @@ export function useKata() {
 export function useKataCard() {
   const { progress } = useProgress();
   const today = useToday();
-  const [hoursLeft, setHoursLeft] = useState(() => hoursToMidnight(Date.now()));
-
-  // Refreshes once a minute, so it's never more than a minute behind (after midnight, too).
-  useEffect(() => {
-    const timer = setInterval(() => setHoursLeft(hoursToMidnight(Date.now())), 60_000);
-    return () => clearInterval(timer);
-  }, []);
-
+  const hoursLeft = useHoursLeft();
   return { today, result: kataResult(progress, today), hoursLeft };
-}
-
-// Whole hours until local midnight, rounded up (so "1h" in the last hour).
-function hoursToMidnight(now: number): number {
-  const midnight = new Date(now);
-  midnight.setHours(24, 0, 0, 0);
-  return Math.max(Math.ceil((midnight.getTime() - now) / 3_600_000), 1);
 }

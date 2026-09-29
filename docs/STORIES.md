@@ -1094,6 +1094,46 @@ Done when:
 - [ ] The mnemonic card and memory cards turn over in 3D
 - [ ] Reduce Motion still turns motion off everywhere
 
+## Epic AC — Reading room
+
+From kana to reading: Japanese as it's written in the world. Word Forge reads single words
+aloud (kana to romaji); the reading room reads for meaning, in places, and in short phrases,
+where a few kana are read differently. Everything in it uses only kana the learner has met.
+
+### AC1. Signs in places
+**As a** learner, **I want** to find my way by reading real signs, **so that** kana start to
+mean something.
+
+- [ ] Pure rules in `src/core/reading.ts`, test-first; the signs themselves in
+      `src/content/signs.ts`, each with its text, meaning and romaji (checked by a test)
+- [ ] Places with their signs: the station (でぐち exit, いりぐち entrance, きっぷ ticket,
+      トイレ toilet…), a café (コーヒー, ケーキ, メニュー, みず…), a shop, and the street
+      (とまれ stop…)
+- [ ] A question: "Find: exit", with four signs from the same place; tap the one that says it
+- [ ] A sign is ready once all its kana have been met; a place opens with 4 ready signs
+- [ ] A wrong tap shows what both signs say, and how they're read
+
+### AC2. Phrases, and the kana read differently
+**As a** learner, **I want** to read short everyday phrases, **so that** I can read more than
+single words.
+
+- [ ] Phrases and short sentences, with spaces between words as in beginners' books:
+      こんにちは, ありがとう, いただきます, みずを ください…
+- [ ] A question: read the phrase, choose what it means from four
+- [ ] Particles: は read "wa", へ read "e", を read "o" when they mark a word's role. After an
+      answer, the phrase's romaji shows them picked out, with a one-line note the first times
+
+### AC3. The reading room
+**As a** learner, **I want** a place for all of this, **so that** reading is something I can
+practise any day.
+
+- [ ] A "Reading room" card on the Games tab, once the first place opens
+- [ ] Its screen: the places and Phrases, each with how many of its signs you've read right,
+      locked ones saying what opens them
+- [ ] A round is 8 questions from one place (or Phrases); the end shows what was read, and
+      counts as a game (`game:reading`) for mon and assignments
+- [ ] A guide topic, including the particles
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

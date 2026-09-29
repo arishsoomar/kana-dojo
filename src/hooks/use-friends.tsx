@@ -13,13 +13,19 @@ import {
 } from '@/core/friends';
 import {
   acceptFriend,
+  bowTo,
   createProfile,
+  loadBows,
   loadFriends,
   loadProfile,
+  markBowsSeen,
+  NO_BOWS,
   removeLink,
   renameProfile,
   requestFriend,
   uploadSummary,
+  type BowOutcome,
+  type Bows,
   type Friend,
   type Profile,
 } from '@/storage/friends';
@@ -27,6 +33,7 @@ import { supabase } from '@/storage/supabase';
 
 import { useFriendSummary } from './friend-sync';
 import { useAuth } from './use-auth';
+import { useToday } from './use-today';
 
 // Where the friends list stands: signed out, loading, the server's friend tables missing,
 // the server unreachable, no name chosen yet, or ready.
@@ -50,10 +57,14 @@ type FriendsValue = {
   add: (text: string) => Promise<string>;
   accept: (other: string) => Promise<void>;
   remove: (other: string) => Promise<void>;
+  bowedToday: readonly string[]; // friends you've bowed to today
+  bowers: string[]; // names of friends who bowed to your dojo since you last looked
+  bow: (other: string) => Promise<BowOutcome>;
+  seeBows: () => void; // you've looked: they're marked seen
 };
 
 // What was last loaded, and for which account.
-type Loaded = { userId: string; status: FriendsStatus; profile: Profile | null; friends: Friend[] };
+type Loaded = { userId: string; status: FriendsStatus; profile: Profile | null; friends: Friend[]; bows: Bows };
 
 const FriendsContext = createContext<FriendsValue | null>(null);
 
@@ -63,6 +74,7 @@ const FriendsContext = createContext<FriendsValue | null>(null);
 // request, an acceptance, or a friend's training.
 export function FriendsProvider({ children }: { children: ReactNode }) {
   const { userId } = useAuth();
+  const today = useToday();
   const summary = useFriendSummary();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [queue, setQueue] = useState<FriendNews[]>([]);
@@ -72,20 +84,20 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     if (!userId) return;
-    const done = (status: FriendsStatus, profile: Profile | null = null, friends: Friend[] = []) =>
-      setLoaded({ userId, status, profile, friends });
+    const done = (status: FriendsStatus, profile: Profile | null = null, friends: Friend[] = [], bows: Bows = NO_BOWS) =>
+      setLoaded({ userId, status, profile, friends, bows });
     const mine = await loadProfile(userId);
     if (!mine.ok) return done(mine.error.missing ? 'missing' : 'error');
     if (!mine.value) return done('no-profile');
-    const list = await loadFriends(userId);
+    const [list, bows] = await Promise.all([loadFriends(userId), loadBows(userId, today)]);
     if (!list.ok) return done(list.error.missing ? 'missing' : 'error', mine.value);
 
     const before = known.current?.userId === userId ? known.current.friends : null;
     known.current = { userId, friends: list.value };
     const fresh = before ? linkNews(before, list.value) : [];
     if (fresh.length > 0) setQueue((q) => [...q, ...fresh]);
-    done('ready', mine.value, list.value);
-  }, [userId]);
+    done('ready', mine.value, list.value, bows);
+  }, [userId, today]);
 
   // Loads on sign-in, and listens for changes while signed in.
   useEffect(() => {
@@ -113,6 +125,7 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'friendships', filter: `requester=eq.${userId}` }, soon)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'summaries', filter: `user_id=neq.${userId}` }, soon)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'summaries', filter: `user_id=neq.${userId}` }, soon)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bows', filter: `bowed_to=eq.${userId}` }, soon)
       .subscribe();
 
     return () => {
@@ -180,9 +193,23 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
     await refresh();
   }
 
+  async function bow(other: string): Promise<BowOutcome> {
+    if (!userId) return 'error';
+    const outcome = await bowTo(userId, other, today);
+    await refresh();
+    return outcome;
+  }
+
+  function seeBows() {
+    void markBowsSeen().then(refresh);
+  }
+
   // What's shown belongs to whoever is signed in now: another account's list never shows.
   const current = userId && loaded?.userId === userId ? loaded : null;
   const friends = current?.friends ?? [];
+  const bows = current?.bows ?? NO_BOWS;
+  // Bows from someone who's no longer a friend aren't shown.
+  const names = new Map(friends.map((f) => [f.userId, f.name]));
   const value: FriendsValue = {
     status: !userId ? 'signed-out' : (current?.status ?? 'loading'),
     profile: current?.profile ?? null,
@@ -195,6 +222,10 @@ export function FriendsProvider({ children }: { children: ReactNode }) {
     add,
     accept,
     remove,
+    bowedToday: bows.given,
+    bowers: bows.unseen.flatMap((id) => names.get(id) ?? []),
+    bow,
+    seeBows,
   };
   return <FriendsContext.Provider value={value}>{children}</FriendsContext.Provider>;
 }

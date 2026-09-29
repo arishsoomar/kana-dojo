@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,9 +7,11 @@ import { BackIcon } from '@/components/back-icon';
 import { BeltIcon } from '@/components/belt-icon';
 import { DojoRoom } from '@/components/dojo-room';
 import { FlameIcon } from '@/components/flame-icon';
+import { PrimaryButton } from '@/components/primary-button';
 import { colors, fonts } from '@/constants/theme';
 import { friendSeen, seenText } from '@/core/friends';
 import { useFriends } from '@/hooks/use-friends';
+import { useHaptics } from '@/hooks/use-haptics';
 import { useToday } from '@/hooks/use-today';
 
 function goBack() {
@@ -16,15 +19,36 @@ function goBack() {
   else router.replace('/friends');
 }
 
+// Their Karasu bows back this long after you bow.
+const BOW_BACK_MS = 250;
+
 // A friend's dojo, to look around: their room as they last shared it, Karasu in their gear,
-// and their rank and streak. Nothing here can be changed. Opened from the friends list.
+// and their rank and streak. Nothing here can be changed, but you can bow (礼), once a day:
+// their Karasu bows back, and their dojo shows you bowed. Opened from the friends list.
 export default function FriendDojoScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { friends, status } = useFriends();
+  const { friends, status, bowedToday, bow } = useFriends();
   const today = useToday();
+  const haptics = useHaptics();
   const friend = friends.find((f) => f.userId === id && f.state === 'accepted');
   const summary = friend?.summary ?? null;
+  const [bowing, setBowing] = useState(false);
+  const [bowBack, setBowBack] = useState<{ kind: 'bow'; id: number } | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const bowed = friend !== undefined && bowedToday.includes(friend.userId);
+
+  async function bowToThem() {
+    if (!friend || bowing) return;
+    setBowing(true);
+    setProblem(null);
+    haptics.right();
+    setTimeout(() => setBowBack((m) => ({ kind: 'bow', id: (m?.id ?? 0) + 1 })), BOW_BACK_MS);
+    const outcome = await bow(friend.userId);
+    setBowing(false);
+    if (outcome === 'missing') setProblem('Bowing needs a one-time setup on the server: run supabase/migrations/20261003000000_bows.sql in the SQL editor.');
+    else if (outcome === 'error') setProblem("Couldn't reach the dojo. Check your connection.");
+  }
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -44,7 +68,17 @@ export default function FriendDojoScreen() {
           <Text style={styles.body}>{friend.name} hasn&apos;t opened the app since you became friends, so there&apos;s nothing to see yet.</Text>
         ) : (
           <>
-            <DojoRoom room={summary.room} rank={summary.rank} gear={summary.gear} />
+            <DojoRoom room={summary.room} rank={summary.rank} gear={summary.gear} move={bowBack} />
+
+            {bowed ? (
+              <View style={styles.bowed}>
+                <Text style={styles.rei}>礼</Text>
+                <Text style={[styles.body, styles.grow]}>You bowed to {friend.name}&apos;s dojo today. They&apos;ll see it in theirs.</Text>
+              </View>
+            ) : (
+              <PrimaryButton label={bowing ? 'Bowing…' : '礼  Bow'} disabled={bowing} onPress={() => void bowToThem()} />
+            )}
+            {problem && <Text style={styles.error}>{problem}</Text>}
 
             <View style={styles.rankRow}>
               <BeltIcon belt={summary.rank} width={46} />
@@ -98,6 +132,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     color: colors.ink2,
+  },
+  bowed: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  rei: {
+    fontFamily: fonts.jp,
+    fontSize: 28,
+    color: colors.vermilion,
+  },
+  error: {
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.vermilionDark,
   },
   rankRow: {
     flexDirection: 'row',

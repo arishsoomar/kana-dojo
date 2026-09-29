@@ -109,6 +109,24 @@ export function seenText(days: number): string {
   return `Seen ${days} days ago`;
 }
 
+// Who bowed to your dojo, as a line for the Dojo tab: "Kenji and Yuki bowed to your dojo".
+// Each person once (they may have bowed on several days since you looked); past three, the
+// rest are counted. Null when nobody did.
+export function bowedText(names: readonly string[]): string | null {
+  const people = [...new Set(names)];
+  if (people.length === 0) return null;
+  const [first, second, third] = people;
+  const who =
+    people.length === 1
+      ? first
+      : people.length === 2
+        ? `${first} and ${second}`
+        : people.length === 3
+          ? `${first}, ${second} and ${third}`
+          : `${first}, ${second} and ${people.length - 2} others`;
+  return `${who} bowed to your dojo`;
+}
+
 // Checking a summary from another phone. `unknown` could be anything, so every part is
 // narrowed before it's trusted: anything wrong at the top level rejects it, and odd entries in
 // lists are dropped.

@@ -4,7 +4,7 @@ import { beltColors, beltEdges, colors, dojoColors, fonts, scrollColors, wallCol
 import type { Belt } from '@/core/boxes';
 import type { DojoRoom as DojoRoomContents, RackGame, RackRecord, RoomPlaque } from '@/core/dojo';
 
-import { AliveKarasu } from './alive-karasu';
+import { AliveKarasu, type KarasuMove } from './alive-karasu';
 import { Bonsai } from './bonsai';
 import { MonIcon } from './mon-icon';
 
@@ -21,11 +21,12 @@ type Props = {
   // has no way into their shed.
   shed?: { mon: number; onPress: () => void };
   gear?: readonly string[]; // Karasu's gear; left out, the learner's own
+  move?: { kind: KarasuMove; id: number } | null; // something for Karasu to do, like bow back
 };
 
 // A dojo: a room that fills with what's been earned. Things not yet earned are drawn dashed,
 // with a hint of what fills them. In your own, the supply shed is through the curtained doorway.
-export function DojoRoom({ room, rank, shed, gear }: Props) {
+export function DojoRoom({ room, rank, shed, gear, move = null }: Props) {
   const shown = room.plaques.slice(0, WALL_PLAQUES);
   const more = room.plaques.length - shown.length;
 
@@ -104,7 +105,7 @@ export function DojoRoom({ room, rank, shed, gear }: Props) {
           <Text style={styles.label}>{room.bonsai === 0 ? 'Train to grow it' : 'Bonsai'}</Text>
         </View>
         <View style={styles.karasu}>
-          <AliveKarasu mood="focus" rank={rank} size={112} gear={gear} />
+          <AliveKarasu mood="focus" rank={rank} size={112} gear={gear} move={move} />
           <View style={styles.cushion} />
         </View>
         {shed ? (

@@ -1,6 +1,7 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
 import { examId } from './exam';
 import {
+  bowedText,
   friendSeen,
   seenText,
   linkNews,
@@ -194,5 +195,26 @@ describe('saying when a friend was last seen', () => {
     expect(seenText(0)).toBe('Here today');
     expect(seenText(1)).toBe('Seen yesterday');
     expect(seenText(4)).toBe('Seen 4 days ago');
+  });
+});
+
+describe('saying who bowed', () => {
+  it('names one, two, or three people', () => {
+    expect(bowedText(['Kenji'])).toBe('Kenji bowed to your dojo');
+    expect(bowedText(['Kenji', 'Yuki'])).toBe('Kenji and Yuki bowed to your dojo');
+    expect(bowedText(['Kenji', 'Yuki', 'Mei'])).toBe('Kenji, Yuki and Mei bowed to your dojo');
+  });
+
+  it('counts the rest after three', () => {
+    expect(bowedText(['Kenji', 'Yuki', 'Mei', 'Aoi'])).toBe('Kenji, Yuki and 2 others bowed to your dojo');
+    expect(bowedText(['Kenji', 'Yuki', 'Mei', 'Aoi', 'Sora'])).toBe('Kenji, Yuki and 3 others bowed to your dojo');
+  });
+
+  it('names each person once, even if they bowed on several days', () => {
+    expect(bowedText(['Kenji', 'Kenji', 'Yuki'])).toBe('Kenji and Yuki bowed to your dojo');
+  });
+
+  it('is nothing when nobody bowed', () => {
+    expect(bowedText([])).toBeNull();
   });
 });

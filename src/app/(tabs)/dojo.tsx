@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import type { ReactNode } from 'react';
+import { router, useIsFocused } from 'expo-router';
+import { useEffect, useEffectEvent, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,6 +17,7 @@ import { SettingsIcon } from '@/components/settings-icon';
 import { KanaIcon } from '@/components/tab-icons';
 import { colors, fonts } from '@/constants/theme';
 import { dojoRoom } from '@/core/dojo';
+import { bowedText } from '@/core/friends';
 import {
   badgeLevel,
   kanaLearned,
@@ -48,7 +49,18 @@ export default function DojoTab() {
   const rank = useRank();
   const streak = useStreak();
   const mon = useMon();
-  const { waiting } = useFriends();
+  const { waiting, bowers, seeBows } = useFriends();
+  const bowedLine = bowedText(bowers);
+  // Bows are news until you've seen them: leaving the tab after they showed marks them seen.
+  const leave = useEffectEvent(() => {
+    if (bowers.length > 0) seeBows();
+  });
+  const focused = useIsFocused();
+  const anyBowed = bowers.length > 0;
+  useEffect(() => {
+    if (!focused || !anyBowed) return;
+    return () => leave();
+  }, [focused, anyBowed]);
   const room = dojoRoom(progress, { streak: streak.current, moons: assignments.moons });
   const since = trainingSince(progress);
   const accuracy = overallAccuracy(progress);
@@ -74,6 +86,13 @@ export default function DojoTab() {
           <SettingsIcon />
         </Pressable>
       </View>
+
+      {bowedLine && (
+        <View style={styles.bowed}>
+          <Text style={styles.rei}>礼</Text>
+          <Text style={styles.bowedText}>{bowedLine}</Text>
+        </View>
+      )}
 
       <DojoRoom room={room} rank={rank} shed={{ mon: mon.balance, onPress: () => router.push('/shed') }} />
 
@@ -215,6 +234,29 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiExtraBold,
     fontSize: 15,
     color: colors.sumi,
+  },
+  // Who bowed to your dojo: a paper slip with 礼 ("bow") in vermilion.
+  bowed: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: colors.vermilion,
+    backgroundColor: colors.vermilionLight,
+  },
+  rei: {
+    fontFamily: fonts.jp,
+    fontSize: 24,
+    color: colors.vermilion,
+  },
+  bowedText: {
+    flex: 1,
+    fontFamily: fonts.uiBold,
+    fontSize: 14,
+    color: colors.vermilionDark,
   },
   rankRow: {
     flexDirection: 'row',

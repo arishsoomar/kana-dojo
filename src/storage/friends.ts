@@ -119,3 +119,38 @@ export async function removeLink(userId: string, other: string): Promise<Result<
     .or(`and(requester.eq.${userId},addressee.eq.${other}),and(requester.eq.${other},addressee.eq.${userId})`);
   return error ? failed(error) : { ok: true, value: null };
 }
+
+// Bows (Z2): one a day per friend, to their dojo. `today` is the learner's own calendar day.
+
+export type Bows = {
+  given: string[]; // friends the learner has bowed to today
+  unseen: string[]; // who has bowed to the learner since they last looked (a person once per day they bowed)
+};
+
+export const NO_BOWS: Bows = { given: [], unseen: [] };
+
+// The learner's bows. Without the bows table (its SQL not run yet), there are simply none.
+export async function loadBows(userId: string, today: string): Promise<Bows> {
+  if (!supabase) return NO_BOWS;
+  const [given, unseen] = await Promise.all([
+    supabase.from('bows').select('bowed_to').eq('bower', userId).eq('day', today),
+    supabase.from('bows').select('bower').eq('bowed_to', userId).eq('seen', false),
+  ]);
+  if (given.error || unseen.error) return NO_BOWS;
+  return { given: given.data.map((b) => String(b.bowed_to)), unseen: unseen.data.map((b) => String(b.bower)) };
+}
+
+export type BowOutcome = 'bowed' | 'already' | 'missing' | 'error';
+
+export async function bowTo(userId: string, other: string, today: string): Promise<BowOutcome> {
+  if (!supabase) return 'error';
+  const { error } = await supabase.from('bows').insert({ bower: userId, bowed_to: other, day: today });
+  if (!error) return 'bowed';
+  // 23505: this bow (same friend, same day) is already there.
+  if (error.code === '23505') return 'already';
+  return error.code === NO_TABLE || error.code === '42P01' ? 'missing' : 'error';
+}
+
+export async function markBowsSeen(): Promise<void> {
+  await supabase?.rpc('mark_bows_seen');
+}

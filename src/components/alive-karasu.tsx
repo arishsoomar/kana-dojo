@@ -17,7 +17,7 @@ import type { Belt } from '@/core/boxes';
 
 import { Karasu, type KarasuMood } from './karasu';
 
-export type KarasuMove = 'hop' | 'shake' | 'cheer' | 'tug';
+export type KarasuMove = 'hop' | 'shake' | 'cheer' | 'tug' | 'bow';
 
 type Props = {
   mood: KarasuMood;
@@ -36,7 +36,7 @@ const BLINK_MS = 130;
 const BREATH_MS = 1600;
 
 // Karasu, alive: he blinks, breathes, and can hop, shake his head, jump for joy, or tug his
-// belt tight. Hops and jumps land with a squash. With the phone's Reduce Motion setting on,
+// belt tight, or bow. Hops and jumps land with a squash. With the phone's Reduce Motion setting on,
 // he only blinks.
 export function AliveKarasu({ mood, size = 58, rank, belt, move = null, gear }: Props) {
   const reduceMotion = useReducedMotion();
@@ -45,6 +45,7 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null, gear }: 
   const lift = useSharedValue(0); // 0 = standing, 1 = at the top of a jump
   const tilt = useSharedValue(0); // -1 to 1, for shaking his head
   const squeeze = useSharedValue(0); // 1 = pulled in at the waist, -1 = puffed out
+  const nod = useSharedValue(0); // 1 = bowed forward
 
   // Blinks: wait, shut the eyes briefly, and schedule the next one.
   useEffect(() => {
@@ -88,7 +89,10 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null, gear }: 
       );
     // Landing: puffed out for a moment, then springing back.
     const land = withSequence(withTiming(-0.8, { duration: 60 }), withSpring(0, { damping: 8, stiffness: 300 }));
-    if (moveKind === 'shake') {
+    if (moveKind === 'bow') {
+      // Down slowly, a moment held, and back up: a proper bow, not a nod.
+      nod.set(withSequence(withTiming(1, { duration: 380, easing: Easing.inOut(Easing.quad) }), withDelay(450, withSpring(0, { damping: 12 }))));
+    } else if (moveKind === 'shake') {
       tilt.set(withSequence(to(-1, 60), to(1, 100), to(-0.6, 90), to(0, 80)));
     } else if (moveKind === 'tug') {
       // Two pulls on the knot: in, out a little, in again, and settle.
@@ -105,11 +109,15 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null, gear }: 
       cancelAnimation(lift);
       cancelAnimation(tilt);
       cancelAnimation(squeeze);
+      cancelAnimation(nod);
     };
-  }, [moveId, moveKind, lift, tilt, squeeze, reduceMotion]);
+  }, [moveId, moveKind, lift, tilt, squeeze, nod, reduceMotion]);
 
   const alive = useAnimatedStyle(() => ({
     transform: [
+      // Bowing tips his top half toward you, from his feet.
+      { perspective: 600 },
+      { rotateX: `${-38 * nod.get()}deg` },
       { translateY: -size * 0.28 * lift.get() },
       { rotate: `${9 * tilt.get()}deg` },
       { scaleY: 1 + 0.035 * breath.get() + 0.08 * Math.min(squeeze.get(), 0) },

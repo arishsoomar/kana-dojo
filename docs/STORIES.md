@@ -1035,6 +1035,10 @@ Done when:
 ### Z2. Bowing
 - [ ] A Bow (礼) button in a friend's dojo, once a day per friend
 - [ ] Your dojo shows who bowed since you last looked
+- Notes: needs `supabase/migrations/20261003000000_bows.sql` run once. One row per bow;
+  its key (bower, friend, day) makes it once a day, and the rules only take bows from
+  yourself, to accepted friends, dated about today. "Since you last looked" is a seen flag,
+  set when you leave the Dojo tab after the bows showed, so it's the same on every device.
 
 ---
 

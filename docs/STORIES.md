@@ -938,6 +938,101 @@ picture of progress that already exists, so nothing new is stored.
 
 ---
 
+## Epic X — Live duels
+
+Duel a friend in real time. One phone opens a room and gets a code, the
+other types it in, and the same kana appear on both screens. The first
+right answer takes the point. There's no game server: the phones talk
+through a Supabase Realtime channel named after the room. No account is
+needed.
+
+### X1. Live duel rules
+- [ ] Pure functions in `src/core/live-duel.ts`, test-first
+- [ ] Room codes: 4 letters, without ones that are easy to confuse (I, O)
+- [ ] The kana: only ones both learners have met, at least 5. Both phones
+      work out the same questions from the room code (`seededRng`), so the
+      questions never need sending
+- [ ] Each round, each player gets one tap. The point goes to the right
+      answer with the quicker time, each measured on its own phone from
+      when the kana appeared, so a slow connection doesn't cost the point.
+      Equal times both score; two wrong answers score nothing
+- [ ] Nobody waits long: a round ends at 6 s, and a phone whose player
+      can't beat the other's right answer any more gives up the round
+- [ ] First to 7 wins; both reaching it in the same round is a draw
+- [ ] Messages between the phones (hello, answer, leave) are checked
+      before they're trusted, like saved progress
+
+### X2. The live duel screens
+- [ ] A "Duel a friend" card on the Games tab (only when Supabase is set
+      up), opening a screen to start a room or join one by code
+- [ ] Waiting for a friend with the code shown large, then a 3-2-1
+      countdown once both are in. A third phone is told the room is full
+- [ ] The duel from the mock's duel screen: the kana, four answers, both
+      scores, and who took each point
+- [ ] Every answer goes through `recordAnswer()`; the duel counts as a
+      game (streak, daily goal, mon)
+- [ ] The end: won, lost or drawn, and Rematch (a new room, same friend)
+- [ ] If the other phone leaves or drops out for 10 s, the duel ends with
+      no result
+
+---
+
+## Epic Y — Friends
+
+The foundation for visiting dojos and partner assignments. Friends are
+added by a short code; nobody can be searched for. Needs an account.
+
+### Y1. Names, codes and summaries
+- [ ] SQL in `supabase/migrations/` for the tables and their row-level
+      security: each learner's profile (name, friend code, summary), and
+      friend links, which the other person must accept
+- [ ] Pure functions in `src/core/friends.ts`, test-first: name rules
+      (1 to 20 characters), friend codes, and the summary a friend can
+      see (name, rank, streak, today's XP, and the dojo room's contents),
+      worked out from progress
+- [ ] Only accepted friends can read a summary
+- [ ] The summary is updated with each cloud sync
+
+### Y2. The friends screen
+- [ ] Choose your name the first time, change it later
+- [ ] Your friend code to share, and a box to add someone's
+- [ ] Requests to accept or decline, and your friends with their rank and
+      streak; remove a friend
+- [ ] Opened from the Dojo tab's header
+
+---
+
+## Epic Z — Visiting a dojo
+
+### Z1. A friend's room
+- [ ] Tapping a friend opens their dojo, read-only, drawn from their
+      summary: plaques, scroll, weapon rack, lanterns, bonsai, and their
+      Karasu in his gear
+- [ ] Their rank and streak underneath
+
+### Z2. Bowing
+- [ ] A Bow (礼) button in a friend's dojo, once a day per friend
+- [ ] Your dojo shows who bowed since you last looked
+
+---
+
+## Epic AA — Partner assignments
+
+### AA1. Partner rules
+- [ ] Pure functions, test-first: a daily goal shared with one friend
+      (combined XP, lessons between you, or both playing the daily kata),
+      picked by a seed from the date and the pair, so both see the same one
+- [ ] Progress adds your day and your partner's (from their summary)
+- [ ] Done earns both of you mon, recorded once on each side so it counts
+      after the day ends
+
+### AA2. On the Ranks tab
+- [ ] The fourth assignment from the mock: both avatars, "You and Kenji:
+      500 XP", one shared bar
+- [ ] Choose which friend to partner with; the choice holds for the day
+
+---
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike
@@ -1029,7 +1124,7 @@ picture of progress that already exists, so nothing new is stored.
 
 ## Later
 
-Tournaments (the weekly league), shadow match, partner assignments,
-visiting a friend's dojo.
+Tournaments (the weekly league) and shadow match were set aside: not
+wanted for now.
 
 Each gets expanded into full stories when its epic comes up. Not before.

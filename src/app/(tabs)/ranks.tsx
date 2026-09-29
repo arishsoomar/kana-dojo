@@ -14,6 +14,7 @@ import { DrumIcon } from '@/components/drum-icon';
 import { Karasu } from '@/components/karasu';
 import { MonIcon } from '@/components/mon-icon';
 import { MoonIcon } from '@/components/moon-icon';
+import { PartnerRow } from '@/components/partner-row';
 import { Yokai } from '@/components/yokai';
 import { colors, fonts } from '@/constants/theme';
 import type { Assignment, AssignmentKind } from '@/core/assignments';
@@ -22,6 +23,7 @@ import { weakPairs } from '@/core/duel';
 import { MON } from '@/core/mon';
 import { lessonsSince } from '@/core/profile';
 import { useAssignments } from '@/hooks/use-assignments';
+import { usePartner } from '@/hooks/use-partner';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 
@@ -49,6 +51,7 @@ export default function RanksScreen() {
   const { progress } = useProgress();
   const rank = useRank();
   const assignments = useAssignments();
+  const partner = usePartner();
   // The time the screen opened; reading the clock during every render isn't allowed.
   const [now] = useState(() => Date.now());
   const thisWeek = lessonsSince(progress, now - WEEK_MS);
@@ -91,6 +94,18 @@ export default function RanksScreen() {
             detail={a.kind === 'mixups' && worstPair ? `Like ${worstPair.kana[0]} and ${worstPair.kana[1]}` : null}
           />
         ))}
+        {/* The fourth: a goal shared with a friend. */}
+        <PartnerRow
+          signedIn={partner.signedIn}
+          myName={partner.myName}
+          choices={partner.choices}
+          chosen={partner.chosen !== null}
+          partner={partner.partner}
+          goal={partner.goal}
+          onChoose={partner.choose}
+          onSetUp={() => router.push(partner.signedIn ? '/friends' : '/account')}
+          onTrain={() => router.push(partner.goal?.kind === 'kata' ? '/games/kata' : '/')}
+        />
       </View>
 
       <Text style={styles.heading}>Your division</Text>

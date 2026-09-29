@@ -1056,6 +1056,11 @@ Done when:
 - [ ] The fourth assignment from the mock: both avatars, "You and Kenji:
       500 XP", one shared bar
 - [ ] Choose which friend to partner with; the choice holds for the day
+- Notes: the choice and the finish are kept in their own list in progress (`partners`),
+  saved and merged like purchases, not as finished lessons: a partner can finish a shared
+  goal alone, and that mustn't count as your training day. Targets: 500 XP, 6 lessons, or
+  both play the kata; 30 mon each. Choosing is one-sided: if Kenji chose someone else, you
+  still share your goal with his day, and he shares his with theirs.
 
 ---
 

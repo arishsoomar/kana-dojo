@@ -412,6 +412,7 @@ export const GUIDE: GuideSection[] = [
               "Games you've played before get their own assignments, so you're pointed back at them.",
               `Each one done earns ${MON.assignment} mon. There's nothing to claim: they fill in as you train.`,
               `Finish ${MONTH_GOAL} in a calendar month for that month's moon. Each one hangs a lantern in your dojo and levels up the Moon-watcher badge.`,
+              `A fourth is shared with a friend: choose a partner for the day, and your training and theirs fill one bar, like "You and Kenji: 500 XP". Finishing it earns each of you ${MON.partner} mon.`,
             ],
           },
         ],

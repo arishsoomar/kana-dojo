@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Animated, BackHandler, Easing, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AliveKarasu } from '@/components/alive-karasu';
@@ -16,8 +16,10 @@ import { fewestMoves, MEMORY_PAIRS, memoryKana, memoryReady, type MemoryCard, ty
 import { useMemory } from '@/hooks/use-memory';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
+import { useTurnOver } from '@/hooks/use-turn-over';
 
-const useNativeDriver = Platform.OS !== 'web';
+// Half a card's turn: edge-on, then flat again with the other side up.
+const CARD_HALF_TURN_MS = 90;
 
 function leave() {
   if (router.canGoBack()) router.back();
@@ -186,34 +188,26 @@ type CardState = 'down' | 'up' | 'found';
 // One card. Face down it shows the dojo's plaque; turned up, its kana or romaji; once its pair
 // is found, it stays showing, faded. It turns over with a quick flip.
 function Card({ card, state, onPress }: { card: MemoryCard; state: CardState; onPress: () => void }) {
-  const reduceMotion = useReducedMotion();
-  const [turn] = useState(() => new Animated.Value(1));
-  const showing = state !== 'down';
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    turn.setValue(0);
-    const flip = Animated.timing(turn, { toValue: 1, duration: 160, easing: Easing.out(Easing.quad), useNativeDriver });
-    flip.start();
-    return () => flip.stop();
-  }, [showing, turn, reduceMotion]);
+  // It turns over in 3D; `showing` is whether its face is up at this moment.
+  const { shown: showing, style: turning } = useTurnOver(state !== 'down', CARD_HALF_TURN_MS);
+  const drawn: CardState = showing ? (state === 'down' ? 'up' : state) : 'down';
 
   const isKana = card.face === card.kana.char;
   return (
-    <Animated.View style={[styles.cardSlot, { transform: [{ scaleX: turn }] }]}>
+    <Animated.View style={[styles.cardSlot, turning]}>
       <Pressable
         role="button"
         aria-label={showing ? `Card ${card.face}` : 'Face-down card'}
         disabled={state === 'found'}
         onPress={onPress}
-        style={[styles.card, styles[state]]}>
+        style={[styles.card, styles[drawn]]}>
         {showing ? (
           <Text
             style={[
               styles.face,
               isKana && styles.kana,
               isKana && { fontSize: 24 * kanaFit(card.face, 0.7) },
-              state === 'found' && styles.foundText,
+              drawn === 'found' && styles.foundText,
             ]}>
             {card.face}
           </Text>

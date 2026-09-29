@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { useState } from 'react';
+import { Image, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { colors, fonts } from '@/constants/theme';
 import { KANA_PICTURES } from '@/constants/kana-pictures';
 import type { Kana } from '@/core/kana';
 import { kanaTip, mnemonicBase } from '@/core/tips';
+import { useTurnOver } from '@/hooks/use-turn-over';
 
 import { KanaFrame } from './kana-frame';
 
-const useNativeDriver = Platform.OS !== 'web';
+// Half a turn: edge-on, then flat again with the other side up.
+const HALF_TURN_MS = 130;
 
 type Props = {
   kana: Kana;
@@ -21,18 +23,9 @@ type Props = {
 // picture that ties its shape to its sound, with the tip and the sound itself. Tap again to
 // turn it back.
 export function MnemonicCard({ kana, flipped, onFlip }: Props) {
-  const reduceMotion = useReducedMotion();
-  // 0 = edge-on, 1 = flat. Each time it turns over, it swings in from edge-on.
-  const [turn] = useState(() => new Animated.Value(1));
+  // It turns over in 3D; `showing` is the side up at this moment.
+  const { shown: showing, style: turning } = useTurnOver(flipped, HALF_TURN_MS);
   const [height, setHeight] = useState(0);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    turn.setValue(0);
-    const swing = Animated.timing(turn, { toValue: 1, duration: 220, easing: Easing.out(Easing.cubic), useNativeDriver });
-    swing.start();
-    return () => swing.stop();
-  }, [flipped, turn, reduceMotion]);
 
   function onLayout(event: LayoutChangeEvent) {
     setHeight(event.nativeEvent.layout.height);
@@ -49,8 +42,8 @@ export function MnemonicCard({ kana, flipped, onFlip }: Props) {
       onPress={onFlip}
       style={styles.fill}
       onLayout={onLayout}>
-      <Animated.View style={[styles.fill, { transform: [{ scaleX: turn }] }]}>
-        {flipped ? (
+      <Animated.View style={[styles.fill, turning]}>
+        {showing ? (
           <View style={styles.back}>
             {picture && pictureSize > 0 && (
               <Image source={picture} style={{ width: pictureSize, height: pictureSize }} accessibilityIgnoresInvertColors />

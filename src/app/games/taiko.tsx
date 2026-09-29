@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Animated, BackHandler, Easing, Platform, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { BackHandler, Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AliveKarasu } from '@/components/alive-karasu';
@@ -21,7 +21,6 @@ import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 import { useTaiko } from '@/hooks/use-taiko';
 
-const useNativeDriver = Platform.OS !== 'web';
 
 // How many beats ahead a note appears at the top of the track: 3 seconds to see it coming.
 const TRAVEL_BEATS = 4;
@@ -229,24 +228,24 @@ const JUDGEMENT_TEXT: Readonly<Record<Judgement, string>> = { perfect: 'Perfect'
 // "Perfect", "Good", "OK" or "Miss", popping up beside the ring.
 function JudgementPop({ judgement, top }: { judgement: Judgement; top: number }) {
   const reduceMotion = useReducedMotion();
-  const [pop] = useState(() => new Animated.Value(reduceMotion ? 1 : 0));
+  // Springs in (overshooting a little), holds, and fades.
+  const pop = useSharedValue(reduceMotion ? 1 : 0);
   useEffect(() => {
     if (reduceMotion) return;
-    const show = Animated.sequence([
-      Animated.timing(pop, { toValue: 1, duration: 120, easing: Easing.out(Easing.back(2)), useNativeDriver }),
-      Animated.delay(350),
-      Animated.timing(pop, { toValue: 0, duration: 200, useNativeDriver }),
-    ]);
-    show.start();
-    return () => show.stop();
+    pop.set(withSequence(withSpring(1, { damping: 7, stiffness: 420 }), withDelay(300, withTiming(0, { duration: 200 }))));
   }, [pop, reduceMotion]);
+  const popping = useAnimatedStyle(() => ({
+    opacity: Math.min(pop.get(), 1),
+    transform: [{ scale: 0.7 + 0.3 * pop.get() }],
+  }));
   return (
     <Animated.Text
       pointerEvents="none"
       style={[
         styles.judgement,
         judgement === 'miss' ? styles.judgementMiss : judgement === 'perfect' ? styles.judgementPerfect : null,
-        { top, opacity: pop, transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] },
+        { top },
+        popping,
       ]}>
       {JUDGEMENT_TEXT[judgement]}
     </Animated.Text>

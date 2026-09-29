@@ -1,6 +1,17 @@
 import { useEffect, useEffectEvent, useState } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '@/constants/theme';
@@ -27,9 +38,6 @@ type Props = {
   onDone: () => void;
 };
 
-// Native animation isn't available on web; there React Native animates in JavaScript instead.
-const useNativeDriver = Platform.OS !== 'web';
-
 const KARASU_SIZE = 160;
 // The falling belt's picture, and where its band runs across it (as a share of its height).
 const BELT_WIDTH = 150;
@@ -47,6 +55,10 @@ function waistOf(rank: Belt) {
 // How it plays out: the belt falls onto Karasu, wraps round him, he tugs the knot tight,
 // and then the gong, the cheer and the words.
 type Stage = 'falling' | 'tugging' | 'tied';
+const FALL_DELAY_MS = 400;
+const FALL_MS = 750;
+const WRAP_MS = 180;
+const TUG_MS = 450;
 
 // The payoff for passing a belt exam. The new belt drops onto Karasu's waist and wraps round
 // him, he pulls the knot tight, and the gong rings. It takes about two seconds.
@@ -56,11 +68,10 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
   const reduceMotion = useReducedMotion();
   const haptics = useHaptics();
   const sounds = useSoundEffects();
-  // Animated values are created once. (useState keeps them between renders without
-  // reading a ref during render.)
-  const [drop] = useState(() => new Animated.Value(0)); // 0 = above the screen, 1 = on his waist
-  const [wrap] = useState(() => new Animated.Value(0)); // 1 = wrapped round him, out of sight
-  const [reveal] = useState(() => new Animated.Value(0));
+  const drop = useSharedValue(0); // 0 = above the screen, 1 = on his waist
+  const wrap = useSharedValue(0); // 1 = wrapped round him, out of sight
+  const reveal = useSharedValue(0); // the words: 1 = shown
+  const glow = useSharedValue(0); // the glow behind him, pulsing once the belt is tied
   const [played, setPlayed] = useState<Stage>('falling');
   // With Reduce Motion there's no animation: the belt is simply on.
   const stage: Stage = reduceMotion ? 'tied' : played;
@@ -73,49 +84,63 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
       tied();
       return;
     }
-    const ceremony = Animated.sequence([
-      Animated.delay(400),
-      Animated.timing(drop, { toValue: 1, duration: 750, easing: Easing.out(Easing.cubic), useNativeDriver }),
-      Animated.timing(wrap, { toValue: 1, duration: 180, easing: Easing.in(Easing.quad), useNativeDriver }),
-    ]);
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    ceremony.start(({ finished }) => {
-      if (!finished) return;
-      setPlayed('tugging');
-      tugged();
-      timer = setTimeout(() => {
+    // It falls, overshooting his waist a little and bouncing back up onto it, then wraps round.
+    drop.set(withDelay(FALL_DELAY_MS, withTiming(1, { duration: FALL_MS, easing: Easing.out(Easing.back(1.3)) })));
+    wrap.set(withDelay(FALL_DELAY_MS + FALL_MS, withTiming(1, { duration: WRAP_MS, easing: Easing.in(Easing.quad) })));
+    const wrapped = FALL_DELAY_MS + FALL_MS + WRAP_MS;
+    const timers = [
+      setTimeout(() => {
+        setPlayed('tugging');
+        tugged();
+      }, wrapped),
+      setTimeout(() => {
         setPlayed('tied');
         tied();
-        Animated.timing(reveal, { toValue: 1, duration: 400, useNativeDriver }).start();
-      }, 450);
-    });
-    return () => {
-      ceremony.stop();
-      clearTimeout(timer);
-    };
-  }, [drop, wrap, reveal, reduceMotion]);
+        reveal.set(withSpring(1, { damping: 14, stiffness: 120 }));
+        // A flare as the gong rings, then a slow pulse.
+        glow.set(
+          withSequence(
+            withTiming(1, { duration: 180 }),
+            withRepeat(withTiming(0.4, { duration: 1400, easing: Easing.inOut(Easing.sin) }), -1, true),
+          ),
+        );
+      }, wrapped + TUG_MS),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [drop, wrap, reveal, glow, reduceMotion]);
 
   const beltName = `${belt.charAt(0).toUpperCase()}${belt.slice(1)} belt`;
   const waist = waistOf(fromRank);
   // It falls from well above him and shrinks to the width of his own belt as it lands.
   const fits = waist.width / BELT_WIDTH;
-  const beltStyle = {
+  const beltPlace = {
     left: waist.x - BELT_WIDTH / 2,
     top: waist.y - BELT_HEIGHT * BELT_BAND,
     transformOrigin: `50% ${BELT_BAND * 100}%`,
-    opacity: drop.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 1, 1] }),
-    transform: [
-      { translateY: drop.interpolate({ inputRange: [0, 1], outputRange: [-260, 0] }) },
-      { scale: drop.interpolate({ inputRange: [0, 1], outputRange: [1, fits] }) },
-      // Wrapping round: it narrows to nothing, as if going round behind him.
-      { scaleX: wrap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
-    ],
   };
+  const falling = useAnimatedStyle(() => ({
+    opacity: interpolate(drop.get(), [0, 0.2], [0, 1], 'clamp'),
+    transform: [
+      { translateY: -260 * (1 - drop.get()) },
+      { scale: 1 + (fits - 1) * Math.min(drop.get(), 1) },
+      // Wrapping round: it narrows to nothing, as if going round behind him.
+      { scaleX: 1 - wrap.get() },
+    ],
+  }));
+  // The words rise into place as they appear.
+  const words = useAnimatedStyle(() => ({
+    opacity: reduceMotion ? 1 : Math.min(reveal.get(), 1),
+    transform: [{ translateY: reduceMotion ? 0 : 16 * (1 - reveal.get()) }],
+  }));
+  const glowing = useAnimatedStyle(() => ({
+    opacity: 0.18 + 0.14 * glow.get(),
+    transform: [{ scale: 1 + 0.12 * glow.get() }],
+  }));
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
       <View style={styles.stage}>
-        <View style={styles.glow} />
+        <Animated.View style={[styles.glow, glowing]} />
         {/* Wrapped in a View so he's layered above the glow on web too, and so the belt can
             be placed on his waist. */}
         <View style={{ width: KARASU_SIZE, height: waist.height }}>
@@ -129,13 +154,13 @@ export function BeltCeremony({ belt, from, rowChar, correct, total, nextRowChar,
             move={stage === 'tugging' ? { kind: 'tug', id: 1 } : stage === 'tied' ? { kind: 'cheer', id: 2 } : null}
           />
           {stage === 'falling' && (
-            <Animated.View style={[styles.belt, beltStyle]} pointerEvents="none">
+            <Animated.View style={[styles.belt, beltPlace, falling]} pointerEvents="none">
               <BeltIcon belt={belt} width={BELT_WIDTH} />
             </Animated.View>
           )}
         </View>
 
-        <Animated.View style={[styles.words, { opacity: reduceMotion ? 1 : reveal }]}>
+        <Animated.View style={[styles.words, words]}>
           <Text style={styles.title}>
             {beltName}, <Text style={styles.kana}>{rowChar}</Text> row
           </Text>
@@ -190,7 +215,6 @@ const styles = StyleSheet.create({
     height: 230,
     borderRadius: 115,
     backgroundColor: colors.vermilion,
-    opacity: 0.18,
   },
   belt: {
     position: 'absolute',

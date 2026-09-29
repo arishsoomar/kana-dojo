@@ -1,33 +1,30 @@
-import { useEffect, useState } from 'react';
-import { Animated, Easing, Platform, StyleSheet, Text, View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 import { colors, fonts } from '@/constants/theme';
 import { COMBO_MILESTONES, COMBO_SHOWS_AT } from '@/core/lesson';
 
 import { FlameIcon } from './flame-icon';
 
-const useNativeDriver = Platform.OS !== 'web';
-
 // "5 in a row!", with a flame that grows at 5 and 10. It pops each time the count goes up.
 export function ComboChip({ count }: { count: number }) {
   const reduceMotion = useReducedMotion();
-  const [pop] = useState(() => new Animated.Value(1));
+  const pop = useSharedValue(1);
 
   useEffect(() => {
     if (reduceMotion || count < COMBO_SHOWS_AT) return;
-    pop.setValue(1.35);
-    const settle = Animated.timing(pop, { toValue: 1, duration: 260, easing: Easing.out(Easing.back(2)), useNativeDriver });
-    settle.start();
-    return () => settle.stop();
+    // Jumps big, then springs back, wobbling a little.
+    pop.set(withSequence(withTiming(1.35, { duration: 0 }), withSpring(1, { damping: 6, stiffness: 300 })));
   }, [count, pop, reduceMotion]);
+  const popping = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
 
   if (count < COMBO_SHOWS_AT) return null;
   const flame = count >= COMBO_MILESTONES[1] ? 26 : count >= COMBO_MILESTONES[0] ? 21 : 17;
   return (
     // Centred along the top of whatever it sits in (the kana frame), between its corner marks.
     <View style={styles.row} pointerEvents="none">
-      <Animated.View style={[styles.chip, { transform: [{ scale: pop }] }]} aria-label={`${count} right in a row`}>
+      <Animated.View style={[styles.chip, popping]} aria-label={`${count} right in a row`}>
         <FlameIcon size={flame} />
         <Text style={styles.text}>{count} in a row!</Text>
       </Animated.View>

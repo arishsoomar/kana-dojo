@@ -17,7 +17,7 @@ type Props = {
 };
 
 // The swing when it's hooked on: a push, then a loose spring back to still, like a pendulum.
-const HOOK_PUSH = 900;
+const HOOK_PUSH = 180;
 const PENDULUM = { damping: 4, stiffness: 120, mass: 0.6 } as const;
 
 // The gold plaque a row earns when its belt exam is passed, hung beside its lesson plaques.
@@ -30,12 +30,12 @@ export function BeltPlaque({ belt, waiting = false, pegRef }: Props) {
 
   useEffect(() => {
     if (wasWaiting.current && !waiting && !reduceMotion) {
-      swing.value = withSpring(0, { ...PENDULUM, velocity: HOOK_PUSH });
+      swing.set(withSpring(0, { ...PENDULUM, velocity: HOOK_PUSH }));
     }
     wasWaiting.current = waiting;
   }, [waiting, swing, reduceMotion]);
 
-  const swinging = useAnimatedStyle(() => ({ transform: [{ rotate: `${swing.value}deg` }] }));
+  const swinging = useAnimatedStyle(() => ({ transform: [{ rotate: `${swing.get()}deg` }] }));
 
   return (
     <View style={styles.hanger} aria-label={waiting ? undefined : `${name} belt plaque`}>

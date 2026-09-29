@@ -50,9 +50,13 @@ const NEWS_MS = 3000;
 const FLIGHT_NEWS_MS = 8000;
 // How long the wall takes to scroll to the row before Karasu sets off.
 const SCROLL_SETTLES_MS = 550;
+// Once he's landed, the wall stays on the new plaque this long before going back to the
+// current row.
+const ADMIRE_MS = 1100;
 
-// Karasu hanging a belt plaque: the row, where he flies between, and whether it's on its peg.
-type Flight = { row: RowId; from: Point; to: Point; width: number; placed: boolean };
+// Karasu hanging a belt plaque: the row, where he flies between, whether it's on its peg, and
+// whether he's back on the floor.
+type Flight = { row: RowId; from: Point; to: Point; width: number; placed: boolean; landed: boolean };
 
 type Box = { x: number; y: number; width: number; height: number };
 function measure(view: View | null): Promise<Box | null> {
@@ -137,6 +141,7 @@ export default function LearnScreen() {
       to: { x: target.x - area.x + target.width / 2, y: target.y - area.y + target.height },
       width: area.width,
       placed: false,
+      landed: false,
     });
   });
   useEffect(() => {
@@ -148,7 +153,10 @@ export default function LearnScreen() {
       setFlight(null);
     };
   }, [hanging]);
-  const flying = hanging && flight?.row === hanging.row ? flight : null;
+  // This plaque's trip, from take-off until the wall moves on.
+  const trip = hanging && flight?.row === hanging.row ? flight : null;
+  // Karasu is up off the floor.
+  const flying = trip && !trip.landed ? trip : null;
 
   function hooked() {
     setFlight((f) => f && { ...f, placed: true });
@@ -156,8 +164,9 @@ export default function LearnScreen() {
   }
 
   function landed() {
-    clearWallNews();
+    setFlight((f) => f && { ...f, landed: true });
     setKarasuMove((m) => ({ kind: 'cheer', id: (m?.id ?? 0) + 1 }));
+    setTimeout(clearWallNews, ADMIRE_MS);
   }
   const chooseScript = (next: Script) => updateProgress(setScript(progress, next));
   const path = learnPath(progress, script);
@@ -221,7 +230,7 @@ export default function LearnScreen() {
         <BeltPlaque
           key="belt"
           belt={u.belt}
-          waiting={hanging?.row === u.row && !flying?.placed}
+          waiting={hanging?.row === u.row && !trip?.placed}
           pegRef={hanging?.row === u.row ? peg : undefined}
         />
       ),
@@ -289,7 +298,7 @@ export default function LearnScreen() {
         <Wall
           key={`${script}:${unit.row}`}
           perRail={perRailFor(width)}
-          still={flying !== null}
+          still={trip !== null}
           showRow={news.hung.find((h) => h.script === script)?.row ?? unit.row}
           units={path.units.map((u) => ({
             unit: u,

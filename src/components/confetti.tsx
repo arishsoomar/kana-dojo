@@ -1,38 +1,49 @@
 import { useEffect, useState } from 'react';
-import { Animated, Easing, Platform, StyleSheet, useWindowDimensions } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
 
 import { colors } from '@/constants/theme';
 
 // Kami fubuki, a "paper snowstorm": pieces of red, gold, wood and white paper falling from
-// the top of the screen, for the big moments. It draws over everything but can't be touched.
+// the top of the screen, for the big moments. Each piece flutters as it falls, swaying and
+// flipping over like paper does. It draws over everything but can't be touched.
 
 const PIECES = 40;
 const PAPER = [colors.vermilion, colors.gold, colors.wood, colors.card, colors.vermilionLight] as const;
-const useNativeDriver = Platform.OS !== 'web';
+const LONGEST_DELAY_MS = 500;
+const LONGEST_FALL_MS = 3400;
 
 type Piece = {
   x: number; // where it starts across, as a share of the width
   drift: number; // how far it wanders sideways while falling, in points
   spin: number; // turns while falling
+  flutters: number; // times it sways side to side
+  sway: number; // how far each sway goes, in points
   delay: number;
   duration: number;
   color: string;
   wide: boolean; // some pieces are wider than tall
-  fall: Animated.Value; // 0 at the top, 1 below the bottom edge
 };
 
 function makePieces(): Piece[] {
   return Array.from({ length: PIECES }, (_, i) => ({
     x: Math.random(),
     drift: (Math.random() - 0.5) * 120,
-    spin: (Math.random() - 0.5) * 6,
-    delay: Math.random() * 500,
-    duration: 1800 + Math.random() * 1400,
+    spin: (Math.random() - 0.5) * 4,
+    flutters: 1.5 + Math.random() * 2.5,
+    sway: 6 + Math.random() * 14,
+    delay: Math.random() * LONGEST_DELAY_MS,
+    duration: LONGEST_FALL_MS - Math.random() * 1400,
     // Safe: the index is within PAPER.
     color: PAPER[i % PAPER.length]!,
     wide: Math.random() < 0.5,
-    fall: new Animated.Value(0),
   }));
 }
 
@@ -41,46 +52,47 @@ export function Confetti() {
   const reduceMotion = useReducedMotion();
   // Made once: each piece's path is picked when the confetti first appears.
   const [pieces] = useState(makePieces);
+  // One clock for every piece, in milliseconds since it started.
+  const clock = useSharedValue(0);
 
   useEffect(() => {
     if (reduceMotion) return;
-    const all = Animated.parallel(
-      pieces.map((p) =>
-        Animated.timing(p.fall, {
-          toValue: 1,
-          duration: p.duration,
-          delay: p.delay,
-          easing: Easing.in(Easing.quad),
-          useNativeDriver,
-        }),
-      ),
-    );
-    all.start();
-    return () => all.stop();
-  }, [pieces, reduceMotion]);
+    const end = LONGEST_DELAY_MS + LONGEST_FALL_MS;
+    clock.set(withTiming(end, { duration: end, easing: Easing.linear }));
+  }, [clock, reduceMotion]);
 
   if (reduceMotion) return null;
   return (
-    <Animated.View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
       {pieces.map((p, i) => (
-        <Animated.View
-          key={i}
-          style={[
-            styles.piece,
-            p.wide ? styles.wide : styles.tall,
-            {
-              left: p.x * width,
-              backgroundColor: p.color,
-              transform: [
-                { translateY: p.fall.interpolate({ inputRange: [0, 1], outputRange: [-20, height + 20] }) },
-                { translateX: p.fall.interpolate({ inputRange: [0, 1], outputRange: [0, p.drift] }) },
-                { rotate: p.fall.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${p.spin * 360}deg`] }) },
-              ],
-            },
-          ]}
-        />
+        <PaperPiece key={i} piece={p} clock={clock} width={width} height={height} />
       ))}
-    </Animated.View>
+    </View>
+  );
+}
+
+type PieceProps = { piece: Piece; clock: SharedValue<number>; width: number; height: number };
+
+function PaperPiece({ piece, clock, width, height }: PieceProps) {
+  const falling = useAnimatedStyle(() => {
+    const t = Math.min(Math.max((clock.get() - piece.delay) / piece.duration, 0), 1);
+    // Paper speeds up a little, then falls steadily.
+    const fall = 0.3 * t * t + 0.7 * t;
+    const sway = Math.sin(t * piece.flutters * 2 * Math.PI);
+    return {
+      transform: [
+        { translateY: -20 + fall * (height + 40) },
+        { translateX: piece.drift * t + sway * piece.sway },
+        { rotate: `${piece.spin * 360 * t + sway * 25}deg` },
+        // Flipping over as it sways, showing its edge.
+        { rotateX: `${sway * 70}deg` },
+      ],
+    };
+  });
+  return (
+    <Animated.View
+      style={[styles.piece, piece.wide ? styles.wide : styles.tall, { left: piece.x * width, backgroundColor: piece.color }, falling]}
+    />
   );
 }
 

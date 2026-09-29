@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
-import {
-  Animated,
-  Easing,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
+import { useEffect } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withDelay,
+  withSpring,
+} from "react-native-reanimated";
 
 import { colors, fonts, wallColors } from "@/constants/theme";
 import type { Plaque, PlaqueState } from "@/core/path";
@@ -25,12 +23,19 @@ type Props = {
   reveal?: number | null; // its row just opened: it flips over, after this many others
 };
 
-const useNativeDriver = Platform.OS !== "web";
 // When the seal lands (the Learn screen buzzes then), and the gap between flipping plaques.
 export const STAMP_LANDS_MS = 420;
 const REVEAL_STAGGER_MS = 110;
 // A tapped plaque swings on its cord; the lesson opens this long after the tap.
 const SWING_OPENS_AFTER_MS = 180;
+// The swing: a push, then a loose spring back to still, like a pendulum (degrees a second).
+const TAP_PUSH = 140;
+const PENDULUM = { damping: 4, stiffness: 180, mass: 0.5 } as const;
+// The seal stamps down: lands hard, squashing a little past its size, and settles.
+const STAMP = { damping: 9, stiffness: 260 } as const;
+const STAMP_DELAY_MS = STAMP_LANDS_MS - 140;
+// A new row's plaques flip round, overshooting a little.
+const FLIP = { damping: 12, stiffness: 140 } as const;
 
 // A lesson plaque hanging on the dojo wall. Kana read top to bottom, like Japanese signage.
 // Done: wood with a vermilion seal. Current: dark and larger. Locked: grey, can't be tapped.
@@ -45,64 +50,45 @@ export function PlaqueTile({
   const locked = state === "locked";
   const reduceMotion = useReducedMotion();
   // 1 = the seal in place. It starts at 0 only when it's about to stamp.
-  const [seal] = useState(
-    () => new Animated.Value(stamp && !reduceMotion ? 0 : 1),
-  );
+  const seal = useSharedValue(stamp && !reduceMotion ? 0 : 1);
   // 1 = facing the front. It starts turned edge-on only when it's about to flip.
-  const [face] = useState(
-    () => new Animated.Value(reveal !== null && !reduceMotion ? 0 : 1),
-  );
-  // -1 to 1: how far it has swung to either side.
-  const [swing] = useState(() => new Animated.Value(0));
+  const face = useSharedValue(reveal !== null && !reduceMotion ? 0 : 1);
+  // Degrees it has swung to either side.
+  const swing = useSharedValue(0);
 
   function tap() {
     if (reduceMotion) {
       onPress();
       return;
     }
-    const to = (toValue: number, duration: number) =>
-      Animated.timing(swing, {
-        toValue,
-        duration,
-        easing: Easing.inOut(Easing.sin),
-        useNativeDriver,
-      });
-    Animated.sequence([
-      to(1, 110),
-      to(-0.6, 160),
-      to(0.3, 140),
-      to(0, 120),
-    ]).start();
+    swing.set(withSpring(0, { ...PENDULUM, velocity: TAP_PUSH }));
     setTimeout(onPress, SWING_OPENS_AFTER_MS);
   }
 
   useEffect(() => {
     if (!stamp || reduceMotion) return;
-    seal.setValue(0);
-    const drop = Animated.timing(seal, {
-      toValue: 1,
-      duration: 300,
-      delay: STAMP_LANDS_MS - 300,
-      easing: Easing.out(Easing.back(2.5)),
-      useNativeDriver,
-    });
-    drop.start();
-    return () => drop.stop();
+    seal.set(0);
+    seal.set(withDelay(STAMP_DELAY_MS, withSpring(1, STAMP)));
   }, [stamp, seal, reduceMotion]);
 
   useEffect(() => {
     if (reveal === null || reduceMotion) return;
-    face.setValue(0);
-    const flip = Animated.timing(face, {
-      toValue: 1,
-      duration: 380,
-      delay: 250 + reveal * REVEAL_STAGGER_MS,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver,
-    });
-    flip.start();
-    return () => flip.stop();
+    face.set(0);
+    face.set(withDelay(250 + reveal * REVEAL_STAGGER_MS, withSpring(1, FLIP)));
   }, [reveal, face, reduceMotion]);
+
+  const hanging = useAnimatedStyle(() => ({
+    transform: [
+      { perspective: 600 },
+      { rotate: `${swing.get()}deg` },
+      { rotateY: `${90 * (1 - face.get())}deg` },
+    ],
+  }));
+  // Past 1 (the spring overshooting), it squashes a little smaller than its size.
+  const stamping = useAnimatedStyle(() => ({
+    opacity: Math.min(seal.get() * 1.5, 1),
+    transform: [{ scale: 2.4 - 1.4 * seal.get() }],
+  }));
   const label =
     plaque.kind === "mixed" ? "Mixed" : plaque.kana.map((k) => k.char).join("");
 
@@ -111,26 +97,7 @@ export function PlaqueTile({
       <View style={styles.peg} />
       <View style={styles.cord} />
       {/* Hangs from the top, so it swings and flips around the peg. */}
-      <Animated.View
-        style={{
-          transformOrigin: "top",
-          transform: [
-            { perspective: 600 },
-            {
-              rotate: swing.interpolate({
-                inputRange: [-1, 1],
-                outputRange: ["-7deg", "7deg"],
-              }),
-            },
-            {
-              rotateY: face.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["90deg", "0deg"],
-              }),
-            },
-          ],
-        }}
-      >
+      <Animated.View style={[{ transformOrigin: "top" }, hanging]}>
         <Pressable
           role="button"
           aria-label={`${plaque.kind === "mixed" ? "Mixed review" : label}, ${state}`}
@@ -163,22 +130,7 @@ export function PlaqueTile({
             ))
           )}
           {state === "done" && (
-            <Animated.View
-              style={[
-                styles.seal,
-                {
-                  opacity: seal,
-                  transform: [
-                    {
-                      scale: seal.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [2.4, 1],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            >
+            <Animated.View style={[styles.seal, stamping]}>
               <CheckIcon color={colors.card} />
             </Animated.View>
           )}

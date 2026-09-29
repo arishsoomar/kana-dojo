@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Animated, BackHandler, Easing, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AliveKarasu } from '@/components/alive-karasu';
@@ -22,7 +22,6 @@ import { useDungeon, type Flash } from '@/hooks/use-dungeon';
 import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 
-const useNativeDriver = Platform.OS !== 'web';
 
 function leave() {
   if (router.canGoBack()) router.back();
@@ -257,22 +256,19 @@ function Torch({ side }: { side: 'left' | 'right' }) {
 // "Clean!", popping up beside the yokai after a quick strike.
 function CleanPop() {
   const reduceMotion = useReducedMotion();
-  const [pop] = useState(() => new Animated.Value(0));
+  // Springs in (overshooting a little), holds, and fades.
+  const pop = useSharedValue(0);
   useEffect(() => {
     if (reduceMotion) return;
-    const show = Animated.sequence([
-      Animated.timing(pop, { toValue: 1, duration: 180, easing: Easing.out(Easing.back(2)), useNativeDriver }),
-      Animated.delay(500),
-      Animated.timing(pop, { toValue: 0, duration: 250, useNativeDriver }),
-    ]);
-    show.start();
-    return () => show.stop();
+    pop.set(withSequence(withSpring(1, { damping: 7, stiffness: 320 }), withDelay(450, withTiming(0, { duration: 250 }))));
   }, [pop, reduceMotion]);
+  const popping = useAnimatedStyle(() => ({
+    opacity: Math.min(pop.get(), 1),
+    transform: [{ rotate: '8deg' }, { scale: 0.6 + 0.4 * pop.get() }],
+  }));
   if (reduceMotion) return null;
   return (
-    <Animated.Text
-      style={[styles.clean, { opacity: pop, transform: [{ rotate: '8deg' }, { scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }]}
-      pointerEvents="none">
+    <Animated.Text style={[styles.clean, popping]} pointerEvents="none">
       Clean!
     </Animated.Text>
   );

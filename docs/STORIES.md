@@ -1028,6 +1028,9 @@ Done when:
       summary: plaques, scroll, weapon rack, lanterns, bonsai, and their
       Karasu in his gear
 - [ ] Their rank and streak underneath
+- Notes: a summary can be days old, and rest days mean an old streak can still be alive,
+  so it's shown as shared, with when they were last seen ("Seen 2 days ago"), in the
+  friends list too.
 
 ### Z2. Bowing
 - [ ] A Bow (礼) button in a friend's dojo, once a day per friend

@@ -1,8 +1,11 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
 import { examId } from './exam';
 import {
+  friendSeen,
+  seenText,
   linkNews,
   waitingRequests,
+  type FriendSummary,
   type Link,
   formatFriendCode,
   FRIEND_CODE_LENGTH,
@@ -165,5 +168,31 @@ describe('waiting requests', () => {
     ];
     expect(waitingRequests(links)).toBe(2);
     expect(waitingRequests([])).toBe(0);
+  });
+});
+
+describe('when a friend was last seen', () => {
+  const on = (day: string) => ({ day }) as FriendSummary;
+
+  it('is 0 the same day, 1 the day after, and counts calendar days', () => {
+    expect(friendSeen(on('2026-09-29'), '2026-09-29')).toBe(0);
+    expect(friendSeen(on('2026-09-28'), '2026-09-29')).toBe(1);
+    expect(friendSeen(on('2026-08-30'), '2026-09-29')).toBe(30);
+  });
+
+  it('counts across a month and a year', () => {
+    expect(friendSeen(on('2026-12-31'), '2027-01-01')).toBe(1);
+  });
+
+  it('is never below 0, even from a phone whose clock is ahead', () => {
+    expect(friendSeen(on('2026-09-30'), '2026-09-29')).toBe(0);
+  });
+});
+
+describe('saying when a friend was last seen', () => {
+  it('reads naturally', () => {
+    expect(seenText(0)).toBe('Here today');
+    expect(seenText(1)).toBe('Seen yesterday');
+    expect(seenText(4)).toBe('Seen 4 days ago');
   });
 });

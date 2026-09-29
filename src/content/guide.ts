@@ -469,6 +469,7 @@ export const GUIDE: GuideSection[] = [
             bullets: [
               "You're friends once they accept. Either of you can remove the other at any time.",
               'When someone asks to be your friend, a banner shows wherever you are, and a red dot sits on the Dojo tab until you answer.',
+              "Tap a friend to visit their dojo: their room, their Karasu in his gear, their belt and streak, and when they were last in the app.",
               "Friends see your name, rank, streak, today's training, and your dojo. Nothing else, and never your email.",
               'Friends need an account, so sign in from Settings first.',
             ],

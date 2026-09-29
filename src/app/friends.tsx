@@ -9,8 +9,9 @@ import { FlameIcon } from '@/components/flame-icon';
 import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { colors, fonts } from '@/constants/theme';
-import { formatFriendCode, NAME_MAX } from '@/core/friends';
+import { formatFriendCode, friendSeen, NAME_MAX, seenText } from '@/core/friends';
 import { useFriends } from '@/hooks/use-friends';
+import { useToday } from '@/hooks/use-today';
 import type { Friend } from '@/storage/friends';
 
 // How long "Remove" waits for its second tap.
@@ -175,6 +176,7 @@ function FriendList({ friends, onAccept, onRemove }: { friends: Friend[]; onAcce
   const incoming = friends.filter((f) => f.state === 'incoming');
   const accepted = friends.filter((f) => f.state === 'accepted').sort((a, b) => a.name.localeCompare(b.name));
   const outgoing = friends.filter((f) => f.state === 'outgoing');
+  const today = useToday();
 
   return (
     <>
@@ -199,20 +201,29 @@ function FriendList({ friends, onAccept, onRemove }: { friends: Friend[]; onAcce
       {accepted.length === 0 && <Text style={styles.body}>No friends yet. Send your code to someone, or add theirs.</Text>}
       {accepted.map((f) => (
         <View key={f.userId} style={[styles.card, styles.row]}>
-          {f.summary && <BeltIcon belt={f.summary.rank} width={36} />}
-          <View style={styles.grow}>
-            <Text style={styles.name}>{f.name}</Text>
-            {f.summary ? (
-              <View style={styles.streak}>
-                <FlameIcon size={14} />
-                <Text style={styles.small}>
-                  {f.summary.streak} {f.summary.streak === 1 ? 'day' : 'days'}
-                </Text>
-              </View>
-            ) : (
-              <Text style={styles.small}>Hasn&apos;t trained since you became friends</Text>
-            )}
-          </View>
+          {/* Tapping a friend who has shared their dojo opens it. */}
+          <Pressable
+            role="button"
+            aria-label={f.summary ? `Visit ${f.name}'s dojo` : f.name}
+            disabled={!f.summary}
+            onPress={() => router.push({ pathname: '/friend', params: { id: f.userId } })}
+            style={[styles.row, styles.grow]}>
+            {f.summary && <BeltIcon belt={f.summary.rank} width={36} />}
+            <View style={styles.grow}>
+              <Text style={styles.name}>{f.name}</Text>
+              {f.summary ? (
+                <View style={styles.streak}>
+                  <FlameIcon size={14} />
+                  <Text style={styles.small}>
+                    {f.summary.streak} {f.summary.streak === 1 ? 'day' : 'days'} · {seenText(friendSeen(f.summary, today))}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.small}>Hasn&apos;t opened the app since you became friends</Text>
+              )}
+            </View>
+            {f.summary && <Text style={styles.chevron}>›</Text>}
+          </Pressable>
           <RemoveButton onRemove={() => onRemove(f.userId)} />
         </View>
       ))}
@@ -292,6 +303,11 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
+  },
+  chevron: {
+    fontFamily: fonts.uiBold,
+    fontSize: 22,
+    color: colors.muted,
   },
   cardTitle: {
     flex: 1,

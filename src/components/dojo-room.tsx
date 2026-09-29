@@ -17,13 +17,15 @@ const PLANK_GAPS = [70, 140, 210, 280];
 type Props = {
   room: DojoRoomContents;
   rank: Belt; // for Karasu
-  mon: number; // shown on the shed's doorway
-  onShed: () => void;
+  // The doorway to the supply shed, with the mon to spend. Only in your own dojo: a friend's
+  // has no way into their shed.
+  shed?: { mon: number; onPress: () => void };
+  gear?: readonly string[]; // Karasu's gear; left out, the learner's own
 };
 
-// Your dojo: a room that fills with what you've earned. Things not yet earned are drawn dashed,
-// with a hint of what fills them. The supply shed is through the curtained doorway.
-export function DojoRoom({ room, rank, mon, onShed }: Props) {
+// A dojo: a room that fills with what's been earned. Things not yet earned are drawn dashed,
+// with a hint of what fills them. In your own, the supply shed is through the curtained doorway.
+export function DojoRoom({ room, rank, shed, gear }: Props) {
   const shown = room.plaques.slice(0, WALL_PLAQUES);
   const more = room.plaques.length - shown.length;
 
@@ -102,26 +104,31 @@ export function DojoRoom({ room, rank, mon, onShed }: Props) {
           <Text style={styles.label}>{room.bonsai === 0 ? 'Train to grow it' : 'Bonsai'}</Text>
         </View>
         <View style={styles.karasu}>
-          <AliveKarasu mood="focus" rank={rank} size={112} />
+          <AliveKarasu mood="focus" rank={rank} size={112} gear={gear} />
           <View style={styles.cushion} />
         </View>
-        <Pressable role="button" aria-label={`Supply shed: ${mon} mon to spend`} onPress={onShed} style={styles.floorThing}>
-          <View style={styles.doorway}>
-            {/* A noren: the split curtain hung in a shop's doorway, with 店 ("shop") on it. */}
-            <View style={styles.noren}>
-              <View style={styles.norenPanel} />
-              <View style={[styles.norenPanel, styles.norenMiddle]}>
-                <Text style={styles.norenText}>店</Text>
+        {shed ? (
+          <Pressable role="button" aria-label={`Supply shed: ${shed.mon} mon to spend`} onPress={shed.onPress} style={styles.floorThing}>
+            <View style={styles.doorway}>
+              {/* A noren: the split curtain hung in a shop's doorway, with 店 ("shop") on it. */}
+              <View style={styles.noren}>
+                <View style={styles.norenPanel} />
+                <View style={[styles.norenPanel, styles.norenMiddle]}>
+                  <Text style={styles.norenText}>店</Text>
+                </View>
+                <View style={styles.norenPanel} />
               </View>
-              <View style={styles.norenPanel} />
             </View>
-          </View>
-          <Text style={styles.label}>Supply shed</Text>
-          <View style={styles.mon}>
-            <MonIcon size={13} />
-            <Text style={styles.monText}>{mon}</Text>
-          </View>
-        </Pressable>
+            <Text style={styles.label}>Supply shed</Text>
+            <View style={styles.mon}>
+              <MonIcon size={13} />
+              <Text style={styles.monText}>{shed.mon}</Text>
+            </View>
+          </Pressable>
+        ) : (
+          // The floor keeps its shape without the doorway.
+          <View style={styles.floorThing} />
+        )}
       </View>
     </View>
   );

@@ -26,6 +26,7 @@ type Props = {
   belt?: Belt;
   // A one-off move to play. A new `id` plays it again, even when it's the same move.
   move?: { kind: KarasuMove; id: number } | null;
+  gear?: readonly string[]; // left out, he wears the learner's own (a friend's dojo passes theirs)
 };
 
 // How often he blinks (a random wait in this range, so it doesn't look mechanical), and for how long.
@@ -37,7 +38,7 @@ const BREATH_MS = 1600;
 // Karasu, alive: he blinks, breathes, and can hop, shake his head, jump for joy, or tug his
 // belt tight. Hops and jumps land with a squash. With the phone's Reduce Motion setting on,
 // he only blinks.
-export function AliveKarasu({ mood, size = 58, rank, belt, move = null }: Props) {
+export function AliveKarasu({ mood, size = 58, rank, belt, move = null, gear }: Props) {
   const reduceMotion = useReducedMotion();
   const [blink, setBlink] = useState(false);
   const breath = useSharedValue(0); // 0 = breathed out, 1 = in
@@ -119,7 +120,7 @@ export function AliveKarasu({ mood, size = 58, rank, belt, move = null }: Props)
   return (
     // Scale and tilt from his feet, so he breathes and rocks in place instead of floating.
     <Animated.View style={[{ transformOrigin: 'bottom' }, alive]}>
-      <Karasu mood={mood} size={size} rank={rank} belt={belt} blink={blink} />
+      <Karasu mood={mood} size={size} rank={rank} belt={belt} blink={blink} gear={gear} />
     </Animated.View>
   );
 }

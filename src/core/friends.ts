@@ -92,6 +92,23 @@ export function friendToday(summary: FriendSummary, today: string): { xp: number
   return { xp: summary.xpToday, lessons: summary.lessonsToday, kata: summary.kataToday };
 }
 
+// How many days ago a friend's summary was made: roughly when they last opened the app, since
+// it's shared whenever anything changes, including the date. Never below 0.
+export function friendSeen(summary: FriendSummary, today: string): number {
+  const utc = (day: string) => {
+    const [year, month, date] = day.split('-').map(Number);
+    return Date.UTC(year ?? 1970, (month ?? 1) - 1, date ?? 1);
+  };
+  return Math.max(Math.round((utc(today) - utc(summary.day)) / 86_400_000), 0);
+}
+
+// "Here today", "Seen yesterday", "Seen 4 days ago", from friendSeen's days.
+export function seenText(days: number): string {
+  if (days <= 0) return 'Here today';
+  if (days === 1) return 'Seen yesterday';
+  return `Seen ${days} days ago`;
+}
+
 // Checking a summary from another phone. `unknown` could be anything, so every part is
 // narrowed before it's trusted: anything wrong at the top level rejects it, and odd entries in
 // lists are dropped.

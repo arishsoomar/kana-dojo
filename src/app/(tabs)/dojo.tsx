@@ -75,7 +75,7 @@ export default function DojoTab() {
         </Pressable>
       </View>
 
-      <DojoRoom room={room} rank={rank} mon={mon.balance} onShed={() => router.push('/shed')} />
+      <DojoRoom room={room} rank={rank} shed={{ mon: mon.balance, onPress: () => router.push('/shed') }} />
 
       <View style={styles.rankRow}>
         <BeltIcon belt={rank} width={46} />

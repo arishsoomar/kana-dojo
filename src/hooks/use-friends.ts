@@ -10,10 +10,12 @@ import {
   removeLink,
   renameProfile,
   requestFriend,
+  uploadSummary,
   type Friend,
   type Profile,
 } from '@/storage/friends';
 
+import { useFriendSummary } from './friend-sync';
 import { useAuth } from './use-auth';
 
 // Where the friends screen stands: signed out, loading, the server's friend tables missing,
@@ -29,6 +31,7 @@ export function useFriends() {
   const [status, setStatus] = useState<FriendsStatus>(userId ? 'loading' : 'signed-out');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
+  const summary = useFriendSummary();
 
   const refresh = useCallback(async () => {
     if (!userId) {
@@ -77,6 +80,8 @@ export function useFriends() {
         created = result.value === 'created';
       }
       if (!created) return 'Something went wrong. Try again.';
+      // Share straight away, so friends see a belt before the next lesson.
+      await uploadSummary(userId, summary);
     }
     await refresh();
     return null;

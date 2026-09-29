@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
-import { friendSummary } from '@/core/friends';
+import { friendSummary, type FriendSummary } from '@/core/friends';
 import { uploadSummary } from '@/storage/friends';
 
 import { useAssignments, useFinishedDays } from './use-assignments';
@@ -17,18 +17,23 @@ const SHARE_DELAY_MS = 5000;
 // the upload away, which is fine: there's nobody to share with.
 export function FriendSync() {
   const { userId } = useAuth();
+  const summary = useFriendSummary();
+
+  useEffect(() => {
+    if (!userId) return;
+    const timer = setTimeout(() => void uploadSummary(userId, summary), SHARE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [userId, summary]);
+
+  return null;
+}
+
+// The summary friends see, as it stands now.
+export function useFriendSummary(): FriendSummary {
   const { progress } = useProgress();
   const days = useFinishedDays();
   const today = useToday();
   const streak = useStreak().current;
   const { moons } = useAssignments();
-
-  useEffect(() => {
-    if (!userId) return;
-    const summary = friendSummary(progress, { days, today, streak, moons });
-    const timer = setTimeout(() => void uploadSummary(userId, summary), SHARE_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [userId, progress, days, today, streak, moons]);
-
-  return null;
+  return useMemo(() => friendSummary(progress, { days, today, streak, moons }), [progress, days, today, streak, moons]);
 }

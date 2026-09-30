@@ -35,6 +35,8 @@ const FORM_NAMES: Readonly<Record<string, string>> = {
   nakatta: 'short past negative (なかった)',
 };
 
+const ADJECTIVE_FORM_NAMES = { present: 'present', negative: 'negative', past: 'past', pastNegative: 'past negative', te: 'て-form' } as const;
+
 // A grammar lesson: its explanations and examples, then its exercises.
 export default function GrammarLessonScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -214,7 +216,12 @@ function Prompt({ exercise }: { exercise: Exercise }) {
       </View>
     );
   }
-  const form = typeof exercise.form === 'string' ? FORM_NAMES[exercise.form] : `${exercise.form.polite ? 'polite' : 'plain'} ${exercise.form.adjective}`;
+  const form =
+    typeof exercise.form === 'string'
+      ? FORM_NAMES[exercise.form]
+      : exercise.form.adjective === 'te'
+        ? 'て-form'
+        : `${exercise.form.polite ? 'polite' : 'plain'} ${ADJECTIVE_FORM_NAMES[exercise.form.adjective]}`;
   return (
     <View style={styles.prompt}>
       <Text style={styles.promptLabel}>{exercise.prompt}</Text>

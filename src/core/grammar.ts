@@ -111,6 +111,17 @@ export function formOptions(word: string, pos: readonly string[], form: FormAske
     // Other kinds of verb it could be mistaken for.
     const kinds = [['v1'], ['v5r'], ...(pos.includes('v5k-s') ? [['v5k']] : [])];
     for (const kind of kinds) candidates.push(conjugateVerb(word, kind, form));
+    const stem = word.slice(0, -1);
+    const masuStem = conjugateVerb(word, pos, 'masu')?.slice(0, -2) ?? stem;
+    // The て and た forms: the wrong ending for the verb (よって, よいて for よんで), or て on the
+    // ます stem (よみて).
+    if (form === 'te' || form === 'ta') {
+      const t = form === 'te' ? 'て' : 'た';
+      const d = form === 'te' ? 'で' : 'だ';
+      candidates.push(`${masuStem}${t}`, `${stem}っ${t}`, `${stem}ん${d}`, `${stem}い${t}`, `${stem}し${t}`);
+    }
+    // ない on the ます stem: のみない for のまない.
+    if (form === 'nai' || form === 'nakatta') candidates.push(`${masuStem}${form === 'nai' ? 'ない' : 'なかった'}`);
     for (const other of VERB_FORMS) if (other !== form) candidates.push(conjugateVerb(word, pos, other));
   } else {
     const kind = adjectiveKind(pos);

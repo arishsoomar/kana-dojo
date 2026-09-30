@@ -58,6 +58,17 @@ describe('wrong options for a form', () => {
     expect(new Set(options).size).toBe(4);
   });
 
+  it('for the て and た forms, are the wrong endings and the ます stem with て', () => {
+    const options = formOptions('よむ', ['v5m'], 'te');
+    expect(options[0]).toBe('よんで');
+    expect(options.slice(1).every((o) => o.endsWith('て') || o.endsWith('で'))).toBe(true);
+    expect(formOptions('のむ', ['v5m'], 'ta').slice(1).every((o) => o.endsWith('た') || o.endsWith('だ'))).toBe(true);
+  });
+
+  it('for ない, include the ます stem with ない: のみない', () => {
+    expect(formOptions('のむ', ['v5m'], 'nai')).toContain('のみない');
+  });
+
   it('works for adjectives too', () => {
     const options = formOptions('高い', ['adj-i'], { adjective: 'past', polite: true });
     expect(options).toContain('高かったです');

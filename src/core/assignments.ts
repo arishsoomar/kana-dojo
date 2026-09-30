@@ -1,4 +1,5 @@
 import type { Completion, Progress } from './answers';
+import { WORDS_REVIEW_ID } from './deck';
 import { seededRng, shuffle } from './random';
 
 // Assignments: three small tasks a day that point the learner at useful practice, and a
@@ -24,7 +25,8 @@ export type AssignmentKind =
   | 'calligraphy'
   | 'forge'
   | 'kata'
-  | 'mixups';
+  | 'mixups'
+  | 'reviews';
 
 export type Assignment = {
   kind: AssignmentKind;
@@ -36,8 +38,10 @@ export type Assignment = {
 
 const isGame = (c: Completion) => c.lesson.startsWith('game:');
 const isMixUp = (c: Completion) => c.lesson.startsWith('drill:') || c.lesson.startsWith('duel:');
-// Lessons: plaques, practice and drills. Not games, exams or duels.
-const isLesson = (c: Completion) => !isGame(c) && !c.lesson.startsWith('exam:') && !c.lesson.startsWith('duel:');
+// Lessons: plaques, practice and drills. Not games, exams, duels, or word reviews (whose
+// score is cards reviewed, not XP).
+const isLesson = (c: Completion) =>
+  !isGame(c) && !c.lesson.startsWith('exam:') && !c.lesson.startsWith('duel:') && !c.lesson.startsWith(WORDS_REVIEW_ID);
 const startsWith = (prefix: string) => (c: Completion) => c.lesson === prefix || c.lesson.startsWith(`${prefix}:`);
 
 type Rule = {
@@ -78,6 +82,7 @@ const RULES: Readonly<Record<AssignmentKind, Rule>> = {
   forge: { title: 'Read 10 words in Word Forge', target: 10, progress: total(startsWith('game:forge')), opensAfter: startsWith('game:forge') },
   kata: { title: 'Play the daily kata', target: 1, progress: howMany(startsWith('game:kata')), opensAfter: startsWith('game:kata') },
   mixups: { title: 'Settle 2 mix-ups', target: 2, progress: howMany(isMixUp), opensAfter: isMixUp },
+  reviews: { title: 'Review 20 words', target: 20, progress: total(startsWith(WORDS_REVIEW_ID)), opensAfter: startsWith(WORDS_REVIEW_ID) },
 };
 
 const KINDS = Object.keys(RULES) as AssignmentKind[];

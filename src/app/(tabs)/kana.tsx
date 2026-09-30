@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Fragment, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
@@ -8,6 +8,7 @@ import { KanaCell } from '@/components/kana-cell';
 import { pronounce } from '@/audio/pronounce';
 import { KanaDetailSheet } from '@/components/kana-detail-sheet';
 import { ProgressRing } from '@/components/progress-ring';
+import { PrimaryButton } from '@/components/primary-button';
 import { SegmentedControl } from '@/components/segmented-control';
 import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
@@ -16,6 +17,14 @@ import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
 import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
 import { useProgress } from '@/hooks/use-progress';
+import { useWordsToday } from '@/hooks/use-words';
+
+const SECTIONS = [
+  { value: 'kana', label: 'Kana' },
+  { value: 'words', label: 'Words' },
+  { value: 'grammar', label: 'Grammar' },
+] as const;
+type Section = (typeof SECTIONS)[number]['value'];
 
 const SCRIPTS = [
   { value: 'hiragana', label: 'Hiragana' },
@@ -25,8 +34,98 @@ const SCRIPTS = [
 // Highest belt first, as in the mock.
 const SHOWN_BELTS: readonly Belt[] = ['black', 'brown', 'green'];
 
-export default function KanaScreen() {
+// The Study tab: your kana, the word deck, and grammar.
+export default function StudyScreen() {
   const insets = useSafeAreaInsets();
+  const [section, setSection] = useState<Section>('kana');
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
+      <Text style={styles.title}>Study</Text>
+      <SegmentedControl options={SECTIONS} value={section} onChange={setSection} />
+      {section === 'kana' ? <KanaSection /> : section === 'words' ? <WordsSection /> : <GrammarSection />}
+    </ScrollView>
+  );
+}
+
+// The word deck: what's due today, the new words still to start, how far through the deck,
+// and how many new words a day.
+function WordsSection() {
+  const words = useWordsToday();
+  const ready = words.due + words.fresh;
+  return (
+    <>
+      <View style={[styles.summary, styles.wordsCard]}>
+        <View style={styles.wordCounts}>
+          <Count value={words.due} label="to review" />
+          <Count value={words.fresh} label="new today" />
+          <Count value={words.studied} label={`of ${words.total.toLocaleString('en-US')} started`} />
+        </View>
+        {ready > 0 ? (
+          <PrimaryButton label={words.due > 0 ? 'Review' : 'Learn new words'} onPress={() => router.push('/words/review')} />
+        ) : (
+          <Text style={styles.wordsDone}>All done for today. New words come at midnight.</Text>
+        )}
+      </View>
+
+      <View style={[styles.summary, styles.perDay]}>
+        <View style={styles.summaryText}>
+          <Text style={styles.summaryTitle}>New words a day</Text>
+          <Text style={styles.wordsAbout}>More means faster, and more reviews later.</Text>
+        </View>
+        <Stepper value={words.newPerDay} onChange={words.setNewPerDay} />
+      </View>
+
+      <Pressable role="button" onPress={() => router.push('/words')} style={[styles.summary, styles.perDay]}>
+        <View style={styles.summaryText}>
+          <Text style={styles.summaryTitle}>Browse the deck</Text>
+          <Text style={styles.wordsAbout}>The {words.total.toLocaleString('en-US')} most used words, most frequent first</Text>
+        </View>
+        <Text style={styles.chevron}>›</Text>
+      </Pressable>
+    </>
+  );
+}
+
+function Count({ value, label }: { value: number; label: string }) {
+  return (
+    <View style={styles.count}>
+      <Text style={styles.countValue}>{value.toLocaleString('en-US')}</Text>
+      <Text style={styles.countLabel}>{label}</Text>
+    </View>
+  );
+}
+
+// − 10 +, in steps of 5 (then 1 near the bottom).
+function Stepper({ value, onChange }: { value: number; onChange: (value: number) => void }) {
+  const step = (up: boolean) => (value < 5 || (value === 5 && !up) ? 1 : 5);
+  return (
+    <View style={styles.stepper}>
+      <Pressable role="button" aria-label="Fewer new words" onPress={() => onChange(value - step(false))} style={styles.stepButton} hitSlop={6}>
+        <Text style={styles.stepText}>−</Text>
+      </Pressable>
+      <Text style={styles.stepValue}>{value}</Text>
+      <Pressable role="button" aria-label="More new words" onPress={() => onChange(value + step(true))} style={styles.stepButton} hitSlop={6}>
+        <Text style={styles.stepText}>+</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+// Grammar lessons come with Epic AF.
+function GrammarSection() {
+  return (
+    <View style={[styles.summary, styles.wordsCard]}>
+      <Text style={styles.summaryTitle}>Grammar is coming</Text>
+      <Text style={styles.wordsAbout}>
+        Lessons in the order beginners meet it: です and the basics, verbs, adjectives, the て-form and more, built from the
+        words in your deck.
+      </Text>
+    </View>
+  );
+}
+
+// Your kana: the chart for each script, with belts, and a sheet for each kana.
+function KanaSection() {
   const { progress } = useProgress();
   const [script, setScript] = useState<Script>('hiragana');
   const [open, setOpen] = useState<Kana | null>(null);
@@ -38,9 +137,7 @@ export default function KanaScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}>
-      <Text style={styles.title}>Your kana</Text>
-
+    <>
       <SegmentedControl options={SCRIPTS} value={script} onChange={setScript} />
 
       <View style={styles.summary}>
@@ -90,7 +187,7 @@ export default function KanaScreen() {
       {open && (
         <DetailSheet kana={open} onDrill={() => drill(open)} onClose={() => setOpen(null)} />
       )}
-    </ScrollView>
+    </>
   );
 }
 
@@ -162,6 +259,76 @@ const styles = StyleSheet.create({
   },
   summaryText: {
     flex: 1,
+  },
+  wordsCard: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 14,
+    padding: 16,
+  },
+  wordCounts: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  count: {
+    alignItems: 'center',
+  },
+  countValue: {
+    fontFamily: fonts.uiBlack,
+    fontSize: 26,
+    color: colors.sumi,
+  },
+  countLabel: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12,
+    color: colors.ink2,
+  },
+  wordsDone: {
+    textAlign: 'center',
+    fontFamily: fonts.uiBold,
+    fontSize: 14,
+    color: colors.pineDark,
+  },
+  wordsAbout: {
+    marginTop: 2,
+    fontFamily: fonts.uiMedium,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.ink2,
+  },
+  perDay: {
+    paddingVertical: 14,
+  },
+  chevron: {
+    fontFamily: fonts.uiBold,
+    fontSize: 22,
+    color: colors.muted,
+  },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  stepButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1.5,
+    borderColor: colors.edge,
+  },
+  stepText: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 18,
+    color: colors.sumi,
+  },
+  stepValue: {
+    minWidth: 28,
+    textAlign: 'center',
+    fontFamily: fonts.uiBlack,
+    fontSize: 18,
+    color: colors.sumi,
   },
   summaryTitle: {
     fontFamily: fonts.uiExtraBold,

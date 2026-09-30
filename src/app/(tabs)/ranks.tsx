@@ -42,6 +42,7 @@ const DESTINATIONS: Readonly<Record<AssignmentKind, Href>> = {
   forge: '/games/forge',
   kata: '/games/kata',
   mixups: '/scrolls',
+  reviews: '/words/review',
 };
 
 // The Ranks tab: the day's assignments and the month's challenge, then your division. Weekly
@@ -202,6 +203,9 @@ function KindIcon({ kind }: { kind: AssignmentKind }): ReactNode {
       return <CalendarIcon size={22} />;
     case 'mixups':
       return <Text style={[styles.iconKana, styles.iconMixUp]}>ぬめ</Text>;
+    case 'reviews':
+      // 語, "word".
+      return <Text style={[styles.iconKana, styles.iconWord]}>語</Text>;
   }
 }
 
@@ -217,6 +221,7 @@ const ICON_BACKGROUNDS: Readonly<Record<AssignmentKind, string>> = {
   forge: colors.pineLight,
   kata: colors.sumi,
   mixups: colors.vermilionLight,
+  reviews: colors.indigoLight,
 };
 
 const BAR_COLORS: Readonly<Record<AssignmentKind, string>> = {
@@ -231,6 +236,7 @@ const BAR_COLORS: Readonly<Record<AssignmentKind, string>> = {
   forge: colors.pine,
   kata: colors.sumi,
   mixups: colors.vermilion,
+  reviews: colors.indigo,
 };
 
 const styles = StyleSheet.create({
@@ -339,6 +345,9 @@ const styles = StyleSheet.create({
     fontFamily: fonts.jp,
     fontSize: 20,
     color: colors.sumi,
+  },
+  iconWord: {
+    color: colors.indigoDark,
   },
   iconMixUp: {
     fontSize: 15,

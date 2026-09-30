@@ -1211,6 +1211,9 @@ I'll meet most.
 - [ ] Four buttons with their next intervals; a session ends when nothing's due, showing
       what was reviewed and learned
 - [ ] A review session counts as training for the streak and daily goal, and earns mon
+- Notes: furigana on the front goes by itself once a word is known well (three weeks'
+  stability), so nothing is stored for it. A session is kept as `words:review`, its score the
+  cards reviewed; it isn't a kana lesson for assignments, friends' summaries or partner goals.
 
 ### AE3. Where words live
 - [ ] The Kana tab becomes Study: Kana, Words and Grammar

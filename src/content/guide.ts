@@ -1,4 +1,4 @@
-import { FAST_MS } from '@/core/answers';
+import { FAST_MS, NEW_WORDS } from '@/core/answers';
 import { DUEL_LOSS, DUEL_READY_MIXUPS, DUEL_WIN } from '@/core/duel';
 import { CHARMS, DUNGEON_MIN_KANA, MAX_HEARTS } from '@/core/dungeon';
 import { EXAM_LENGTH, EXAM_PASS, EXAM_TIME_MS } from '@/core/exam';
@@ -132,7 +132,7 @@ export const GUIDE: GuideSection[] = [
           'Every kana has its own belt: white, green, brown, then black. Each belt is 3 steps, and each step is one quick right answer. Each belt asks for more speed, because the goal is reading at a glance.',
           { belts: true },
           "A right answer that's too slow keeps a kana where it is. A wrong answer drops it 2 steps. There's no waiting: you can climb as fast as you can read.",
-          'To see what a kana needs next, tap it on the Kana tab.',
+          'To see what a kana needs next, tap it on the Study tab, under Kana.',
         ],
       },
       {
@@ -203,12 +203,12 @@ export const GUIDE: GuideSection[] = [
         question: "What do I do once a row's plaques are done?",
         answer: [
           "Karasu suggests Practice: lessons on kana you've met, which pick the ones on lower belts more often.",
-          'To work on a single kana, open the Kana tab, tap the kana, and tap Drill. A drill mixes it with the kana you confuse it with.',
+          'To work on a single kana, open the Study tab, tap the kana under Kana, and tap Drill. A drill mixes it with the kana you confuse it with.',
         ],
       },
       {
         id: 'kana-tab',
-        question: 'What does the Kana tab show?',
+        question: 'What does the Study tab show for kana?',
         answer: [
           'Every kana, coloured by its belt. Tap one to see:',
           {
@@ -267,6 +267,21 @@ export const GUIDE: GuideSection[] = [
               "Tap the word's romaji from four options, or type it. Each wrong option is the word with one kana misread, often as a lookalike.",
               'Each word comes with a picture and its meaning, and after you answer you hear it spoken.',
               "It counts as practice for every kana in the word: a word read right moves them all up (typed counts double, like lessons), and a misread kana is logged as a mix-up.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'words',
+        question: 'How does the word deck work?',
+        answer: [
+          `The 2,500 most used words in Japanese (counted across anime, drama, films and novels), most frequent first, on the Study tab under Words. Each day brings ${NEW_WORDS.default} new ones (you can change that), and reviews of words you've started.`,
+          {
+            bullets: [
+              'Words are written as they really are, with kanji, and furigana (the reading in small kana) above. Once you know a word well, its front shows the kanji alone.',
+              'Tap the card to turn it over: the reading, its meanings, an example sentence, and the word spoken.',
+              'Then rate how well you knew it. Again brings it back in ten minutes; Hard, Good and Easy bring it back in days, weeks, then months, each time just before you would forget it. The buttons show when.',
+              'It uses FSRS, the same way of scheduling reviews that Anki uses. A review session counts as training for your streak and daily goal.',
             ],
           },
         ],
@@ -510,7 +525,7 @@ export const GUIDE: GuideSection[] = [
         question: 'How do I turn off sound or vibration?',
         answer: [
           'In Settings (the cog on the Dojo tab), use the Sound and Haptics switches. In a lesson, the speaker button at the top mutes sound too.',
-          "Sound stays quiet while your phone is on silent. Even with Sound off, you can hear a kana from its page in the Kana tab.",
+          "Sound stays quiet while your phone is on silent. Even with Sound off, you can hear a kana from its page on the Study tab.",
         ],
       },
       {

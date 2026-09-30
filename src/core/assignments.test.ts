@@ -131,6 +131,17 @@ describe('progress on an assignment', () => {
     expect(find(rows, 'mixups')).toMatchObject({ count: 2, done: true });
   });
 
+  it('adds up words reviewed, once reviewing has started on an earlier day', () => {
+    const rows: Row[] = [...VETERAN, [BEFORE, 'words:review', 5], ['TODAY', 'words:review', 12], ['TODAY', 'words:review', 9]];
+    expect(find(rows, 'reviews')).toMatchObject({ count: 20, target: 20, done: true });
+  });
+
+  it('does not count a review session as a lesson, or its cards as XP', () => {
+    const rows: Row[] = [['TODAY', 'words:review', 30]];
+    expect(find(rows, 'lessons')).toMatchObject({ count: 0 });
+    expect(find(rows, 'xp')).toMatchObject({ count: 0 });
+  });
+
   it("counts the daily kata", () => {
     const rows: Row[] = [...VETERAN, ['TODAY', 'game:kata:x', 12]];
     expect(find(rows, 'kata')).toMatchObject({ count: 1, done: true });

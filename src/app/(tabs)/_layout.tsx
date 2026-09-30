@@ -8,7 +8,7 @@ export default function TabLayout() {
       {/* Every tab draws its own header. */}
       <Tabs.Screen name="index" options={{ title: 'Learn', headerShown: false }} />
       <Tabs.Screen name="games" options={{ title: 'Games', headerShown: false }} />
-      <Tabs.Screen name="kana" options={{ title: 'Kana', headerShown: false }} />
+      <Tabs.Screen name="kana" options={{ title: 'Study', headerShown: false }} />
       <Tabs.Screen name="ranks" options={{ title: 'Ranks', headerShown: false }} />
       <Tabs.Screen name="dojo" options={{ title: 'Dojo', headerShown: false }} />
     </Tabs>

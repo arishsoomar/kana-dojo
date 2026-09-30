@@ -251,7 +251,7 @@ export const UNIT_2: readonly GrammarLesson[] = [
   {
     id: 'how-often',
     unit: 2,
-    title: 'How often: よく, 時々, 全然',
+    title: 'How often: よく, ときどき, ぜんぜん',
     goal: "Say how often you do things, and what you don't do at all.",
     sections: [
       {

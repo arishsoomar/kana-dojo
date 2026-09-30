@@ -1301,6 +1301,8 @@ Written in batches, in a Genki-like order, each batch its own story:
 - AF7: adjectives (い and な), and liking things (すき・きらい)
 - AF8: the て-form (requests, ongoing actions, and permission)
 - AF9: the short forms (ない, た) and casual speech
+- Notes: all six units are written: 35 lessons. Lesson and section titles and explanations
+  keep Japanese in kana (checked), since they're shown without furigana.
 
 ## Built outside the stories
 

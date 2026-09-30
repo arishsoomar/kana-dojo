@@ -25,8 +25,9 @@ describe('the grammar lessons', () => {
     expect(bare).toEqual([]);
   });
 
-  it('keep Japanese in the explanations to kana, so none is left without a reading', () => {
-    expect(GRAMMAR_LESSONS.flatMap((l) => l.sections.filter((s) => hasKanji(s.text)).map((s) => s.title))).toEqual([]);
+  it('keep Japanese in titles and explanations to kana, so none is left without a reading', () => {
+    expect(GRAMMAR_LESSONS.filter((l) => hasKanji(l.title) || hasKanji(l.goal)).map((l) => l.title)).toEqual([]);
+    expect(GRAMMAR_LESSONS.flatMap((l) => l.sections.filter((s) => hasKanji(s.text) || hasKanji(s.title)).map((s) => s.title))).toEqual([]);
   });
 
   it('only list words that are in the deck', () => {

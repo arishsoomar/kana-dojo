@@ -1,3 +1,4 @@
+import { adjectiveKind, conjugateAdjective, conjugateVerb, verbKind } from '@/core/conjugate';
 import { splitWord } from '@/core/forge';
 import { furiganaReading, furiganaText, isTopic, type Furigana } from '@/core/vocab';
 
@@ -48,6 +49,17 @@ describe('the word deck', () => {
   it('tags words only with known topics, each topic with some words', () => {
     expect(VOCAB.filter((w) => !Array.isArray(w.topics) || !w.topics.every(isTopic)).map((w) => w.word)).toEqual([]);
     for (const topic of TOPICS) expect(VOCAB.filter((w) => w.topics.includes(topic.id)).length).toBeGreaterThan(5);
+  });
+
+  it('can conjugate every verb and adjective, in its writing and its reading', () => {
+    const verbs = VOCAB.filter((w) => verbKind(w.pos));
+    const adjectives = VOCAB.filter((w) => adjectiveKind(w.pos));
+    expect(verbs.length).toBeGreaterThan(500);
+    const broken = [
+      ...verbs.filter((w) => !conjugateVerb(w.word, w.pos, 'masu') || !conjugateVerb(w.reading, w.pos, 'te')),
+      ...adjectives.filter((w) => !conjugateAdjective(w.word, w.pos, 'past', true)),
+    ];
+    expect(broken.map((w) => w.word)).toEqual([]);
   });
 
   it('leaves out particles, and words that are only grammar', () => {

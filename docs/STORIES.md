@@ -1212,7 +1212,9 @@ learn what I need for a situation.
 - Notes: the app speaks with a voice it names itself, so the voice picked in iOS's own
   Spoken Content settings doesn't apply to it; hence the app's own choice.
 
-### AD5. Recorded voices from VOICEVOX
+### AD5. Recorded voices from VOICEVOX (set aside)
+Set aside: with a downloaded Enhanced or Premium voice chosen in Settings, the phone's voice
+is good enough. Here if that changes.
 **As a** learner, **I want** natural recordings of every word and example sentence, **so that**
 pronunciation doesn't depend on my phone's voice.
 

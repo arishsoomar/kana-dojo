@@ -18,9 +18,22 @@ function levelOf(voice: DeviceVoice): VoiceLevel {
 
 const RANK: Readonly<Record<VoiceLevel, number>> = { premium: 3, enhanced: 2, basic: 1 };
 
+// Every Japanese voice of these, the best first (in their own order within a level).
+export function japaneseVoices(voices: readonly DeviceVoice[]): ChosenVoice[] {
+  return voices
+    .filter((v) => /^ja([-_]|$)/i.test(v.language))
+    .map((v) => ({ identifier: v.identifier, name: v.name, level: levelOf(v) }))
+    .sort((a, b) => RANK[b.level] - RANK[a.level]);
+}
+
 // The best Japanese voice of these, or null if there's none.
 export function bestJapaneseVoice(voices: readonly DeviceVoice[]): ChosenVoice | null {
-  const japanese = voices.filter((v) => /^ja([-_]|$)/i.test(v.language));
-  const best = japanese.reduce<DeviceVoice | null>((top, v) => (!top || RANK[levelOf(v)] > RANK[levelOf(top)] ? v : top), null);
-  return best ? { identifier: best.identifier, name: best.name, level: levelOf(best) } : null;
+  return japaneseVoices(voices)[0] ?? null;
+}
+
+// The voice to speak with: the one the learner chose, while it's still installed, or else the
+// best there is.
+export function voiceToUse(voices: readonly DeviceVoice[], chosen: string | null): ChosenVoice | null {
+  const all = japaneseVoices(voices);
+  return all.find((v) => v.identifier === chosen) ?? all[0] ?? null;
 }

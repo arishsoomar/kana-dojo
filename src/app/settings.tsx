@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,7 +10,7 @@ import { setHaptics, setSound, setTyping } from '@/core/answers';
 import { DAILY_GOALS } from '@/core/goal';
 import { useAuth } from '@/hooks/use-auth';
 import { useProgress } from '@/hooks/use-progress';
-import { useJapaneseVoice } from '@/hooks/use-voice';
+import { useJapaneseVoices } from '@/hooks/use-voice';
 
 // On web the switch's knob colour comes from activeThumbColor, not thumbColor. React Native's
 // types don't list it (it only exists on web), hence the cast.
@@ -110,12 +111,24 @@ const BETTER_VOICE = Platform.select({
 
 const LEVEL_NAMES = { premium: 'Premium', enhanced: 'Enhanced', basic: 'Basic' } as const;
 
-// The Japanese voice words are spoken in: which it is, a button to hear it, and how to get a
-// better one when it's the basic one.
+// The Japanese voice words are spoken in: which it is, a button to hear it, every Japanese
+// voice on the device to choose from, and how to get a better one when there's no Premium one.
 function VoiceRow() {
-  const voice = useJapaneseVoice();
+  const voices = useJapaneseVoices();
+  const [choosing, setChoosing] = useState(false);
+  const { current } = voices;
   const about =
-    voice === undefined ? 'Looking for voices…' : voice === null ? "Your device's default voice" : `${voice.name} (${LEVEL_NAMES[voice.level]})`;
+    current === undefined
+      ? 'Looking for voices…'
+      : current === null
+        ? "Your device's default voice"
+        : `${current.name} (${LEVEL_NAMES[current.level]})${voices.chosen === null ? ', the best one here' : ''}`;
+
+  function choose(id: string | null) {
+    voices.choose(id);
+    speakWord(SAMPLE);
+  }
+
   return (
     <View style={[styles.row, styles.column]}>
       <View style={styles.inline}>
@@ -123,12 +136,42 @@ function VoiceRow() {
           <Text style={styles.rowTitle}>Japanese voice</Text>
           <Text style={styles.rowSub}>{about}</Text>
         </View>
-        <Pressable role="button" onPress={() => speakWord('こんにちは。日本語を勉強しています。')} hitSlop={8}>
+        <Pressable role="button" onPress={() => speakWord(SAMPLE)} hitSlop={8} style={styles.gap}>
           <Text style={styles.action}>Hear it</Text>
         </Pressable>
+        {voices.all.length > 1 && (
+          <Pressable role="button" onPress={() => setChoosing(!choosing)} hitSlop={8}>
+            <Text style={styles.action}>{choosing ? 'Done' : 'Change'}</Text>
+          </Pressable>
+        )}
       </View>
-      {voice !== undefined && voice?.level !== 'premium' && <Text style={styles.rowSub}>{BETTER_VOICE}</Text>}
+      {choosing && (
+        <View role="radiogroup" style={styles.voices}>
+          <VoiceOption label="The best one here" chosen={voices.chosen === null} onPress={() => choose(null)} />
+          {voices.all.map((v) => (
+            <VoiceOption
+              key={v.identifier}
+              label={`${v.name} (${LEVEL_NAMES[v.level]})`}
+              chosen={voices.chosen === v.identifier}
+              onPress={() => choose(v.identifier)}
+            />
+          ))}
+        </View>
+      )}
+      {current !== undefined && current?.level !== 'premium' && <Text style={styles.rowSub}>{BETTER_VOICE}</Text>}
     </View>
+  );
+}
+
+// What a voice says when it's tried: "Hello. I'm studying Japanese."
+const SAMPLE = 'こんにちは。日本語を勉強しています。';
+
+function VoiceOption({ label, chosen, onPress }: { label: string; chosen: boolean; onPress: () => void }) {
+  return (
+    <Pressable role="radio" aria-checked={chosen} onPress={onPress} style={styles.voice}>
+      <View style={[styles.radio, chosen && styles.radioOn]} />
+      <Text style={styles.voiceName}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -194,6 +237,34 @@ const styles = StyleSheet.create({
   inline: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  gap: {
+    marginRight: 16,
+  },
+  voices: {
+    gap: 2,
+  },
+  voice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+  },
+  radio: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: colors.edge,
+  },
+  radioOn: {
+    borderWidth: 6,
+    borderColor: colors.vermilion,
+  },
+  voiceName: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 14,
+    color: colors.sumi,
   },
   rowTitle: {
     fontFamily: fonts.uiExtraBold,

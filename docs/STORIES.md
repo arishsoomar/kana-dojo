@@ -1207,6 +1207,10 @@ learn what I need for a situation.
       if it's installed, the default otherwise
 - [ ] Settings says which voice it's using, with a button to hear it, and how to download a
       better one (on iOS: Settings, Accessibility, Spoken Content, Voices, Japanese)
+- [ ] Any Japanese voice on the device can be chosen instead, in Settings; the choice is kept,
+      and if that voice is removed, the best one is used again
+- Notes: the app speaks with a voice it names itself, so the voice picked in iOS's own
+  Spoken Content settings doesn't apply to it; hence the app's own choice.
 
 ### AD5. Recorded voices from VOICEVOX
 **As a** learner, **I want** natural recordings of every word and example sentence, **so that**

@@ -62,7 +62,8 @@ export function parseProgress(text: string | null): Progress {
     typeof saved === 'number' && Number.isInteger(saved) && saved >= NEW_WORDS.min && saved <= NEW_WORDS.max ? saved : NEW_WORDS.default;
   const topic = isObject(settings) ? settings.newWordsTopic : undefined;
   const newWordsTopic = isTopic(topic) ? topic : null;
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords, newWordsTopic } };
+  const voice = isObject(settings) && typeof settings.voice === 'string' ? settings.voice : null;
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords, newWordsTopic, voice } };
 }
 
 // Keeps the entries whose value passes `isValid`.

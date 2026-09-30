@@ -2,26 +2,42 @@ import * as Speech from 'expo-speech';
 
 import { KANA, type Kana } from '@/core/kana';
 
-import { bestJapaneseVoice, type ChosenVoice } from './best-voice';
+import { japaneseVoices, voiceToUse, type ChosenVoice, type DeviceVoice } from './best-voice';
 
-// The phone's best Japanese voice, looked up once and again whenever asked to (after the
-// learner downloads a better one, say). Until it's found, the phone picks its default.
-let voice: ChosenVoice | null = null;
-let lookup: Promise<ChosenVoice | null> | null = null;
+// The phone's voices, looked up once and again whenever asked to (after the learner downloads
+// a better one, say), and the voice to speak with: the one chosen in Settings while it's
+// installed, or else the best Japanese one. Until they're found, the phone picks its default.
+let voices: readonly DeviceVoice[] = [];
+let chosen: string | null = null;
+let lookup: Promise<readonly DeviceVoice[]> | null = null;
 
-export function findJapaneseVoice(fresh = false): Promise<ChosenVoice | null> {
+function loadVoices(fresh: boolean): Promise<readonly DeviceVoice[]> {
   if (!lookup || fresh) {
     lookup = Speech.getAvailableVoicesAsync()
-      .then((voices) => (voice = bestJapaneseVoice(voices)))
-      .catch(() => voice);
+      .then((found) => (voices = found))
+      .catch(() => voices);
   }
   return lookup;
 }
 
+// The voice chosen in Settings (see VoiceChoice in the root layout), or null for the best one.
+export function setChosenVoice(id: string | null) {
+  chosen = id;
+}
+
+// The voice words are spoken in now, and every Japanese voice there is to choose from.
+export async function findJapaneseVoices(fresh = false): Promise<{ current: ChosenVoice | null; all: ChosenVoice[] }> {
+  const found = await loadVoices(fresh);
+  return { current: voiceToUse(found, chosen), all: japaneseVoices(found) };
+}
+
 function speak(text: string, rate: number) {
-  void findJapaneseVoice()
+  void loadVoices(false)
     .then(() => Speech.stop())
-    .then(() => Speech.speak(text, { language: 'ja-JP', rate, ...(voice ? { voice: voice.identifier } : {}) }));
+    .then(() => {
+      const voice = voiceToUse(voices, chosen);
+      Speech.speak(text, { language: 'ja-JP', rate, ...(voice ? { voice: voice.identifier } : {}) });
+    });
 }
 
 // Says a kana aloud with the phone's best Japanese voice, cutting off anything still being

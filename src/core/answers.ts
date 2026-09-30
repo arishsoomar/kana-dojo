@@ -52,6 +52,7 @@ export type Settings = {
   gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
   newWords: number; // new words from the deck a day
   newWordsTopic: TopicId | null; // new words only from this topic, or null for any
+  voice: string | null; // the Japanese voice chosen on this device, or null for the best one
 };
 
 export type Progress = {
@@ -74,7 +75,7 @@ export const EMPTY_PROGRESS: Progress = {
   purchases: [],
   partners: [],
   words: {},
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null, voice: null },
 };
 
 export type Answer = {
@@ -221,4 +222,9 @@ export function isEmptyProgress(progress: Progress): boolean {
     progress.confusions.length === 0 &&
     progress.completed.length === 0
   );
+}
+
+// The Japanese voice to speak with (a device voice's id), or null for the best one there is.
+export function setVoice(progress: Progress, voice: string | null): Progress {
+  return { ...progress, settings: { ...progress.settings, voice } };
 }

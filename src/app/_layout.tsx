@@ -16,6 +16,7 @@ import { CloudSync } from '@/hooks/cloud-sync';
 import { FriendSync } from '@/hooks/friend-sync';
 import { AuthProvider } from '@/hooks/use-auth';
 import { FriendsProvider } from '@/hooks/use-friends';
+import { VoiceChoice } from '@/hooks/use-voice';
 import { ProgressProvider, useSavedProgress } from '@/hooks/use-progress';
 
 SplashScreen.preventAutoHideAsync();
@@ -50,6 +51,7 @@ export default function RootLayout() {
       <ProgressProvider initial={saved}>
         <CloudSync />
         <FriendSync />
+        <VoiceChoice />
         <FriendsProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

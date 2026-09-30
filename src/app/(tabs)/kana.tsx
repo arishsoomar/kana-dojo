@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeltIcon } from '@/components/belt-icon';
+import { CheckIcon } from '@/components/check-icon';
 import { KanaCell } from '@/components/kana-cell';
 import { pronounce } from '@/audio/pronounce';
 import { KanaDetailSheet } from '@/components/kana-detail-sheet';
@@ -18,6 +19,7 @@ import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
 import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
 import { useProgress } from '@/hooks/use-progress';
+import { useGrammarPath } from '@/hooks/use-grammar';
 import { useWordsToday } from '@/hooks/use-words';
 
 const SECTIONS = [
@@ -120,16 +122,43 @@ function Stepper({ value, onChange }: { value: number; onChange: (value: number)
   );
 }
 
-// Grammar lessons come with Epic AF.
+// The grammar path: each unit's lessons, in order, each opening when the one before is done.
 function GrammarSection() {
+  const grammar = useGrammarPath();
   return (
-    <View style={[styles.summary, styles.wordsCard]}>
-      <Text style={styles.summaryTitle}>Grammar is coming</Text>
+    <>
       <Text style={styles.wordsAbout}>
-        Lessons in the order beginners meet it: です and the basics, verbs, adjectives, the て-form and more, built from the
-        words in your deck.
+        Grammar in the order beginners meet it, {grammar.done} of {grammar.total} lessons done. Every example uses words from
+        your deck.
       </Text>
-    </View>
+      {grammar.units.map(({ unit, name, lessons }) => (
+        <View key={unit} style={[styles.summary, styles.wordsCard, styles.unitCard]}>
+          <Text style={styles.summaryTitle}>
+            Unit {unit}: {name}
+          </Text>
+          {lessons.map(({ lesson, state }) => (
+            <Pressable
+              key={lesson.id}
+              role="button"
+              aria-label={`${lesson.title}. ${state}`}
+              disabled={state === 'locked'}
+              onPress={() => router.push({ pathname: '/grammar/lesson', params: { id: lesson.id } })}
+              style={[styles.lessonRow, state === 'current' && styles.lessonCurrent]}>
+              <View style={[styles.lessonMark, state === 'done' && styles.lessonMarkDone, state === 'locked' && styles.lessonMarkLocked]}>
+                {state === 'done' ? <CheckIcon color={colors.card} /> : <Text style={styles.lessonMarkText}>{state === 'locked' ? '' : '▶'}</Text>}
+              </View>
+              <View style={styles.summaryText}>
+                <Text style={[styles.lessonTitle, state === 'locked' && styles.lockedText]}>{lesson.title}</Text>
+                <Text style={styles.wordsAbout} numberOfLines={2}>
+                  {lesson.goal}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ))}
+      <Text style={styles.wordsAbout}>More units are on the way: verbs, adjectives, the て-form and more.</Text>
+    </>
   );
 }
 
@@ -304,6 +333,45 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: colors.ink2,
+  },
+  unitCard: {
+    gap: 8,
+  },
+  lessonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 8,
+    borderRadius: 8,
+  },
+  lessonCurrent: {
+    backgroundColor: colors.paper,
+  },
+  lessonMark: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.sumi,
+  },
+  lessonMarkDone: {
+    backgroundColor: colors.pine,
+  },
+  lessonMarkLocked: {
+    backgroundColor: colors.line,
+  },
+  lessonMarkText: {
+    fontSize: 11,
+    color: colors.card,
+  },
+  lessonTitle: {
+    fontFamily: fonts.jp,
+    fontSize: 16,
+    color: colors.sumi,
+  },
+  lockedText: {
+    color: colors.muted,
   },
   topicCard: {
     gap: 10,

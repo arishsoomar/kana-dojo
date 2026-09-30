@@ -1279,7 +1279,13 @@ answers can be checked properly.
 ### AF3. The grammar path
 - [ ] Units in order, each opening when the one before is done, on the Study tab
 - [ ] Finishing a lesson counts as training, like a kana lesson
-- [ ] Grammar points reviewed later, by spaced repetition like words
+- [ ] Grammar points reviewed later, by spaced repetition like words (not yet: its own story
+      once there are enough lessons to review; a finished lesson can be done again meanwhile)
+- Notes: lessons are written with readings in brackets after their kanji (私[わたし]は). Tests
+  check every kanji has a reading, every answer is among its options, and every listed word is
+  in the deck. Form exercises are checked by the conjugation rules, and their wrong options
+  are the mistakes learners make (帰る taken as a る-verb: 帰ます). A finished lesson is kept as
+  `grammar:<id>`, so it counts as a lesson for the streak, daily goal and mon.
 
 ### AF4 onwards. The lessons themselves
 Written in batches, in a Genki-like order, each batch its own story:

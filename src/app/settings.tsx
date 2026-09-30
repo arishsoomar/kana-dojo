@@ -2,12 +2,14 @@ import { router } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { speakWord } from '@/audio/pronounce';
 import { BackIcon } from '@/components/back-icon';
 import { colors, fonts } from '@/constants/theme';
 import { setHaptics, setSound, setTyping } from '@/core/answers';
 import { DAILY_GOALS } from '@/core/goal';
 import { useAuth } from '@/hooks/use-auth';
 import { useProgress } from '@/hooks/use-progress';
+import { useJapaneseVoice } from '@/hooks/use-voice';
 
 // On web the switch's knob colour comes from activeThumbColor, not thumbColor. React Native's
 // types don't list it (it only exists on web), hence the cast.
@@ -53,6 +55,7 @@ export default function SettingsScreen() {
           value={progress.settings.sound}
           onChange={(on) => updateProgress(setSound(progress, on))}
         />
+        <VoiceRow />
         <Toggle
           title="Haptics"
           about="A tap for right answers, a buzz for misses and big moments"
@@ -94,6 +97,37 @@ export default function SettingsScreen() {
           <Text style={styles.action}>Open</Text>
         </Pressable>
       </ScrollView>
+    </View>
+  );
+}
+
+// Where to get a better Japanese voice, on each platform.
+const BETTER_VOICE = Platform.select({
+  ios: 'For a clearer voice, download one: Settings, Accessibility, Spoken Content, Voices, Japanese, then an Enhanced or Premium voice. Then come back here.',
+  android: 'For a clearer voice, install Japanese voice data: Settings, then search for "Text-to-speech output".',
+  default: "Voices come from your browser. Safari and Chrome on a Mac usually have good Japanese ones.",
+});
+
+const LEVEL_NAMES = { premium: 'Premium', enhanced: 'Enhanced', basic: 'Basic' } as const;
+
+// The Japanese voice words are spoken in: which it is, a button to hear it, and how to get a
+// better one when it's the basic one.
+function VoiceRow() {
+  const voice = useJapaneseVoice();
+  const about =
+    voice === undefined ? 'Looking for voices…' : voice === null ? "Your device's default voice" : `${voice.name} (${LEVEL_NAMES[voice.level]})`;
+  return (
+    <View style={[styles.row, styles.column]}>
+      <View style={styles.inline}>
+        <View style={styles.rowText}>
+          <Text style={styles.rowTitle}>Japanese voice</Text>
+          <Text style={styles.rowSub}>{about}</Text>
+        </View>
+        <Pressable role="button" onPress={() => speakWord('こんにちは。日本語を勉強しています。')} hitSlop={8}>
+          <Text style={styles.action}>Hear it</Text>
+        </Pressable>
+      </View>
+      {voice !== undefined && voice?.level !== 'premium' && <Text style={styles.rowSub}>{BETTER_VOICE}</Text>}
     </View>
   );
 }
@@ -151,6 +185,15 @@ const styles = StyleSheet.create({
   },
   rowText: {
     flex: 1,
+  },
+  column: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
+  },
+  inline: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   rowTitle: {
     fontFamily: fonts.uiExtraBold,

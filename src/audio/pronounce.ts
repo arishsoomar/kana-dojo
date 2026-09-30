@@ -2,11 +2,33 @@ import * as Speech from 'expo-speech';
 
 import { KANA, type Kana } from '@/core/kana';
 
-// Says a kana aloud with the device's Japanese voice, cutting off anything still being said.
-// (On iOS nothing plays while the phone is on silent.) Recorded clips were tried instead and
-// set aside; they're in the git history (commits 70f37bd to 475518e).
+import { bestJapaneseVoice, type ChosenVoice } from './best-voice';
+
+// The phone's best Japanese voice, looked up once and again whenever asked to (after the
+// learner downloads a better one, say). Until it's found, the phone picks its default.
+let voice: ChosenVoice | null = null;
+let lookup: Promise<ChosenVoice | null> | null = null;
+
+export function findJapaneseVoice(fresh = false): Promise<ChosenVoice | null> {
+  if (!lookup || fresh) {
+    lookup = Speech.getAvailableVoicesAsync()
+      .then((voices) => (voice = bestJapaneseVoice(voices)))
+      .catch(() => voice);
+  }
+  return lookup;
+}
+
+function speak(text: string, rate: number) {
+  void findJapaneseVoice()
+    .then(() => Speech.stop())
+    .then(() => Speech.speak(text, { language: 'ja-JP', rate, ...(voice ? { voice: voice.identifier } : {}) }));
+}
+
+// Says a kana aloud with the phone's best Japanese voice, cutting off anything still being
+// said. (On iOS nothing plays while the phone is on silent.) Recorded clips were tried instead
+// and set aside; they're in the git history (commits 70f37bd to 475518e).
 export function pronounce(kana: Kana) {
-  void Speech.stop().then(() => Speech.speak(spokenForm(kana), { language: 'ja-JP', rate: RATE }));
+  speak(spokenForm(kana), RATE);
 }
 
 // Speaking speed: 1 is normal. Slower makes a single kana easier to hear.
@@ -22,9 +44,9 @@ function spokenForm(kana: Kana): string {
   return katakana === 'ン' ? katakana : `${katakana}ー`;
 }
 
-// Says a whole word aloud, a little slower than normal speech.
+// Says a whole word or sentence aloud, a little slower than normal speech.
 export function speakWord(text: string) {
-  void Speech.stop().then(() => Speech.speak(text, { language: 'ja-JP', rate: WORD_RATE }));
+  speak(text, WORD_RATE);
 }
 
 const WORD_RATE = 0.8;

@@ -2,21 +2,27 @@ import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { colors, fonts } from '@/constants/theme';
 import { TOPICS } from '@/content/topics';
-import type { TopicId } from '@/core/vocab';
+import type { NewWordsFrom } from '@/core/vocab';
 
 type Props = {
-  value: TopicId | null;
-  onChange: (topic: TopicId | null) => void;
+  value: NewWordsFrom | null;
+  onChange: (topic: NewWordsFrom | null) => void;
   allLabel: string; // the first chip, for no topic: "Any topic", "All words"
-  counts?: (topic: TopicId) => number; // a number on each chip, like the words left in it
+  counts?: (topic: NewWordsFrom) => number; // a number on each chip, like the words left in it
 };
 
-// A row of topic chips that scrolls sideways: one for no topic, then one per topic with its
-// kanji. The chosen one is dark.
+// A row of topic chips that scrolls sideways: one for no topic, one for the words the grammar
+// lessons use (文, "sentence"), then one per topic with its kanji. The chosen one is dark.
 export function TopicChips({ value, onChange, allLabel, counts }: Props) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} role="radiogroup">
       <Chip label={allLabel} chosen={value === null} onPress={() => onChange(null)} />
+      <Chip
+        kanji="文"
+        label={counts ? `For grammar · ${counts('grammar')}` : 'For grammar'}
+        chosen={value === 'grammar'}
+        onPress={() => onChange('grammar')}
+      />
       {TOPICS.map((t) => (
         <Chip
           key={t.id}

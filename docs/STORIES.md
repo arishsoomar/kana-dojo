@@ -1289,6 +1289,12 @@ answers can be checked properly.
   are the mistakes learners make (帰る taken as a る-verb: 帰ます). A finished lesson is kept as
   `grammar:<id>`, so it counts as a lesson for the streak, daily goal and mon.
 
+### AF3c. Words for grammar
+- [ ] "For grammar" beside the topics: new words from the grammar lessons' words, in lesson
+      order (132 words for the six units)
+- [ ] Each lesson says how many of its words are started, with a button to learn the rest
+      first (a word session of just those)
+
 ### AF3b. When to start
 - [ ] A card on the grammar path: what's needed first (all hiragana at green belt, basic and
       with ゛ ゜ and combined sounds) and what helps (50 words started, katakana basics), with

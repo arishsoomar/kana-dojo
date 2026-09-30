@@ -39,6 +39,11 @@ describe('saving progress', () => {
     expect(read.settings.newWords).toBe(10);
   });
 
+  it('reads "for grammar" as where new words come from', () => {
+    const grammar = { ...sample, settings: { ...sample.settings, newWordsTopic: 'grammar' } };
+    expect(parseProgress(JSON.stringify({ version: 4, progress: grammar })).settings.newWordsTopic).toBe('grammar');
+  });
+
   it('reads a topic for new words only if it is a real one', () => {
     const odd = { ...sample, settings: { ...sample.settings, newWordsTopic: 'dragons' } };
     expect(parseProgress(JSON.stringify({ version: 4, progress: odd })).settings.newWordsTopic).toBeNull();

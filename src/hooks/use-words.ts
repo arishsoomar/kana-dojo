@@ -1,12 +1,13 @@
 import { useState } from 'react';
 
 import { speakWord } from '@/audio/pronounce';
+import { GRAMMAR_LESSONS } from '@/content/grammar';
 import { VOCAB } from '@/content/vocab';
 import { completeLesson } from '@/core/answers';
-import { rateWord, setNewWords, setNewWordsTopic, studySession, WORDS_REVIEW_ID, wordsStudied } from '@/core/deck';
+import { notStarted, rateWord, setNewWords, setNewWordsTopic, studySession, WORDS_REVIEW_ID, wordsStudied } from '@/core/deck';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { nextIntervals, type Rating } from '@/core/srs';
-import { TOPIC_IDS, type TopicId, type VocabWord } from '@/core/vocab';
+import { TOPIC_IDS, type NewWordsFrom, type TopicId, type VocabWord } from '@/core/vocab';
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
@@ -26,9 +27,25 @@ const TOPIC_DECKS = new Map<TopicId, readonly string[]>(
   TOPIC_IDS.map((topic) => [topic, VOCAB.filter((w) => w.topics.includes(topic)).map((w) => String(w.id))]),
 );
 
-// Where new words come from: the chosen topic's words, or the whole deck.
-function newWordsDeck(topic: TopicId | null): readonly string[] {
-  return (topic && TOPIC_DECKS.get(topic)) || DECK_IDS;
+const ID_BY_WORD = new Map(VOCAB.map((w) => [w.word, String(w.id)]));
+
+// A grammar lesson's words, by id, in the order the lesson lists them.
+export function lessonWordIds(words: readonly string[]): string[] {
+  return words.flatMap((w) => ID_BY_WORD.get(w) ?? []);
+}
+
+// Every grammar lesson's words, in lesson order, each once: new words for grammar.
+const GRAMMAR_WORDS: readonly string[] = [...new Set(GRAMMAR_LESSONS.flatMap((l) => lessonWordIds(l.words)))];
+
+// The words in a topic, or the grammar lessons' words.
+export function wordsFrom(from: NewWordsFrom): readonly string[] {
+  return from === 'grammar' ? GRAMMAR_WORDS : (TOPIC_DECKS.get(from) ?? []);
+}
+
+// Where new words come from: the chosen topic's words (or the grammar lessons'), or the
+// whole deck.
+function newWordsDeck(from: NewWordsFrom | null): readonly string[] {
+  return from ? wordsFrom(from) : DECK_IDS;
 }
 
 // The word deck today: reviews due, new words still to start, and how far through the deck.
@@ -46,9 +63,9 @@ export function useWordsToday() {
     newPerDay: progress.settings.newWords,
     setNewPerDay: (perDay: number) => updateProgress(setNewWords(progress, perDay)),
     topic,
-    setTopic: (next: TopicId | null) => updateProgress(setNewWordsTopic(progress, next)),
-    // Words in each topic not started yet.
-    topicLeft: (t: TopicId) => (TOPIC_DECKS.get(t) ?? []).filter((id) => progress.words[id] === undefined).length,
+    setTopic: (next: NewWordsFrom | null) => updateProgress(setNewWordsTopic(progress, next)),
+    // Words in each topic (or for grammar) not started yet.
+    topicLeft: (from: NewWordsFrom) => notStarted(progress, wordsFrom(from)).length,
   };
 }
 
@@ -59,7 +76,7 @@ export type WordReviewResult = { reviewed: number; learned: number; summary: Les
 // bring it back. A word rated Again comes back at the end of the session. When the session is
 // over (or left part-way), it's kept as a finished lesson: training for the streak and the
 // daily goal.
-export function useWordReview() {
+export function useWordReview(lessonWords?: readonly string[]) {
   const { progress, changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
   const sounds = useSoundEffects();
@@ -68,6 +85,8 @@ export function useWordReview() {
 
   const [startProgress] = useState(progress);
   const [initial] = useState(() => {
+    // A grammar lesson's words: just those not started yet, before the lesson.
+    if (lessonWords) return { due: [], fresh: notStarted(progress, lessonWordIds(lessonWords)) };
     const { start, end } = dayBounds(today);
     return studySession(progress, newWordsDeck(progress.settings.newWordsTopic), start, end);
   });

@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -15,6 +15,7 @@ import { intervalLabel, type Rating } from '@/core/srs';
 import type { VocabWord } from '@/core/vocab';
 import { useRank } from '@/hooks/use-rank';
 import { useTurnOver } from '@/hooks/use-turn-over';
+import { lessonById } from '@/hooks/use-grammar';
 import { useWordReview } from '@/hooks/use-words';
 
 function leave() {
@@ -36,7 +37,10 @@ const HALF_TURN_MS = 120;
 export default function WordReviewScreen() {
   const insets = useSafeAreaInsets();
   const rank = useRank();
-  const review = useWordReview();
+  // Opened from a grammar lesson: just that lesson's words not started yet.
+  const { lesson } = useLocalSearchParams<{ lesson?: string }>();
+  const lessonWords = typeof lesson === 'string' ? lessonById(lesson)?.words : undefined;
+  const review = useWordReview(lessonWords);
   const { word, flipped, intervals, result } = review;
   const [leaving, setLeaving] = useState(false);
   // The card turns over in 3D; `back` is whether its back is up at this moment.
@@ -63,7 +67,7 @@ export default function WordReviewScreen() {
         <LessonComplete
           summary={result.summary}
           onContinue={leave}
-          title="Done for today"
+          title={lessonWords ? 'Ready for the lesson' : 'Done for today'}
           headline={{ label: 'Reviewed', value: String(result.reviewed) }}
           note={result.learned > 0 ? `${result.learned} new ${result.learned === 1 ? 'word' : 'words'} started` : undefined}
           rank={rank}
@@ -76,7 +80,11 @@ export default function WordReviewScreen() {
     return (
       <View style={[styles.screen, styles.empty, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
         <Text style={styles.emptyTitle}>Nothing to review</Text>
-        <Text style={styles.emptyText}>Every word due today is done, and so are today&apos;s new ones. Come back tomorrow.</Text>
+        <Text style={styles.emptyText}>
+          {lessonWords
+            ? "You've started all of this lesson's words already."
+            : "Every word due today is done, and so are today's new ones. Come back tomorrow."}
+        </Text>
         <PrimaryButton label="Back" onPress={leave} />
       </View>
     );

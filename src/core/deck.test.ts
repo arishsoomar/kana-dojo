@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, NEW_WORDS, type Progress } from './answers';
-import { dueWords, newWordsLeft, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
+import { dueWords, newWordsLeft, notStarted, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
 import { DAY_MS, review } from './srs';
 
 const DECK = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -43,7 +43,15 @@ describe('new words from a topic', () => {
   it('is a choice that can be set, and cleared back to any topic', () => {
     const food = setNewWordsTopic(EMPTY_PROGRESS, 'food');
     expect(food.settings.newWordsTopic).toBe('food');
+    expect(setNewWordsTopic(food, 'grammar').settings.newWordsTopic).toBe('grammar');
     expect(setNewWordsTopic(food, null).settings.newWordsTopic).toBeNull();
+  });
+});
+
+describe('words not started', () => {
+  it('are the ones in a list with no card yet, in the list order', () => {
+    expect(notStarted(studied, ['c', 'd', 'a', 'e'])).toEqual(['d', 'e']);
+    expect(notStarted(EMPTY_PROGRESS, [])).toEqual([]);
   });
 });
 

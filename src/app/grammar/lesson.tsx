@@ -98,6 +98,7 @@ function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () =
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const words = lesson.words.map((w) => VOCAB.find((v) => v.word === w)).filter((w) => w !== undefined);
+  const started = words.filter((w) => progress.words[String(w.id)] !== undefined).length;
   return (
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
       <Text style={styles.title}>{lesson.title}</Text>
@@ -115,6 +116,11 @@ function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () =
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Words in this lesson</Text>
+        <Text style={styles.body}>
+          {started === words.length
+            ? "You've started all of them in your word deck."
+            : `${started} of ${words.length} started in your word deck. Learning the rest first makes the lesson easier.`}
+        </Text>
         <View style={styles.words}>
           {words.map((w) => (
             <View key={w.id} style={styles.word}>
@@ -128,6 +134,13 @@ function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () =
         </View>
       </View>
 
+      {started < words.length && (
+        <PrimaryButton
+          label="Learn these words first"
+          tone="light"
+          onPress={() => router.push({ pathname: '/words/review', params: { lesson: lesson.id } })}
+        />
+      )}
       <PrimaryButton label="Practice" onPress={onPractice} />
     </ScrollView>
   );

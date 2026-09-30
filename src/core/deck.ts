@@ -1,6 +1,6 @@
 import { NEW_WORDS, type Progress } from './answers';
 import { review, type Rating } from './srs';
-import type { TopicId } from './vocab';
+import type { NewWordsFrom } from './vocab';
 
 // The word deck, day to day: what's due, how many new words today can start, and rating a
 // word. Words are kept by id (a string); the deck's order comes from outside, most frequent
@@ -48,7 +48,12 @@ export function setNewWords(progress: Progress, perDay: number): Progress {
   return { ...progress, settings: { ...progress.settings, newWords } };
 }
 
-// New words only from one topic (food, say), or from any.
-export function setNewWordsTopic(progress: Progress, topic: TopicId | null): Progress {
+// New words only from one topic (food, say) or the grammar lessons' words, or from any.
+export function setNewWordsTopic(progress: Progress, topic: NewWordsFrom | null): Progress {
   return { ...progress, settings: { ...progress.settings, newWordsTopic: topic } };
+}
+
+// The words of a list not started yet, in the list's order: a lesson's words still to learn.
+export function notStarted(progress: Progress, list: readonly string[]): string[] {
+  return list.filter((id) => progress.words[id] === undefined);
 }

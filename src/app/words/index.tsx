@@ -8,8 +8,9 @@ import { TopicChips } from '@/components/topic-chips';
 import { colors, fonts } from '@/constants/theme';
 import { VOCAB } from '@/content/vocab';
 import type { WordCard } from '@/core/srs';
-import type { TopicId, VocabWord } from '@/core/vocab';
+import type { NewWordsFrom, VocabWord } from '@/core/vocab';
 import { useProgress } from '@/hooks/use-progress';
+import { wordsFrom } from '@/hooks/use-words';
 
 function goBack() {
   if (router.canGoBack()) router.back();
@@ -34,11 +35,12 @@ export default function WordsScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const [search, setSearch] = useState('');
-  const [topic, setTopic] = useState<TopicId | null>(null);
+  const [topic, setTopic] = useState<NewWordsFrom | null>(null);
 
   const shown = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const inTopic = topic ? VOCAB.filter((w) => w.topics.includes(topic)) : VOCAB;
+    const ids = topic ? new Set(wordsFrom(topic)) : null;
+    const inTopic = ids ? VOCAB.filter((w) => ids.has(String(w.id))) : VOCAB;
     if (!query) return inTopic;
     return inTopic.filter((w) => w.word.includes(query) || w.reading.includes(query) || w.meanings.some((m) => m.toLowerCase().includes(query)));
   }, [search, topic]);

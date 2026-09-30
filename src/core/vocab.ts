@@ -15,6 +15,14 @@ export function isTopic(value: unknown): value is TopicId {
   return typeof value === 'string' && (TOPIC_IDS as readonly string[]).includes(value);
 }
 
+// Where new words come from, besides the whole deck: a topic, or the words the grammar lessons
+// use, in lesson order.
+export type NewWordsFrom = TopicId | 'grammar';
+
+export function isNewWordsFrom(value: unknown): value is NewWordsFrom {
+  return value === 'grammar' || isTopic(value);
+}
+
 export type VocabWord = {
   id: number; // its JMdict entry number
   rank: number; // where it comes in the frequency list

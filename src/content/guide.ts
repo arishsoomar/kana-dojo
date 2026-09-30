@@ -283,6 +283,7 @@ export const GUIDE: GuideSection[] = [
               'Tap the card to turn it over: the reading, its meanings, an example sentence, and the word spoken.',
               'Then rate how well you knew it. Again brings it back in ten minutes; Hard, Good and Easy bring it back in days, weeks, then months, each time just before you would forget it. The buttons show when.',
               'It uses FSRS, the same way of scheduling reviews that Anki uses. A review session counts as training for your streak and daily goal.',
+              'Under New words from, For grammar picks the words the grammar lessons use, in lesson order. Each lesson also shows how many of its words you have started, with a button to learn the rest first.',
             ],
           },
         ],

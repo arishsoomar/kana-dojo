@@ -2,7 +2,7 @@ import { MAX_BOX, tierOf, type Belt, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
 import type { WordCard } from './srs';
-import type { TopicId } from './vocab';
+import type { NewWordsFrom } from './vocab';
 
 export type Confusion = {
   shown: string;
@@ -51,7 +51,7 @@ export type Settings = {
   typing: boolean; // lessons ask for the romaji to be typed, instead of tapped from four
   gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
   newWords: number; // new words from the deck a day
-  newWordsTopic: TopicId | null; // new words only from this topic, or null for any
+  newWordsTopic: NewWordsFrom | null; // new words only from a topic (or the grammar lessons' words), or null for any
   voice: string | null; // the Japanese voice chosen on this device, or null for the best one
 };
 

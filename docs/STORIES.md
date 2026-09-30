@@ -1140,6 +1140,104 @@ practise any day.
   opens it. Each set shows its signs ready and its best round (from the round's record), not
   a count of each sign read right, which would need storing per sign.
 
+## The learning track: vocabulary and grammar
+
+After kana: the 2,500 most frequent words, studied with spaced repetition like Anki, and
+grammar lessons in the order beginners usually meet it (the order of textbooks like Genki I).
+Decided with the learner:
+
+- Words are written as they really are, in kanji, with furigana (the reading in small kana
+  above). Furigana can be hidden per card once a word's kanji are known.
+- Grammar lessons are our own: explanations and example sentences written for this app,
+  following a Genki-like order. Nothing is copied from Genki (it's copyrighted).
+- The words come from open data, built into the app by a script: a frequency list for which
+  words and in what order, JMdict for readings and meanings, JmdictFurigana for which
+  reading goes over which kanji, and Tatoeba for example sentences. Each source's licence is
+  checked when it's chosen, and credited in the app.
+
+Vocabulary comes first: grammar lessons build their examples from the deck's words.
+
+## Epic AD — The word deck
+
+### AD1. Building the deck
+**As a** learner, **I want** the most useful words in the app, **so that** I learn the ones
+I'll meet most.
+
+- [ ] `scripts/build-vocab.mjs` downloads the sources, joins them, and writes
+      `src/content/vocab.json`; the raw downloads aren't committed, the result is
+- [ ] Each word: its rank, how it's written, its reading, its meanings, its part of speech,
+      which kana of the reading sit over which kanji, and an example sentence with a
+      translation where there is one
+- [ ] 2,500 words, most frequent first, leaving out what isn't a word to study on its own
+      (particles like の, and names)
+- [ ] Tests on the result: every reading uses kana the app teaches, no duplicates, every word
+      has a meaning, the furigana covers the word exactly
+- [ ] The sources and their licences in Settings, under About
+
+### AD2. Furigana
+- [ ] A `Furigana` component: kanji with their readings above, drawn from the deck's
+      alignment; kana on their own get none
+- [ ] It works in words and in whole example sentences, on iOS, Android and web
+
+## Epic AE — Spaced repetition
+
+### AE1. The scheduler
+**As a** learner, **I want** each word to come back just before I'd forget it, **so that**
+2,500 words is possible in minutes a day.
+
+- [ ] Pure rules, test-first: FSRS, the scheduler modern Anki uses (a small, tested library
+      if a good one fits, pure TypeScript either way). Again, Hard, Good, Easy
+- [ ] Each studied word's card kept in progress, saved, and merged across devices (the more
+      recently reviewed copy wins)
+- [ ] New words a day (10 to start, changeable), in deck order; reviews due come first
+- [ ] What's due today, and what each button would schedule ("Good: 4 days")
+
+### AE2. Reviewing
+- [ ] The front: the word, with furigana (unless hidden for it). Tap to turn it over
+- [ ] The back: reading, meanings, the example sentence with its translation, and the word
+      spoken aloud
+- [ ] Four buttons with their next intervals; a session ends when nothing's due, showing
+      what was reviewed and learned
+- [ ] A review session counts as training for the streak and daily goal, and earns mon
+
+### AE3. Where words live
+- [ ] The Kana tab becomes Study: Kana, Words and Grammar
+- [ ] Words: due today, new today, words learned out of 2,500, and a list of the deck to
+      browse and search
+- [ ] Assignments can ask for reviews ("Review 20 words")
+
+## Epic AF — Grammar
+
+### AF1. Conjugation rules
+**As a** learner, **I want** exercises that know how Japanese words change, **so that** my
+answers can be checked properly.
+
+- [ ] Pure rules, test-first: verb groups (る-verbs, う-verbs, the irregulars する and くる),
+      and the forms a Genki I learner meets: ます, ません, ました, ませんでした, the
+      dictionary form, て, ない, た, and adjectives (い and な) in present and past,
+      positive and negative
+
+### AF2. Lessons and exercises
+- [ ] A lesson is data: short explanation sections, example sentences (with furigana and
+      translations), then exercises
+- [ ] Exercises: choose the particle, choose the right form, put the words in order, and
+      choose the meaning; each checked by the rules, with the right answer explained
+- [ ] Lessons only use words from the deck, and say which ones are new
+
+### AF3. The grammar path
+- [ ] Units in order, each opening when the one before is done, on the Study tab
+- [ ] Finishing a lesson counts as training, like a kana lesson
+- [ ] Grammar points reviewed later, by spaced repetition like words
+
+### AF4 onwards. The lessons themselves
+Written in batches, in a Genki-like order, each batch its own story:
+- AF4: です and the basics (XはYです, questions with か, の, これ・それ・あれ)
+- AF5: verbs (ます forms, を・に・で・へ, time words)
+- AF6: あります・います, locations, and the past tense
+- AF7: adjectives (い and な), and liking things (すき・きらい)
+- AF8: the て-form (requests, ongoing actions, and permission)
+- AF9: the short forms (ない, た) and casual speech
+
 ## Built outside the stories
 
 - Profile tab: rank, training-since date, streak, kana learned, strike

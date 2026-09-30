@@ -19,6 +19,7 @@ import { pairTipFor } from '@/core/feedback';
 import { masteryGrid } from '@/core/grid';
 import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
 import { useProgress } from '@/hooks/use-progress';
+import { grammarReadiness } from '@/core/readiness';
 import { useGrammarPath } from '@/hooks/use-grammar';
 import { useWordsToday } from '@/hooks/use-words';
 
@@ -127,6 +128,7 @@ function GrammarSection() {
   const grammar = useGrammarPath();
   return (
     <>
+      <Readiness />
       <Text style={styles.wordsAbout}>
         Grammar in the order beginners meet it, {grammar.done} of {grammar.total} lessons done. Every example uses words from
         your deck.
@@ -159,6 +161,57 @@ function GrammarSection() {
       ))}
       <Text style={styles.wordsAbout}>More units are on the way: verbs, adjectives, the て-form and more.</Text>
     </>
+  );
+}
+
+// What each part of being ready for grammar is, and why.
+const READINESS_TEXT = {
+  hiragana: { title: 'All 46 hiragana at green belt', why: 'Particles, endings and every reading are written in hiragana.' },
+  hiraganaMore: { title: 'The rest of hiragana: が, ぱ, きゃ and the like', why: 'Readings like がくせい and きょうしつ use them.' },
+  words: { title: 'Some words from the deck', why: "So the examples aren't all new words." },
+  katakana: { title: 'Katakana basics', why: 'A few words, like トイレ, are written in katakana.' },
+} as const;
+
+// When to start grammar: what's needed first and what helps, with how far along each is.
+// Advice only; nothing is locked.
+function Readiness() {
+  const { progress } = useProgress();
+  const { items, ready } = grammarReadiness(progress);
+  const card = (needed: boolean) => (
+    <View style={styles.readyGroup}>
+      <Text style={styles.readyGroupTitle}>{needed ? 'Needed first' : 'Helps a lot'}</Text>
+      {items
+        .filter((i) => i.needed === needed)
+        .map((item) => {
+          const done = item.done >= item.target;
+          return (
+            <View key={item.id} style={styles.readyItem}>
+              <View style={[styles.readyMark, done && styles.lessonMarkDone]}>
+                {done ? <CheckIcon color={colors.card} /> : <Text style={styles.readyCount}>{item.done}</Text>}
+              </View>
+              <View style={styles.summaryText}>
+                <Text style={styles.readyTitle}>
+                  {READINESS_TEXT[item.id].title}
+                  {done ? '' : ` (${item.done} of ${item.target})`}
+                </Text>
+                <Text style={styles.wordsAbout}>{READINESS_TEXT[item.id].why}</Text>
+              </View>
+            </View>
+          );
+        })}
+    </View>
+  );
+  return (
+    <View style={[styles.summary, styles.wordsCard, ready ? styles.readyCard : styles.notReadyCard]}>
+      <Text style={styles.summaryTitle}>{ready ? "You're ready for grammar" : 'Before you start grammar'}</Text>
+      {!ready && (
+        <Text style={styles.wordsAbout}>
+          You can start any time: every lesson has furigana. It goes much more smoothly once these are done.
+        </Text>
+      )}
+      {!ready && card(true)}
+      {card(false)}
+    </View>
   );
 }
 
@@ -333,6 +386,45 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: colors.ink2,
+  },
+  readyCard: {
+    borderColor: colors.pine,
+  },
+  notReadyCard: {
+    borderColor: colors.gold,
+  },
+  readyGroup: {
+    gap: 8,
+  },
+  readyGroupTitle: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 12,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    color: colors.muted,
+  },
+  readyItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  readyMark: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.paper,
+  },
+  readyCount: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 11,
+    color: colors.ink2,
+  },
+  readyTitle: {
+    fontFamily: fonts.uiBold,
+    fontSize: 14,
+    color: colors.sumi,
   },
   unitCard: {
     gap: 8,

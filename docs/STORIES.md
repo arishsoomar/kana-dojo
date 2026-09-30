@@ -1287,6 +1287,12 @@ answers can be checked properly.
   are the mistakes learners make (帰る taken as a る-verb: 帰ます). A finished lesson is kept as
   `grammar:<id>`, so it counts as a lesson for the streak, daily goal and mon.
 
+### AF3b. When to start
+- [ ] A card on the grammar path: what's needed first (all hiragana at green belt, basic and
+      with ゛ ゜ and combined sounds) and what helps (50 words started, katakana basics), with
+      how far along each is. Advice only: nothing is locked
+- [ ] A guide topic: when should I start grammar?
+
 ### AF4 onwards. The lessons themselves
 Written in batches, in a Genki-like order, each batch its own story:
 - AF4: です and the basics (XはYです, questions with か, の, これ・それ・あれ)

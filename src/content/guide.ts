@@ -7,6 +7,7 @@ import { DAILY_GOALS } from '@/core/goal';
 import { KANA } from '@/core/kana';
 import { LESSON_LENGTH } from '@/core/lesson';
 import { READING_ROUND, SIGNS_TO_OPEN } from '@/core/reading';
+import { WORDS_BEFORE_GRAMMAR } from '@/core/readiness';
 import { GEAR, REST_DAY_PRICE } from '@/core/gear';
 import { ASSIGNMENTS_PER_DAY, MONTH_GOAL } from '@/core/assignments';
 import { KATA_LENGTH } from '@/core/kata';
@@ -282,6 +283,20 @@ export const GUIDE: GuideSection[] = [
               'Tap the card to turn it over: the reading, its meanings, an example sentence, and the word spoken.',
               'Then rate how well you knew it. Again brings it back in ten minutes; Hard, Good and Easy bring it back in days, weeks, then months, each time just before you would forget it. The buttons show when.',
               'It uses FSRS, the same way of scheduling reviews that Anki uses. A review session counts as training for your streak and daily goal.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'grammar-start',
+        question: 'When should I start grammar?',
+        answer: [
+          'Once hiragana is easy. Grammar lessons are written in hiragana: the particles (は, を, に), the endings (です, ます), and the readings over every kanji. Those readings use ゛ and combined sounds too, like がくせい and きょうしつ.',
+          {
+            bullets: [
+              'Needed first: all 46 hiragana at green belt, then the hiragana with ゛ ゜ and small ゃ ゅ ょ.',
+              `Helps a lot: about ${WORDS_BEFORE_GRAMMAR} words started in the word deck, so the examples aren't all new, and the katakana basics, for words like トイレ.`,
+              'Nothing is locked: the Grammar section shows how far along each is, and you can start whenever you like. Many learners start grammar while finishing katakana.',
             ],
           },
         ],

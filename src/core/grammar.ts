@@ -25,7 +25,8 @@ export type Exercise =
   | { kind: 'order'; en: string; pieces: readonly string[]; explain: string }
   // What does this mean?
   | { kind: 'meaning'; ja: string; options: readonly string[]; answer: string; explain: string }
-  // Choose the right form of a word; the answer comes from the conjugation rules.
+  // Choose the right form of a word; the answer comes from the conjugation rules. The options
+  // are in kana (たべます): kanji would need readings, and 来る's 来ます is read きます.
   | { kind: 'form'; word: string; reading: string; pos: readonly string[]; form: FormAsked; prompt: string; explain: string };
 
 export type GrammarLesson = {
@@ -85,7 +86,7 @@ function formOf(word: string, pos: readonly string[], form: FormAsked): string |
 // The right answer to an exercise: its choice, its pieces in order, or the conjugated form.
 export function exerciseAnswer(exercise: Exercise): string | readonly string[] {
   if (exercise.kind === 'order') return exercise.pieces;
-  if (exercise.kind === 'form') return formOf(exercise.word, exercise.pos, exercise.form) ?? '';
+  if (exercise.kind === 'form') return formOf(exercise.reading, exercise.pos, exercise.form) ?? '';
   return exercise.answer;
 }
 

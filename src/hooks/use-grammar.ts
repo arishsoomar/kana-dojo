@@ -34,7 +34,7 @@ function choicesFor(exercise: Exercise): string[] {
     for (let i = 0; i < 5 && pieces.every((p, j) => p === exercise.pieces[j]); i++) pieces = shuffle(exercise.pieces, Math.random);
     return pieces;
   }
-  if (exercise.kind === 'form') return shuffle(formOptions(exercise.word, exercise.pos, exercise.form), Math.random);
+  if (exercise.kind === 'form') return shuffle(formOptions(exercise.reading, exercise.pos, exercise.form), Math.random);
   return shuffle(exercise.options, Math.random);
 }
 

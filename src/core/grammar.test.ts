@@ -42,10 +42,10 @@ describe('answers', () => {
     expect(checkAnswer(order, ['学生[がくせい]', '私[わたし]は', 'です。'])).toBe(false);
   });
 
-  it('checks a form by the conjugation rules', () => {
-    expect(exerciseAnswer(form)).toBe('帰ります');
-    expect(checkAnswer(form, '帰ります')).toBe(true);
-    expect(checkAnswer(form, '帰ます')).toBe(false);
+  it('checks a form by the conjugation rules, in kana', () => {
+    expect(exerciseAnswer(form)).toBe('かえります');
+    expect(checkAnswer(form, 'かえります')).toBe(true);
+    expect(checkAnswer(form, 'かえます')).toBe(false);
   });
 });
 

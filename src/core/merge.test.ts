@@ -26,6 +26,7 @@ const phone: Progress = {
     '1': { stability: 10, difficulty: 5, due: 900, last: 500, added: 100, reps: 3, lapses: 0 },
     '2': { stability: 3, difficulty: 5, due: 400, last: 300, added: 300, reps: 1, lapses: 0 },
   },
+  grammar: { desu: { stability: 3, difficulty: 5, due: 400, last: 300, added: 300, reps: 1, lapses: 0 } },
   settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'], newWords: 10, newWordsTopic: null, voice: null },
 };
 
@@ -52,6 +53,7 @@ const web: Progress = {
     '1': { stability: 30, difficulty: 4, due: 3000, last: 700, added: 100, reps: 4, lapses: 0 },
     '3': { stability: 1, difficulty: 6, due: 800, last: 600, added: 600, reps: 1, lapses: 0 },
   },
+  grammar: { desu: { stability: 9, difficulty: 4, due: 2000, last: 900, added: 300, reps: 2, lapses: 0 } },
   settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], newWords: 20, newWordsTopic: 'food', voice: null },
 };
 
@@ -110,6 +112,10 @@ describe('mergeProgress', () => {
       { day: '2026-10-01', friend: 'kenji', at: 60, done: true },
       { day: '2026-10-01', friend: 'mei', at: 80, done: false },
     ]);
+  });
+
+  it('keeps, per grammar point, the card reviewed most recently', () => {
+    expect(mergeProgress(phone, web).grammar).toEqual(web.grammar);
   });
 
   it('keeps, per word, the card reviewed most recently', () => {

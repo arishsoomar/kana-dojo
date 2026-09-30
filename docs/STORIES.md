@@ -1279,8 +1279,10 @@ answers can be checked properly.
 ### AF3. The grammar path
 - [ ] Units in order, each opening when the one before is done, on the Study tab
 - [ ] Finishing a lesson counts as training, like a kana lesson
-- [ ] Grammar points reviewed later, by spaced repetition like words (not yet: its own story
-      once there are enough lessons to review; a finished lesson can be done again meanwhile)
+- [ ] Grammar points reviewed later, by spaced repetition like words: each lesson gets an FSRS
+      card when it's finished; a review asks three of its exercises, and how they went is the
+      rating (all right: Good; most right: Hard; else Again). Lessons finished before reviews
+      existed are due at once. The readiness card shows until the first lesson is done.
 - Notes: lessons are written with readings in brackets after their kanji (私[わたし]は). Tests
   check every kanji has a reading, every answer is among its options, and every listed word is
   in the deck. Form exercises are checked by the conjugation rules, and their wrong options

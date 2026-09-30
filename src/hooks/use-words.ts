@@ -11,7 +11,7 @@ import { TOPIC_IDS, type TopicId, type VocabWord } from '@/core/vocab';
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 import { useSoundEffects } from './use-sound-effects';
-import { useToday } from './use-today';
+import { dayBounds, useToday } from './use-today';
 
 // The deck in order, by id.
 export const DECK_IDS: readonly string[] = VOCAB.map((w) => String(w.id));
@@ -29,12 +29,6 @@ const TOPIC_DECKS = new Map<TopicId, readonly string[]>(
 // Where new words come from: the chosen topic's words, or the whole deck.
 function newWordsDeck(topic: TopicId | null): readonly string[] {
   return (topic && TOPIC_DECKS.get(topic)) || DECK_IDS;
-}
-
-// Today in the device's timezone, as timestamps: its midnight, and the next.
-function dayBounds(today: string): { start: number; end: number } {
-  const [year = 1970, month = 1, day = 1] = today.split('-').map(Number);
-  return { start: new Date(year, month - 1, day).getTime(), end: new Date(year, month - 1, day + 1).getTime() };
 }
 
 // The word deck today: reviews due, new words still to start, and how far through the deck.

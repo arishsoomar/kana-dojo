@@ -63,6 +63,7 @@ export type Progress = {
   purchases: readonly Purchase[]; // everything bought with mon, oldest first
   partners: readonly Partnering[]; // partner assignments, oldest first
   words: Readonly<Record<string, WordCard>>; // the word deck's cards, by word id, once studied
+  grammar: Readonly<Record<string, WordCard>>; // review cards for grammar points, by lesson id
   settings: Settings;
 };
 
@@ -75,6 +76,7 @@ export const EMPTY_PROGRESS: Progress = {
   purchases: [],
   partners: [],
   words: {},
+  grammar: {},
   settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null, voice: null },
 };
 

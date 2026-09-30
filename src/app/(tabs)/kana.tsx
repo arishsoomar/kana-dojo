@@ -20,7 +20,7 @@ import { masteryGrid } from '@/core/grid';
 import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
 import { useProgress } from '@/hooks/use-progress';
 import { grammarReadiness } from '@/core/readiness';
-import { useGrammarPath } from '@/hooks/use-grammar';
+import { useGrammarDue, useGrammarPath } from '@/hooks/use-grammar';
 import { useWordsToday } from '@/hooks/use-words';
 
 const SECTIONS = [
@@ -126,9 +126,21 @@ function Stepper({ value, onChange }: { value: number; onChange: (value: number)
 // The grammar path: each unit's lessons, in order, each opening when the one before is done.
 function GrammarSection() {
   const grammar = useGrammarPath();
+  const due = useGrammarDue();
   return (
     <>
-      <Readiness />
+      {due > 0 && (
+        <View style={[styles.summary, styles.wordsCard]}>
+          <View>
+            <Text style={styles.summaryTitle}>
+              {due} grammar {due === 1 ? 'point' : 'points'} to review
+            </Text>
+            <Text style={styles.wordsAbout}>A few exercises from each lesson, just before you&apos;d forget it.</Text>
+          </View>
+          <PrimaryButton label="Review grammar" onPress={() => router.push('/grammar/review')} />
+        </View>
+      )}
+      {grammar.done === 0 && <Readiness />}
       <Text style={styles.wordsAbout}>
         Grammar in the order beginners meet it, {grammar.done} of {grammar.total} lessons done. Every example uses words from
         your deck.

@@ -49,3 +49,9 @@ function hoursToMidnight(now: number): number {
   midnight.setHours(24, 0, 0, 0);
   return Math.max(Math.ceil((midnight.getTime() - now) / 3_600_000), 1);
 }
+
+// A day ("YYYY-MM-DD") in the device's timezone, as timestamps: its midnight, and the next.
+export function dayBounds(day: string): { start: number; end: number } {
+  const [year = 1970, month = 1, date = 1] = day.split('-').map(Number);
+  return { start: new Date(year, month - 1, date).getTime(), end: new Date(year, month - 1, date + 1).getTime() };
+}

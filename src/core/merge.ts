@@ -14,6 +14,7 @@ export function mergeProgress(mine: Progress, theirs: Progress): Progress {
     purchases: mergePurchases(mine.purchases, theirs.purchases),
     partners: mergePartners(mine.partners, theirs.partners),
     words: mergeRecords(mine.words, theirs.words, laterCard),
+    grammar: mergeRecords(mine.grammar, theirs.grammar, laterCard),
     settings: { ...mine.settings, onboarded: mine.settings.onboarded || theirs.settings.onboarded },
   };
 }

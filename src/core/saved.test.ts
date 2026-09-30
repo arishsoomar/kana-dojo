@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10, newWordsTopic: null, voice: null }, purchases: [], partners: [], words: {} };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10, newWordsTopic: null, voice: null }, purchases: [], partners: [], words: {}, grammar: {} };
 
 const sample: Progress = {
   kana: { あ: { box: 3, at: 1_000_000 }, シ: { box: 9, at: 5 } },
@@ -18,6 +18,7 @@ const sample: Progress = {
   ],
   partners: [{ day: '2026-10-01', friend: 'kenji', at: 6_000_000, done: true }],
   words: { '1358280': { stability: 3.2, difficulty: 5.3, due: 7_000_000, last: 6_500_000, added: 6_500_000, reps: 1, lapses: 0 } },
+  grammar: { desu: { stability: 3.2, difficulty: 5.3, due: 7_000_000, last: 6_500_000, added: 6_500_000, reps: 1, lapses: 0 } },
   settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true, gear: ['kasa'], newWords: 15, newWordsTopic: 'food', voice: 'com.apple.voice.premium.ja-JP.O-ren' },
 };
 
@@ -27,9 +28,10 @@ describe('saving progress', () => {
   });
 
   it('reads saves from before the word deck as having no cards and 10 new words a day, and drops broken cards', () => {
-    const { words: _, ...before } = sample;
+    const { words: _, grammar: __, ...before } = sample;
     const old = parseProgress(JSON.stringify({ version: 4, progress: { ...before, settings: { ...sample.settings, newWords: undefined } } }));
     expect(old.words).toEqual({});
+    expect(old.grammar).toEqual({});
     expect(old.settings.newWords).toBe(10);
     const broken = { ...sample, words: { a: { stability: 'high' }, b: { ...sample.words['1358280'], difficulty: 11 } }, settings: { ...sample.settings, newWords: 5000 } };
     const read = parseProgress(JSON.stringify({ version: 4, progress: broken }));
@@ -77,6 +79,7 @@ describe('saving progress', () => {
       purchases: [],
       partners: [],
       words: {},
+      grammar: {},
     });
   });
 
@@ -94,6 +97,7 @@ describe('saving progress', () => {
       purchases: [],
       partners: [],
       words: {},
+      grammar: {},
     });
   });
 
@@ -175,6 +179,7 @@ describe('saving progress', () => {
       purchases: [],
       partners: [],
       words: {},
+      grammar: {},
     });
   });
 

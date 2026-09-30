@@ -1,4 +1,5 @@
 import type { Completion, Progress } from './answers';
+import { WORDS_REVIEW_ID } from './deck';
 import { BELTS, type Belt } from './boxes';
 import { dojoRoom, type DojoRoom, type RackGame, type RackRecord, type RoomPlaque, type BonsaiStage } from './dojo';
 import { gearById } from './gear';
@@ -64,7 +65,9 @@ export type FriendSummary = {
 };
 
 const isGame = (c: Completion) => c.lesson.startsWith('game:');
-const isLesson = (c: Completion) => !isGame(c) && !c.lesson.startsWith('exam:') && !c.lesson.startsWith('duel:');
+// Not word reviews either: their score is cards reviewed, not XP.
+const isLesson = (c: Completion) =>
+  !isGame(c) && !c.lesson.startsWith('exam:') && !c.lesson.startsWith('duel:') && !c.lesson.startsWith(WORDS_REVIEW_ID);
 
 // The learner's summary. `days` gives the day of each finished lesson or game, and the streak
 // and moons are worked out outside the engine (they need the device's timezone).

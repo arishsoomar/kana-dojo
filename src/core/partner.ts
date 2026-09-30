@@ -1,4 +1,5 @@
 import type { Completion, Partnering, Progress } from './answers';
+import { WORDS_REVIEW_ID } from './deck';
 import { kataId } from './kata';
 import { seededRng } from './random';
 
@@ -34,7 +35,9 @@ export type PartnerGoal = {
 
 const isGame = (c: Completion) => c.lesson.startsWith('game:');
 // Lessons: plaques, practice and drills. Not games, exams or duels.
-const isLesson = (c: Completion) => !isGame(c) && !c.lesson.startsWith('exam:') && !c.lesson.startsWith('duel:');
+// Not word reviews either: their score is cards reviewed, not XP.
+const isLesson = (c: Completion) =>
+  !isGame(c) && !c.lesson.startsWith('exam:') && !c.lesson.startsWith('duel:') && !c.lesson.startsWith(WORDS_REVIEW_ID);
 
 // The day's goal for a pair. The two ids are sorted first, so it's the same from both sides.
 export function partnerKind(day: string, me: string, friend: string): PartnerKind {

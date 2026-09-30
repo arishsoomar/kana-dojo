@@ -5,6 +5,9 @@ import { review, type Rating } from './srs';
 // word. Words are kept by id (a string); the deck's order comes from outside, most frequent
 // first. Days are passed in as timestamps: `dayStart` is today's local midnight.
 
+// A session of word reviews, as it's kept in finished lessons: its score is the cards reviewed.
+export const WORDS_REVIEW_ID = 'words:review';
+
 // Studied words due by `until`, the one that has waited longest first.
 export function dueWords(progress: Progress, until: number): string[] {
   return Object.entries(progress.words)

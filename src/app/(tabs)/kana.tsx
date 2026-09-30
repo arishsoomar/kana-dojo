@@ -159,7 +159,7 @@ function GrammarSection() {
           ))}
         </View>
       ))}
-      <Text style={styles.wordsAbout}>More units are on the way: verbs, adjectives, the て-form and more.</Text>
+      <Text style={styles.wordsAbout}>That covers the grammar of a first-year course. More can follow.</Text>
     </>
   );
 }

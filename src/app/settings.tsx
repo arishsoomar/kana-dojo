@@ -85,6 +85,14 @@ export default function SettingsScreen() {
           </View>
           <Text style={styles.action}>Open</Text>
         </Pressable>
+
+        <Pressable role="button" onPress={() => router.push('/sources')} style={styles.row}>
+          <View style={styles.rowText}>
+            <Text style={styles.rowTitle}>About: sources</Text>
+            <Text style={styles.rowSub}>The dictionaries, sentences and pictures the dojo is built on</Text>
+          </View>
+          <Text style={styles.action}>Open</Text>
+        </Pressable>
       </ScrollView>
     </View>
   );

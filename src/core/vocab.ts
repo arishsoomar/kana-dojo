@@ -1,0 +1,28 @@
+// The word deck (src/content/vocab.json, built by scripts/build-vocab.mjs): the 2,500 most
+// frequent Japanese words, most frequent first.
+
+// Text with its furigana, in pieces: kanji with the reading over them, and plain kana with
+// none. 食べる is [['食', 'た'], ['べる']].
+export type FuriganaPiece = readonly [text: string] | readonly [text: string, reading: string];
+export type Furigana = readonly FuriganaPiece[];
+
+export type VocabWord = {
+  id: number; // its JMdict entry number
+  rank: number; // where it comes in the frequency list
+  word: string; // as it's usually written
+  reading: string; // in kana
+  furigana: Furigana;
+  meanings: readonly string[]; // one per sense, most common first
+  pos: readonly string[]; // JMdict's parts of speech, like "v1" (a る-verb) or "adj-i"
+  example: { ja: Furigana; en: string } | null;
+};
+
+// Furigana's text without the readings: 食べる.
+export function furiganaText(furigana: Furigana): string {
+  return furigana.map((p) => p[0]).join('');
+}
+
+// Furigana read aloud, in kana: たべる.
+export function furiganaReading(furigana: Furigana): string {
+  return furigana.map((p) => p[1] ?? p[0]).join('');
+}

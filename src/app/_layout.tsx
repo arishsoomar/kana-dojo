@@ -67,6 +67,7 @@ export default function RootLayout() {
             <Stack.Screen name="guide" options={{ headerShown: false }} />
             <Stack.Screen name="shed" options={{ headerShown: false }} />
             <Stack.Screen name="settings" options={{ headerShown: false }} />
+            <Stack.Screen name="sources" options={{ headerShown: false }} />
             <Stack.Screen name="live" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="friends" options={{ headerShown: false }} />
             <Stack.Screen name="friend" options={{ headerShown: false }} />

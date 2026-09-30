@@ -1173,6 +1173,14 @@ I'll meet most.
 - [ ] Tests on the result: every reading uses kana the app teaches, no duplicates, every word
       has a meaning, the furigana covers the word exactly
 - [ ] The sources and their licences in Settings, under About
+- Notes: the frequency list is Jiten's global list (anime, drama, films, novels and more;
+  CC BY-SA 4.0). Spellings of one word (分かる, わかる) are one entry, ranked by its most
+  frequent spelling and shown that way. A kana word that could be several entries (いる is
+  居る or 要る) is the one Tatoeba's sentences use most. Left out: particles, auxiliaries,
+  suffixes and prefixes, kana-only expressions (んだ, という), single kana and cut-off
+  sounds (あっ), and vulgar or insulting words. An example sentence is Tatoeba's shortest
+  checked one (28 characters at most) whose every kanji can be given its reading. Because
+  of the share-alike licences, vocab.json is CC BY-SA 4.0; the app's code isn't affected.
 
 ### AD2. Furigana
 - [ ] A `Furigana` component: kanji with their readings above, drawn from the deck's

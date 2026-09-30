@@ -1,6 +1,7 @@
 import { MAX_BOX, tierOf, type Belt, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
+import type { WordCard } from './srs';
 
 export type Confusion = {
   shown: string;
@@ -36,6 +37,9 @@ export type Purchase = { item: string; at: number };
 // training: a partner can finish a shared goal alone.
 export type Partnering = { day: string; friend: string; at: number; done: boolean };
 
+// The word deck's default for new words a day, and its range.
+export const NEW_WORDS = { default: 10, min: 1, max: 50 } as const;
+
 // The learner's choices, as opposed to their training record.
 export type Settings = {
   onboarded: boolean; // has been through the welcome and chosen a goal
@@ -45,6 +49,7 @@ export type Settings = {
   haptics: boolean; // the phone taps and buzzes on answers and big moments
   typing: boolean; // lessons ask for the romaji to be typed, instead of tapped from four
   gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
+  newWords: number; // new words from the deck a day
 };
 
 export type Progress = {
@@ -54,6 +59,7 @@ export type Progress = {
   completed: readonly Completion[];
   purchases: readonly Purchase[]; // everything bought with mon, oldest first
   partners: readonly Partnering[]; // partner assignments, oldest first
+  words: Readonly<Record<string, WordCard>>; // the word deck's cards, by word id, once studied
   settings: Settings;
 };
 
@@ -65,7 +71,8 @@ export const EMPTY_PROGRESS: Progress = {
   completed: [],
   purchases: [],
   partners: [],
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [] },
+  words: {},
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default },
 };
 
 export type Answer = {

@@ -1199,6 +1199,10 @@ I'll meet most.
       recently reviewed copy wins)
 - [ ] New words a day (10 to start, changeable), in deck order; reviews due come first
 - [ ] What's due today, and what each button would schedule ("Good: 4 days")
+- Notes: FSRS-5 is written here (`src/core/srs.ts`), from its published formulas and default
+  parameters, rather than taken from a library: no dependency, and pure like the rest of
+  core. One learning step: a word rated Again (new or forgotten) comes back in ten minutes,
+  in the same session; everything else is in whole days, with Hard < Good < Easy.
 
 ### AE2. Reviewing
 - [ ] The front: the word, with furigana (unless hidden for it). Tap to turn it over

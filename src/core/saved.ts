@@ -1,12 +1,14 @@
-import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Partnering, type Progress, type Purchase } from './answers';
+import { EMPTY_PROGRESS, NEW_WORDS, type Completion, type Confusion, type KanaStats, type Partnering, type Progress, type Purchase } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
 import { gearById } from './gear';
 import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
+import type { WordCard } from './srs';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
 // Version 1 had no stats and version 2 had no finished lessons; both are still read,
 // with those parts empty. Versions 1 to 3 had 8 boxes with waiting times (see oldKana).
-// Partner assignments came later in version 4; saves without them read as having none.
+// Partner assignments and word cards came later in version 4; saves without them read as
+// having none (and 10 new words a day).
 const SAVE_VERSION = 4;
 const READABLE_VERSIONS: readonly unknown[] = [1, 2, 3, 4];
 
@@ -30,7 +32,7 @@ export function parseProgress(text: string | null): Progress {
   }
   if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions, stats, completed, purchases, partners, settings } = data.progress;
+  const { kana, confusions, stats, completed, purchases, partners, words, settings } = data.progress;
   const progress = {
     kana: !isObject(kana) ? {} : data.version === SAVE_VERSION ? validEntries(kana, isKanaProgress) : oldKana(kana),
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
@@ -38,6 +40,7 @@ export function parseProgress(text: string | null): Progress {
     completed: Array.isArray(completed) ? completed.filter(isCompletion) : [],
     purchases: Array.isArray(purchases) ? purchases.filter(isPurchase) : [],
     partners: Array.isArray(partners) ? partners.filter(isPartnering) : [],
+    words: isObject(words) ? validEntries(words, isWordCard) : {},
   };
   // Saves from before onboarding existed have no settings. Anyone with saved progress
   // has clearly been using the app, so they count as onboarded.
@@ -52,7 +55,11 @@ export function parseProgress(text: string | null): Progress {
   const typing = isObject(settings) && settings.typing === true;
   // Gear Karasu is wearing: only ids of real gear.
   const gear = isObject(settings) && Array.isArray(settings.gear) ? settings.gear.filter((id): id is string => typeof id === 'string' && gearById(id) !== null) : [];
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear } };
+  // New words a day: a whole number in range, or the default.
+  const saved = isObject(settings) ? settings.newWords : undefined;
+  const newWords =
+    typeof saved === 'number' && Number.isInteger(saved) && saved >= NEW_WORDS.min && saved <= NEW_WORDS.max ? saved : NEW_WORDS.default;
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords } };
 }
 
 // Keeps the entries whose value passes `isValid`.
@@ -114,6 +121,20 @@ function isConfusion(value: unknown): value is Confusion {
 
 function isPurchase(value: unknown): value is Purchase {
   return isObject(value) && typeof value.item === 'string' && typeof value.at === 'number';
+}
+
+function isWordCard(value: unknown): value is WordCard {
+  if (!isObject(value)) return false;
+  const { stability, difficulty, due, last, added, reps, lapses } = value;
+  const numbers = [stability, difficulty, due, last, added, reps, lapses];
+  return (
+    numbers.every((n) => typeof n === 'number' && Number.isFinite(n)) &&
+    (stability as number) > 0 &&
+    (difficulty as number) >= 1 &&
+    (difficulty as number) <= 10 &&
+    Number.isInteger(reps) &&
+    Number.isInteger(lapses)
+  );
 }
 
 function isPartnering(value: unknown): value is Partnering {

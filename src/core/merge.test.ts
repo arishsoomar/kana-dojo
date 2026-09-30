@@ -22,7 +22,11 @@ const phone: Progress = {
     { day: '2026-10-01', friend: 'kenji', at: 60, done: false },
     { day: '2026-09-30', friend: 'yuki', at: 55, done: true },
   ],
-  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'] },
+  words: {
+    '1': { stability: 10, difficulty: 5, due: 900, last: 500, added: 100, reps: 3, lapses: 0 },
+    '2': { stability: 3, difficulty: 5, due: 400, last: 300, added: 300, reps: 1, lapses: 0 },
+  },
+  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'], newWords: 10 },
 };
 
 const web: Progress = {
@@ -44,7 +48,11 @@ const web: Progress = {
     { day: '2026-10-01', friend: 'kenji', at: 70, done: true },
     { day: '2026-10-01', friend: 'mei', at: 80, done: false },
   ],
-  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [] },
+  words: {
+    '1': { stability: 30, difficulty: 4, due: 3000, last: 700, added: 100, reps: 4, lapses: 0 },
+    '3': { stability: 1, difficulty: 6, due: 800, last: 600, added: 600, reps: 1, lapses: 0 },
+  },
+  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], newWords: 20 },
 };
 
 describe('mergeProgress', () => {
@@ -104,8 +112,13 @@ describe('mergeProgress', () => {
     ]);
   });
 
+  it('keeps, per word, the card reviewed most recently', () => {
+    expect(mergeProgress(phone, web).words).toEqual({ '1': web.words['1'], '2': phone.words['2'], '3': web.words['3'] });
+    expect(mergeProgress(web, phone).words).toEqual(mergeProgress(phone, web).words);
+  });
+
   it('keeps the settings of the first copy (the device in hand), onboarded if either is', () => {
-    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [] });
+    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], newWords: 20 });
   });
 
   it('gives the same training record whichever order the copies come in', () => {

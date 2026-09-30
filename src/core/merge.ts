@@ -1,5 +1,6 @@
 import type { Completion, Confusion, KanaStats, Partnering, Progress, Purchase } from './answers';
 import type { KanaProgress } from './boxes';
+import type { WordCard } from './srs';
 
 // Combines two copies of one learner's progress (say, the phone's and the cloud's) so that
 // practice on either device counts. The training record comes out the same whichever order
@@ -12,6 +13,7 @@ export function mergeProgress(mine: Progress, theirs: Progress): Progress {
     completed: mergeCompleted(mine.completed, theirs.completed),
     purchases: mergePurchases(mine.purchases, theirs.purchases),
     partners: mergePartners(mine.partners, theirs.partners),
+    words: mergeRecords(mine.words, theirs.words, laterCard),
     settings: { ...mine.settings, onboarded: mine.settings.onboarded || theirs.settings.onboarded },
   };
 }
@@ -34,6 +36,12 @@ function mergeRecords<T>(a: Readonly<Record<string, T>>, b: Readonly<Record<stri
 function laterKana(x: KanaProgress, y: KanaProgress): KanaProgress {
   if (x.at !== y.at) return x.at > y.at ? x : y;
   return x.box >= y.box ? x : y;
+}
+
+// The word card reviewed more recently, or on a tie, the one reviewed more often.
+function laterCard(x: WordCard, y: WordCard): WordCard {
+  if (x.last !== y.last) return x.last > y.last ? x : y;
+  return x.reps >= y.reps ? x : y;
 }
 
 // The stats that have seen more answers. Ties are settled by comparing the whole value,

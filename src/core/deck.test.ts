@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, NEW_WORDS, type Progress } from './answers';
-import { dueWords, newWordsLeft, rateWord, setNewWords, studySession, wordsStudied } from './deck';
+import { dueWords, newWordsLeft, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
 import { DAY_MS, review } from './srs';
 
 const DECK = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -36,6 +36,14 @@ describe('new words', () => {
     expect(setNewWords(EMPTY_PROGRESS, 20).settings.newWords).toBe(20);
     expect(setNewWords(EMPTY_PROGRESS, 500).settings.newWords).toBe(NEW_WORDS.max);
     expect(setNewWords(EMPTY_PROGRESS, 0).settings.newWords).toBe(NEW_WORDS.min);
+  });
+});
+
+describe('new words from a topic', () => {
+  it('is a choice that can be set, and cleared back to any topic', () => {
+    const food = setNewWordsTopic(EMPTY_PROGRESS, 'food');
+    expect(food.settings.newWordsTopic).toBe('food');
+    expect(setNewWordsTopic(food, null).settings.newWordsTopic).toBeNull();
   });
 });
 

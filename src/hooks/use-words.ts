@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { speakWord } from '@/audio/pronounce';
 import { VOCAB } from '@/content/vocab';
 import { completeLesson } from '@/core/answers';
-import { rateWord, setNewWords, studySession, WORDS_REVIEW_ID, wordsStudied } from '@/core/deck';
+import { rateWord, setNewWords, setNewWordsTopic, studySession, WORDS_REVIEW_ID, wordsStudied } from '@/core/deck';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { nextIntervals, type Rating } from '@/core/srs';
-import type { VocabWord } from '@/core/vocab';
+import { TOPIC_IDS, type TopicId, type VocabWord } from '@/core/vocab';
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
@@ -21,6 +21,16 @@ export function wordById(id: string): VocabWord | null {
   return BY_ID.get(id) ?? null;
 }
 
+// Each topic's words, in deck order.
+const TOPIC_DECKS = new Map<TopicId, readonly string[]>(
+  TOPIC_IDS.map((topic) => [topic, VOCAB.filter((w) => w.topics.includes(topic)).map((w) => String(w.id))]),
+);
+
+// Where new words come from: the chosen topic's words, or the whole deck.
+function newWordsDeck(topic: TopicId | null): readonly string[] {
+  return (topic && TOPIC_DECKS.get(topic)) || DECK_IDS;
+}
+
 // Today in the device's timezone, as timestamps: its midnight, and the next.
 function dayBounds(today: string): { start: number; end: number } {
   const [year = 1970, month = 1, day = 1] = today.split('-').map(Number);
@@ -32,7 +42,8 @@ export function useWordsToday() {
   const { progress, updateProgress } = useProgress();
   const today = useToday();
   const { start, end } = dayBounds(today);
-  const session = studySession(progress, DECK_IDS, start, end);
+  const topic = progress.settings.newWordsTopic;
+  const session = studySession(progress, newWordsDeck(topic), start, end);
   return {
     due: session.due.length,
     fresh: session.fresh.length,
@@ -40,6 +51,10 @@ export function useWordsToday() {
     total: DECK_IDS.length,
     newPerDay: progress.settings.newWords,
     setNewPerDay: (perDay: number) => updateProgress(setNewWords(progress, perDay)),
+    topic,
+    setTopic: (next: TopicId | null) => updateProgress(setNewWordsTopic(progress, next)),
+    // Words in each topic not started yet.
+    topicLeft: (t: TopicId) => (TOPIC_DECKS.get(t) ?? []).filter((id) => progress.words[id] === undefined).length,
   };
 }
 
@@ -60,7 +75,7 @@ export function useWordReview() {
   const [startProgress] = useState(progress);
   const [initial] = useState(() => {
     const { start, end } = dayBounds(today);
-    return studySession(progress, DECK_IDS, start, end);
+    return studySession(progress, newWordsDeck(progress.settings.newWordsTopic), start, end);
   });
   const [queue, setQueue] = useState<string[]>(() => [...initial.due, ...initial.fresh]);
   const [shownAt, setShownAt] = useState(() => Date.now());

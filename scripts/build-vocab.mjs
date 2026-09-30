@@ -354,6 +354,115 @@ for (const line of indicesCsv.split('\n')) {
   }
 }
 
+// --- Topics -------------------------------------------------------------------------------
+
+// Topics to browse and study by. A word is in a topic when its main meaning (its first sense)
+// uses one of the topic's words, as a whole word, plurals too: 食べる ("to eat") is food and
+// 駅 ("station") is places. Only the main meaning, or 行く ("to go; to head towards") would be
+// body, for "head". A word can be in several topics, or none (こと, それ). Numbers and
+// counters are numbers whatever they mean. The ids match src/content/topics.ts.
+const TOPICS = {
+  food: 'food eat eating drink drinking water tasting sugary meal breakfast lunch dinner cook cooking rice meat fish vegetable fruit tea coffee beer alcohol wine bread cake egg sugar salt soup noodle noodles taste delicious tasty hungry restaurant menu kitchen dish snack sweets candy milk juice apple chopsticks bowl beef pork sushi ramen curry flavor flavour spicy spoon plate lunchbox feast',
+  places: 'station train railway airport airplane plane hotel road street city town village country travel trip journey tourist car bus taxi bicycle ship boat shop store bank hospital park map building bridge temple shrine castle japan abroad overseas address north south east west',
+  people: 'person people man woman men women boy girl child children kid baby family mother father parent brother sister son daughter husband wife friend grandmother grandfather grandchild uncle aunt teacher student adult human girlfriend boyfriend lover neighbor neighbour guest customer stranger everyone somebody someone',
+  time: 'time day week month year today tomorrow yesterday morning noon afternoon evening night tonight hour minute clock calendar spring summer autumn winter season date birthday holiday weekend monday tuesday wednesday thursday friday saturday sunday early late soon future past now era century moment recently lately always sometimes',
+  body: 'body head face eye ear nose mouth tooth teeth hair hand arm leg foot feet finger stomach belly neck shoulder skin blood bone sick ill illness disease fever pain hurt injury wound medicine health healthy tired sleep asleep breath',
+  feelings: 'feel feeling happy sad sadness angry anger love hate fear afraid scared worry worried anxious lonely glad joy fun enjoy surprise surprised embarrassed jealous envy regret sorry hope mood emotion tears cry laugh smile pleasant unpleasant boring bored excited nervous calm relief relieved disappointed shame proud pride liking fond dislike',
+  nature: 'nature weather rain snow wind cloud sky sun moon star sea ocean beach mountain river lake forest tree flower grass leaf stone rock earth ground island fire water ice sunny storm thunder typhoon earthquake air',
+  animals: 'animal dog cat bird fish horse cow pig chicken monkey rabbit mouse insect bug snake dragon fox wolf pet',
+  home: 'house home room door window desk table chair bed clothes clothing shirt shoes hat bag box key phone telephone television computer book paper pen money umbrella toilet bath bathroom wall floor roof garden stairs furniture toy',
+  work: 'work job company office meeting boss business school study studying student teacher class lesson exam examination test homework university college research project salary employee staff colleague career factory',
+  numbers: 'number amount quantity half double pair dozen hundred thousand million yen percent',
+  talk: 'say speak talk tell ask answer question word words language japanese english conversation story explain listen hear write read letter sentence meaning think idea opinion remember forget know understand learn',
+};
+const TOPIC_WORDS = Object.fromEntries(Object.entries(TOPICS).map(([id, words]) => [id, new Set(words.split(' '))]));
+
+// Words the keywords put in the wrong topic, by a figure of speech ("grounds" for a reason,
+// "to fire" a gun), and the topics they're not in.
+const NOT_IN = {
+  理由: ['nature'],
+  訳: ['nature'],
+  一体: ['nature', 'body'],
+  放つ: ['nature'],
+  撃つ: ['nature'],
+  せっかく: ['body'],
+  目指す: ['body'],
+  対する: ['body'],
+  向かう: ['body'],
+  向ける: ['body'],
+  聞こえる: ['body'],
+  立つ: ['body'],
+  成果: ['food'],
+  好み: ['food'],
+  いっぱい: ['food'],
+  かい: ['food'],
+  隙: ['home'],
+  調子: ['home'],
+  相手: ['work'],
+  連中: ['work'],
+  付き合う: ['work'],
+  病院: ['work'],
+  伝わる: ['places'],
+  話しかける: ['places'],
+  裏切る: ['numbers'],
+  追い詰める: ['home'],
+  ポイント: ['home'],
+  伏せる: ['home'],
+  武器: ['body'],
+  譲る: ['body'],
+  振り返る: ['body'],
+  一気: ['body'],
+  巻く: ['nature'],
+  ます: ['nature'],
+  性: ['nature'],
+  本番: ['nature'],
+  軽い: ['feelings'],
+  触る: ['feelings'],
+  触れる: ['feelings'],
+  相手にする: ['work'],
+  出会い: ['work'],
+  再会: ['work'],
+  通る: ['time'],
+  おいおい: ['time'],
+  行く: ['body'],
+  星: ['body'],
+  海: ['food'],
+  遊ぶ: ['time'],
+  楽しむ: ['time'],
+  詳しい: ['time'],
+  どこまでも: ['nature'],
+  ふざける: ['people'],
+  書く: ['home'],
+};
+
+// Words whose main meaning is a figure of speech, but which clearly belong in a topic: 肉's
+// first meaning is "flesh", its second "meat".
+const ALSO_IN = {
+  肉: ['food'],
+  うまい: ['food'],
+  美味い: ['food'],
+  甘い: ['food'],
+};
+
+// The topics a word's main meaning (its first sense) puts it in.
+function topicsFor(word, meanings, pos) {
+  const words = (meanings[0] ?? '')
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ') // not the notes in brackets: "to take (e.g. a train)"
+    .split(/[^a-z]+/)
+    .filter(Boolean);
+  const plain = (w) => (w.length > 3 && w.endsWith('s') ? w.slice(0, -1) : w);
+  const counted = pos.includes('num') || pos.includes('ctr');
+  return Object.keys(TOPICS).filter(
+    (id) =>
+      (ALSO_IN[word] ?? []).includes(id) ||
+      (!(NOT_IN[word] ?? []).includes(id) &&
+        ((id === 'numbers' && counted) || words.some((w) => TOPIC_WORDS[id].has(w) || TOPIC_WORDS[id].has(plain(w))))),
+  );
+}
+
+for (const word of chosen.values()) word.topics = topicsFor(word.word, word.meanings, word.pos);
+
 // --- Writing ------------------------------------------------------------------------------
 
 const words = [...chosen.values()].map((w) => ({ ...w, example: best.get(w.id)?.example ?? null }));

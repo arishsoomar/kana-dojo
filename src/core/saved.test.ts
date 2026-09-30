@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10 }, purchases: [], partners: [], words: {} };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10, newWordsTopic: null }, purchases: [], partners: [], words: {} };
 
 const sample: Progress = {
   kana: { あ: { box: 3, at: 1_000_000 }, シ: { box: 9, at: 5 } },
@@ -18,7 +18,7 @@ const sample: Progress = {
   ],
   partners: [{ day: '2026-10-01', friend: 'kenji', at: 6_000_000, done: true }],
   words: { '1358280': { stability: 3.2, difficulty: 5.3, due: 7_000_000, last: 6_500_000, added: 6_500_000, reps: 1, lapses: 0 } },
-  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true, gear: ['kasa'], newWords: 15 },
+  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true, gear: ['kasa'], newWords: 15, newWordsTopic: 'food' },
 };
 
 describe('saving progress', () => {
@@ -35,6 +35,11 @@ describe('saving progress', () => {
     const read = parseProgress(JSON.stringify({ version: 4, progress: broken }));
     expect(read.words).toEqual({});
     expect(read.settings.newWords).toBe(10);
+  });
+
+  it('reads a topic for new words only if it is a real one', () => {
+    const odd = { ...sample, settings: { ...sample.settings, newWordsTopic: 'dragons' } };
+    expect(parseProgress(JSON.stringify({ version: 4, progress: odd })).settings.newWordsTopic).toBeNull();
   });
 
   it('reads saves from before partner assignments as having none, and drops broken ones', () => {
@@ -68,7 +73,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10 },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10, newWordsTopic: null },
       purchases: [],
       partners: [],
       words: {},
@@ -85,7 +90,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10 },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10, newWordsTopic: null },
       purchases: [],
       partners: [],
       words: {},
@@ -166,7 +171,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10 },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: 10, newWordsTopic: null },
       purchases: [],
       partners: [],
       words: {},

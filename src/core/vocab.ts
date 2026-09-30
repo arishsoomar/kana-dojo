@@ -6,6 +6,15 @@
 export type FuriganaPiece = readonly [text: string] | readonly [text: string, reading: string];
 export type Furigana = readonly FuriganaPiece[];
 
+// Topics to browse and study by (names in src/content/topics.ts). A word can be in several,
+// or none.
+export const TOPIC_IDS = ['food', 'places', 'people', 'time', 'body', 'feelings', 'nature', 'animals', 'home', 'work', 'numbers', 'talk'] as const;
+export type TopicId = (typeof TOPIC_IDS)[number];
+
+export function isTopic(value: unknown): value is TopicId {
+  return typeof value === 'string' && (TOPIC_IDS as readonly string[]).includes(value);
+}
+
 export type VocabWord = {
   id: number; // its JMdict entry number
   rank: number; // where it comes in the frequency list
@@ -15,6 +24,7 @@ export type VocabWord = {
   meanings: readonly string[]; // one per sense, most common first
   pos: readonly string[]; // JMdict's parts of speech, like "v1" (a る-verb) or "adj-i"
   example: { ja: Furigana; en: string } | null;
+  topics: readonly TopicId[];
 };
 
 // Furigana's text without the readings: 食べる.

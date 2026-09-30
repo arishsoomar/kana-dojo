@@ -1,5 +1,6 @@
 import { NEW_WORDS, type Progress } from './answers';
 import { review, type Rating } from './srs';
+import type { TopicId } from './vocab';
 
 // The word deck, day to day: what's due, how many new words today can start, and rating a
 // word. Words are kept by id (a string); the deck's order comes from outside, most frequent
@@ -45,4 +46,9 @@ export function wordsStudied(progress: Progress): number {
 export function setNewWords(progress: Progress, perDay: number): Progress {
   const newWords = Math.min(Math.max(Math.round(perDay), NEW_WORDS.min), NEW_WORDS.max);
   return { ...progress, settings: { ...progress.settings, newWords } };
+}
+
+// New words only from one topic (food, say), or from any.
+export function setNewWordsTopic(progress: Progress, topic: TopicId | null): Progress {
+  return { ...progress, settings: { ...progress.settings, newWordsTopic: topic } };
 }

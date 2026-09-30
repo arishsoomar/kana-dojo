@@ -1,5 +1,7 @@
 import { splitWord } from '@/core/forge';
-import { furiganaReading, furiganaText, type Furigana } from '@/core/vocab';
+import { furiganaReading, furiganaText, isTopic, type Furigana } from '@/core/vocab';
+
+import { TOPICS } from './topics';
 
 import { VOCAB } from './vocab';
 
@@ -41,6 +43,11 @@ describe('the word deck', () => {
     const examples = VOCAB.flatMap((w) => (w.example ? [w.example] : []));
     expect(examples.length).toBeGreaterThan(2000);
     expect(examples.filter((e) => !isFurigana(e.ja) || !e.en.trim())).toEqual([]);
+  });
+
+  it('tags words only with known topics, each topic with some words', () => {
+    expect(VOCAB.filter((w) => !Array.isArray(w.topics) || !w.topics.every(isTopic)).map((w) => w.word)).toEqual([]);
+    for (const topic of TOPICS) expect(VOCAB.filter((w) => w.topics.includes(topic.id)).length).toBeGreaterThan(5);
   });
 
   it('leaves out particles, and words that are only grammar', () => {

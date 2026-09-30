@@ -10,6 +10,7 @@ import { KanaDetailSheet } from '@/components/kana-detail-sheet';
 import { ProgressRing } from '@/components/progress-ring';
 import { PrimaryButton } from '@/components/primary-button';
 import { SegmentedControl } from '@/components/segmented-control';
+import { TopicChips } from '@/components/topic-chips';
 import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
@@ -65,6 +66,14 @@ function WordsSection() {
         ) : (
           <Text style={styles.wordsDone}>All done for today. New words come at midnight.</Text>
         )}
+      </View>
+
+      <View style={[styles.summary, styles.wordsCard, styles.topicCard]}>
+        <View>
+          <Text style={styles.summaryTitle}>New words from</Text>
+          <Text style={styles.wordsAbout}>Any topic, or one you want to work on. Reviews always cover every word.</Text>
+        </View>
+        <TopicChips value={words.topic} onChange={words.setTopic} allLabel="Any topic" counts={words.topicLeft} />
       </View>
 
       <View style={[styles.summary, styles.perDay]}>
@@ -295,6 +304,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: colors.ink2,
+  },
+  topicCard: {
+    gap: 10,
   },
   perDay: {
     paddingVertical: 14,

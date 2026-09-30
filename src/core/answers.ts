@@ -2,6 +2,7 @@ import { MAX_BOX, tierOf, type Belt, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
 import type { WordCard } from './srs';
+import type { TopicId } from './vocab';
 
 export type Confusion = {
   shown: string;
@@ -50,6 +51,7 @@ export type Settings = {
   typing: boolean; // lessons ask for the romaji to be typed, instead of tapped from four
   gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
   newWords: number; // new words from the deck a day
+  newWordsTopic: TopicId | null; // new words only from this topic, or null for any
 };
 
 export type Progress = {
@@ -72,7 +74,7 @@ export const EMPTY_PROGRESS: Progress = {
   purchases: [],
   partners: [],
   words: {},
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null },
 };
 
 export type Answer = {

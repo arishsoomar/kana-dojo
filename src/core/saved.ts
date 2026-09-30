@@ -3,6 +3,7 @@ import { MAX_BOX, type KanaProgress } from './boxes';
 import { gearById } from './gear';
 import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
 import type { WordCard } from './srs';
+import { isTopic } from './vocab';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
 // Version 1 had no stats and version 2 had no finished lessons; both are still read,
@@ -59,7 +60,9 @@ export function parseProgress(text: string | null): Progress {
   const saved = isObject(settings) ? settings.newWords : undefined;
   const newWords =
     typeof saved === 'number' && Number.isInteger(saved) && saved >= NEW_WORDS.min && saved <= NEW_WORDS.max ? saved : NEW_WORDS.default;
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords } };
+  const topic = isObject(settings) ? settings.newWordsTopic : undefined;
+  const newWordsTopic = isTopic(topic) ? topic : null;
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords, newWordsTopic } };
 }
 
 // Keeps the entries whose value passes `isValid`.

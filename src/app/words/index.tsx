@@ -4,10 +4,11 @@ import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
+import { TopicChips } from '@/components/topic-chips';
 import { colors, fonts } from '@/constants/theme';
 import { VOCAB } from '@/content/vocab';
 import type { WordCard } from '@/core/srs';
-import type { VocabWord } from '@/core/vocab';
+import type { TopicId, VocabWord } from '@/core/vocab';
 import { useProgress } from '@/hooks/use-progress';
 
 function goBack() {
@@ -33,12 +34,14 @@ export default function WordsScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const [search, setSearch] = useState('');
+  const [topic, setTopic] = useState<TopicId | null>(null);
 
   const shown = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return VOCAB;
-    return VOCAB.filter((w) => w.word.includes(query) || w.reading.includes(query) || w.meanings.some((m) => m.toLowerCase().includes(query)));
-  }, [search]);
+    const inTopic = topic ? VOCAB.filter((w) => w.topics.includes(topic)) : VOCAB;
+    if (!query) return inTopic;
+    return inTopic.filter((w) => w.word.includes(query) || w.reading.includes(query) || w.meanings.some((m) => m.toLowerCase().includes(query)));
+  }, [search, topic]);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -59,11 +62,14 @@ export default function WordsScreen() {
           aria-label="Search the deck"
           style={styles.search}
         />
+        <TopicChips value={topic} onChange={setTopic} allLabel="All words" />
       </View>
       <FlatList
         data={shown}
         keyExtractor={(w) => String(w.id)}
-        renderItem={({ item, index }) => <Row word={item} number={search ? null : index + 1} status={statusOf(progress.words[String(item.id)])} />}
+        renderItem={({ item, index }) => (
+          <Row word={item} number={search || topic ? null : index + 1} status={statusOf(progress.words[String(item.id)])} />
+        )}
         contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: insets.bottom + 24 }}
         ListEmptyComponent={<Text style={styles.none}>No words match.</Text>}
         initialNumToRender={20}
@@ -111,6 +117,7 @@ const styles = StyleSheet.create({
     color: colors.sumi,
   },
   searchRow: {
+    gap: 10,
     paddingHorizontal: 18,
     paddingBottom: 10,
   },

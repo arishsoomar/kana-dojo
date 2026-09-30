@@ -1187,6 +1187,37 @@ I'll meet most.
       alignment; kana on their own get none
 - [ ] It works in words and in whole example sentences, on iOS, Android and web
 
+### AD3. Topics
+**As a** learner, **I want** to study words by topic, like food or travel, **so that** I can
+learn what I need for a situation.
+
+- [ ] Twelve topics (food, places, people, time, body, feelings, nature, animals, home, work,
+      numbers, talking), tagged when the deck is built; a word can be in several, or none
+- [ ] The deck list filters by topic
+- [ ] New words can come from one topic ("Any topic" by default); reviews always cover all
+- Notes: a word is in a topic when its main meaning (first sense) uses one of the topic's
+  keywords, as a whole word; numbers and counters by their part of speech. Keyword matching
+  makes some mistakes ("grounds" put 理由, reason, in nature), so the script has a list of
+  exceptions (`NOT_IN`) and additions (`ALSO_IN`); tagging is approximate and easy to fix.
+
+### AD4. A better voice, now
+**As a** learner, **I want** words spoken clearly, **so that** I learn to say them right.
+
+- [ ] The app speaks with the best Japanese voice on the device: an Enhanced or Premium one
+      if it's installed, the default otherwise
+- [ ] Settings says which voice it's using, with a button to hear it, and how to download a
+      better one (on iOS: Settings, Accessibility, Spoken Content, Voices, Japanese)
+
+### AD5. Recorded voices from VOICEVOX
+**As a** learner, **I want** natural recordings of every word and example sentence, **so that**
+pronunciation doesn't depend on my phone's voice.
+
+- [ ] A script that asks VOICEVOX (a free Japanese speech engine, run once on the Mac) to say
+      each word and example sentence, in one natural voice whose terms allow it, with its
+      credit on the Sources screen
+- [ ] Clips small enough to ship, or kept online and saved on the phone the first time
+- [ ] The app plays a clip when there is one, and the phone's voice otherwise
+
 ## Epic AE — Spaced repetition
 
 ### AE1. The scheduler

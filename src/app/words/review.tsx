@@ -4,6 +4,7 @@ import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'reac
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { speakWord } from '@/audio/pronounce';
 import { Furigana } from '@/components/furigana';
 import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
@@ -12,7 +13,7 @@ import { SpeakerIcon } from '@/components/speaker-icon';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import { intervalLabel, type Rating } from '@/core/srs';
-import type { VocabWord } from '@/core/vocab';
+import { furiganaText, type VocabWord } from '@/core/vocab';
 import { useRank } from '@/hooks/use-rank';
 import { useTurnOver } from '@/hooks/use-turn-over';
 import { lessonById } from '@/hooks/use-grammar';
@@ -172,11 +173,19 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
           </Text>
         ))}
       </View>
+      {/* The example sentence: tap it (or its speaker) to hear it. */}
       {word.example && (
-        <View style={styles.example}>
-          <Furigana furigana={word.example.ja} size={19} />
-          <Text style={styles.exampleEn}>{word.example.en}</Text>
-        </View>
+        <Pressable
+          role="button"
+          aria-label={`${furiganaText(word.example.ja)}: ${word.example.en}. Hear it`}
+          onPress={() => word.example && speakWord(furiganaText(word.example.ja))}
+          style={styles.example}>
+          <View style={styles.exampleText}>
+            <Furigana furigana={word.example.ja} size={19} />
+            <Text style={styles.exampleEn}>{word.example.en}</Text>
+          </View>
+          <SpeakerIcon color={colors.muted} size={20} />
+        </Pressable>
       )}
     </View>
   );
@@ -298,12 +307,18 @@ const styles = StyleSheet.create({
     color: colors.ink2,
   },
   example: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'stretch',
-    gap: 6,
+    gap: 10,
     marginTop: 4,
     paddingTop: 14,
     borderTopWidth: 1.5,
     borderTopColor: colors.line,
+  },
+  exampleText: {
+    flex: 1,
+    gap: 6,
   },
   exampleEn: {
     fontFamily: fonts.uiMedium,

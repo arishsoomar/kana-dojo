@@ -341,17 +341,28 @@ for (const line of indicesCsv.split('\n')) {
     })
     .filter(Boolean);
 
+  // How easy the sentence is: the share of its words that are in the deck, or grammar
+  // (particles, endings), which the lessons teach.
+  const grammarWord = (t) => t.entry && t.entry.senses[0]?.pos.some((p) => LEFT_OUT.has(p) || p === 'exp');
+  const known = tokens.filter((t) => (t.entry && chosen.has(t.entry.seq)) || grammarWord(t)).length / Math.max(tokens.length, 1);
+  const polite = /(です|ます|ません|ました|でした)[。？?！!]?$/.test(text);
+  const length = [...text].length;
+
   let pieces; // worked out once, only if the sentence is wanted
-  for (const t of tokens) {
-    if (!t.entry || !chosen.has(t.entry.seq)) continue;
-    // Checked examples first, then shorter ones.
-    const score = (t.checked ? 0 : 100) + [...text].length;
+  tokens.forEach((t, i) => {
+    if (!t.entry || !chosen.has(t.entry.seq) || pieces === null) return;
+    // Not when the word is only part of a longer one: あなた in あなたたち.
+    const nextPos = tokens[i + 1]?.entry?.senses[0]?.pos ?? [];
+    if (nextPos.includes('suf') || nextPos.includes('n-suf')) return;
+    // Lower is better: checked examples first; then about 14 characters long, made of words
+    // the learner will know, and polite, like the lessons.
+    const score = (t.checked ? 0 : 12) + Math.abs(length - 14) + 30 * (1 - known) + (polite ? 0 : 8);
     const current = best.get(t.entry.seq);
-    if (current && current.score <= score) continue;
+    if (current && current.score <= score) return;
     pieces ??= sentenceFurigana(text, tokens);
-    if (!pieces) break;
+    if (!pieces) return;
     best.set(t.entry.seq, { score, example: { ja: pieces, en: translation } });
-  }
+  });
 }
 
 // --- Topics -------------------------------------------------------------------------------

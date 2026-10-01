@@ -57,3 +57,20 @@ export function setNewWordsTopic(progress: Progress, topic: NewWordsFrom | null)
 export function notStarted(progress: Progress, list: readonly string[]): string[] {
   return list.filter((id) => progress.words[id] === undefined);
 }
+
+// More new words than the day's number, when asked for: the next ones not started.
+export function extraNewWords(progress: Progress, deck: readonly string[], count: number): string[] {
+  return notStarted(progress, deck).slice(0, count);
+}
+
+// Words to practise, outside the schedule: those studied since `dayStart` (today), or if none,
+// since `weekStart`. The most recently studied first.
+export function wordsToPractice(progress: Progress, dayStart: number, weekStart: number): string[] {
+  const since = (start: number) =>
+    Object.entries(progress.words)
+      .filter(([, card]) => card.last >= start)
+      .sort(([, a], [, b]) => b.last - a.last)
+      .map(([id]) => id);
+  const today = since(dayStart);
+  return today.length > 0 ? today : since(weekStart);
+}

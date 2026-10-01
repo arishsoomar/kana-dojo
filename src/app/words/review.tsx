@@ -16,7 +16,7 @@ import type { VocabWord } from '@/core/vocab';
 import { useRank } from '@/hooks/use-rank';
 import { useTurnOver } from '@/hooks/use-turn-over';
 import { lessonById } from '@/hooks/use-grammar';
-import { useWordReview } from '@/hooks/use-words';
+import { useWordReview, type WordSessionMode } from '@/hooks/use-words';
 
 function leave() {
   if (router.canGoBack()) router.back();
@@ -37,10 +37,13 @@ const HALF_TURN_MS = 120;
 export default function WordReviewScreen() {
   const insets = useSafeAreaInsets();
   const rank = useRank();
-  // Opened from a grammar lesson: just that lesson's words not started yet.
-  const { lesson } = useLocalSearchParams<{ lesson?: string }>();
+  // Opened from a grammar lesson (its words not started yet), for more new words, or to practise.
+  const { lesson, mode } = useLocalSearchParams<{ lesson?: string; mode?: string }>();
   const lessonWords = typeof lesson === 'string' ? lessonById(lesson)?.words : undefined;
-  const review = useWordReview(lessonWords);
+  const [session] = useState<WordSessionMode>(() =>
+    lessonWords ? { kind: 'lesson', words: lessonWords } : mode === 'more' ? { kind: 'more' } : mode === 'practice' ? { kind: 'practice' } : { kind: 'today' },
+  );
+  const review = useWordReview(session);
   const { word, flipped, intervals, result } = review;
   const [leaving, setLeaving] = useState(false);
   // The card turns over in 3D; `back` is whether its back is up at this moment.
@@ -67,7 +70,7 @@ export default function WordReviewScreen() {
         <LessonComplete
           summary={result.summary}
           onContinue={leave}
-          title={lessonWords ? 'Ready for the lesson' : 'Done for today'}
+          title={session.kind === 'lesson' ? 'Ready for the lesson' : session.kind === 'practice' ? 'Practice done' : 'Done for today'}
           headline={{ label: 'Reviewed', value: String(result.reviewed) }}
           note={result.learned > 0 ? `${result.learned} new ${result.learned === 1 ? 'word' : 'words'} started` : undefined}
           rank={rank}
@@ -79,11 +82,15 @@ export default function WordReviewScreen() {
   if (!word) {
     return (
       <View style={[styles.screen, styles.empty, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
-        <Text style={styles.emptyTitle}>Nothing to review</Text>
+        <Text style={styles.emptyTitle}>{session.kind === 'practice' ? 'Nothing to practise yet' : 'Nothing to review'}</Text>
         <Text style={styles.emptyText}>
-          {lessonWords
+          {session.kind === 'lesson'
             ? "You've started all of this lesson's words already."
-            : "Every word due today is done, and so are today's new ones. Come back tomorrow."}
+            : session.kind === 'practice'
+              ? 'Practice goes over words you studied today, or this week. Learn some words first.'
+              : session.kind === 'more'
+                ? "You've started every word in this list."
+                : "Every word due today is done, and so are today's new ones. Come back tomorrow."}
         </Text>
         <PrimaryButton label="Back" onPress={leave} />
       </View>
@@ -116,7 +123,20 @@ export default function WordReviewScreen() {
         </Pressable>
       </ScrollView>
 
-      {intervals && (
+      {/* Practice: just again or got it. It doesn't change when words come back. */}
+      {review.flipped && review.practice && (
+        <View style={[styles.ratings, { paddingBottom: insets.bottom + 12 }]}>
+          <Pressable role="button" onPress={() => review.rate(1)} style={[styles.rating, { backgroundColor: colors.vermilion }]}>
+            <Text style={styles.ratingLabel}>Again</Text>
+            <Text style={styles.ratingWhen}>see it again</Text>
+          </Pressable>
+          <Pressable role="button" onPress={() => review.rate(3)} style={[styles.rating, { backgroundColor: colors.pine }]}>
+            <Text style={styles.ratingLabel}>Got it</Text>
+            <Text style={styles.ratingWhen}>next word</Text>
+          </Pressable>
+        </View>
+      )}
+      {intervals && !review.practice && (
         <View style={[styles.ratings, { paddingBottom: insets.bottom + 12 }]}>
           {RATINGS.map(({ rating, label, color }) => (
             <Pressable
@@ -131,7 +151,7 @@ export default function WordReviewScreen() {
           ))}
         </View>
       )}
-      <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={close} title="Stop reviewing?" body="The words you've rated are saved." />
+      <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={close} title="Stop reviewing?" body={review.practice ? 'Practice never changes your schedule.' : "The words you've rated are saved."} />
     </View>
   );
 }

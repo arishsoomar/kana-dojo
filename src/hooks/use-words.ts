@@ -4,9 +4,19 @@ import { speakWord } from '@/audio/pronounce';
 import { GRAMMAR_LESSONS } from '@/content/grammar';
 import { VOCAB } from '@/content/vocab';
 import { completeLesson } from '@/core/answers';
-import { notStarted, rateWord, setNewWords, setNewWordsTopic, studySession, WORDS_REVIEW_ID, wordsStudied } from '@/core/deck';
+import {
+  extraNewWords,
+  notStarted,
+  rateWord,
+  setNewWords,
+  setNewWordsTopic,
+  studySession,
+  WORDS_REVIEW_ID,
+  wordsStudied,
+  wordsToPractice,
+} from '@/core/deck';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
-import { nextIntervals, type Rating } from '@/core/srs';
+import { DAY_MS, nextIntervals, type Rating } from '@/core/srs';
 import { TOPIC_IDS, type NewWordsFrom, type TopicId, type VocabWord } from '@/core/vocab';
 
 import { useHaptics } from './use-haptics';
@@ -76,7 +86,14 @@ export type WordReviewResult = { reviewed: number; learned: number; summary: Les
 // bring it back. A word rated Again comes back at the end of the session. When the session is
 // over (or left part-way), it's kept as a finished lesson: training for the streak and the
 // daily goal.
-export function useWordReview(lessonWords?: readonly string[]) {
+// What a word session is: today's reviews and new words, a grammar lesson's words, more new
+// words than the day's number, or practice of recent words outside the schedule.
+export type WordSessionMode = { kind: 'today' } | { kind: 'lesson'; words: readonly string[] } | { kind: 'more' } | { kind: 'practice' };
+
+// New words when more are asked for.
+export const MORE_WORDS = 10;
+
+export function useWordReview(mode: WordSessionMode = { kind: 'today' }) {
   const { progress, changeProgress, currentProgress } = useProgress();
   const haptics = useHaptics();
   const sounds = useSoundEffects();
@@ -84,11 +101,16 @@ export function useWordReview(lessonWords?: readonly string[]) {
   const sound = progress.settings.sound;
 
   const [startProgress] = useState(progress);
+  const practice = mode.kind === 'practice';
   const [initial] = useState(() => {
-    // A grammar lesson's words: just those not started yet, before the lesson.
-    if (lessonWords) return { due: [], fresh: notStarted(progress, lessonWordIds(lessonWords)) };
     const { start, end } = dayBounds(today);
-    return studySession(progress, newWordsDeck(progress.settings.newWordsTopic), start, end);
+    const deck = newWordsDeck(progress.settings.newWordsTopic);
+    // A grammar lesson's words: just those not started yet, before the lesson.
+    if (mode.kind === 'lesson') return { due: [], fresh: notStarted(progress, lessonWordIds(mode.words)) };
+    if (mode.kind === 'more') return { due: [], fresh: extraNewWords(progress, deck, MORE_WORDS) };
+    // Practice goes over words already studied, so they count as "due" here.
+    if (practice) return { due: wordsToPractice(progress, start, start - 7 * DAY_MS), fresh: [] };
+    return studySession(progress, deck, start, end);
   });
   const [queue, setQueue] = useState<string[]>(() => [...initial.due, ...initial.fresh]);
   const [shownAt, setShownAt] = useState(() => Date.now());
@@ -117,7 +139,8 @@ export function useWordReview(lessonWords?: readonly string[]) {
   function rate(rating: Rating) {
     if (!id || flippedAt === null) return;
     const now = Date.now();
-    changeProgress((p) => rateWord(p, id, rating, now));
+    // Practice doesn't touch the schedule: only real reviews do.
+    if (!practice) changeProgress((p) => rateWord(p, id, rating, now));
     if (rating === 1) haptics.miss();
     else haptics.right();
     const done = [...answers, { char: id, correct: rating > 1, ms: flippedAt - shownAt }];
@@ -136,6 +159,7 @@ export function useWordReview(lessonWords?: readonly string[]) {
   }
 
   return {
+    practice,
     word,
     isNew: card === null,
     // Readings over the kanji on the front, until the word is known well (three weeks' stability).

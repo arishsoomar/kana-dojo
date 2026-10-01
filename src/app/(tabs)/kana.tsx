@@ -21,7 +21,7 @@ import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from 
 import { useProgress } from '@/hooks/use-progress';
 import { grammarReadiness } from '@/core/readiness';
 import { useGrammarDue, useGrammarPath } from '@/hooks/use-grammar';
-import { useWordsToday } from '@/hooks/use-words';
+import { MORE_WORDS, useWordsToday } from '@/hooks/use-words';
 
 const SECTIONS = [
   { value: 'kana', label: 'Kana' },
@@ -67,7 +67,21 @@ function WordsSection() {
         {ready > 0 ? (
           <PrimaryButton label={words.due > 0 ? 'Review' : 'Learn new words'} onPress={() => router.push('/words/review')} />
         ) : (
-          <Text style={styles.wordsDone}>All done for today. New words come at midnight.</Text>
+          <>
+            <Text style={styles.wordsDone}>All done for today. Want more?</Text>
+            <PrimaryButton
+              label={`Learn ${MORE_WORDS} more`}
+              onPress={() => router.push({ pathname: '/words/review', params: { mode: 'more' } })}
+            />
+          </>
+        )}
+        {/* Going over words again, any time: it never changes when they come back. */}
+        {words.studied > 0 && (
+          <PrimaryButton
+            label="Practice recent words"
+            tone="light"
+            onPress={() => router.push({ pathname: '/words/review', params: { mode: 'practice' } })}
+          />
         )}
       </View>
 

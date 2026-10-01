@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, NEW_WORDS, type Progress } from './answers';
-import { dueWords, newWordsLeft, notStarted, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
+import { dueWords, extraNewWords, newWordsLeft, notStarted, wordsToPractice, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
 import { DAY_MS, review } from './srs';
 
 const DECK = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -79,5 +79,30 @@ describe('rating a word', () => {
     const before = JSON.stringify(studied);
     rateWord(studied, 'a', 1, NOW);
     expect(JSON.stringify(studied)).toBe(before);
+  });
+});
+
+describe('practice', () => {
+  it("is the words studied today, the most recent first", () => {
+    let p = rateWord(EMPTY_PROGRESS, 'a', 3, NOW - 2 * DAY_MS);
+    p = rateWord(p, 'b', 3, NOW);
+    p = rateWord(p, 'c', 1, NOW + 60_000);
+    expect(wordsToPractice(p, TODAY, TODAY - 7 * DAY_MS)).toEqual(['c', 'b']);
+  });
+
+  it('is the words of the last week when none were studied today', () => {
+    let p = rateWord(EMPTY_PROGRESS, 'a', 3, TODAY - 2 * DAY_MS);
+    p = rateWord(p, 'b', 3, TODAY - 10 * DAY_MS);
+    expect(wordsToPractice(p, TODAY, TODAY - 7 * DAY_MS)).toEqual(['a']);
+    expect(wordsToPractice(EMPTY_PROGRESS, TODAY, TODAY - 7 * DAY_MS)).toEqual([]);
+  });
+});
+
+describe('learning more today', () => {
+  it('is the next new words, past the daily number', () => {
+    let p = setNewWords(EMPTY_PROGRESS, 2);
+    p = rateWord(rateWord(p, 'a', 3, NOW), 'b', 3, NOW);
+    expect(studySession(p, DECK, TODAY, TONIGHT).fresh).toEqual([]);
+    expect(extraNewWords(p, DECK, 3)).toEqual(['c', 'd', 'e']);
   });
 });

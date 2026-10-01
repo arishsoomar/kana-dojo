@@ -1252,6 +1252,12 @@ pronunciation doesn't depend on my phone's voice.
   stability), so nothing is stored for it. A session is kept as `words:review`, its score the
   cards reviewed; it isn't a kana lesson for assignments, friends' summaries or partner goals.
 
+### AE2b. Studying more
+- [ ] Learn 10 more: the next new words past the day's number, once today's are done
+- [ ] Practice recent words: the words studied today (or this week), as often as you like,
+      with just Again and Got it. It never changes the schedule, so extra drilling can't make
+      words come back later than they should
+
 ### AE3. Where words live
 - [ ] The Kana tab becomes Study: Kana, Words and Grammar
 - [ ] Words: due today, new today, words learned out of 2,500, and a list of the deck to

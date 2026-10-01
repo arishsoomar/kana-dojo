@@ -283,6 +283,7 @@ export const GUIDE: GuideSection[] = [
               'Tap the card to turn it over: the reading, its meanings, an example sentence, and the word spoken.',
               'Then rate how well you knew it. Again brings it back in ten minutes; Hard, Good and Easy bring it back in days, weeks, then months, each time just before you would forget it. The buttons show when.',
               'It uses FSRS, the same way of scheduling reviews that Anki uses. A review session counts as training for your streak and daily goal.',
+              'The back of a card also says who uses the word and how, like Humble, Honorific, Casual or Mostly men. Words like "mother", "I" and "you" have several forms depending on who you are talking to; their cards show the whole family, and when each is used.',
               'Want more? Once today is done, Learn 10 more starts the next new words. Practice recent words goes over what you studied today (or this week) as often as you like; it never changes when words come back.',
               'Under New words from, For grammar picks the words the grammar lessons use, in lesson order. Each lesson also shows how many of its words you have started, with a button to learn the rest first.',
             ],

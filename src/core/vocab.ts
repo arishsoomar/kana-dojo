@@ -33,6 +33,8 @@ export type VocabWord = {
   pos: readonly string[]; // JMdict's parts of speech, like "v1" (a る-verb) or "adj-i"
   example: { ja: Furigana; en: string } | null;
   topics: readonly TopicId[];
+  labels: readonly string[]; // who says it and how, as JMdict's codes: "hon", "hum", "male"…
+  note: string | null; // a usage note, like "informal, rough, blunt"
 };
 
 // Furigana's text without the readings: 食べる.

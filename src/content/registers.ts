@@ -1,0 +1,20 @@
+// JMdict's labels for who says a word and how (kept on each word in the deck, as `labels`),
+// in plain English for the word cards.
+export const REGISTERS: Readonly<Record<string, { name: string; about: string }>> = {
+  hon: { name: 'Honorific', about: 'Polite about someone else, their family or what they do.' },
+  hum: { name: 'Humble', about: 'Modest, about yourself or your own family.' },
+  pol: { name: 'Polite', about: 'Polite speech.' },
+  form: { name: 'Formal', about: 'Formal or written.' },
+  col: { name: 'Casual', about: 'Everyday spoken language, not for formal situations.' },
+  fam: { name: 'Familiar', about: 'With family and close friends.' },
+  male: { name: 'Mostly men', about: 'Mostly used by men and boys.' },
+  fem: { name: 'Mostly women', about: 'Mostly used by women and girls.' },
+  chn: { name: "Children's word", about: 'Used by or to children.' },
+  sl: { name: 'Slang', about: 'Slang.' },
+  joc: { name: 'Joking', about: 'Said jokingly.' },
+  poet: { name: 'Poetic', about: 'Poetic or literary.' },
+  dated: { name: 'Old-fashioned', about: 'Sounds dated.' },
+  rare: { name: 'Rare', about: 'Not often used.' },
+  sens: { name: 'Sensitive', about: 'Can offend; use with care.' },
+  abbr: { name: 'Short form', about: 'A shortened form of a longer word.' },
+};

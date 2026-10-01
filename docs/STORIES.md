@@ -1224,6 +1224,18 @@ pronunciation doesn't depend on my phone's voice.
 - [ ] Clips small enough to ship, or kept online and saved on the phone the first time
 - [ ] The app plays a clip when there is one, and the phone's voice otherwise
 
+### AD6. Context: politeness, and word families
+**As a** learner, **I want** to know who says a word and when, **so that** I don't call my own
+mother お母さん to a stranger, or a boss お前.
+
+- [ ] Each word keeps JMdict's register labels (honorific, humble, polite, casual, familiar,
+      mostly men or women, children's, slang…) and its usage note, shown on the card's back
+- [ ] Word families, written for the app: mother, father, I, you, siblings, husband and wife,
+      the respectful and humble verbs (eat, say, do, go/come/be, give and receive), yes and no,
+      and person. A word in a family shows the whole family on its card, with when each is used
+- [ ] Tests: each family has words from the deck, read as the deck reads them, and every label
+      the deck uses has a name
+
 ## Epic AE — Spaced repetition
 
 ### AE1. The scheduler

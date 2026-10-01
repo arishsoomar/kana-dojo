@@ -13,6 +13,8 @@ import { SpeakerIcon } from '@/components/speaker-icon';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
 import { intervalLabel, type Rating } from '@/core/srs';
+import { REGISTERS } from '@/content/registers';
+import { WORD_FAMILIES, type WordFamily } from '@/content/word-families';
 import { furiganaText, type VocabWord } from '@/core/vocab';
 import { useRank } from '@/hooks/use-rank';
 import { useTurnOver } from '@/hooks/use-turn-over';
@@ -165,6 +167,16 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
         {word.reading !== word.word && <Text style={styles.readingText}>{word.reading}</Text>}
         <SpeakerIcon color={colors.ink2} size={20} />
       </Pressable>
+      {(word.labels.length > 0 || word.note) && (
+        <View style={styles.labels}>
+          {word.labels.map((label) => (
+            <Text key={label} style={styles.label} aria-label={REGISTERS[label]?.about}>
+              {REGISTERS[label]?.name ?? label}
+            </Text>
+          ))}
+          {word.note && <Text style={styles.note}>{word.note}</Text>}
+        </View>
+      )}
       <View style={styles.meanings}>
         {word.meanings.map((meaning, i) => (
           <Text key={i} style={[styles.meaning, i > 0 && styles.meaningMore]}>
@@ -187,8 +199,47 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
           <SpeakerIcon color={colors.muted} size={20} />
         </Pressable>
       )}
+      {familiesOf(word).map((family) => (
+        <Family key={family.id} family={family} word={word} />
+      ))}
     </View>
   );
+}
+
+// A word family the word is in ("Ways to say 'mother'"): open it to see every word in it and
+// when each is used, with this one picked out.
+function Family({ family, word }: { family: WordFamily; word: VocabWord }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <View style={styles.family}>
+      <Pressable role="button" aria-expanded={open} onPress={() => setOpen(!open)} style={styles.familyHead}>
+        <Text style={styles.familyTitle}>{family.title}</Text>
+        <Text style={styles.familyToggle}>{open ? 'Hide' : 'Show'}</Text>
+      </Pressable>
+      {open && (
+        <>
+          <Text style={styles.exampleEn}>{family.about}</Text>
+          {family.members.map((m) => {
+            const self = m.word === word.word && m.reading === word.reading;
+            return (
+              <View key={m.word} style={[styles.member, self && styles.memberSelf]}>
+                <Text style={styles.memberWord}>
+                  {m.word}
+                  {m.reading !== m.word && <Text style={styles.memberReading}>  {m.reading}</Text>}
+                </Text>
+                <Text style={styles.memberWhen}>{m.when}</Text>
+              </View>
+            );
+          })}
+        </>
+      )}
+    </View>
+  );
+}
+
+// The word families a word is in.
+function familiesOf(word: VocabWord): WordFamily[] {
+  return WORD_FAMILIES.filter((f) => f.members.some((m) => m.word === word.word && m.reading === word.reading));
 }
 
 const styles = StyleSheet.create({
@@ -315,6 +366,76 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     borderTopWidth: 1.5,
     borderTopColor: colors.line,
+  },
+  labels: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+  },
+  label: {
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 999,
+    overflow: 'hidden',
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 12,
+    color: colors.indigoDark,
+    backgroundColor: colors.indigoLight,
+  },
+  note: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: colors.ink2,
+  },
+  family: {
+    alignSelf: 'stretch',
+    gap: 8,
+    paddingTop: 12,
+    borderTopWidth: 1.5,
+    borderTopColor: colors.line,
+  },
+  familyHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  familyTitle: {
+    flex: 1,
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 15,
+    color: colors.sumi,
+  },
+  familyToggle: {
+    fontFamily: fonts.uiBold,
+    fontSize: 13,
+    color: colors.vermilionDark,
+  },
+  member: {
+    gap: 2,
+    padding: 8,
+    borderRadius: 8,
+  },
+  memberSelf: {
+    backgroundColor: colors.goldLight,
+  },
+  memberWord: {
+    fontFamily: fonts.jp,
+    fontSize: 17,
+    color: colors.sumi,
+  },
+  memberReading: {
+    fontFamily: fonts.jp,
+    fontSize: 12,
+    color: colors.ink2,
+  },
+  memberWhen: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.ink2,
   },
   exampleText: {
     flex: 1,

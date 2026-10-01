@@ -45,6 +45,9 @@ function leftOut(word, pos) {
   // with a small っ (あっ, えっ, チッ).
   return !hasKanji(word) && ([...word].length === 1 || /[っッ]$/.test(word));
 }
+// JMdict's labels for who says a word, and how, kept on each word (the rest, like "usually
+// written in kana", aren't shown). Their names are in src/content/registers.ts.
+const REGISTERS = new Set(['hon', 'hum', 'pol', 'form', 'col', 'fam', 'male', 'fem', 'chn', 'sl', 'joc', 'poet', 'dated', 'rare', 'sens', 'abbr']);
 // Example sentences no longer than this, so they fit on a card.
 const SENTENCE_MAX = 28;
 const MEANINGS_MAX = 3; // senses shown
@@ -128,6 +131,7 @@ for (const block of jmdictXml.split('</entry>')) {
       misc: tags(m[1], 'misc').map(entity),
       onlyKanji: tags(m[1], 'stagk'),
       onlyReading: tags(m[1], 'stagr'),
+      info: tags(m[1], 's_inf'),
       glosses: tags(m[1], 'gloss'),
     };
   });
@@ -245,6 +249,10 @@ for (const line of frequencyCsv.split('\n').slice(1)) {
     furigana: furiganaFor(word, reading),
     meanings: senses.slice(0, MEANINGS_MAX).map((s) => s.glosses.slice(0, GLOSSES_MAX).join('; ')),
     pos,
+    // Who says it, and how: the main meaning's register labels (honorific, humble, casual, male
+    // speech…), and its usage note ("informal, rough, blunt").
+    labels: (senses[0]?.misc ?? []).filter((m) => REGISTERS.has(m)),
+    note: senses[0]?.info[0] ?? null,
   });
 }
 console.log(`Chosen ${chosen.size} words. Skipped:`, skipped);

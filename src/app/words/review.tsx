@@ -222,13 +222,22 @@ function Family({ family, word }: { family: WordFamily; word: VocabWord }) {
           {family.members.map((m) => {
             const self = m.word === word.word && m.reading === word.reading;
             return (
-              <View key={m.word} style={[styles.member, self && styles.memberSelf]}>
-                <Text style={styles.memberWord}>
-                  {m.word}
-                  {m.reading !== m.word && <Text style={styles.memberReading}>  {m.reading}</Text>}
-                </Text>
-                <Text style={styles.memberWhen}>{m.when}</Text>
-              </View>
+              // Tap one to hear it, as it's read.
+              <Pressable
+                key={m.word}
+                role="button"
+                aria-label={`${m.word}, ${m.reading}: ${m.when} Hear it`}
+                onPress={() => speakWord(m.reading)}
+                style={[styles.member, self && styles.memberSelf]}>
+                <View style={styles.memberText}>
+                  <Text style={styles.memberWord}>
+                    {m.word}
+                    {m.reading !== m.word && <Text style={styles.memberReading}>  {m.reading}</Text>}
+                  </Text>
+                  <Text style={styles.memberWhen}>{m.when}</Text>
+                </View>
+                <SpeakerIcon color={colors.muted} size={18} />
+              </Pressable>
             );
           })}
         </>
@@ -414,9 +423,15 @@ const styles = StyleSheet.create({
     color: colors.vermilionDark,
   },
   member: {
-    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     padding: 8,
     borderRadius: 8,
+  },
+  memberText: {
+    flex: 1,
+    gap: 2,
   },
   memberSelf: {
     backgroundColor: colors.goldLight,

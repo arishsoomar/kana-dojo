@@ -208,6 +208,20 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
+        id: 'practice',
+        question: 'How do I practise kana I already know?',
+        answer: [
+          'On the Study tab, under Kana, tap Practice kana. Choose any rows the Learn wall has opened, from hiragana, katakana, or both mixed, and questions keep coming until you stop.',
+          {
+            bullets: [
+              'There is no exam and no end: tap ✕ when you are done to see how it went.',
+              'Answers count like a lesson\'s: right ones move each kana toward its next belt, and mix-ups are logged.',
+              'When both scripts are chosen, the options are always from the script of the kana asked, so they can\'t give it away.',
+            ],
+          },
+        ],
+      },
+      {
         id: 'kana-tab',
         question: 'What does the Study tab show for kana?',
         answer: [

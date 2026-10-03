@@ -70,6 +70,7 @@ export default function RootLayout() {
             <Stack.Screen name="shed" options={{ headerShown: false }} />
             <Stack.Screen name="settings" options={{ headerShown: false }} />
             <Stack.Screen name="sources" options={{ headerShown: false }} />
+            <Stack.Screen name="practice" options={{ headerShown: false }} />
             <Stack.Screen name="words/index" options={{ headerShown: false }} />
             <Stack.Screen name="words/review" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="grammar/lesson" options={{ headerShown: false, gestureEnabled: false }} />

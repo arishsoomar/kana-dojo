@@ -17,9 +17,12 @@ import { SpeakerIcon } from '@/components/speaker-icon';
 import { TypeAnswer } from '@/components/type-answer';
 import { colors, fonts } from '@/constants/theme';
 import { pronounce } from '@/audio/pronounce';
-import { KANA, type Kana } from '@/core/kana';
+import type { Progress } from '@/core/answers';
+import { KANA, ROWS, type Kana, type RowId } from '@/core/kana';
 import { plaqueById } from '@/core/path';
+import { practicePool, type RowPick } from '@/core/practice';
 import { useLesson, type LessonMode, type Result } from '@/hooks/use-lesson';
+import { useProgress } from '@/hooks/use-progress';
 import { useRank } from '@/hooks/use-rank';
 
 // Back to where the lesson was opened from. If the lesson was opened directly
@@ -29,21 +32,33 @@ function leaveLesson() {
   else router.replace('/');
 }
 
-type Params = { plaque?: string; drill?: string; script?: string };
+type Params = { plaque?: string; drill?: string; script?: string; rows?: string };
 
 // `/lesson?plaque=hiragana:ka:0` plays a plaque, `/lesson?drill=し` drills one kana,
-// `/lesson?script=katakana` is a practice lesson. Anything else is hiragana practice.
-function modeFrom({ plaque, drill, script }: Params): LessonMode {
+// `/lesson?script=katakana` is a practice lesson, and `/lesson?rows=hiragana:a,katakana:ka`
+// is free practice of those rows. Anything else is hiragana practice.
+function modeFrom({ plaque, drill, script, rows }: Params, progress: Progress): LessonMode {
   const found = plaque ? plaqueById(plaque) : null;
   if (found) return { plaque: found };
   const kana = KANA.find((k) => k.char === drill);
   if (kana) return { drill: kana };
+  if (rows) {
+    const picks = rows.split(',').flatMap((pick): RowPick[] => {
+      const [pickScript, row] = pick.split(':');
+      return (pickScript === 'hiragana' || pickScript === 'katakana') && (ROWS as readonly string[]).includes(row ?? '')
+        ? [{ script: pickScript, row: row as RowId }]
+        : [];
+    });
+    const pool = practicePool(progress, picks);
+    if (pool.length > 0) return { pool };
+  }
   return { script: script === 'katakana' ? 'katakana' : 'hiragana' };
 }
 
 // What Karasu says above each question.
 function coachLine(mode: LessonMode): string {
   if ('drill' in mode) return `Drilling ${mode.drill.char}.`;
+  if ('pool' in mode) return 'Practice: read this. Stop whenever you like.';
   if ('plaque' in mode) {
     const { plaque } = mode;
     return plaque.kind === 'mixed'
@@ -56,7 +71,8 @@ function coachLine(mode: LessonMode): string {
 export default function LessonScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
-  const [mode] = useState(() => modeFrom(params));
+  const { progress } = useProgress();
+  const [mode] = useState(() => modeFrom(params, progress));
   const {
     question,
     questionKey,
@@ -75,6 +91,9 @@ export default function LessonScreen() {
     check,
     checkTyped,
     goToNext,
+    endless,
+    answered,
+    finish,
   } = useLesson(mode);
   const [leaving, setLeaving] = useState(false);
   const rank = useRank();
@@ -98,7 +117,7 @@ export default function LessonScreen() {
   if (summary) {
     return (
       <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
-        <LessonComplete summary={summary} onContinue={leaveLesson} rank={rank} />
+        <LessonComplete summary={summary} onContinue={leaveLesson} rank={rank} title={endless ? 'Practice done' : undefined} />
       </View>
     );
   }
@@ -110,7 +129,8 @@ export default function LessonScreen() {
       style={[styles.screen, { paddingTop: insets.top }]}>
       <LessonTopBar
         fraction={fraction}
-        onClose={() => setLeaving(true)}
+        // Free practice: ✕ finishes it, with its summary (or just leaves, if nothing was answered).
+        onClose={() => (endless ? (answered > 0 ? finish() : leaveLesson()) : setLeaving(true))}
         sound={sound}
         onToggleSound={toggleSound}
         typing={typing}

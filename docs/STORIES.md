@@ -1064,6 +1064,16 @@ Done when:
 
 ---
 
+## Built later: free kana practice
+
+**As a** learner who has finished hiragana, **I want** to keep practising it while learning
+katakana, **so that** I don't lose it.
+
+- [ ] Practice kana, on the Study tab: choose any open rows from hiragana, katakana or both
+- [ ] Endless: questions keep coming until ✕, which shows the summary; no exam
+- [ ] Answers count toward belts like a lesson's; mixed scripts take their options from the
+      asked kana's own script
+
 ## Epic AB — Motion
 
 Karasu himself hangs a new belt plaque, and every animation moves to Reanimated (already

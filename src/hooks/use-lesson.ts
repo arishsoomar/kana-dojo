@@ -7,6 +7,7 @@ import { tipFor } from '@/core/feedback';
 import { kanaForRomaji, matchesRomaji, type Kana, type Script } from '@/core/kana';
 import { combo, COMBO_MILESTONES, LESSON_LENGTH, summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { makePlaqueQuestion, type Plaque } from '@/core/path';
+import { makePracticeQuestion } from '@/core/practice';
 import { makeDrillQuestion, makeQuestion, type Question } from '@/core/question';
 import { kanaTip } from '@/core/tips';
 
@@ -25,13 +26,15 @@ export type Result = {
   tip: string | null;
 };
 
-// A plaque from the Learn path, a practice lesson in one script, or a drill on one kana.
-export type LessonMode = { plaque: Plaque } | { script: Script } | { drill: Kana };
+// A plaque from the Learn path, a practice lesson in one script, a drill on one kana, or free
+// practice of chosen kana: endless, until it's finished.
+export type LessonMode = { plaque: Plaque } | { script: Script } | { drill: Kana } | { pool: readonly Kana[] };
 
 // `avoid` is the kana just asked, so the same one never comes twice in a row.
 function newQuestion(progress: Progress, mode: LessonMode, avoid?: string): Question {
   if ('plaque' in mode) return makePlaqueQuestion(progress, mode.plaque, Math.random, avoid);
   if ('drill' in mode) return makeDrillQuestion(progress, mode.drill, Math.random, avoid);
+  if ('pool' in mode) return makePracticeQuestion(progress, mode.pool, Math.random, avoid);
   return makeQuestion(progress, mode.script, Math.random, avoid);
 }
 
@@ -46,6 +49,7 @@ function isNew(progress: Progress, kana: Kana): boolean {
 export function lessonId(mode: LessonMode): string {
   if ('plaque' in mode) return mode.plaque.id;
   if ('drill' in mode) return `drill:${mode.drill.char}`;
+  if ('pool' in mode) return 'practice:free';
   return `practice:${mode.script}`;
 }
 
@@ -72,6 +76,7 @@ export function useLesson(mode: LessonMode) {
   const [reaction, setReaction] = useState<{ kind: 'hop' | 'shake'; id: number } | null>(null);
   const sound = progress.settings.sound;
   const typing = progress.settings.typing;
+  const endless = 'pool' in mode;
   const haptics = useHaptics();
   const sounds = useSoundEffects();
 
@@ -127,16 +132,9 @@ export function useLesson(mode: LessonMode) {
   // progress, since it can run from a timer after the answer that just changed it.
   function advance(answersSoFar: LessonAnswer[], justAsked: string) {
     const latest = currentProgress();
-    if (answersSoFar.length >= LESSON_LENGTH) {
-      const done = summarizeLesson(startProgress, latest, answersSoFar);
-      // The lesson keeps the XP it earned, for the XP assignment.
-      updateProgress(completeLesson(latest, lessonId(mode), Date.now(), done.xp));
-      haptics.thunk();
-      sounds.play('taiko');
-      // A plaque finished for the first time gets its seal stamped on the wall.
-      const firstTime = 'plaque' in mode && !startProgress.completed.some((c) => c.lesson === mode.plaque.id);
-      postWallNews({ stamped: firstTime ? [mode.plaque.id] : [], opened: done.rowsOpened });
-      setSummary(done);
+    // Free practice never ends by itself: it's finished with finish().
+    if (!endless && answersSoFar.length >= LESSON_LENGTH) {
+      finish(answersSoFar);
       return;
     }
     const nextQuestion = newQuestion(latest, mode, justAsked);
@@ -145,6 +143,22 @@ export function useLesson(mode: LessonMode) {
     setFlipped(isNew(latest, nextQuestion.kana));
     setPeeked(isNew(latest, nextQuestion.kana));
     setResult(null);
+  }
+
+  // The end: the summary, and the lesson kept as finished. Free practice ends here when it's
+  // finished; with nothing answered, there's nothing to keep.
+  function finish(answersSoFar: LessonAnswer[]) {
+    const latest = currentProgress();
+    if (answersSoFar.length === 0) return;
+    const done = summarizeLesson(startProgress, latest, answersSoFar);
+    // The lesson keeps the XP it earned, for the XP assignment.
+    updateProgress(completeLesson(latest, lessonId(mode), Date.now(), done.xp));
+    haptics.thunk();
+    sounds.play('taiko');
+    // A plaque finished for the first time gets its seal stamped on the wall.
+    const firstTime = 'plaque' in mode && !startProgress.completed.some((c) => c.lesson === mode.plaque.id);
+    postWallNews({ stamped: firstTime ? [mode.plaque.id] : [], opened: done.rowsOpened });
+    setSummary(done);
   }
 
   // Continue, from the feedback sheet after a wrong answer.
@@ -179,7 +193,12 @@ export function useLesson(mode: LessonMode) {
     toggleSound,
     typing,
     toggleTyping,
-    fraction: answers.length / LESSON_LENGTH,
+    // Free practice fills the bar every ten answers, and starts it again.
+    fraction: endless ? (answers.length % LESSON_LENGTH) / LESSON_LENGTH : answers.length / LESSON_LENGTH,
+    endless,
+    answered: answers.length,
+    // Finishing free practice: its summary, if anything was answered.
+    finish: () => finish(answers),
     check,
     checkTyped,
     goToNext,

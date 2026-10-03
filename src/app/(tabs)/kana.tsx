@@ -255,6 +255,14 @@ function KanaSection() {
 
   return (
     <>
+      <Pressable role="button" onPress={() => router.push('/practice')} style={[styles.summary, styles.perDay]}>
+        <View style={styles.summaryText}>
+          <Text style={styles.summaryTitle}>Practice kana</Text>
+          <Text style={styles.wordsAbout}>Choose rows from hiragana, katakana or both, and practise as long as you like.</Text>
+        </View>
+        <Text style={styles.chevron}>›</Text>
+      </Pressable>
+
       <SegmentedControl options={SCRIPTS} value={script} onChange={setScript} />
 
       <View style={styles.summary}>

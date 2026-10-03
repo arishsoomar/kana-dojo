@@ -4,9 +4,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
+import { CheckIcon } from '@/components/check-icon';
+import { LockIcon } from '@/components/lock-icon';
 import { PrimaryButton } from '@/components/primary-button';
 import { colors, fonts } from '@/constants/theme';
-import { KANA, rowKind, type RowId, type Script } from '@/core/kana';
+import { KANA, rowKind, rowsOf, type Kana, type RowId, type Script } from '@/core/kana';
 import { practicePool, practiceRows, type RowPick } from '@/core/practice';
 import { useProgress } from '@/hooks/use-progress';
 
@@ -15,48 +17,67 @@ function goBack() {
   else router.replace('/kana');
 }
 
-const SCRIPTS: readonly { script: Script; name: string }[] = [
-  { script: 'hiragana', name: 'Hiragana' },
-  { script: 'katakana', name: 'Katakana' },
-];
-
 const key = (p: RowPick) => `${p.script}:${p.row}`;
 
-// The row's kana, as its label: かきくけこ.
-function rowKana(script: Script, row: RowId): string {
-  return KANA.filter((k) => k.script === script && k.row === row)
-    .map((k) => k.char)
-    .join('');
+// Where a kana sits down its column: by its vowel. Combined sounds (きゃ, きゅ, きょ) use
+// three slots, the rest five. ん has no vowel; it takes the empty middle of the わ column.
+const VOWELS = ['a', 'i', 'u', 'e', 'o'] as const;
+const COMBINED = ['a', 'u', 'o'] as const;
+
+function slotOf(kana: Kana): string {
+  const romaji = kana.romaji[0];
+  if (romaji === 'n') return 'u';
+  return romaji.slice(-1);
 }
 
+// A grid section: its title, its columns (rows of kana, in order), and its vowel slots.
+type Section = { title: string; script: Script; rows: RowId[]; slots: readonly string[]; wide: boolean };
+
+function sectionsFor(script: Script, name: string): Section[] {
+  const rows = rowsOf(script);
+  const plain = rows.filter((r) => ['basic', 'dakuten', 'handakuten'].includes(rowKind(r)));
+  const combined = rows.filter((r) => rowKind(r) === 'yoon');
+  const extended = rows.filter((r) => rowKind(r) === 'extended');
+  return [
+    { title: name, script, rows: plain, slots: VOWELS, wide: false },
+    { title: `${name} combinations`, script, rows: combined, slots: COMBINED, wide: true },
+    ...(extended.length > 0 ? [{ title: 'Extended katakana', script, rows: extended, slots: VOWELS, wide: true }] : []),
+  ];
+}
+
+const SECTIONS: readonly Section[] = [...sectionsFor('hiragana', 'Hiragana'), ...sectionsFor('katakana', 'Katakana')];
+
 // Free practice: choose rows from either script, or both, and practise them for as long as
-// you like. Only rows the Learn wall has opened can be chosen.
+// you like. Every row is shown in a chart, like a kana table; rows the Learn wall hasn't
+// opened yet are greyed out and can't be chosen.
 export default function PracticeScreen() {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
-  const open = SCRIPTS.map(({ script, name }) => ({ script, name, rows: practiceRows(progress, script) }));
-  const everything = open.flatMap(({ script, rows }) => rows.map((row) => key({ script, row })));
+  const open = new Set(
+    (['hiragana', 'katakana'] as const).flatMap((script) => practiceRows(progress, script).map((row) => key({ script, row }))),
+  );
   // Everything open, to start with.
-  const [chosen, setChosen] = useState<ReadonlySet<string>>(() => new Set(everything));
+  const [chosen, setChosen] = useState<ReadonlySet<string>>(() => new Set(open));
 
-  const picks: RowPick[] = open.flatMap(({ script, rows }) => rows.filter((row) => chosen.has(key({ script, row }))).map((row) => ({ script, row })));
+  const picks: RowPick[] = SECTIONS.flatMap(({ script, rows }) => rows.filter((row) => chosen.has(key({ script, row }))).map((row) => ({ script, row })));
   const kanaCount = practicePool(progress, picks).length;
 
-  function toggle(pick: RowPick) {
+  // Turns rows on or off; rows that aren't open are left alone.
+  function set(script: Script, rows: readonly RowId[], on: boolean) {
     const next = new Set(chosen);
-    if (next.has(key(pick))) next.delete(key(pick));
-    else next.add(key(pick));
+    for (const row of rows) {
+      const k = key({ script, row });
+      if (!open.has(k)) continue;
+      if (on) next.add(k);
+      else next.delete(k);
+    }
     setChosen(next);
   }
 
-  // Choose all of a script's rows (or just those of one kind), or none of them.
-  function setScript(script: Script, rows: readonly RowId[], on: boolean) {
-    const next = new Set(chosen);
-    for (const row of rows) {
-      if (on) next.add(key({ script, row }));
-      else next.delete(key({ script, row }));
-    }
-    setChosen(next);
+  // Whether every open row among these is chosen (and there's at least one).
+  function allOn(script: Script, rows: readonly RowId[]): boolean {
+    const openRows = rows.filter((row) => open.has(key({ script, row })));
+    return openRows.length > 0 && openRows.every((row) => chosen.has(key({ script, row })));
   }
 
   function start() {
@@ -72,52 +93,90 @@ export default function PracticeScreen() {
         <Text style={styles.title}>Practice kana</Text>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 24 }]}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.intro}>
-          Choose the rows to practise. Questions keep coming until you stop, with no exam. Right answers still move each kana
-          toward its next belt.
+          Tick the columns to practise. Questions keep coming until you stop, with no exam; right answers still move each kana
+          toward its next belt. Greyed-out rows open on the Learn wall.
         </Text>
 
-        {open.map(({ script, name, rows }) => {
-          const all = rows.every((row) => chosen.has(key({ script, row })));
+        {SECTIONS.map((section) => {
+          const { script, rows } = section;
+          const basic = rows.filter((r) => rowKind(r) === 'basic');
+          const voiced = rows.filter((r) => rowKind(r) === 'dakuten' || rowKind(r) === 'handakuten');
+          const toggles =
+            basic.length > 0
+              ? [
+                  { label: 'All', rows },
+                  { label: 'Regular', rows: basic },
+                  { label: 'Dakuten', rows: voiced },
+                ]
+              : [{ label: 'All', rows }];
           return (
-            <View key={script} style={styles.section}>
+            <View key={section.title} style={styles.section}>
               <View style={styles.sectionHead}>
-                <Text style={styles.sectionTitle}>{name}</Text>
-                <Pressable role="button" onPress={() => setScript(script, rows, !all)} hitSlop={8}>
-                  <Text style={styles.action}>{all ? 'None' : 'All'}</Text>
-                </Pressable>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                <View style={styles.toggles}>
+                  {toggles.map((t) => (
+                    <Box key={t.label} label={t.label} on={allOn(script, t.rows)} onPress={() => set(script, t.rows, !allOn(script, t.rows))} />
+                  ))}
+                </View>
               </View>
-              <View style={styles.rows}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chart}>
                 {rows.map((row) => {
-                  const on = chosen.has(key({ script, row }));
+                  const k = key({ script, row });
+                  const isOpen = open.has(k);
+                  const on = chosen.has(k);
+                  const kana = KANA.filter((x) => x.script === script && x.row === row);
+                  // A gap between the regular rows and the ゛ ones, as in a kana chart.
+                  const gap = rowKind(row) === 'dakuten' && row === 'ga';
                   return (
                     <Pressable
                       key={row}
                       role="checkbox"
                       aria-checked={on}
-                      aria-label={`${name} ${row} row`}
-                      onPress={() => toggle({ script, row })}
-                      style={[styles.row, on && styles.rowOn, rowKind(row) !== 'basic' && styles.rowExtra]}>
-                      <Text style={[styles.rowKana, on && styles.rowKanaOn]}>{rowKana(script, row)}</Text>
+                      aria-label={`${row} row${isOpen ? '' : ', not open yet'}`}
+                      disabled={!isOpen}
+                      onPress={() => set(script, [row], !on)}
+                      style={[styles.column, section.wide && styles.wide, gap && styles.gap, on && styles.columnOn, !isOpen && styles.locked]}>
+                      <View style={[styles.check, on && styles.checkOn]}>
+                        {on ? <CheckIcon color={colors.card} /> : !isOpen ? <LockIcon color={colors.muted} /> : null}
+                      </View>
+                      {section.slots.map((slot) => {
+                        const k2 = kana.find((x) => slotOf(x) === slot);
+                        return (
+                          <View key={slot} style={styles.cell}>
+                            <Text style={[styles.kana, section.wide && styles.kanaWide]}>{k2?.char ?? ''}</Text>
+                            <Text style={styles.romaji}>{k2?.romaji[0] ?? ''}</Text>
+                          </View>
+                        );
+                      })}
                     </Pressable>
                   );
                 })}
-              </View>
-              {rows.length === 1 && (
-                <Text style={styles.note}>More rows open here as you learn them on the Learn wall.</Text>
-              )}
+              </ScrollView>
             </View>
           );
         })}
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-        <PrimaryButton label={kanaCount > 0 ? `Practise ${kanaCount} kana` : 'Choose some rows'} disabled={kanaCount === 0} onPress={start} />
+        <PrimaryButton label={kanaCount > 0 ? `Practise ${kanaCount} kana` : 'Tick some columns'} disabled={kanaCount === 0} onPress={start} />
       </View>
     </View>
   );
 }
+
+// A small checkbox with its label, for choosing a group of columns at once.
+function Box({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
+  return (
+    <Pressable role="checkbox" aria-checked={on} onPress={onPress} style={styles.toggle} hitSlop={6}>
+      <View style={[styles.smallCheck, on && styles.checkOn]}>{on && <CheckIcon color={colors.card} />}</View>
+      <Text style={styles.toggleText}>{label}</Text>
+    </Pressable>
+  );
+}
+
+const COLUMN = 34;
 
 const styles = StyleSheet.create({
   screen: {
@@ -140,9 +199,11 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: 14,
-    paddingHorizontal: 18,
+    paddingHorizontal: 12,
+    paddingBottom: 24,
   },
   intro: {
+    paddingHorizontal: 6,
     fontFamily: fonts.uiMedium,
     fontSize: 14,
     lineHeight: 20,
@@ -150,7 +211,7 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 10,
-    padding: 14,
+    paddingVertical: 12,
     borderRadius: 10,
     borderWidth: 1.5,
     borderColor: colors.line,
@@ -158,53 +219,92 @@ const styles = StyleSheet.create({
   },
   sectionHead: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
+    paddingHorizontal: 12,
   },
   sectionTitle: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 16,
     color: colors.sumi,
   },
-  action: {
-    fontFamily: fonts.uiBold,
-    fontSize: 13,
-    color: colors.vermilionDark,
-  },
-  rows: {
+  toggles: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    gap: 12,
   },
-  row: {
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+  toggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  toggleText: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 13,
+    color: colors.ink2,
+  },
+  smallCheck: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 18,
+    height: 18,
+    borderRadius: 4,
     borderWidth: 1.5,
     borderColor: colors.edge,
-    backgroundColor: colors.card,
   },
-  // Rows past the basic ones (゛, ゜, yōon, extended) are drawn a little apart.
-  rowExtra: {
-    borderStyle: 'dashed',
+  chart: {
+    paddingHorizontal: 8,
   },
-  rowOn: {
-    borderStyle: 'solid',
-    borderColor: colors.sumi,
-    backgroundColor: colors.sumi,
+  column: {
+    alignItems: 'center',
+    width: COLUMN,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  rowKana: {
+  wide: {
+    width: COLUMN + 14,
+  },
+  gap: {
+    marginLeft: 10,
+  },
+  columnOn: {
+    backgroundColor: colors.paper,
+  },
+  locked: {
+    opacity: 0.35,
+  },
+  check: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 22,
+    height: 22,
+    marginBottom: 4,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: colors.edge,
+  },
+  checkOn: {
+    borderColor: colors.indigo,
+    backgroundColor: colors.indigo,
+  },
+  cell: {
+    alignItems: 'center',
+    height: 44,
+  },
+  kana: {
     fontFamily: fonts.jp,
-    fontSize: 16,
+    fontSize: 19,
+    lineHeight: 26,
     color: colors.sumi,
   },
-  rowKanaOn: {
-    color: colors.card,
+  kanaWide: {
+    fontSize: 16,
   },
-  note: {
+  romaji: {
     fontFamily: fonts.uiSemiBold,
-    fontSize: 12,
-    color: colors.muted,
+    fontSize: 10,
+    color: colors.ink2,
   },
   footer: {
     paddingTop: 10,

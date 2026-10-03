@@ -8,7 +8,7 @@ import { BeltIcon } from '@/components/belt-icon';
 import { DojoRoom } from '@/components/dojo-room';
 import { FlameIcon } from '@/components/flame-icon';
 import { PrimaryButton } from '@/components/primary-button';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { friendSeen, seenText } from '@/core/friends';
 import { useFriends } from '@/hooks/use-friends';
 import { useHaptics } from '@/hooks/use-haptics';
@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
   rei: {
     fontFamily: fonts.jp,
     fontSize: 28,
+    ...jpRoom(28),
     color: colors.vermilion,
   },
   error: {

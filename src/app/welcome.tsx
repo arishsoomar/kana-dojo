@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Karasu } from '@/components/karasu';
 import { PrimaryButton } from '@/components/primary-button';
-import { colors, fonts, wallColors } from '@/constants/theme';
+import { colors, fonts, jpRoom, wallColors } from '@/constants/theme';
 import { useRank } from '@/hooks/use-rank';
 
 // The first thing a new learner sees. Karasu introduces himself and says plainly what
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   plaqueKana: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     lineHeight: 24,
     color: colors.sumi,
   },

@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fonts, wallColors } from '@/constants/theme';
+import { colors, fonts, jpRoom, wallColors } from '@/constants/theme';
 import type { NamedPair } from '@/core/pairs';
 
 // A red "boss" plaque for a duel that's ready: the pair's two kana, read top to bottom.
@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
   kana: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     lineHeight: 24,
     color: colors.card,
   },

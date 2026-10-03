@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, StyleSheet, Text, View, type ImageSourcePropType, type LayoutChangeEvent } from 'react-native';
 
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 
 type Props = {
   text: string; // the word, in kana
@@ -32,7 +32,7 @@ export function WordFrame({ text, picture, meaning }: Props) {
         <Image source={picture} style={{ width: pictureSize, height: pictureSize }} accessibilityIgnoresInvertColors />
       )}
       {fontSize > 0 && (
-        <Text style={[styles.word, { fontSize, lineHeight: fontSize * 1.25 }]} numberOfLines={1}>
+        <Text style={[styles.word, { fontSize, lineHeight: fontSize * 1.25, ...jpRoom(fontSize) }]} numberOfLines={1}>
           {text}
         </Text>
       )}

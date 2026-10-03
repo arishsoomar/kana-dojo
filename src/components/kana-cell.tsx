@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { beltColors, colors, fonts } from '@/constants/theme';
+import { beltColors, colors, fonts, jpRoom } from '@/constants/theme';
 import type { GridCell } from '@/core/grid';
 
 import { kanaFit } from './kana-fit';
@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   kana: {
     fontFamily: fonts.jp,
     fontSize: 19,
+    ...jpRoom(19),
     lineHeight: 22,
     color: colors.sumi,
   },

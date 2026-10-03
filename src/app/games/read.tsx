@@ -10,7 +10,7 @@ import { LessonComplete } from '@/components/lesson-complete';
 import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
 import { PLACES } from '@/content/signs';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import {
   PARTICLE_NOTES,
   phraseParticles,
@@ -199,7 +199,7 @@ function SignTile({ sign, place, state, onPress }: { sign: Sign; place: PlaceId;
         state === 'wrong' && styles.signWrong,
         state === 'other' && styles.faded,
       ]}>
-      <Text style={[styles.signText, { color: look.color, fontSize: signFontSize(sign.text) }]} numberOfLines={1}>
+      <Text style={[styles.signText, { color: look.color, fontSize: signFontSize(sign.text), ...jpRoom(signFontSize(sign.text)) }]} numberOfLines={1}>
         {sign.text}
       </Text>
       {state === 'right' && (
@@ -338,6 +338,7 @@ const styles = StyleSheet.create({
   promptPhrase: {
     fontFamily: fonts.jp,
     fontSize: 28,
+    ...jpRoom(28),
     lineHeight: 38,
     color: colors.sumi,
   },

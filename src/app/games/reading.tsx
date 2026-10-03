@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
 import { LockIcon } from '@/components/lock-icon';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { READING_ROUND, SIGNS_TO_OPEN } from '@/core/reading';
 import { useReadingRoom, type RoomSet } from '@/hooks/use-reading';
 
@@ -52,7 +52,7 @@ function SetCard({ set }: { set: RoomSet }) {
       onPress={() => router.push({ pathname: '/games/read', params: { set: set.id } })}
       style={[styles.card, !set.open && styles.locked]}>
       <View style={[styles.board, !set.open && styles.boardLocked]}>
-        <Text style={[styles.boardKana, { fontSize: boardFontSize(set.kana) }, !set.open && styles.lockedText]} numberOfLines={1}>
+        <Text style={[styles.boardKana, { fontSize: boardFontSize(set.kana), ...jpRoom(boardFontSize(set.kana)) }, !set.open && styles.lockedText]} numberOfLines={1}>
           {set.kana}
         </Text>
       </View>

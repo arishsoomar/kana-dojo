@@ -18,7 +18,7 @@ import { HeartIcon } from '@/components/heart-icon';
 import { kanaFit } from '@/components/kana-fit';
 import { LessonComplete } from '@/components/lesson-complete';
 import { XIcon } from '@/components/x-icon';
-import { colors, fonts, rainColors } from '@/constants/theme';
+import { colors, fonts, jpRoom, rainColors } from '@/constants/theme';
 import { RAIN_LANES, RAIN_LIVES, targetOf, waveOf, type Drop } from '@/core/rain';
 import { unlockedKana } from '@/core/unlock';
 import { useProgress } from '@/hooks/use-progress';
@@ -308,6 +308,7 @@ const styles = StyleSheet.create({
   tagKana: {
     fontFamily: fonts.jp,
     fontSize: 24,
+    ...jpRoom(24),
     lineHeight: 30,
     color: colors.sumi,
   },
@@ -363,6 +364,7 @@ const styles = StyleSheet.create({
   lockedKana: {
     fontFamily: fonts.jp,
     fontSize: 16,
+    ...jpRoom(16),
     color: colors.sumi,
   },
 });

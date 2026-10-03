@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 
 import { kanaFit } from './kana-fit';
 
@@ -31,7 +31,7 @@ export function KanaFrame({ char, size }: Props) {
       <View style={[styles.corner, styles.topRight]} />
       <View style={[styles.corner, styles.bottomLeft]} />
       <View style={[styles.corner, styles.bottomRight]} />
-      <Text style={[styles.kana, { fontSize, lineHeight: fontSize * 1.2 }]}>{char}</Text>
+      <Text style={[styles.kana, { fontSize, lineHeight: fontSize * 1.2, ...jpRoom(fontSize) }]}>{char}</Text>
     </View>
   );
 }

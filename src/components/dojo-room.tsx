@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { beltColors, beltEdges, colors, dojoColors, fonts, scrollColors, wallColors } from '@/constants/theme';
+import { beltColors, beltEdges, colors, dojoColors, fonts, jpRoom, scrollColors, wallColors } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 import type { DojoRoom as DojoRoomContents, RackGame, RackRecord, RoomPlaque } from '@/core/dojo';
 
@@ -238,6 +238,7 @@ const styles = StyleSheet.create({
   plaqueChar: {
     fontFamily: fonts.jp,
     fontSize: 10,
+    ...jpRoom(10),
     lineHeight: 12,
     color: colors.sumi,
   },
@@ -348,6 +349,7 @@ const styles = StyleSheet.create({
   scrollKana: {
     fontFamily: fonts.jp,
     fontSize: 22,
+    ...jpRoom(22),
     lineHeight: 26,
     color: colors.sumi,
   },
@@ -364,6 +366,7 @@ const styles = StyleSheet.create({
   hankoText: {
     fontFamily: fonts.jp,
     fontSize: 11,
+    ...jpRoom(11),
     lineHeight: 13,
     color: colors.vermilion,
   },
@@ -466,6 +469,7 @@ const styles = StyleSheet.create({
   norenText: {
     fontFamily: fonts.jp,
     fontSize: 13,
+    ...jpRoom(13),
     color: colors.card,
   },
   mon: {

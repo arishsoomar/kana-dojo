@@ -12,7 +12,7 @@ import { LeaveDialog } from '@/components/leave-dialog';
 import { LessonComplete } from '@/components/lesson-complete';
 import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
-import { colors, dungeonColors, fonts, taikoColors } from '@/constants/theme';
+import { colors, dungeonColors, fonts, jpRoom, taikoColors } from '@/constants/theme';
 import { bestScore } from '@/core/answers';
 import type { Script } from '@/core/kana';
 import { BEAT_MS, nextNote, SONG_NAME, TAIKO_NOTES, taikoId, type Judgement } from '@/core/taiko';
@@ -189,7 +189,7 @@ function Drill({ script, onAgain }: { script: Script; onAgain: () => void }) {
                 <View
                   key={note.id}
                   style={[styles.tag, { width: size, height: size, top: y - size / 2, marginLeft: -size / 2 }, isNext ? styles.tagNext : styles.tagLater]}>
-                  <Text style={[styles.tagKana, { fontSize: (isNext ? 24 : 18) * kanaFit(note.kana.char, 0.68) }]}>{note.kana.char}</Text>
+                  <Text style={[styles.tagKana, jpRoom(isNext ? 24 : 18), { fontSize: (isNext ? 24 : 18) * kanaFit(note.kana.char, 0.68) }]}>{note.kana.char}</Text>
                 </View>
               );
             })}

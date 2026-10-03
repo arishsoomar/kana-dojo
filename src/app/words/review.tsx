@@ -11,7 +11,7 @@ import { LessonComplete } from '@/components/lesson-complete';
 import { PrimaryButton } from '@/components/primary-button';
 import { SpeakerIcon } from '@/components/speaker-icon';
 import { XIcon } from '@/components/x-icon';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { intervalLabel, type Rating } from '@/core/srs';
 import { REGISTERS } from '@/content/registers';
 import { WORD_FAMILIES, type WordFamily } from '@/content/word-families';
@@ -349,6 +349,7 @@ const styles = StyleSheet.create({
   readingText: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     color: colors.ink2,
   },
   meanings: {
@@ -439,11 +440,13 @@ const styles = StyleSheet.create({
   memberWord: {
     fontFamily: fonts.jp,
     fontSize: 17,
+    ...jpRoom(17),
     color: colors.sumi,
   },
   memberReading: {
     fontFamily: fonts.jp,
     fontSize: 12,
+    ...jpRoom(12),
     color: colors.ink2,
   },
   memberWhen: {

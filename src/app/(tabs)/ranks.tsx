@@ -16,7 +16,7 @@ import { MonIcon } from '@/components/mon-icon';
 import { MoonIcon } from '@/components/moon-icon';
 import { PartnerRow } from '@/components/partner-row';
 import { Yokai } from '@/components/yokai';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import type { Assignment, AssignmentKind } from '@/core/assignments';
 import { BELTS } from '@/core/boxes';
 import { weakPairs } from '@/core/duel';
@@ -344,6 +344,7 @@ const styles = StyleSheet.create({
   iconKana: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     color: colors.sumi,
   },
   iconWord: {

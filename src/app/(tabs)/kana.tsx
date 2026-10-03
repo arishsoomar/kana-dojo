@@ -12,7 +12,7 @@ import { ProgressRing } from '@/components/progress-ring';
 import { PrimaryButton } from '@/components/primary-button';
 import { SegmentedControl } from '@/components/segmented-control';
 import { TopicChips } from '@/components/topic-chips';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
@@ -494,6 +494,7 @@ const styles = StyleSheet.create({
   lessonTitle: {
     fontFamily: fonts.jp,
     fontSize: 16,
+    ...jpRoom(16),
     color: colors.sumi,
   },
   lockedText: {

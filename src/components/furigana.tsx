@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import type { Furigana as FuriganaPieces } from '@/core/vocab';
 
 type Props = {
@@ -21,7 +21,7 @@ const READING_SCALE = 0.46;
 export function Furigana({ furigana, size = 24, color = colors.sumi, readings = true, align = 'left', style }: Props) {
   const readingSize = Math.round(size * READING_SCALE);
   const readingHeight = Math.round(readingSize * 1.25);
-  const text = { fontSize: size, lineHeight: Math.round(size * 1.3), color };
+  const text = { fontSize: size, lineHeight: Math.round(size * 1.3), color, ...jpRoom(size) };
   const reading = { fontSize: readingSize, lineHeight: readingHeight, color };
 
   // Kanji with their reading stay together; kana are single characters, so lines can break

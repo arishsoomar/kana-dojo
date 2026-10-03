@@ -15,7 +15,7 @@ import { MoonIcon } from '@/components/moon-icon';
 import { PlaqueIcon } from '@/components/plaque-icon';
 import { SettingsIcon } from '@/components/settings-icon';
 import { KanaIcon } from '@/components/tab-icons';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { dojoRoom } from '@/core/dojo';
 import { bowedText } from '@/core/friends';
 import {
@@ -250,6 +250,7 @@ const styles = StyleSheet.create({
   rei: {
     fontFamily: fonts.jp,
     fontSize: 24,
+    ...jpRoom(24),
     color: colors.vermilion,
   },
   bowedText: {

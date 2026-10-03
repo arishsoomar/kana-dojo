@@ -7,7 +7,7 @@ import { BackIcon } from '@/components/back-icon';
 import { CheckIcon } from '@/components/check-icon';
 import { LockIcon } from '@/components/lock-icon';
 import { PrimaryButton } from '@/components/primary-button';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { KANA, rowKind, rowsOf, type Kana, type RowId, type Script } from '@/core/kana';
 import { practicePool, practiceRows, type RowPick } from '@/core/practice';
 import { useProgress } from '@/hooks/use-progress';
@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
   kana: {
     fontFamily: fonts.jp,
     fontSize: 19,
+    ...jpRoom(19),
     lineHeight: 26,
     color: colors.sumi,
   },

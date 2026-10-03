@@ -11,7 +11,7 @@ import { LessonComplete } from '@/components/lesson-complete';
 import { PlaqueIcon } from '@/components/plaque-icon';
 import { PrimaryButton } from '@/components/primary-button';
 import { XIcon } from '@/components/x-icon';
-import { colors, fonts, memoryColors } from '@/constants/theme';
+import { colors, fonts, jpRoom, memoryColors } from '@/constants/theme';
 import { fewestMoves, MEMORY_PAIRS, memoryKana, memoryReady, type MemoryCard, type MemoryMode } from '@/core/memory';
 import { useMemory } from '@/hooks/use-memory';
 import { useProgress } from '@/hooks/use-progress';
@@ -206,7 +206,7 @@ function Card({ card, state, onPress }: { card: MemoryCard; state: CardState; on
             style={[
               styles.face,
               isKana && styles.kana,
-              isKana && { fontSize: 24 * kanaFit(card.face, 0.7) },
+              isKana && { fontSize: 24 * kanaFit(card.face, 0.7), ...jpRoom(24) },
               drawn === 'found' && styles.foundText,
             ]}>
             {card.face}

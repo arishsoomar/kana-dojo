@@ -8,7 +8,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-import { colors, fonts, wallColors } from "@/constants/theme";
+import { colors, fonts, jpRoom, wallColors } from "@/constants/theme";
 import type { Plaque, PlaqueState } from "@/core/path";
 
 import { CheckIcon } from "./check-icon";
@@ -193,11 +193,13 @@ const styles = StyleSheet.create({
   kana: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     lineHeight: 24,
     color: colors.sumi,
   },
   currentKana: {
     fontSize: 26,
+    ...jpRoom(26),
     lineHeight: 30,
     color: colors.card,
   },

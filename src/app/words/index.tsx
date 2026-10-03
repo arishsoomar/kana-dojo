@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
 import { TopicChips } from '@/components/topic-chips';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { VOCAB } from '@/content/vocab';
 import type { WordCard } from '@/core/srs';
 import type { NewWordsFrom, VocabWord } from '@/core/vocab';
@@ -154,11 +154,13 @@ const styles = StyleSheet.create({
   word: {
     fontFamily: fonts.jp,
     fontSize: 19,
+    ...jpRoom(19),
     color: colors.sumi,
   },
   reading: {
     fontFamily: fonts.jp,
     fontSize: 13,
+    ...jpRoom(13),
     color: colors.ink2,
   },
   meaning: {

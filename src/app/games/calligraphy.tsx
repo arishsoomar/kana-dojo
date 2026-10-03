@@ -10,7 +10,7 @@ import { LeaveDialog } from '@/components/leave-dialog';
 import { PrimaryButton } from '@/components/primary-button';
 import { WritingPad } from '@/components/writing-pad';
 import { XIcon } from '@/components/x-icon';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { CALLIGRAPHY_ROUND } from '@/core/calligraphy';
 import type { Script } from '@/core/kana';
 import { useCalligraphy, writableKana } from '@/hooks/use-calligraphy';
@@ -290,6 +290,8 @@ const styles = StyleSheet.create({
   write: {
     fontFamily: fonts.uiBlack,
     fontSize: 24,
+    // "Write ぼ" ends on the kana, so its ゛ needs room too.
+    ...jpRoom(24),
     color: colors.sumi,
   },
   kana: {

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackIcon } from '@/components/back-icon';
-import { colors, fonts, scrollColors, wallColors } from '@/constants/theme';
+import { colors, fonts, jpRoom, scrollColors, wallColors } from '@/constants/theme';
 import { DUEL_READY_MIXUPS, scrolls, type Scroll } from '@/core/duel';
 import { pairId } from '@/core/pairs';
 import { useProgress } from '@/hooks/use-progress';
@@ -208,6 +208,7 @@ const styles = StyleSheet.create({
   bigKana: {
     fontFamily: fonts.jp,
     fontSize: 52,
+    ...jpRoom(52),
     lineHeight: 64,
     color: colors.sumi,
   },
@@ -258,6 +259,7 @@ const styles = StyleSheet.create({
   hankoText: {
     fontFamily: fonts.jp,
     fontSize: 15,
+    ...jpRoom(15),
     lineHeight: 20,
     color: colors.vermilion,
   },
@@ -299,6 +301,7 @@ const styles = StyleSheet.create({
   slotKana: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     lineHeight: 26,
     color: colors.sumi,
   },

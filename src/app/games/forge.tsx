@@ -14,7 +14,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { SpeakerIcon } from '@/components/speaker-icon';
 import { TypeAnswer } from '@/components/type-answer';
 import { WordFrame } from '@/components/word-frame';
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { WORD_PICTURES } from '@/constants/word-pictures';
 import { FORGE_MIN_WORDS, isMark, readyWords, wordRomaji, type ForgeOption, type ForgeWord } from '@/core/forge';
 import { missDetails, useForge, type ForgeMiss } from '@/hooks/use-forge';
@@ -258,6 +258,7 @@ const styles = StyleSheet.create({
   cardWord: {
     fontFamily: fonts.jp,
     fontSize: 34,
+    ...jpRoom(34),
     color: colors.sumi,
   },
   choices: {

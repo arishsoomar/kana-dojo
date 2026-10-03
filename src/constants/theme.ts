@@ -252,3 +252,12 @@ export const fonts = {
   uiBlack: 'Archivo_900Black',
   jp: 'ZenKakuGothicNew_900Black',
 } as const;
+
+// Zen Kaku Gothic draws the ゛ of some kana (ざ, ぼ, ヹ) up to 5% of the font size past the
+// character's own width, and phones clip text to its box, cutting the mark off. Japanese
+// text in a box of its own spreads `jpRoom(fontSize)` into its style: room at each side for
+// the mark, taken back by a negative margin so nothing around it moves.
+export function jpRoom(fontSize: number) {
+  const room = Math.ceil(fontSize * 0.05);
+  return { paddingHorizontal: room, marginHorizontal: -room };
+}

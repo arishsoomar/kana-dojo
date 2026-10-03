@@ -12,7 +12,7 @@ import { LeaveDialog } from '@/components/leave-dialog';
 import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { XIcon } from '@/components/x-icon';
-import { colors, duelColors, fonts } from '@/constants/theme';
+import { colors, duelColors, fonts, jpRoom } from '@/constants/theme';
 import type { Kana } from '@/core/kana';
 import {
   isRoomCode,
@@ -316,6 +316,7 @@ const styles = StyleSheet.create({
   versus: {
     fontFamily: fonts.jp,
     fontSize: 64,
+    ...jpRoom(64),
     lineHeight: 76,
     color: colors.vermilion,
   },

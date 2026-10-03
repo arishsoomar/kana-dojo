@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import { TOPICS } from '@/content/topics';
 import type { NewWordsFrom } from '@/core/vocab';
 
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
   kanji: {
     fontFamily: fonts.jp,
     fontSize: 15,
+    ...jpRoom(15),
     color: colors.vermilion,
   },
   label: {

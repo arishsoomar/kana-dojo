@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fonts } from '@/constants/theme';
+import { colors, fonts, jpRoom } from '@/constants/theme';
 import type { Script } from '@/core/kana';
 
 import { CheckIcon } from './check-icon';
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
   chipText: {
     fontFamily: fonts.jp,
     fontSize: 13,
+    ...jpRoom(13),
     color: colors.sumi,
   },
   menu: {
@@ -105,6 +106,7 @@ const styles = StyleSheet.create({
   optionKana: {
     fontFamily: fonts.jp,
     fontSize: 15,
+    ...jpRoom(15),
     color: colors.sumi,
   },
   optionName: {

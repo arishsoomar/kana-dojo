@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, duelColors, fonts, memoryColors, rainColors } from '@/constants/theme';
+import { colors, duelColors, fonts, jpRoom, memoryColors, rainColors } from '@/constants/theme';
 import { bestScore } from '@/core/answers';
 import { scrolls } from '@/core/duel';
 import { dungeonId } from '@/core/dungeon';
@@ -301,6 +301,7 @@ const styles = StyleSheet.create({
   tagKana: {
     fontFamily: fonts.jp,
     fontSize: 15,
+    ...jpRoom(15),
     color: colors.sumi,
   },
   calligraphyArt: {
@@ -309,6 +310,7 @@ const styles = StyleSheet.create({
   calligraphyKana: {
     fontFamily: fonts.jp,
     fontSize: 28,
+    ...jpRoom(28),
     color: colors.gold,
   },
   memoryArt: {
@@ -330,6 +332,7 @@ const styles = StyleSheet.create({
   readingKana: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     color: colors.card,
   },
   forgeArt: {
@@ -346,6 +349,7 @@ const styles = StyleSheet.create({
   forgeWord: {
     fontFamily: fonts.jp,
     fontSize: 20,
+    ...jpRoom(20),
     color: colors.sumi,
   },
   duelArt: {
@@ -355,12 +359,14 @@ const styles = StyleSheet.create({
   duelKana: {
     fontFamily: fonts.jp,
     fontSize: 30,
+    ...jpRoom(30),
     lineHeight: 38,
     color: colors.vermilion,
   },
   versus: {
     fontFamily: fonts.jp,
     fontSize: 34,
+    ...jpRoom(34),
     lineHeight: 42,
     color: colors.vermilion,
   },

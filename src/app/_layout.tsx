@@ -5,7 +5,7 @@ import {
   Archivo_800ExtraBold,
   Archivo_900Black,
 } from '@expo-google-fonts/archivo';
-import { ZenKakuGothicNew_900Black } from '@expo-google-fonts/zen-kaku-gothic-new';
+import { ZenKakuGothicNew_700Bold } from '@expo-google-fonts/zen-kaku-gothic-new';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -28,7 +28,7 @@ export default function RootLayout() {
     Archivo_700Bold,
     Archivo_800ExtraBold,
     Archivo_900Black,
-    ZenKakuGothicNew_900Black,
+    ZenKakuGothicNew_700Bold,
   });
 
   const saved = useSavedProgress();

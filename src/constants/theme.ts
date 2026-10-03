@@ -250,7 +250,7 @@ export const fonts = {
   uiBold: 'Archivo_700Bold',
   uiExtraBold: 'Archivo_800ExtraBold',
   uiBlack: 'Archivo_900Black',
-  jp: 'ZenKakuGothicNew_900Black',
+  jp: 'ZenKakuGothicNew_700Bold',
 } as const;
 
 // Zen Kaku Gothic draws the ゛ of some kana (ざ, ぼ, ヹ) up to 5% of the font size past the

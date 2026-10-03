@@ -208,7 +208,7 @@ export const GUIDE: GuideSection[] = [
         ],
       },
       {
-        id: 'practice',
+        id: 'free-practice',
         question: 'How do I practise kana I already know?',
         answer: [
           'On the Study tab, under Kana, tap Practice kana. Choose any rows the Learn wall has opened, from hiragana, katakana, or both mixed, and questions keep coming until you stop.',

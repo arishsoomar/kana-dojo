@@ -88,7 +88,7 @@ function WordsSection() {
       <View style={[styles.summary, styles.wordsCard, styles.topicCard]}>
         <View>
           <Text style={styles.summaryTitle}>New words from</Text>
-          <Text style={styles.wordsAbout}>Any topic, or one you want to work on. Reviews always cover every word.</Text>
+          <Text style={styles.wordsAbout}>Any topic, one you want to work on, or a GENKI I lesson. Reviews always cover every word.</Text>
         </View>
         <TopicChips value={words.topic} onChange={words.setTopic} allLabel="Any topic" counts={words.topicLeft} />
       </View>
@@ -104,7 +104,7 @@ function WordsSection() {
       <Pressable role="button" onPress={() => router.push('/words')} style={[styles.summary, styles.perDay]}>
         <View style={styles.summaryText}>
           <Text style={styles.summaryTitle}>Browse the deck</Text>
-          <Text style={styles.wordsAbout}>The {words.total.toLocaleString('en-US')} most used words, most frequent first</Text>
+          <Text style={styles.wordsAbout}>{words.total.toLocaleString('en-US')} words: the most used, and GENKI I&apos;s, most frequent first</Text>
         </View>
         <Text style={styles.chevron}>›</Text>
       </Pressable>

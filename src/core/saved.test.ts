@@ -44,6 +44,16 @@ describe('saving progress', () => {
     expect(parseProgress(JSON.stringify({ version: 4, progress: grammar })).settings.newWordsTopic).toBe('grammar');
   });
 
+  it('reads a GENKI lesson as where new words come from, if the lesson is one there is', () => {
+    const read = (topic: string) =>
+      parseProgress(JSON.stringify({ version: 4, progress: { ...sample, settings: { ...sample.settings, newWordsTopic: topic } } })).settings.newWordsTopic;
+    expect(read('genki-0')).toBe('genki-0');
+    expect(read('genki-12')).toBe('genki-12');
+    expect(read('genki-13')).toBeNull();
+    expect(read('genki-1.5')).toBeNull();
+    expect(read('genki-')).toBeNull();
+  });
+
   it('reads a topic for new words only if it is a real one', () => {
     const odd = { ...sample, settings: { ...sample.settings, newWordsTopic: 'dragons' } };
     expect(parseProgress(JSON.stringify({ version: 4, progress: odd })).settings.newWordsTopic).toBeNull();

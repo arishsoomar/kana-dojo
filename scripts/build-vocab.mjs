@@ -1,5 +1,5 @@
-// Builds the word deck: the 2,500 most frequent Japanese words, with their readings,
-// meanings, furigana and an example sentence. It joins four open sources:
+// Builds the word deck: the 2,500 most frequent Japanese words, and the words GENKI I teaches
+// (scripts/genki-words.mjs), with their readings, meanings, furigana and an example sentence. It joins four open sources:
 //
 //   Jiten's global frequency list (CC BY-SA 4.0, https://jiten.moe/frequency-dictionaries):
 //     which words, and in what order. Made from anime, drama, films, novels, games and more.
@@ -17,6 +17,8 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
+
+import { GENKI } from './genki-words.mjs';
 
 const WORDS = 2500;
 const CACHE = new URL('../.cache/vocab/', import.meta.url);
@@ -257,6 +259,71 @@ for (const line of frequencyCsv.split('\n').slice(1)) {
 }
 console.log(`Chosen ${chosen.size} words. Skipped:`, skipped);
 
+// --- GENKI's words ------------------------------------------------------------------------
+
+// Each word GENKI I teaches is tagged with its lesson. Words not among the most frequent are
+// added, ranked where the frequency list has them (after every word it lists, if it doesn't).
+// Greetings and set phrases count here (おはようございます), though the frequency deck leaves
+// expressions in kana out; particles, suffixes and the like are still left out.
+const rankOf = new Map(); // "word|reading" → rank, first listing
+for (const line of frequencyCsv.split('\n').slice(1)) {
+  const [word, form, rankText] = line.split(',');
+  if (!word || !form) continue;
+  const key = `${word}|${hasKanji(word) ? form : word}`;
+  if (!rankOf.has(key)) rankOf.set(key, Number(rankText));
+}
+const unranked = [...rankOf.values()].reduce((a, b) => Math.max(a, b), 0) + 1;
+
+// The most frequent words, before GENKI's are added: what example sentences are judged by.
+const frequent = new Set(chosen.keys());
+
+// GENKI writes some words in kana that the dictionary doesn't mark as usually written in kana
+// (あさって for 明後日, やせる for 痩せる). For those, the entry with that reading: one where it's
+// marked common, then the one used most.
+function kanaEntry(word) {
+  if (hasKanji(word)) return null;
+  const common = (e) => e.readings.some((r) => r.text === word && r.common);
+  const used = (e) => usage.get(e.seq) ?? 0;
+  return [...(byReading.get(word) ?? [])].sort((a, b) => Number(common(b)) - Number(common(a)) || used(b) - used(a) || a.seq - b.seq)[0] ?? null;
+}
+
+const genkiOf = new Map(); // ent_seq → lesson
+const notFound = [];
+let added = 0;
+for (const [lesson, list] of Object.entries(GENKI)) {
+  list
+    .trim()
+    .split(/\s+/)
+    .forEach((item, place) => {
+      const [word, given] = item.split(':');
+      const reading = given ?? word;
+      const entry = entryFor(word, reading) ?? kanaEntry(word);
+      const senses = entry ? sensesFor(entry, word, reading).filter((s) => !s.misc.includes('arch') && !s.misc.includes('obs')) : [];
+      const pos = senses[0]?.pos ?? [];
+      if (!entry || senses.length === 0 || LEFT_OUT.has(pos[0]) || !readable(reading)) {
+        notFound.push(`${item}(${!entry ? 'entry' : senses.length === 0 ? 'senses' : !readable(reading) ? 'kana' : pos.join('/')})`);
+        return;
+      }
+      if (!genkiOf.has(entry.seq)) genkiOf.set(entry.seq, Number(lesson));
+      if (chosen.has(entry.seq)) return;
+      added += 1;
+      chosen.set(entry.seq, {
+        id: entry.seq,
+        // Two words at one rank (neither listed) keep the lessons' order.
+        rank: rankOf.get(`${word}|${reading}`) ?? unranked + Number(lesson) * 1000 + place,
+        word,
+        reading,
+        furigana: furiganaFor(word, reading),
+        meanings: senses.slice(0, MEANINGS_MAX).map((s) => s.glosses.slice(0, GLOSSES_MAX).join('; ')),
+        pos,
+        labels: (senses[0]?.misc ?? []).filter((m) => REGISTERS.has(m)),
+        note: senses[0]?.info[0] ?? null,
+      });
+    });
+}
+for (const word of chosen.values()) word.genki = genkiOf.get(word.id) ?? null;
+console.log(`GENKI: ${genkiOf.size} words tagged, ${added} of them added. Not found:`, notFound.join(' ') || 'none');
+
 // --- Example sentences --------------------------------------------------------------------
 
 const japanese = new Map();
@@ -349,10 +416,10 @@ for (const line of indicesCsv.split('\n')) {
     })
     .filter(Boolean);
 
-  // How easy the sentence is: the share of its words that are in the deck, or grammar
+  // How easy the sentence is: the share of its words among the most frequent, or grammar
   // (particles, endings), which the lessons teach.
   const grammarWord = (t) => t.entry && t.entry.senses[0]?.pos.some((p) => LEFT_OUT.has(p) || p === 'exp');
-  const known = tokens.filter((t) => (t.entry && chosen.has(t.entry.seq)) || grammarWord(t)).length / Math.max(tokens.length, 1);
+  const known = tokens.filter((t) => (t.entry && frequent.has(t.entry.seq)) || grammarWord(t)).length / Math.max(tokens.length, 1);
   const polite = /(です|ます|ません|ました|でした)[。？?！!]?$/.test(text);
   const length = [...text].length;
 
@@ -484,7 +551,8 @@ for (const word of chosen.values()) word.topics = topicsFor(word.word, word.mean
 
 // --- Writing ------------------------------------------------------------------------------
 
-const words = [...chosen.values()].map((w) => ({ ...w, example: best.get(w.id)?.example ?? null }));
+// Most frequent first, GENKI's added words among the rest.
+const words = [...chosen.values()].sort((a, b) => a.rank - b.rank).map((w) => ({ ...w, example: best.get(w.id)?.example ?? null }));
 writeFileSync(OUT, `${JSON.stringify(words, null, 0).replace(/\},\{"id"/g, '},\n{"id"')}\n`);
 const withExamples = words.filter((w) => w.example).length;
 console.log(`Wrote ${words.length} words to src/content/vocab.json, ${withExamples} with an example sentence.`);

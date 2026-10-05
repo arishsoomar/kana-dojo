@@ -17,7 +17,7 @@ import {
 } from '@/core/deck';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { DAY_MS, nextIntervals, type Rating } from '@/core/srs';
-import { TOPIC_IDS, type NewWordsFrom, type TopicId, type VocabWord } from '@/core/vocab';
+import { genkiNumber, isTopic, TOPIC_IDS, type NewWordsFrom, type TopicId, type VocabWord } from '@/core/vocab';
 
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
@@ -47,9 +47,16 @@ export function lessonWordIds(words: readonly string[]): string[] {
 // Every grammar lesson's words, in lesson order, each once: new words for grammar.
 const GRAMMAR_WORDS: readonly string[] = [...new Set(GRAMMAR_LESSONS.flatMap((l) => lessonWordIds(l.words)))];
 
-// The words in a topic, or the grammar lessons' words.
+// Each GENKI lesson's words, in deck order (most frequent first).
+const GENKI_DECKS = new Map<number, readonly string[]>();
+for (const w of VOCAB) if (w.genki !== null) GENKI_DECKS.set(w.genki, [...(GENKI_DECKS.get(w.genki) ?? []), String(w.id)]);
+
+// The words in a topic, the grammar lessons' words, or a GENKI lesson's.
 export function wordsFrom(from: NewWordsFrom): readonly string[] {
-  return from === 'grammar' ? GRAMMAR_WORDS : (TOPIC_DECKS.get(from) ?? []);
+  if (from === 'grammar') return GRAMMAR_WORDS;
+  const lesson = genkiNumber(from);
+  if (lesson !== null) return GENKI_DECKS.get(lesson) ?? [];
+  return isTopic(from) ? (TOPIC_DECKS.get(from) ?? []) : [];
 }
 
 // Where new words come from: the chosen topic's words (or the grammar lessons'), or the

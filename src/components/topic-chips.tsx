@@ -1,8 +1,8 @@
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts, jpRoom } from '@/constants/theme';
 import { TOPICS } from '@/content/topics';
-import type { NewWordsFrom } from '@/core/vocab';
+import { GENKI_LESSONS, genkiLesson, type NewWordsFrom } from '@/core/vocab';
 
 type Props = {
   value: NewWordsFrom | null;
@@ -11,30 +11,50 @@ type Props = {
   counts?: (topic: NewWordsFrom) => number; // a number on each chip, like the words left in it
 };
 
-// A row of topic chips that scrolls sideways: one for no topic, one for the words the grammar
-// lessons use (文, "sentence"), then one per topic with its kanji. The chosen one is dark.
+// Two rows of chips that scroll sideways. Topics: one for no topic, one for the words the
+// grammar lessons use (文, "sentence"), then one per topic with its kanji. Under them, GENKI I's
+// lessons, for following the textbook. The chosen one, in either row, is dark.
 export function TopicChips({ value, onChange, allLabel, counts }: Props) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} role="radiogroup">
-      <Chip label={allLabel} chosen={value === null} onPress={() => onChange(null)} />
-      <Chip
-        kanji="文"
-        label={counts ? `For grammar · ${counts('grammar')}` : 'For grammar'}
-        chosen={value === 'grammar'}
-        onPress={() => onChange('grammar')}
-      />
-      {TOPICS.map((t) => (
+    <View style={styles.rows} role="radiogroup">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+        <Chip label={allLabel} chosen={value === null} onPress={() => onChange(null)} />
         <Chip
-          key={t.id}
-          kanji={t.kanji}
-          label={counts ? `${t.name} · ${counts(t.id)}` : t.name}
-          chosen={value === t.id}
-          onPress={() => onChange(t.id)}
+          kanji="文"
+          label={counts ? `For grammar · ${counts('grammar')}` : 'For grammar'}
+          chosen={value === 'grammar'}
+          onPress={() => onChange('grammar')}
         />
-      ))}
-    </ScrollView>
+        {TOPICS.map((t) => (
+          <Chip
+            key={t.id}
+            kanji={t.kanji}
+            label={counts ? `${t.name} · ${counts(t.id)}` : t.name}
+            chosen={value === t.id}
+            onPress={() => onChange(t.id)}
+          />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row}>
+        <Text style={styles.book}>GENKI I</Text>
+        {LESSONS.map((lesson) => {
+          const from = genkiLesson(lesson);
+          const name = lesson === 0 ? 'Before L1' : `L${lesson}`;
+          return (
+            <Chip
+              key={from}
+              label={counts ? `${name} · ${counts(from)}` : name}
+              chosen={value === from}
+              onPress={() => onChange(from)}
+            />
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }
+
+const LESSONS = Array.from({ length: GENKI_LESSONS + 1 }, (_, lesson) => lesson);
 
 function Chip({ label, kanji, chosen, onPress }: { label: string; kanji?: string; chosen: boolean; onPress: () => void }) {
   return (
@@ -46,6 +66,17 @@ function Chip({ label, kanji, chosen, onPress }: { label: string; kanji?: string
 }
 
 const styles = StyleSheet.create({
+  rows: {
+    gap: 6,
+  },
+  book: {
+    alignSelf: 'center',
+    marginRight: 2,
+    fontFamily: fonts.uiBlack,
+    fontSize: 12,
+    letterSpacing: 0.5,
+    color: colors.ink2,
+  },
   row: {
     gap: 8,
     paddingVertical: 2,

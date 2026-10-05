@@ -290,7 +290,7 @@ export const GUIDE: GuideSection[] = [
         id: 'words',
         question: 'How does the word deck work?',
         answer: [
-          `The 2,500 most used words in Japanese (counted across anime, drama, films and novels), most frequent first, on the Study tab under Words. Each day brings ${NEW_WORDS.default} new ones (you can change that), and reviews of words you've started.`,
+          `The 2,500 most used words in Japanese (counted across anime, drama, films and novels), and every word the textbook GENKI I teaches, most frequent first, on the Study tab under Words. Each day brings ${NEW_WORDS.default} new ones (you can change that), and reviews of words you've started.`,
           {
             bullets: [
               'Words are written as they really are, with kanji, and furigana (the reading in small kana) above. Once you know a word well, its front shows the kanji alone.',

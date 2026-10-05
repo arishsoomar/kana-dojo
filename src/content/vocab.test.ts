@@ -1,6 +1,6 @@
 import { adjectiveKind, conjugateAdjective, conjugateVerb, verbKind } from '@/core/conjugate';
 import { splitWord } from '@/core/forge';
-import { furiganaReading, furiganaText, isTopic, type Furigana } from '@/core/vocab';
+import { furiganaReading, furiganaText, GENKI_LESSONS, isTopic, type Furigana } from '@/core/vocab';
 
 import { TOPICS } from './topics';
 
@@ -13,8 +13,8 @@ const isPiece = (p: unknown) =>
 const isFurigana = (f: unknown): f is Furigana => Array.isArray(f) && f.length > 0 && f.every(isPiece);
 
 describe('the word deck', () => {
-  it('has 2,500 words, each once, in frequency order', () => {
-    expect(VOCAB).toHaveLength(2500);
+  it('has 2,500 frequent words and GENKI I\'s, each once, in frequency order', () => {
+    expect(VOCAB.length).toBeGreaterThan(2500);
     expect(new Set(VOCAB.map((w) => w.id)).size).toBe(VOCAB.length);
     expect(new Set(VOCAB.map((w) => `${w.word}|${w.reading}`)).size).toBe(VOCAB.length);
     VOCAB.slice(1).forEach((w, i) => expect(w.rank).toBeGreaterThan(VOCAB[i]!.rank));
@@ -49,6 +49,13 @@ describe('the word deck', () => {
   it('tags words only with known topics, each topic with some words', () => {
     expect(VOCAB.filter((w) => !Array.isArray(w.topics) || !w.topics.every(isTopic)).map((w) => w.word)).toEqual([]);
     for (const topic of TOPICS) expect(VOCAB.filter((w) => w.topics.includes(topic.id)).length).toBeGreaterThan(5);
+  });
+
+  it('tags each GENKI I lesson with its words, and those words with a real lesson', () => {
+    expect(VOCAB.filter((w) => w.genki !== null && (!Number.isInteger(w.genki) || w.genki < 0 || w.genki > GENKI_LESSONS))).toEqual([]);
+    for (let lesson = 0; lesson <= GENKI_LESSONS; lesson++) expect(VOCAB.filter((w) => w.genki === lesson).length).toBeGreaterThan(20);
+    const lessonOf = (word: string) => VOCAB.find((w) => w.word === word)?.genki;
+    expect([lessonOf('おはようございます'), lessonOf('留学生'), lessonOf('財布'), lessonOf('痛い')]).toEqual([0, 1, 2, 12]);
   });
 
   it('can conjugate every verb and adjective, in its writing and its reading', () => {

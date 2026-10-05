@@ -90,7 +90,7 @@ export default function WordReviewScreen() {
           {session.kind === 'lesson'
             ? "You've started all of this lesson's words already."
             : session.kind === 'practice'
-              ? 'Practice goes over words you studied today, or this week. Learn some words first.'
+              ? 'Practice goes over words you have started: from the topic or GENKI lesson chosen on the Study tab, or with none chosen, those from today or this week. Learn some words first.'
               : session.kind === 'more'
                 ? "You've started every word in this list."
                 : "Every word due today is done, and so are today's new ones. Come back tomorrow."}

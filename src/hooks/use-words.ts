@@ -14,6 +14,7 @@ import {
   WORDS_REVIEW_ID,
   wordsStudied,
   wordsToPractice,
+  wordsToPracticeFrom,
 } from '@/core/deck';
 import { summarizeLesson, type LessonAnswer, type LessonSummary } from '@/core/lesson';
 import { DAY_MS, nextIntervals, type Rating } from '@/core/srs';
@@ -83,6 +84,9 @@ export function useWordsToday() {
     setTopic: (next: NewWordsFrom | null) => updateProgress(setNewWordsTopic(progress, next)),
     // Words in each topic (or for grammar) not started yet.
     topicLeft: (from: NewWordsFrom) => notStarted(progress, wordsFrom(from)).length,
+    // New words still to start where new words come from, and words started there.
+    left: notStarted(progress, newWordsDeck(topic)).length,
+    started: topic ? wordsToPracticeFrom(progress, wordsFrom(topic), Infinity).length : wordsStudied(progress),
   };
 }
 
@@ -99,6 +103,8 @@ export type WordSessionMode = { kind: 'today' } | { kind: 'lesson'; words: reado
 
 // New words when more are asked for.
 export const MORE_WORDS = 10;
+// Words in a practice round of a topic or GENKI lesson.
+const PRACTICE_WORDS = 20;
 
 export function useWordReview(mode: WordSessionMode = { kind: 'today' }) {
   const { progress, changeProgress, currentProgress } = useProgress();
@@ -115,8 +121,13 @@ export function useWordReview(mode: WordSessionMode = { kind: 'today' }) {
     // A grammar lesson's words: just those not started yet, before the lesson.
     if (mode.kind === 'lesson') return { due: [], fresh: notStarted(progress, lessonWordIds(mode.words)) };
     if (mode.kind === 'more') return { due: [], fresh: extraNewWords(progress, deck, MORE_WORDS) };
-    // Practice goes over words already studied, so they count as "due" here.
-    if (practice) return { due: wordsToPractice(progress, start, start - 7 * DAY_MS), fresh: [] };
+    // Practice goes over words already studied, so they count as "due" here: the chosen topic's
+    // (or GENKI lesson's), or with none chosen, the most recent.
+    if (practice) {
+      const from = progress.settings.newWordsTopic;
+      const due = from ? wordsToPracticeFrom(progress, wordsFrom(from), PRACTICE_WORDS) : wordsToPractice(progress, start, start - 7 * DAY_MS);
+      return { due, fresh: [] };
+    }
     return studySession(progress, deck, start, end);
   });
   const [queue, setQueue] = useState<string[]>(() => [...initial.due, ...initial.fresh]);

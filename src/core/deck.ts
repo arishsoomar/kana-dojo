@@ -74,3 +74,16 @@ export function wordsToPractice(progress: Progress, dayStart: number, weekStart:
   const today = since(dayStart);
   return today.length > 0 ? today : since(weekStart);
 }
+
+// Words of a list (a topic, a GENKI lesson) to practise, outside the schedule: those started,
+// the soonest due first, so the ones nearest to being forgotten come first. Up to `count`.
+export function wordsToPracticeFrom(progress: Progress, list: readonly string[], count: number): string[] {
+  return list
+    .flatMap((id) => {
+      const card = progress.words[id];
+      return card ? [{ id, due: card.due }] : [];
+    })
+    .sort((a, b) => a.due - b.due)
+    .slice(0, count)
+    .map(({ id }) => id);
+}

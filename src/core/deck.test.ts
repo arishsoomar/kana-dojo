@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, NEW_WORDS, type Progress } from './answers';
-import { dueWords, extraNewWords, newWordsLeft, notStarted, wordsToPractice, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
+import { dueWords, extraNewWords, newWordsLeft, notStarted, wordsToPractice, wordsToPracticeFrom, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
 import { DAY_MS, review } from './srs';
 
 const DECK = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -95,6 +95,15 @@ describe('practice', () => {
     p = rateWord(p, 'b', 3, TODAY - 10 * DAY_MS);
     expect(wordsToPractice(p, TODAY, TODAY - 7 * DAY_MS)).toEqual(['a']);
     expect(wordsToPractice(EMPTY_PROGRESS, TODAY, TODAY - 7 * DAY_MS)).toEqual([]);
+  });
+});
+
+describe('practising a list', () => {
+  it("is the list's started words, the soonest due first, up to a number", () => {
+    // a is overdue, b due tonight, c next week; d never started.
+    expect(wordsToPracticeFrom(studied, ['c', 'd', 'b', 'a'], 10)).toEqual(['a', 'b', 'c']);
+    expect(wordsToPracticeFrom(studied, ['c', 'd', 'b', 'a'], 2)).toEqual(['a', 'b']);
+    expect(wordsToPracticeFrom(studied, ['d', 'e'], 10)).toEqual([]);
   });
 });
 

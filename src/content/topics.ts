@@ -1,4 +1,4 @@
-import type { TopicId } from '@/core/vocab';
+import { genkiNumber, type NewWordsFrom, type TopicId } from '@/core/vocab';
 
 // The word deck's topics, in the order they're shown, with a kanji for each (as a small icon).
 // Which words are in which is worked out when the deck is built (scripts/build-vocab.mjs).
@@ -16,3 +16,11 @@ export const TOPICS: readonly { id: TopicId; name: string; kanji: string }[] = [
   { id: 'numbers', name: 'Numbers & amounts', kanji: '数' },
   { id: 'talk', name: 'Talking & thinking', kanji: '話' },
 ];
+
+// What a source of new words is called in a sentence: "Food & drink", "GENKI I lesson 3".
+export function sourceName(from: NewWordsFrom): string {
+  if (from === 'grammar') return 'grammar';
+  const lesson = genkiNumber(from);
+  if (lesson !== null) return lesson === 0 ? 'GENKI I before lesson 1' : `GENKI I lesson ${lesson}`;
+  return TOPICS.find((t) => t.id === from)?.name ?? from;
+}

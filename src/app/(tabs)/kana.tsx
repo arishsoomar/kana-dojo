@@ -13,6 +13,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { SegmentedControl } from '@/components/segmented-control';
 import { TopicChips } from '@/components/topic-chips';
 import { colors, fonts, jpRoom } from '@/constants/theme';
+import { sourceName } from '@/content/topics';
 import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
@@ -67,18 +68,20 @@ function WordsSection() {
         {ready > 0 ? (
           <PrimaryButton label={words.due > 0 ? 'Review' : 'Learn new words'} onPress={() => router.push('/words/review')} />
         ) : (
-          <>
-            <Text style={styles.wordsDone}>All done for today. Want more?</Text>
-            <PrimaryButton
-              label={`Learn ${MORE_WORDS} more`}
-              onPress={() => router.push({ pathname: '/words/review', params: { mode: 'more' } })}
-            />
-          </>
+          <Text style={styles.wordsDone}>All done for today. Want more?</Text>
+        )}
+        {/* More new words whenever you like, not only once the day's are done. */}
+        {words.left > 0 && (
+          <PrimaryButton
+            label={`Learn ${Math.min(MORE_WORDS, words.left)} more${words.topic ? `: ${sourceName(words.topic)}` : ''}`}
+            tone={ready > 0 ? 'light' : undefined}
+            onPress={() => router.push({ pathname: '/words/review', params: { mode: 'more' } })}
+          />
         )}
         {/* Going over words again, any time: it never changes when they come back. */}
-        {words.studied > 0 && (
+        {words.started > 0 && (
           <PrimaryButton
-            label="Practice recent words"
+            label={words.topic ? `Practice ${sourceName(words.topic)}` : 'Practice recent words'}
             tone="light"
             onPress={() => router.push({ pathname: '/words/review', params: { mode: 'practice' } })}
           />

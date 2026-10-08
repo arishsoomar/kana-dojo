@@ -1,8 +1,9 @@
 // Downloads the app's pictures: Microsoft's Fluent Emoji, in their 3D style (MIT licence,
 // https://github.com/microsoft/fluentui-emoji). They're for Word Forge's words (each word in
 // src/core/words.ts names its picture by an emoji) and for the 46 basic kana in each script
-// (the mnemonic pictures). This saves them to assets/images/pictures/ with the licence, and
-// writes src/constants/word-pictures.ts and src/constants/kana-pictures.ts.
+// (the mnemonic pictures), and for some of the word deck's words. This saves them to
+// assets/images/pictures/ with the licence, and writes src/constants/word-pictures.ts,
+// src/constants/kana-pictures.ts and src/constants/vocab-pictures.ts.
 // Run it with `node scripts/fetch-pictures.mjs` after adding a word or changing a picture.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -11,6 +12,7 @@ const REPO = 'microsoft/fluentui-emoji';
 const OUT = new URL('../assets/images/pictures/', import.meta.url);
 const WORD_TABLE = new URL('../src/constants/word-pictures.ts', import.meta.url);
 const KANA_TABLE = new URL('../src/constants/kana-pictures.ts', import.meta.url);
+const VOCAB_TABLE = new URL('../src/constants/vocab-pictures.ts', import.meta.url);
 
 // Word Forge: emoji → Fluent Emoji folder. Most folders are the emoji's everyday name. The set has no
 // country flags, so the countries use something they're known for (🗽 for America).
@@ -296,6 +298,86 @@ const KANA_FOLDERS = {
   ン: 'Nose', // 👃
 };
 
+// Word deck cards: word (as the deck writes it) → Fluent Emoji folder, shown on the back of the
+// card. GENKI I's first words, before lesson 1 and lesson 1. Only words a picture really shows:
+// not 専攻 (major) or あの (um). Countries use something they're known for.
+const VOCAB_FOLDERS = {
+  // Before lesson 1: greetings and numbers.
+  おはよう: 'Sunrise', // 🌅
+  おはようございます: 'Sunrise',
+  こんにちは: 'Sun', // ☀️
+  こんばんは: 'Crescent moon', // 🌙
+  おやすみ: 'Sleeping face', // 😴
+  おやすみなさい: 'Sleeping face',
+  さようなら: 'Waving hand', // 👋
+  ありがとう: 'Folded hands', // 🙏
+  ありがとうございます: 'Folded hands',
+  すみません: 'Person raising hand', // 🙋
+  いいえ: 'Person gesturing no', // 🙅
+  いってきます: 'Person walking', // 🚶
+  いってらっしゃい: 'Door', // 🚪
+  ただいま: 'House', // 🏠
+  おかえり: 'House',
+  おかえりなさい: 'House',
+  いただきます: 'Cooked rice', // 🍚
+  ごちそうさま: 'Face savoring food', // 😋
+  ごちそうさまでした: 'Face savoring food',
+  はじめまして: 'Handshake', // 🤝
+  よろしくお願いします: 'Person bowing', // 🙇
+  ゼロ: 'Keycap 0',
+  零: 'Keycap 0',
+  一: 'Keycap 1',
+  二: 'Keycap 2',
+  三: 'Keycap 3',
+  四: 'Keycap 4',
+  五: 'Keycap 5',
+  六: 'Keycap 6',
+  七: 'Keycap 7',
+  八: 'Keycap 8',
+  九: 'Keycap 9',
+  十: 'Keycap 10',
+  // Lesson 1: new friends.
+  何: 'Red question mark', // ❓
+  今: 'Watch', // ⌚
+  はい: 'Check mark button', // ✅
+  ええ: 'Person gesturing ok', // 🙆
+  仕事: 'Briefcase', // 💼
+  名前: 'Name badge', // 📛
+  先生: 'Teacher', // 🧑‍🏫
+  友達: 'People hugging', // 🫂
+  お母さん: 'Woman', // 👩
+  お父さん: 'Man', // 👨
+  妹: 'Girl', // 👧
+  弟: 'Boy', // 👦
+  電話: 'Telephone', // ☎️
+  日本: 'Mount fuji', // 🗻
+  大学: 'Classical building', // 🏛️
+  大学生: 'Graduation cap', // 🎓
+  大学院生: 'Scientist', // 🧑‍🔬
+  学生: 'Student', // 🧑‍🎓
+  高校: 'School', // 🏫
+  高校生: 'Backpack', // 🎒
+  留学生: 'Airplane', // ✈️
+  歴史: 'Scroll', // 📜
+  医者: 'Health worker', // 🧑‍⚕️
+  番号: 'Input numbers', // 🔢
+  英語: 'Input latin letters', // 🔤
+  弁護士: 'Judge', // 🧑‍⚖️
+  政治: 'Ballot box with ballot', // 🗳️
+  ビジネス: 'Office building', // 🏢
+  会社員: 'Office worker', // 🧑‍💼
+  経済: 'Chart increasing', // 📈
+  コンピューター: 'Laptop', // 💻
+  文学: 'Books', // 📚
+  国際関係: 'Globe with meridians', // 🌐
+  アメリカ: 'Statue of liberty', // 🗽
+  イギリス: 'Guard', // 💂
+  中国: 'Panda', // 🐼
+  カナダ: 'Maple leaf', // 🍁
+  オーストラリア: 'Kangaroo', // 🦘
+  エジプト: 'Camel', // 🐪
+};
+
 const tree = await (await fetch(`https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`)).json();
 const paths = tree.tree.map((entry) => entry.path);
 
@@ -327,6 +409,11 @@ for (const [kana, folder] of Object.entries(KANA_FOLDERS)) {
   kanaLines.push(`  ${kana}: require('../../assets/images/pictures/${await download(folder)}'),`);
 }
 
+const vocabLines = [];
+for (const [word, folder] of Object.entries(VOCAB_FOLDERS)) {
+  vocabLines.push(`  ${word}: require('../../assets/images/pictures/${await download(folder)}'),`);
+}
+
 const license = await (await fetch(`https://raw.githubusercontent.com/${REPO}/main/LICENSE`)).text();
 writeFileSync(new URL('LICENSE', OUT), `Fluent Emoji, by Microsoft: https://github.com/${REPO}\n\n${license}`);
 
@@ -352,6 +439,19 @@ import type { ImageSourcePropType } from 'react-native';
 
 export const KANA_PICTURES: Readonly<Record<string, ImageSourcePropType>> = {
 ${kanaLines.join('\n')}
+};
+`,
+);
+writeFileSync(
+  VOCAB_TABLE,
+  `// Written by scripts/fetch-pictures.mjs: don't edit by hand.
+// A picture for some of the word deck's words, by the word as the deck writes it, shown on the
+// back of its card.
+// Microsoft's Fluent Emoji, MIT licence: see assets/images/pictures/LICENSE.
+import type { ImageSourcePropType } from 'react-native';
+
+export const VOCAB_PICTURES: Readonly<Record<string, ImageSourcePropType>> = {
+${vocabLines.join('\n')}
 };
 `,
 );

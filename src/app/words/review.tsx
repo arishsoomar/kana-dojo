@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,6 +12,7 @@ import { PrimaryButton } from '@/components/primary-button';
 import { SpeakerIcon } from '@/components/speaker-icon';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts, jpRoom } from '@/constants/theme';
+import { VOCAB_PICTURES } from '@/constants/vocab-pictures';
 import { intervalLabel, type Rating } from '@/core/srs';
 import { REGISTERS } from '@/content/registers';
 import { WORD_FAMILIES, type WordFamily } from '@/content/word-families';
@@ -159,8 +160,11 @@ export default function WordReviewScreen() {
   );
 }
 
-// The back of the card: its reading (for words with kanji), meanings, and an example sentence.
+// The back of the card: its reading (for words with kanji), a picture if it has one, meanings,
+// and an example sentence.
 function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
+  // A picture of it, for words a picture shows well (src/constants/vocab-pictures.ts).
+  const picture = VOCAB_PICTURES[word.word];
   return (
     <View style={styles.back}>
       <Pressable role="button" aria-label={`Hear ${word.reading}`} onPress={onSpeak} style={styles.reading} hitSlop={8}>
@@ -177,6 +181,7 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
           {word.note && <Text style={styles.note}>{word.note}</Text>}
         </View>
       )}
+      {picture && <Image source={picture} style={styles.picture} accessibilityIgnoresInvertColors />}
       <View style={styles.meanings}>
         {word.meanings.map((meaning, i) => (
           <Text key={i} style={[styles.meaning, i > 0 && styles.meaningMore]}>
@@ -351,6 +356,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     ...jpRoom(20),
     color: colors.ink2,
+  },
+  picture: {
+    width: 76,
+    height: 76,
   },
   meanings: {
     alignSelf: 'stretch',

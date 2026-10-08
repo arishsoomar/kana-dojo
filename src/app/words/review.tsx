@@ -181,7 +181,17 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
           {word.note && <Text style={styles.note}>{word.note}</Text>}
         </View>
       )}
-      {picture && <Image source={picture} style={styles.picture} accessibilityIgnoresInvertColors />}
+      {picture && (
+        <View style={styles.picture}>
+          <Image source={picture.picture} style={styles.pictureImage} accessibilityIgnoresInvertColors />
+          {/* A second, smaller picture in its corner, for words one picture can't show. */}
+          {picture.badge && (
+            <View style={styles.badgeCircle}>
+              <Image source={picture.badge} style={styles.badgeImage} accessibilityIgnoresInvertColors />
+            </View>
+          )}
+        </View>
+      )}
       <View style={styles.meanings}>
         {word.meanings.map((meaning, i) => (
           <Text key={i} style={[styles.meaning, i > 0 && styles.meaningMore]}>
@@ -360,6 +370,27 @@ const styles = StyleSheet.create({
   picture: {
     width: 76,
     height: 76,
+  },
+  pictureImage: {
+    width: '100%',
+    height: '100%',
+  },
+  badgeCircle: {
+    position: 'absolute',
+    right: -14,
+    bottom: -6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.card,
+  },
+  badgeImage: {
+    width: 30,
+    height: 30,
   },
   meanings: {
     alignSelf: 'stretch',

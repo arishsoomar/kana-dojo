@@ -9,8 +9,8 @@ describe('word deck pictures', () => {
     expect(notInDeck).toEqual([]);
   });
 
-  it('pictures most of GENKI I before lesson 1 and lesson 1', () => {
+  it('pictures every word of GENKI I before lesson 1 and lesson 1', () => {
     const first = VOCAB.filter((w) => w.genki === 0 || w.genki === 1);
-    expect(first.filter((w) => VOCAB_PICTURES[w.word]).length).toBeGreaterThan(first.length * 0.7);
+    expect(first.filter((w) => !VOCAB_PICTURES[w.word]).map((w) => w.word)).toEqual([]);
   });
 });

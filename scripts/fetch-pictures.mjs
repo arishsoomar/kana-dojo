@@ -1,14 +1,17 @@
 // Downloads the app's pictures: Microsoft's Fluent Emoji, in their 3D style (MIT licence,
 // https://github.com/microsoft/fluentui-emoji). They're for Word Forge's words (each word in
 // src/core/words.ts names its picture by an emoji) and for the 46 basic kana in each script
-// (the mnemonic pictures), and for some of the word deck's words. This saves them to
-// assets/images/pictures/ with the licence, and writes src/constants/word-pictures.ts,
-// src/constants/kana-pictures.ts and src/constants/vocab-pictures.ts.
+// (the mnemonic pictures), and for some of the word deck's words, with Google's Noto Emoji for
+// country flags (Apache licence). This saves them to assets/images/pictures/ with the licences,
+// and writes src/constants/word-pictures.ts, src/constants/kana-pictures.ts and
+// src/constants/vocab-pictures.ts.
 // Run it with `node scripts/fetch-pictures.mjs` after adding a word or changing a picture.
 
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
 const REPO = 'microsoft/fluentui-emoji';
+const NOTO = 'googlefonts/noto-emoji';
 const OUT = new URL('../assets/images/pictures/', import.meta.url);
 const WORD_TABLE = new URL('../src/constants/word-pictures.ts', import.meta.url);
 const KANA_TABLE = new URL('../src/constants/kana-pictures.ts', import.meta.url);
@@ -298,9 +301,11 @@ const KANA_FOLDERS = {
   ン: 'Nose', // 👃
 };
 
-// Word deck cards: word (as the deck writes it) → Fluent Emoji folder, shown on the back of the
-// card. GENKI I's first words, before lesson 1 and lesson 1. Only words a picture really shows:
-// not 専攻 (major) or あの (um). Countries use something they're known for.
+// Word deck cards: word (as the deck writes it) → its picture, shown on the back of the card.
+// GENKI I's first words, before lesson 1 and lesson 1. A picture is a Fluent Emoji folder, or
+// `flag:JP` for a country's flag (Noto's 3D flags: Fluent has none). Words no one picture shows
+// get two: [picture, badge], the badge small in its corner: 日本人 is a person with a Japanese
+// flag, and an older sister (お姉さん) a girl with an up arrow.
 const VOCAB_FOLDERS = {
   // Before lesson 1: greetings and numbers.
   おはよう: 'Sunrise', // 🌅
@@ -312,7 +317,7 @@ const VOCAB_FOLDERS = {
   さようなら: 'Waving hand', // 👋
   ありがとう: 'Folded hands', // 🙏
   ありがとうございます: 'Folded hands',
-  すみません: 'Person raising hand', // 🙋
+  すみません: 'Person bowing', // 🙇
   いいえ: 'Person gesturing no', // 🙅
   いってきます: 'Person walking', // 🚶
   いってらっしゃい: 'Door', // 🚪
@@ -322,8 +327,8 @@ const VOCAB_FOLDERS = {
   いただきます: 'Cooked rice', // 🍚
   ごちそうさま: 'Face savoring food', // 😋
   ごちそうさまでした: 'Face savoring food',
-  はじめまして: 'Handshake', // 🤝
-  よろしくお願いします: 'Person bowing', // 🙇
+  はじめまして: ['Waving hand', 'Sparkles'], // 👋 ✨: a first hello
+  よろしくお願いします: 'Handshake', // 🤝
   ゼロ: 'Keycap 0',
   零: 'Keycap 0',
   一: 'Keycap 1',
@@ -337,20 +342,27 @@ const VOCAB_FOLDERS = {
   九: 'Keycap 9',
   十: 'Keycap 10',
   // Lesson 1: new friends.
+  私: 'Person raising hand', // 🙋: me!
   何: 'Red question mark', // ❓
   今: 'Watch', // ⌚
+  あの: 'Thinking face', // 🤔: um…
   はい: 'Check mark button', // ✅
   ええ: 'Person gesturing ok', // 🙆
+  半: 'Three-thirty', // 🕞: half past
+  午前: 'Sunrise over mountains', // 🌄
+  午後: 'Sunset', // 🌇
   仕事: 'Briefcase', // 💼
   名前: 'Name badge', // 📛
   先生: 'Teacher', // 🧑‍🏫
   友達: 'People hugging', // 🫂
   お母さん: 'Woman', // 👩
   お父さん: 'Man', // 👨
-  妹: 'Girl', // 👧
-  弟: 'Boy', // 👦
+  お姉さん: ['Girl', 'Up arrow'], // 👧 ⬆️: older sister
+  妹: ['Girl', 'Down arrow'], // 👧 ⬇️: younger sister
+  お兄さん: ['Boy', 'Up arrow'], // 👦 ⬆️
+  弟: ['Boy', 'Down arrow'], // 👦 ⬇️
+  主婦: 'Woman cook', // 👩‍🍳
   電話: 'Telephone', // ☎️
-  日本: 'Mount fuji', // 🗻
   大学: 'Classical building', // 🏛️
   大学生: 'Graduation cap', // 🎓
   大学院生: 'Scientist', // 🧑‍🔬
@@ -358,7 +370,9 @@ const VOCAB_FOLDERS = {
   高校: 'School', // 🏫
   高校生: 'Backpack', // 🎒
   留学生: 'Airplane', // ✈️
+  専攻: ['Open book', 'Graduation cap'], // 📖 🎓: what you study at university
   歴史: 'Scroll', // 📜
+  人類学: ['Person', 'Magnifying glass tilted left'], // 🧑 🔍: studying people
   医者: 'Health worker', // 🧑‍⚕️
   番号: 'Input numbers', // 🔢
   英語: 'Input latin letters', // 🔤
@@ -370,12 +384,19 @@ const VOCAB_FOLDERS = {
   コンピューター: 'Laptop', // 💻
   文学: 'Books', // 📚
   国際関係: 'Globe with meridians', // 🌐
-  アメリカ: 'Statue of liberty', // 🗽
-  イギリス: 'Guard', // 💂
-  中国: 'Panda', // 🐼
-  カナダ: 'Maple leaf', // 🍁
-  オーストラリア: 'Kangaroo', // 🦘
-  エジプト: 'Camel', // 🐪
+  日本: 'flag:JP',
+  日本人: ['Person', 'flag:JP'], // 🧑 🇯🇵
+  日本語: ['Speech balloon', 'flag:JP'], // 💬 🇯🇵
+  アメリカ: 'flag:US',
+  イギリス: 'flag:GB',
+  中国: 'flag:CN',
+  韓国: 'flag:KR',
+  カナダ: 'flag:CA',
+  オーストラリア: 'flag:AU',
+  エジプト: 'flag:EG',
+  インド: 'flag:IN',
+  フィリピン: 'flag:PH',
+  スウェーデン: 'flag:SE',
 };
 
 const tree = await (await fetch(`https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`)).json();
@@ -387,6 +408,7 @@ mkdirSync(OUT, { recursive: true });
 const saved = new Map();
 async function download(folder) {
   if (saved.has(folder)) return saved.get(folder);
+  if (folder.startsWith('flag:')) return downloadFlag(folder);
   // Folders with skin tones keep the plain yellow one under Default.
   const png =
     paths.find((p) => p.startsWith(`assets/${folder}/3D/`) && p.endsWith('.png')) ??
@@ -396,6 +418,21 @@ async function download(folder) {
   const response = await fetch(`https://raw.githubusercontent.com/${REPO}/main/${encodeURI(png)}`);
   if (!response.ok) throw new Error(`Couldn't download ${png}`);
   writeFileSync(new URL(name, OUT), Buffer.from(await response.arrayBuffer()));
+  saved.set(folder, name);
+  return name;
+}
+
+// A country's flag, from Noto's 3D emoji (Apache licence), made the size of Fluent's pictures.
+// A flag emoji is the country's two letters as "regional indicator" letters: JP is 🇯 🇵.
+async function downloadFlag(folder) {
+  const country = folder.slice('flag:'.length);
+  const code = [...country].map((letter) => (0x1f1e6 + letter.charCodeAt(0) - 65).toString(16)).join('_');
+  const response = await fetch(`https://raw.githubusercontent.com/${NOTO}/main/3D/png/512/emoji_u${code}.png`);
+  if (!response.ok) throw new Error(`Couldn't download the flag of ${country}`);
+  const name = `flag_${country.toLowerCase()}.png`;
+  const file = new URL(name, OUT);
+  writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+  execFileSync('sips', ['-Z', '256', file.pathname], { stdio: 'ignore' });
   saved.set(folder, name);
   return name;
 }
@@ -410,12 +447,16 @@ for (const [kana, folder] of Object.entries(KANA_FOLDERS)) {
 }
 
 const vocabLines = [];
-for (const [word, folder] of Object.entries(VOCAB_FOLDERS)) {
-  vocabLines.push(`  ${word}: require('../../assets/images/pictures/${await download(folder)}'),`);
+const required = async (folder) => `require('../../assets/images/pictures/${await download(folder)}')`;
+for (const [word, folders] of Object.entries(VOCAB_FOLDERS)) {
+  const [picture, badge] = Array.isArray(folders) ? folders : [folders];
+  vocabLines.push(`  ${word}: { picture: ${await required(picture)}${badge ? `, badge: ${await required(badge)}` : ''} },`);
 }
 
 const license = await (await fetch(`https://raw.githubusercontent.com/${REPO}/main/LICENSE`)).text();
 writeFileSync(new URL('LICENSE', OUT), `Fluent Emoji, by Microsoft: https://github.com/${REPO}\n\n${license}`);
+const notoLicense = await (await fetch(`https://raw.githubusercontent.com/${NOTO}/main/LICENSE`)).text();
+writeFileSync(new URL('LICENSE-flags', OUT), `The flags (flag_*.png): Noto Emoji, by Google: https://github.com/${NOTO}\n\n${notoLicense}`);
 
 writeFileSync(
   WORD_TABLE,
@@ -446,11 +487,14 @@ writeFileSync(
   VOCAB_TABLE,
   `// Written by scripts/fetch-pictures.mjs: don't edit by hand.
 // A picture for some of the word deck's words, by the word as the deck writes it, shown on the
-// back of its card.
-// Microsoft's Fluent Emoji, MIT licence: see assets/images/pictures/LICENSE.
+// back of its card; some with a badge in its corner (日本人: a person, with a Japanese flag).
+// Microsoft's Fluent Emoji, MIT licence: see assets/images/pictures/LICENSE. The flags are
+// Google's Noto Emoji, Apache licence: see assets/images/pictures/LICENSE-flags.
 import type { ImageSourcePropType } from 'react-native';
 
-export const VOCAB_PICTURES: Readonly<Record<string, ImageSourcePropType>> = {
+export type VocabPicture = { picture: ImageSourcePropType; badge?: ImageSourcePropType };
+
+export const VOCAB_PICTURES: Readonly<Record<string, VocabPicture>> = {
 ${vocabLines.join('\n')}
 };
 `,

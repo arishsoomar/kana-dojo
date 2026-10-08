@@ -49,6 +49,7 @@ export default function WordReviewScreen() {
   );
   const review = useWordReview(session);
   const { word, flipped, intervals, result } = review;
+  const english = review.front === 'english';
   const [leaving, setLeaving] = useState(false);
   // The card turns over in 3D; `back` is whether its back is up at this moment.
   const { shown: back, style: turning } = useTurnOver(flipped, HALF_TURN_MS);
@@ -118,11 +119,25 @@ export default function WordReviewScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        <Pressable role="button" aria-label={back ? word.word : `${word.word}. Tap to turn over`} onPress={review.flip} disabled={flipped}>
+        <Pressable
+          role="button"
+          aria-label={back ? word.word : `${english ? word.meanings[0] : word.word}. Tap to turn over`}
+          onPress={review.flip}
+          disabled={flipped}>
           <Animated.View style={[styles.card, turning]}>
             {review.isNew && !back && <Text style={styles.badge}>New</Text>}
-            <Furigana furigana={word.furigana} size={48} align="center" readings={back || review.frontReadings} />
-            {back ? <Back word={word} onSpeak={review.speak} /> : <Text style={styles.hint}>Tap to see what it means</Text>}
+            {/* English first: say it in Japanese, then turn it over to see it and hear it. */}
+            {english && !back ? (
+              <>
+                <EnglishFront word={word} />
+                <Text style={styles.hint}>Say it in Japanese, then tap to check</Text>
+              </>
+            ) : (
+              <>
+                <Furigana furigana={word.furigana} size={48} align="center" readings={back || review.frontReadings} />
+                {back ? <Back word={word} onSpeak={review.speak} /> : <Text style={styles.hint}>Tap to see what it means</Text>}
+              </>
+            )}
           </Animated.View>
         </Pressable>
       </ScrollView>
@@ -160,46 +175,78 @@ export default function WordReviewScreen() {
   );
 }
 
+// The front of a card shown English first: its picture, its meanings, and who says it how
+// (Polite, Humble…), which tells words for the same thing apart. Say it in Japanese, then turn it
+// over to see it and hear it.
+function EnglishFront({ word }: { word: VocabWord }) {
+  return (
+    <View style={styles.back}>
+      <WordPicture word={word} />
+      <Meanings word={word} />
+      <Labels word={word} />
+    </View>
+  );
+}
+
+// Who says a word and how: its labels, and with `note`, its usage note (which can name the word
+// in Japanese, so not on an English front).
+function Labels({ word, note = false }: { word: VocabWord; note?: boolean }) {
+  const shownNote = note ? word.note : null;
+  if (word.labels.length === 0 && !shownNote) return null;
+  return (
+    <View style={styles.labels}>
+      {word.labels.map((label) => (
+        <Text key={label} style={styles.label} aria-label={REGISTERS[label]?.about}>
+          {REGISTERS[label]?.name ?? label}
+        </Text>
+      ))}
+      {shownNote && <Text style={styles.note}>{shownNote}</Text>}
+    </View>
+  );
+}
+
+// A picture of it, for words a picture shows well (src/constants/vocab-pictures.ts).
+function WordPicture({ word }: { word: VocabWord }) {
+  const picture = VOCAB_PICTURES[word.word];
+  if (!picture) return null;
+  return (
+    <View style={styles.picture}>
+      <Image source={picture.picture} style={styles.pictureImage} accessibilityIgnoresInvertColors />
+      {/* A second, smaller picture in its corner, for words one picture can't show. */}
+      {picture.badge && (
+        <View style={styles.badgeCircle}>
+          <Image source={picture.badge} style={styles.badgeImage} accessibilityIgnoresInvertColors />
+        </View>
+      )}
+    </View>
+  );
+}
+
+function Meanings({ word }: { word: VocabWord }) {
+  return (
+    <View style={styles.meanings}>
+      {word.meanings.map((meaning, i) => (
+        <Text key={i} style={[styles.meaning, i > 0 && styles.meaningMore]}>
+          {word.meanings.length > 1 ? `${i + 1}. ` : ''}
+          {meaning}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
 // The back of the card: its reading (for words with kanji), a picture if it has one, meanings,
 // and an example sentence.
 function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
-  // A picture of it, for words a picture shows well (src/constants/vocab-pictures.ts).
-  const picture = VOCAB_PICTURES[word.word];
   return (
     <View style={styles.back}>
       <Pressable role="button" aria-label={`Hear ${word.reading}`} onPress={onSpeak} style={styles.reading} hitSlop={8}>
         {word.reading !== word.word && <Text style={styles.readingText}>{word.reading}</Text>}
         <SpeakerIcon color={colors.ink2} size={20} />
       </Pressable>
-      {(word.labels.length > 0 || word.note) && (
-        <View style={styles.labels}>
-          {word.labels.map((label) => (
-            <Text key={label} style={styles.label} aria-label={REGISTERS[label]?.about}>
-              {REGISTERS[label]?.name ?? label}
-            </Text>
-          ))}
-          {word.note && <Text style={styles.note}>{word.note}</Text>}
-        </View>
-      )}
-      {picture && (
-        <View style={styles.picture}>
-          <Image source={picture.picture} style={styles.pictureImage} accessibilityIgnoresInvertColors />
-          {/* A second, smaller picture in its corner, for words one picture can't show. */}
-          {picture.badge && (
-            <View style={styles.badgeCircle}>
-              <Image source={picture.badge} style={styles.badgeImage} accessibilityIgnoresInvertColors />
-            </View>
-          )}
-        </View>
-      )}
-      <View style={styles.meanings}>
-        {word.meanings.map((meaning, i) => (
-          <Text key={i} style={[styles.meaning, i > 0 && styles.meaningMore]}>
-            {word.meanings.length > 1 ? `${i + 1}. ` : ''}
-            {meaning}
-          </Text>
-        ))}
-      </View>
+      <Labels word={word} note />
+      <WordPicture word={word} />
+      <Meanings word={word} />
       {/* The example sentence: tap it (or its speaker) to hear it. */}
       {word.example && (
         <Pressable

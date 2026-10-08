@@ -53,7 +53,12 @@ export type Settings = {
   newWords: number; // new words from the deck a day
   newWordsTopic: NewWordsFrom | null; // new words only from a topic (or the grammar lessons' words), or null for any
   voice: string | null; // the Japanese voice chosen on this device, or null for the best one
+  wordFront: WordFront; // which side of a word card shows first
 };
+
+// A word card's front: the Japanese word (say what it means), or its meaning and picture in
+// English (say it in Japanese).
+export type WordFront = 'japanese' | 'english';
 
 export type Progress = {
   kana: Readonly<Record<string, KanaProgress>>;
@@ -77,7 +82,7 @@ export const EMPTY_PROGRESS: Progress = {
   partners: [],
   words: {},
   grammar: {},
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null, voice: null },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null, voice: null, wordFront: 'japanese' },
 };
 
 export type Answer = {

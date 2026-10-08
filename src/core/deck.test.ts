@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, NEW_WORDS, type Progress } from './answers';
-import { dueWords, extraNewWords, newWordsLeft, notStarted, wordsToPractice, wordsToPracticeFrom, rateWord, setNewWords, setNewWordsTopic, studySession, wordsStudied } from './deck';
+import { dueWords, extraNewWords, newWordsLeft, notStarted, wordsToPractice, wordsToPracticeFrom, rateWord, setNewWords, setNewWordsTopic, setWordFront, studySession, wordsStudied } from './deck';
 import { DAY_MS, review } from './srs';
 
 const DECK = ['a', 'b', 'c', 'd', 'e', 'f'];
@@ -45,6 +45,16 @@ describe('new words from a topic', () => {
     expect(food.settings.newWordsTopic).toBe('food');
     expect(setNewWordsTopic(food, 'grammar').settings.newWordsTopic).toBe('grammar');
     expect(setNewWordsTopic(food, null).settings.newWordsTopic).toBeNull();
+  });
+});
+
+describe('which side of a card comes first', () => {
+  it('is Japanese to start with, and can be English', () => {
+    expect(EMPTY_PROGRESS.settings.wordFront).toBe('japanese');
+    const english = setWordFront(EMPTY_PROGRESS, 'english');
+    expect(english.settings.wordFront).toBe('english');
+    expect(setWordFront(english, 'japanese').settings.wordFront).toBe('japanese');
+    expect(EMPTY_PROGRESS.settings.wordFront).toBe('japanese');
   });
 });
 

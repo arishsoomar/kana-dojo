@@ -31,6 +31,12 @@ const SECTIONS = [
 ] as const;
 type Section = (typeof SECTIONS)[number]['value'];
 
+// Which side of a word card shows first.
+const FRONTS = [
+  { value: 'japanese', label: 'Japanese' },
+  { value: 'english', label: 'English' },
+] as const;
+
 const SCRIPTS = [
   { value: 'hiragana', label: 'Hiragana' },
   { value: 'katakana', label: 'Katakana' },
@@ -70,8 +76,9 @@ function WordsSection() {
         ) : (
           <Text style={styles.wordsDone}>All done for today. Want more?</Text>
         )}
-        {/* More new words whenever you like, not only once the day's are done. */}
-        {words.left > 0 && (
+        {/* More new words whenever you like, not only once the day's are done: if there are more
+            than today's. */}
+        {words.left > words.fresh && (
           <PrimaryButton
             label={`Learn ${Math.min(MORE_WORDS, words.left)} more${words.topic ? `: ${sourceName(words.topic)}` : ''}`}
             tone={ready > 0 ? 'light' : undefined}
@@ -102,6 +109,18 @@ function WordsSection() {
           <Text style={styles.wordsAbout}>More means faster, and more reviews later.</Text>
         </View>
         <Stepper value={words.newPerDay} onChange={words.setNewPerDay} />
+      </View>
+
+      <View style={[styles.summary, styles.wordsCard]}>
+        <View>
+          <Text style={styles.summaryTitle}>Card front</Text>
+          <Text style={styles.wordsAbout}>
+            {words.front === 'japanese'
+              ? 'Read the Japanese, and say what it means.'
+              : 'See the English and picture, say it in Japanese, then hear it.'}
+          </Text>
+        </View>
+        <SegmentedControl options={FRONTS} value={words.front} onChange={words.setFront} />
       </View>
 
       <Pressable role="button" onPress={() => router.push('/words')} style={[styles.summary, styles.perDay]}>

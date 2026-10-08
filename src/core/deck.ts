@@ -1,4 +1,4 @@
-import { NEW_WORDS, type Progress } from './answers';
+import { NEW_WORDS, type Progress, type WordFront } from './answers';
 import { review, type Rating } from './srs';
 import type { NewWordsFrom } from './vocab';
 
@@ -46,6 +46,11 @@ export function wordsStudied(progress: Progress): number {
 export function setNewWords(progress: Progress, perDay: number): Progress {
   const newWords = Math.min(Math.max(Math.round(perDay), NEW_WORDS.min), NEW_WORDS.max);
   return { ...progress, settings: { ...progress.settings, newWords } };
+}
+
+// Which side of a word card shows first: the Japanese, or the English and picture.
+export function setWordFront(progress: Progress, wordFront: WordFront): Progress {
+  return { ...progress, settings: { ...progress.settings, wordFront } };
 }
 
 // New words only from one topic (food, say) or the grammar lessons' words, or from any.

@@ -295,6 +295,7 @@ export const GUIDE: GuideSection[] = [
             bullets: [
               'Words are written as they really are, with kanji, and furigana (the reading in small kana) above. Once you know a word well, its front shows the kanji alone.',
               'Tap the card to turn it over: the reading, its meanings, an example sentence, and the word spoken.',
+              'Or turn it around: set Card front to English on the Study tab, and each card shows the meaning (and a picture, for some words) first. Say the word in Japanese, then tap to see it and hear it said right.',
               'Then rate how well you knew it. Again brings it back in ten minutes; Hard, Good and Easy bring it back in days, weeks, then months, each time just before you would forget it. The buttons show when.',
               'It uses FSRS, the same way of scheduling reviews that Anki uses. A review session counts as training for your streak and daily goal.',
               'The back of a card also says who uses the word and how, like Humble, Honorific, Casual or Mostly men. Words like "mother", "I" and "you" have several forms depending on who you are talking to; their cards show the whole family, and when each is used.',

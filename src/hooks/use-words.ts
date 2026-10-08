@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { speakWord } from '@/audio/pronounce';
 import { GRAMMAR_LESSONS } from '@/content/grammar';
 import { VOCAB } from '@/content/vocab';
-import { completeLesson } from '@/core/answers';
+import { completeLesson, type WordFront } from '@/core/answers';
 import {
   extraNewWords,
   notStarted,
   rateWord,
   setNewWords,
   setNewWordsTopic,
+  setWordFront,
   studySession,
   WORDS_REVIEW_ID,
   wordsStudied,
@@ -82,6 +83,8 @@ export function useWordsToday() {
     setNewPerDay: (perDay: number) => updateProgress(setNewWords(progress, perDay)),
     topic,
     setTopic: (next: NewWordsFrom | null) => updateProgress(setNewWordsTopic(progress, next)),
+    front: progress.settings.wordFront,
+    setFront: (front: WordFront) => updateProgress(setWordFront(progress, front)),
     // Words in each topic (or for grammar) not started yet.
     topicLeft: (from: NewWordsFrom) => notStarted(progress, wordsFrom(from)).length,
     // New words still to start where new words come from, and words started there.
@@ -182,6 +185,8 @@ export function useWordReview(mode: WordSessionMode = { kind: 'today' }) {
     isNew: card === null,
     // Readings over the kanji on the front, until the word is known well (three weeks' stability).
     frontReadings: card === null || card.stability < 21,
+    // Which side shows first, as it was when the session started.
+    front: startProgress.settings.wordFront,
     flipped: flippedAt !== null,
     // When each rating would bring it back, once it's turned over.
     intervals: flippedAt !== null ? nextIntervals(card, flippedAt) : null,

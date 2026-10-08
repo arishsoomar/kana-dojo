@@ -64,7 +64,9 @@ export function parseProgress(text: string | null): Progress {
   const topic = isObject(settings) ? settings.newWordsTopic : undefined;
   const newWordsTopic = isNewWordsFrom(topic) ? topic : null;
   const voice = isObject(settings) && typeof settings.voice === 'string' ? settings.voice : null;
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords, newWordsTopic, voice } };
+  // Word cards show the Japanese first unless they were saved to show English.
+  const wordFront = isObject(settings) && settings.wordFront === 'english' ? 'english' : 'japanese';
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords, newWordsTopic, voice, wordFront } };
 }
 
 // Keeps the entries whose value passes `isValid`.

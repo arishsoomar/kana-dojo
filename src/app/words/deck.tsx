@@ -12,6 +12,7 @@ import { SegmentedControl } from '@/components/segmented-control';
 import { SpeakerIcon } from '@/components/speaker-icon';
 import { WordPicture } from '@/components/word-card';
 import { colors, fonts } from '@/constants/theme';
+import { romajiOf } from '@/content/romaji';
 import { knownCards } from '@/core/flashcards';
 import { useProgress } from '@/hooks/use-progress';
 import { deckById, useDecks, wordById } from '@/hooks/use-words';
@@ -109,7 +110,7 @@ export default function DeckScreen() {
                 <View style={styles.rowText}>
                   <Furigana furigana={word.furigana} size={20} />
                   <Text style={styles.meaning} numberOfLines={2}>
-                    {word.meanings[0]}
+                    <Text style={styles.romaji}>{romajiOf(word)}</Text> · {word.meanings[0]}
                   </Text>
                 </View>
                 {known.has(wordId) && (
@@ -229,6 +230,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiSemiBold,
     fontSize: 13,
     color: colors.ink2,
+  },
+  romaji: {
+    fontFamily: fonts.uiBold,
+    color: colors.sumi,
   },
   knownMark: {
     alignItems: 'center',

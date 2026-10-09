@@ -5,6 +5,7 @@ import { speakWord } from '@/audio/pronounce';
 import { colors, fonts, jpRoom } from '@/constants/theme';
 import { VOCAB_PICTURES } from '@/constants/vocab-pictures';
 import { REGISTERS } from '@/content/registers';
+import { romajiOf } from '@/content/romaji';
 import { WORD_FAMILIES, type WordFamily } from '@/content/word-families';
 import type { WordFront } from '@/core/answers';
 import { furiganaText, type VocabWord } from '@/core/vocab';
@@ -111,9 +112,13 @@ function Meanings({ word }: { word: VocabWord }) {
 function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
   return (
     <View style={styles.back}>
-      <Pressable role="button" aria-label={`Hear ${word.reading}`} onPress={onSpeak} style={styles.reading} hitSlop={8}>
-        {word.reading !== word.word && <Text style={styles.readingText}>{word.reading}</Text>}
-        <SpeakerIcon color={colors.ink2} size={20} />
+      {/* Its reading and how it's said in romaji: tap either to hear it. */}
+      <Pressable role="button" aria-label={`Hear ${word.reading}`} onPress={onSpeak} style={styles.said} hitSlop={8}>
+        <View style={styles.reading}>
+          {word.reading !== word.word && <Text style={styles.readingText}>{word.reading}</Text>}
+          <SpeakerIcon color={colors.ink2} size={20} />
+        </View>
+        <Text style={styles.romaji}>{romajiOf(word)}</Text>
       </Pressable>
       <Labels word={word} note />
       <WordPicture word={word} />
@@ -195,6 +200,15 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     gap: 14,
+  },
+  said: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  romaji: {
+    fontFamily: fonts.uiBold,
+    fontSize: 16,
+    color: colors.ink2,
   },
   reading: {
     flexDirection: 'row',

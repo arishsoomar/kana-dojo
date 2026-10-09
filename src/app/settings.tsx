@@ -1,16 +1,16 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { speakWord } from '@/audio/pronounce';
+import { setSpeaker as setSpokenSpeaker, speakWord } from '@/audio/pronounce';
+import { VOICE_SAMPLE } from '@/audio/voice-lines';
 import { BackIcon } from '@/components/back-icon';
+import { SegmentedControl } from '@/components/segmented-control';
 import { colors, fonts } from '@/constants/theme';
-import { setHaptics, setSound, setTyping } from '@/core/answers';
+import { setHaptics, setSound, setSpeaker, setTyping, type Speaker } from '@/core/answers';
 import { DAILY_GOALS } from '@/core/goal';
 import { useAuth } from '@/hooks/use-auth';
 import { useProgress } from '@/hooks/use-progress';
-import { useJapaneseVoices } from '@/hooks/use-voice';
 
 // On web the switch's knob colour comes from activeThumbColor, not thumbColor. React Native's
 // types don't list it (it only exists on web), hence the cast.
@@ -102,76 +102,36 @@ export default function SettingsScreen() {
   );
 }
 
-// Where to get a better Japanese voice, on each platform.
-const BETTER_VOICE = Platform.select({
-  ios: 'For a clearer voice, download one: Settings, Accessibility, Spoken Content, Voices, Japanese, then an Enhanced or Premium voice. Then come back here.',
-  android: 'For a clearer voice, install Japanese voice data: Settings, then search for "Text-to-speech output".',
-  default: "Voices come from your browser. Safari and Chrome on a Mac usually have good Japanese ones.",
-});
+const SPEAKERS = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+] as const;
 
-const LEVEL_NAMES = { premium: 'Premium', enhanced: 'Enhanced', basic: 'Basic' } as const;
-
-// The Japanese voice words are spoken in: which it is, a button to hear it, every Japanese
-// voice on the device to choose from, and how to get a better one when there's no Premium one.
+// The voice Japanese is spoken in: VOICEVOX's female or male voice, with a button to hear it.
 function VoiceRow() {
-  const voices = useJapaneseVoices();
-  const [choosing, setChoosing] = useState(false);
-  const { current } = voices;
-  const about =
-    current === undefined
-      ? 'Looking for voices…'
-      : current === null
-        ? "Your device's default voice"
-        : `${current.name} (${LEVEL_NAMES[current.level]})${voices.chosen === null ? ', the best one here' : ''}`;
+  const { progress, updateProgress } = useProgress();
+  const speaker = progress.settings.speaker;
 
-  function choose(id: string | null) {
-    voices.choose(id);
-    speakWord(SAMPLE);
+  function choose(next: Speaker) {
+    updateProgress(setSpeaker(progress, next));
+    // Heard in the new voice: the speech code is told on the next render, so say so directly.
+    setSpokenSpeaker(next);
+    speakWord(VOICE_SAMPLE);
   }
 
   return (
     <View style={[styles.row, styles.column]}>
       <View style={styles.inline}>
         <View style={styles.rowText}>
-          <Text style={styles.rowTitle}>Japanese voice</Text>
-          <Text style={styles.rowSub}>{about}</Text>
+          <Text style={styles.rowTitle}>Voice</Text>
+          <Text style={styles.rowSub}>Words, sentences and kana, read by VOICEVOX</Text>
         </View>
-        <Pressable role="button" onPress={() => speakWord(SAMPLE)} hitSlop={8} style={styles.gap}>
+        <Pressable role="button" onPress={() => speakWord(VOICE_SAMPLE)} hitSlop={8}>
           <Text style={styles.action}>Hear it</Text>
         </Pressable>
-        {voices.all.length > 1 && (
-          <Pressable role="button" onPress={() => setChoosing(!choosing)} hitSlop={8}>
-            <Text style={styles.action}>{choosing ? 'Done' : 'Change'}</Text>
-          </Pressable>
-        )}
       </View>
-      {choosing && (
-        <View role="radiogroup" style={styles.voices}>
-          <VoiceOption label="The best one here" chosen={voices.chosen === null} onPress={() => choose(null)} />
-          {voices.all.map((v) => (
-            <VoiceOption
-              key={v.identifier}
-              label={`${v.name} (${LEVEL_NAMES[v.level]})`}
-              chosen={voices.chosen === v.identifier}
-              onPress={() => choose(v.identifier)}
-            />
-          ))}
-        </View>
-      )}
-      {current !== undefined && current?.level !== 'premium' && <Text style={styles.rowSub}>{BETTER_VOICE}</Text>}
+      <SegmentedControl options={SPEAKERS} value={speaker} onChange={choose} />
     </View>
-  );
-}
-
-// What a voice says when it's tried: "Hello. I'm studying Japanese."
-const SAMPLE = 'こんにちは。日本語を勉強しています。';
-
-function VoiceOption({ label, chosen, onPress }: { label: string; chosen: boolean; onPress: () => void }) {
-  return (
-    <Pressable role="radio" aria-checked={chosen} onPress={onPress} style={styles.voice}>
-      <View style={[styles.radio, chosen && styles.radioOn]} />
-      <Text style={styles.voiceName}>{label}</Text>
-    </Pressable>
   );
 }
 
@@ -237,34 +197,6 @@ const styles = StyleSheet.create({
   inline: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  gap: {
-    marginRight: 16,
-  },
-  voices: {
-    gap: 2,
-  },
-  voice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 8,
-  },
-  radio: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: colors.edge,
-  },
-  radioOn: {
-    borderWidth: 6,
-    borderColor: colors.vermilion,
-  },
-  voiceName: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 14,
-    color: colors.sumi,
   },
   rowTitle: {
     fontFamily: fonts.uiExtraBold,

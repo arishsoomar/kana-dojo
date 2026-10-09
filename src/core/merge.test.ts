@@ -28,7 +28,7 @@ const phone: Progress = {
   },
   grammar: { desu: { stability: 3, difficulty: 5, due: 400, last: 300, added: 300, reps: 1, lapses: 0 } },
   flashcards: { '1': { known: true, at: 500 }, '2': { known: false, at: 100 } },
-  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'], voice: null, wordFront: 'japanese' },
+  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'], voice: null, wordFront: 'japanese', speaker: 'female' },
 };
 
 const web: Progress = {
@@ -56,7 +56,7 @@ const web: Progress = {
   },
   grammar: { desu: { stability: 9, difficulty: 4, due: 2000, last: 900, added: 300, reps: 2, lapses: 0 } },
   flashcards: { '1': { known: false, at: 700 }, '3': { known: true, at: 50 } },
-  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], voice: null, wordFront: 'english' },
+  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], voice: null, wordFront: 'english', speaker: 'male' },
 };
 
 describe('mergeProgress', () => {
@@ -131,7 +131,7 @@ describe('mergeProgress', () => {
   });
 
   it('keeps the settings of the first copy (the device in hand), onboarded if either is', () => {
-    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], voice: null, wordFront: 'english' });
+    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], voice: null, wordFront: 'english', speaker: 'male' });
   });
 
   it('gives the same training record whichever order the copies come in', () => {

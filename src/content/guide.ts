@@ -295,6 +295,7 @@ export const GUIDE: GuideSection[] = [
             bullets: [
               'Words are written as they really are, with kanji, and furigana (the reading in small kana) above.',
               'Tap a card to turn it over, and again to turn it back: the reading, the word spoken, a picture (for many words), its meanings and an example sentence.',
+              'Words, sentences and kana are read by VOICEVOX, a Japanese speech engine, recorded into the app: a female or a male voice, chosen in Settings.',
               'Then say whether you know it: Know it, or Still learning. At the end of the round, keep going with the ones you are still learning; once you know them all, start the deck again.',
               'Each deck remembers which cards you know, and can study just the ones you are still learning.',
               'Or turn the cards around: choose English as the card front on a deck, and each card shows the meaning (and picture) first. Say the word in Japanese, then tap to see it and hear it said right.',

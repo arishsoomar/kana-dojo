@@ -61,7 +61,9 @@ export function parseProgress(text: string | null): Progress {
   const voice = isObject(settings) && typeof settings.voice === 'string' ? settings.voice : null;
   // Word cards show the Japanese first unless they were saved to show English.
   const wordFront = isObject(settings) && settings.wordFront === 'english' ? 'english' : 'japanese';
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, voice, wordFront } };
+  // The voice is female unless it was saved as male.
+  const speaker = isObject(settings) && settings.speaker === 'male' ? 'male' : 'female';
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, voice, wordFront, speaker } };
 }
 
 // Keeps the entries whose value passes `isValid`.

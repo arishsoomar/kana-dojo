@@ -49,7 +49,11 @@ export type Settings = {
   gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
   voice: string | null; // the Japanese voice chosen on this device, or null for the best one
   wordFront: WordFront; // which side of a word card shows first
+  speaker: Speaker; // the voice Japanese is spoken in
 };
+
+// The recorded voice (VOICEVOX) words, sentences and kana are spoken in.
+export type Speaker = 'female' | 'male';
 
 // A word card's front: the Japanese word (say what it means), or its meaning and picture in
 // English (say it in Japanese).
@@ -79,7 +83,7 @@ export const EMPTY_PROGRESS: Progress = {
   words: {},
   grammar: {},
   flashcards: {},
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese' },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female' },
 };
 
 export type Answer = {
@@ -204,6 +208,10 @@ export function setScript(progress: Progress, script: Script): Progress {
 }
 
 // Turns speaking kana aloud on or off.
+export function setSpeaker(progress: Progress, speaker: Speaker): Progress {
+  return { ...progress, settings: { ...progress.settings, speaker } };
+}
+
 export function setSound(progress: Progress, sound: boolean): Progress {
   return { ...progress, settings: { ...progress.settings, sound } };
 }

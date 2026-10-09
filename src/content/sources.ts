@@ -54,9 +54,34 @@ export const SOURCES: readonly Source[] = [
   {
     name: 'Fluent Emoji',
     by: 'Microsoft',
-    what: "The pictures for Word Forge's words and the kana's memory tips.",
+    what: "The pictures for Word Forge's words, the kana's memory tips and the flashcards.",
     licence: 'MIT',
     licenceUrl: 'https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE',
     url: 'https://github.com/microsoft/fluentui-emoji',
+  },
+  {
+    name: 'Noto Emoji',
+    by: 'Google',
+    what: "The flags on the flashcards for countries.",
+    licence: 'Apache 2.0',
+    licenceUrl: 'https://github.com/googlefonts/noto-emoji/blob/main/LICENSE',
+    url: 'https://github.com/googlefonts/noto-emoji',
+  },
+  // VOICEVOX's voices each ask to be credited as "VOICEVOX:<name>".
+  {
+    name: 'VOICEVOX:冥鳴ひまり',
+    by: 'VOICEVOX, voice of 冥鳴ひまり (Meimei Himari)',
+    what: 'The female voice: every word, sentence and kana the app says.',
+    licence: "冥鳴ひまり's terms of use",
+    licenceUrl: 'https://meimeihimari.wixsite.com/himari/terms-of-use',
+    url: 'https://voicevox.hiroshiba.jp',
+  },
+  {
+    name: 'VOICEVOX:青山龍星',
+    by: 'VOICEVOX, voice of 青山龍星 (Aoyama Ryūsei)',
+    what: 'The male voice: every word, sentence and kana the app says.',
+    licence: "VOICEVOX's terms for 青山龍星",
+    licenceUrl: 'https://www.virvoxproject.com/voicevoxの利用規約',
+    url: 'https://voicevox.hiroshiba.jp',
   },
 ];

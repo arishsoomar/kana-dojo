@@ -8,6 +8,7 @@ import {
   recordAnswer,
   setHaptics,
   setSound,
+  setSpeaker,
   setTyping,
   type Progress,
 } from './answers';
@@ -228,6 +229,16 @@ describe('haptics', () => {
     expect(off.settings.haptics).toBe(false);
     expect(setHaptics(off, true).settings.haptics).toBe(true);
     expect(EMPTY_PROGRESS.settings.haptics).toBe(true);
+  });
+});
+
+describe('voice', () => {
+  it('starts female, and setSpeaker changes it without changing the input', () => {
+    expect(EMPTY_PROGRESS.settings.speaker).toBe('female');
+    const male = setSpeaker(EMPTY_PROGRESS, 'male');
+    expect(male.settings.speaker).toBe('male');
+    expect(setSpeaker(male, 'female').settings.speaker).toBe('female');
+    expect(EMPTY_PROGRESS.settings.speaker).toBe('female');
   });
 });
 

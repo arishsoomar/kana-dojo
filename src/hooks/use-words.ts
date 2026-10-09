@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { speakWord } from '@/audio/pronounce';
 import { genkiDeck, GENKI_DECKS } from '@/content/genki';
@@ -62,12 +62,22 @@ export function useFlashcards(deck: Deck, only: readonly string[] | null, shuffl
   const id = currentCard(round);
   const word = id ? wordById(id) : null;
 
+  const sound = progress.settings.sound;
+  const japaneseFront = progress.settings.wordFront === 'japanese';
+
+  // A card with the Japanese in front says the word as it appears: hear it, and think what it
+  // means. (Each answer, or a new round, brings a new card.)
+  const reading = word?.reading;
+  useEffect(() => {
+    if (reading && japaneseFront && sound) speakWord(reading);
+  }, [round, reading, japaneseFront, sound]);
+
   function flip() {
     if (!word) return;
     const next = !flipped;
     setFlipped(next);
-    // Turned to its back: hear the word.
-    if (next && progress.settings.sound) speakWord(word.reading);
+    // English in front: turned over, hear the word. (Japanese in front, it was heard already.)
+    if (next && !japaneseFront && sound) speakWord(word.reading);
   }
 
   function answer(know: boolean) {

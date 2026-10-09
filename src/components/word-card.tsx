@@ -35,7 +35,17 @@ export function WordCardFace({ word, front, back, onSpeak }: Props) {
   return (
     <>
       <Furigana furigana={word.furigana} size={48} align="center" />
-      {back ? <Back word={word} onSpeak={onSpeak} /> : <Text style={styles.hint}>Tap to see what it means</Text>}
+      {back ? (
+        <Back word={word} onSpeak={onSpeak} />
+      ) : (
+        <>
+          {/* Hear it again: say what it means in your head, then turn it over. */}
+          <Pressable role="button" aria-label={`Hear ${word.reading}`} onPress={onSpeak} hitSlop={12} style={styles.frontSpeaker}>
+            <SpeakerIcon color={colors.ink2} size={26} />
+          </Pressable>
+          <Text style={styles.hint}>Say what it means, then tap to check</Text>
+        </>
+      )}
     </>
   );
 }
@@ -190,6 +200,9 @@ function familiesOf(word: VocabWord): WordFamily[] {
 }
 
 const styles = StyleSheet.create({
+  frontSpeaker: {
+    padding: 6,
+  },
   hint: {
     marginTop: 'auto',
     fontFamily: fonts.uiBold,

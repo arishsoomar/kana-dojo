@@ -42,7 +42,7 @@ const DESTINATIONS: Readonly<Record<AssignmentKind, Href>> = {
   forge: '/games/forge',
   kata: '/games/kata',
   mixups: '/scrolls',
-  reviews: '/words/review',
+  reviews: '/kana',
 };
 
 // The Ranks tab: the day's assignments and the month's challenge, then your division. Weekly

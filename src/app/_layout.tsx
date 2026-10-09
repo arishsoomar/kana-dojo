@@ -71,8 +71,8 @@ export default function RootLayout() {
             <Stack.Screen name="settings" options={{ headerShown: false }} />
             <Stack.Screen name="sources" options={{ headerShown: false }} />
             <Stack.Screen name="practice" options={{ headerShown: false }} />
-            <Stack.Screen name="words/index" options={{ headerShown: false }} />
-            <Stack.Screen name="words/review" options={{ headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="words/deck" options={{ headerShown: false }} />
+            <Stack.Screen name="words/flashcards" options={{ headerShown: false }} />
             <Stack.Screen name="grammar/lesson" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="grammar/review" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="live" options={{ headerShown: false, gestureEnabled: false }} />

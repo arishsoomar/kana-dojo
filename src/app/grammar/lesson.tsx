@@ -93,12 +93,13 @@ function Lesson({ lesson }: { lesson: GrammarLesson }) {
 }
 
 // The explanations: each section with its examples (tap one to hear it), and the lesson's
-// words, marked new if they haven't been started in the deck yet.
+// words, marked new until they're known from the flashcards.
 function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () => void }) {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
   const words = lesson.words.map((w) => VOCAB.find((v) => v.word === w)).filter((w) => w !== undefined);
-  const started = words.filter((w) => progress.words[String(w.id)] !== undefined).length;
+  const known = (id: number) => progress.flashcards[String(id)]?.known === true;
+  const started = words.filter((w) => known(w.id)).length;
   return (
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
       <Text style={styles.title}>{lesson.title}</Text>
@@ -118,8 +119,8 @@ function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () =
         <Text style={styles.sectionTitle}>Words in this lesson</Text>
         <Text style={styles.body}>
           {started === words.length
-            ? "You've started all of them in your word deck."
-            : `${started} of ${words.length} started in your word deck. Learning the rest first makes the lesson easier.`}
+            ? 'You know all of them from the flashcards.'
+            : `You know ${started} of ${words.length} from the flashcards. Learning the rest first makes the lesson easier.`}
         </Text>
         <View style={styles.words}>
           {words.map((w) => (
@@ -127,7 +128,7 @@ function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () =
               <Furigana furigana={w.furigana} size={17} />
               <Text style={styles.wordMeaning} numberOfLines={1}>
                 {w.meanings[0]?.split('; ')[0]}
-                {progress.words[String(w.id)] === undefined ? ' · new' : ''}
+                {known(w.id) ? '' : ' · new'}
               </Text>
             </View>
           ))}
@@ -136,9 +137,9 @@ function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () =
 
       {started < words.length && (
         <PrimaryButton
-          label="Learn these words first"
+          label="Study these words first"
           tone="light"
-          onPress={() => router.push({ pathname: '/words/review', params: { lesson: lesson.id } })}
+          onPress={() => router.push({ pathname: '/words/flashcards', params: { deck: `grammar:${lesson.id}` } })}
         />
       )}
       <PrimaryButton label="Practice" onPress={onPractice} />

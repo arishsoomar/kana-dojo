@@ -1,5 +1,5 @@
 import type { Completion, Progress } from './answers';
-import { WORDS_REVIEW_ID } from './deck';
+import { WORDS_REVIEW_ID } from './flashcards';
 import { seededRng, shuffle } from './random';
 
 // Assignments: three small tasks a day that point the learner at useful practice, and a
@@ -82,7 +82,7 @@ const RULES: Readonly<Record<AssignmentKind, Rule>> = {
   forge: { title: 'Read 10 words in Word Forge', target: 10, progress: total(startsWith('game:forge')), opensAfter: startsWith('game:forge') },
   kata: { title: 'Play the daily kata', target: 1, progress: howMany(startsWith('game:kata')), opensAfter: startsWith('game:kata') },
   mixups: { title: 'Settle 2 mix-ups', target: 2, progress: howMany(isMixUp), opensAfter: isMixUp },
-  reviews: { title: 'Review 20 words', target: 20, progress: total(startsWith(WORDS_REVIEW_ID)), opensAfter: startsWith(WORDS_REVIEW_ID) },
+  reviews: { title: 'Study 20 flashcards', target: 20, progress: total(startsWith(WORDS_REVIEW_ID)), opensAfter: startsWith(WORDS_REVIEW_ID) },
 };
 
 const KINDS = Object.keys(RULES) as AssignmentKind[];

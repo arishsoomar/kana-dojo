@@ -6,8 +6,8 @@
 export type FuriganaPiece = readonly [text: string] | readonly [text: string, reading: string];
 export type Furigana = readonly FuriganaPiece[];
 
-// Topics to browse and study by (names in src/content/topics.ts). A word can be in several,
-// or none.
+// Topics each word is tagged with when the deck is built (scripts/build-vocab.mjs). A word can
+// be in several, or none. Not shown in the app for now.
 export const TOPIC_IDS = ['food', 'places', 'people', 'time', 'body', 'feelings', 'nature', 'animals', 'home', 'work', 'numbers', 'talk'] as const;
 export type TopicId = (typeof TOPIC_IDS)[number];
 
@@ -18,26 +18,6 @@ export function isTopic(value: unknown): value is TopicId {
 // GENKI I's lessons, whose words are tagged in the deck: 0 is the greetings and numbers before
 // lesson 1, then lessons 1 to 12.
 export const GENKI_LESSONS = 12;
-export type GenkiLesson = `genki-${number}`;
-
-export function genkiLesson(lesson: number): GenkiLesson {
-  return `genki-${lesson}`;
-}
-
-// The lesson number of a GENKI lesson's name, or null if it isn't one: genki-3 is 3.
-export function genkiNumber(value: unknown): number | null {
-  const m = typeof value === 'string' ? value.match(/^genki-(\d+)$/) : null;
-  const lesson = m ? Number(m[1]) : null;
-  return lesson !== null && lesson <= GENKI_LESSONS ? lesson : null;
-}
-
-// Where new words come from, besides the whole deck: a topic, the words the grammar lessons
-// use, in lesson order, or a GENKI lesson's words.
-export type NewWordsFrom = TopicId | 'grammar' | GenkiLesson;
-
-export function isNewWordsFrom(value: unknown): value is NewWordsFrom {
-  return value === 'grammar' || isTopic(value) || genkiNumber(value) !== null;
-}
 
 export type VocabWord = {
   id: number; // its JMdict entry number

@@ -1,11 +1,10 @@
 import type { Progress } from './answers';
 import { BELT_STARTS } from './boxes';
-import { wordsStudied } from './deck';
 import { KANA, rowKind, type Kana } from './kana';
 
 // When to start grammar. Lessons are written in hiragana (particles, endings, and every
 // reading over the kanji), and the readings use ゛ and combined sounds (がくせい, きょうしつ),
-// so those come first. Some words started in the deck, and katakana, make it easier, but
+// so those come first. Some words known from the flashcards, and katakana, make it easier, but
 // aren't needed. Nothing is locked by this: it's advice, shown on the grammar path.
 
 export const WORDS_BEFORE_GRAMMAR = 50;
@@ -26,11 +25,16 @@ const HIRAGANA = KANA.filter((k) => k.script === 'hiragana' && rowKind(k.row) ==
 const HIRAGANA_MORE = KANA.filter((k) => k.script === 'hiragana' && rowKind(k.row) !== 'basic');
 const KATAKANA = KANA.filter((k) => k.script === 'katakana' && rowKind(k.row) === 'basic');
 
+// Flashcards marked known, of any deck.
+function knownCount(progress: Progress): number {
+  return Object.values(progress.flashcards).filter((mark) => mark.known).length;
+}
+
 export function grammarReadiness(progress: Progress): { items: ReadinessItem[]; ready: boolean } {
   const items: ReadinessItem[] = [
     { id: 'hiragana', needed: true, done: greenCount(progress, HIRAGANA), target: HIRAGANA.length },
     { id: 'hiraganaMore', needed: true, done: greenCount(progress, HIRAGANA_MORE), target: HIRAGANA_MORE.length },
-    { id: 'words', needed: false, done: Math.min(wordsStudied(progress), WORDS_BEFORE_GRAMMAR), target: WORDS_BEFORE_GRAMMAR },
+    { id: 'words', needed: false, done: Math.min(knownCount(progress), WORDS_BEFORE_GRAMMAR), target: WORDS_BEFORE_GRAMMAR },
     { id: 'katakana', needed: false, done: greenCount(progress, KATAKANA), target: KATAKANA.length },
   ];
   return { items, ready: items.every((i) => !i.needed || i.done >= i.target) };

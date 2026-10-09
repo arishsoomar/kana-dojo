@@ -1,9 +1,9 @@
-import { EMPTY_PROGRESS, NEW_WORDS, type Completion, type Confusion, type KanaStats, type Partnering, type Progress, type Purchase } from './answers';
+import { EMPTY_PROGRESS, type Completion, type Confusion, type KanaStats, type Partnering, type Progress, type Purchase } from './answers';
 import { MAX_BOX, type KanaProgress } from './boxes';
 import { gearById } from './gear';
 import { DEFAULT_DAILY_GOAL, isDailyGoal } from './goal';
 import type { WordCard } from './srs';
-import { isNewWordsFrom } from './vocab';
+import type { FlashcardMark } from './flashcards';
 
 // Bump this if the saved shape changes, and teach parseProgress to read the old one.
 // Version 1 had no stats and version 2 had no finished lessons; both are still read,
@@ -33,7 +33,7 @@ export function parseProgress(text: string | null): Progress {
   }
   if (!isObject(data) || !READABLE_VERSIONS.includes(data.version) || !isObject(data.progress)) return EMPTY;
 
-  const { kana, confusions, stats, completed, purchases, partners, words, grammar, settings } = data.progress;
+  const { kana, confusions, stats, completed, purchases, partners, words, grammar, flashcards, settings } = data.progress;
   const progress = {
     kana: !isObject(kana) ? {} : data.version === SAVE_VERSION ? validEntries(kana, isKanaProgress) : oldKana(kana),
     confusions: Array.isArray(confusions) ? confusions.filter(isConfusion) : [],
@@ -43,6 +43,7 @@ export function parseProgress(text: string | null): Progress {
     partners: Array.isArray(partners) ? partners.filter(isPartnering) : [],
     words: isObject(words) ? validEntries(words, isWordCard) : {},
     grammar: isObject(grammar) ? validEntries(grammar, isWordCard) : {},
+    flashcards: isObject(flashcards) ? validEntries(flashcards, isFlashcardMark) : {},
   };
   // Saves from before onboarding existed have no settings. Anyone with saved progress
   // has clearly been using the app, so they count as onboarded.
@@ -57,16 +58,10 @@ export function parseProgress(text: string | null): Progress {
   const typing = isObject(settings) && settings.typing === true;
   // Gear Karasu is wearing: only ids of real gear.
   const gear = isObject(settings) && Array.isArray(settings.gear) ? settings.gear.filter((id): id is string => typeof id === 'string' && gearById(id) !== null) : [];
-  // New words a day: a whole number in range, or the default.
-  const saved = isObject(settings) ? settings.newWords : undefined;
-  const newWords =
-    typeof saved === 'number' && Number.isInteger(saved) && saved >= NEW_WORDS.min && saved <= NEW_WORDS.max ? saved : NEW_WORDS.default;
-  const topic = isObject(settings) ? settings.newWordsTopic : undefined;
-  const newWordsTopic = isNewWordsFrom(topic) ? topic : null;
   const voice = isObject(settings) && typeof settings.voice === 'string' ? settings.voice : null;
   // Word cards show the Japanese first unless they were saved to show English.
   const wordFront = isObject(settings) && settings.wordFront === 'english' ? 'english' : 'japanese';
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, newWords, newWordsTopic, voice, wordFront } };
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, voice, wordFront } };
 }
 
 // Keeps the entries whose value passes `isValid`.
@@ -128,6 +123,10 @@ function isConfusion(value: unknown): value is Confusion {
 
 function isPurchase(value: unknown): value is Purchase {
   return isObject(value) && typeof value.item === 'string' && typeof value.at === 'number';
+}
+
+function isFlashcardMark(value: unknown): value is FlashcardMark {
+  return isObject(value) && typeof value.known === 'boolean' && typeof value.at === 'number' && Number.isFinite(value.at);
 }
 
 function isWordCard(value: unknown): value is WordCard {

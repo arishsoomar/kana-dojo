@@ -2,7 +2,7 @@ import { MAX_BOX, tierOf, type Belt, type KanaProgress } from './boxes';
 import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
 import type { WordCard } from './srs';
-import type { NewWordsFrom } from './vocab';
+import type { FlashcardMark } from './flashcards';
 
 export type Confusion = {
   shown: string;
@@ -38,9 +38,6 @@ export type Purchase = { item: string; at: number };
 // training: a partner can finish a shared goal alone.
 export type Partnering = { day: string; friend: string; at: number; done: boolean };
 
-// The word deck's default for new words a day, and its range.
-export const NEW_WORDS = { default: 10, min: 1, max: 50 } as const;
-
 // The learner's choices, as opposed to their training record.
 export type Settings = {
   onboarded: boolean; // has been through the welcome and chosen a goal
@@ -50,8 +47,6 @@ export type Settings = {
   haptics: boolean; // the phone taps and buzzes on answers and big moments
   typing: boolean; // lessons ask for the romaji to be typed, instead of tapped from four
   gear: readonly string[]; // ids of the gear Karasu is wearing, one per slot
-  newWords: number; // new words from the deck a day
-  newWordsTopic: NewWordsFrom | null; // new words only from a topic (or the grammar lessons' words), or null for any
   voice: string | null; // the Japanese voice chosen on this device, or null for the best one
   wordFront: WordFront; // which side of a word card shows first
 };
@@ -67,8 +62,9 @@ export type Progress = {
   completed: readonly Completion[];
   purchases: readonly Purchase[]; // everything bought with mon, oldest first
   partners: readonly Partnering[]; // partner assignments, oldest first
-  words: Readonly<Record<string, WordCard>>; // the word deck's cards, by word id, once studied
+  words: Readonly<Record<string, WordCard>>; // word cards from when words were reviewed on a schedule: kept, no longer used
   grammar: Readonly<Record<string, WordCard>>; // review cards for grammar points, by lesson id
+  flashcards: Readonly<Record<string, FlashcardMark>>; // whether each word's flashcard is known, by word id
   settings: Settings;
 };
 
@@ -82,7 +78,8 @@ export const EMPTY_PROGRESS: Progress = {
   partners: [],
   words: {},
   grammar: {},
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], newWords: NEW_WORDS.default, newWordsTopic: null, voice: null, wordFront: 'japanese' },
+  flashcards: {},
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese' },
 };
 
 export type Answer = {

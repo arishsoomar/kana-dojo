@@ -1,8 +1,6 @@
 import { adjectiveKind, conjugateAdjective, conjugateVerb, verbKind } from '@/core/conjugate';
 import { splitWord } from '@/core/forge';
-import { furiganaReading, furiganaText, GENKI_LESSONS, isTopic, type Furigana } from '@/core/vocab';
-
-import { TOPICS } from './topics';
+import { furiganaReading, furiganaText, GENKI_LESSONS, isTopic, TOPIC_IDS, type Furigana } from '@/core/vocab';
 
 import { VOCAB } from './vocab';
 
@@ -48,7 +46,7 @@ describe('the word deck', () => {
 
   it('tags words only with known topics, each topic with some words', () => {
     expect(VOCAB.filter((w) => !Array.isArray(w.topics) || !w.topics.every(isTopic)).map((w) => w.word)).toEqual([]);
-    for (const topic of TOPICS) expect(VOCAB.filter((w) => w.topics.includes(topic.id)).length).toBeGreaterThan(5);
+    for (const topic of TOPIC_IDS) expect(VOCAB.filter((w) => w.topics.includes(topic)).length).toBeGreaterThan(5);
   });
 
   it('tags each GENKI I lesson with its words, and those words with a real lesson', () => {

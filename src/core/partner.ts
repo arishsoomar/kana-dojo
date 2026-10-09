@@ -1,5 +1,5 @@
 import type { Completion, Partnering, Progress } from './answers';
-import { WORDS_REVIEW_ID } from './deck';
+import { WORDS_REVIEW_ID } from './flashcards';
 import { kataId } from './kata';
 import { seededRng } from './random';
 

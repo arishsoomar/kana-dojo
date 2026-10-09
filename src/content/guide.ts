@@ -1,4 +1,4 @@
-import { FAST_MS, NEW_WORDS } from '@/core/answers';
+import { FAST_MS } from '@/core/answers';
 import { DUEL_LOSS, DUEL_READY_MIXUPS, DUEL_WIN } from '@/core/duel';
 import { CHARMS, DUNGEON_MIN_KANA, MAX_HEARTS } from '@/core/dungeon';
 import { EXAM_LENGTH, EXAM_PASS, EXAM_TIME_MS } from '@/core/exam';
@@ -288,19 +288,19 @@ export const GUIDE: GuideSection[] = [
       },
       {
         id: 'words',
-        question: 'How does the word deck work?',
+        question: 'How do the word flashcards work?',
         answer: [
-          `The 2,500 most used words in Japanese (counted across anime, drama, films and novels), and every word the textbook GENKI I teaches, most frequent first, on the Study tab under Words. Each day brings ${NEW_WORDS.default} new ones (you can change that), and reviews of words you've started.`,
+          'On the Study tab under Words: a deck of flashcards for every lesson of the textbook GENKI I, from the greetings and numbers before lesson 1 to lesson 12. Study any deck, as often as you like.',
           {
             bullets: [
-              'Words are written as they really are, with kanji, and furigana (the reading in small kana) above. Once you know a word well, its front shows the kanji alone.',
-              'Tap the card to turn it over: the reading, its meanings, an example sentence, and the word spoken.',
-              'Or turn it around: set Card front to English on the Study tab, and each card shows the meaning (and a picture, for some words) first. Say the word in Japanese, then tap to see it and hear it said right.',
-              'Then rate how well you knew it. Again brings it back in ten minutes; Hard, Good and Easy bring it back in days, weeks, then months, each time just before you would forget it. The buttons show when.',
-              'It uses FSRS, the same way of scheduling reviews that Anki uses. A review session counts as training for your streak and daily goal.',
+              'Words are written as they really are, with kanji, and furigana (the reading in small kana) above.',
+              'Tap a card to turn it over, and again to turn it back: the reading, the word spoken, a picture (for many words), its meanings and an example sentence.',
+              'Then say whether you know it: Know it, or Still learning. At the end of the round, keep going with the ones you are still learning; once you know them all, start the deck again.',
+              'Each deck remembers which cards you know, and can study just the ones you are still learning.',
+              'Or turn the cards around: choose English as the card front on a deck, and each card shows the meaning (and picture) first. Say the word in Japanese, then tap to see it and hear it said right.',
+              'Shuffled or in order: your choice, on each deck. A session counts as training for your streak and daily goal.',
               'The back of a card also says who uses the word and how, like Humble, Honorific, Casual or Mostly men. Words like "mother", "I" and "you" have several forms depending on who you are talking to; their cards show the whole family, and when each is used.',
-              'Want more? Learn 10 more starts the next new words any time, even before today is done. Practice goes over words you have started as often as you like, and never changes when they come back: the chosen topic or GENKI lesson, 20 at a time and those closest to being forgotten first, or with none chosen, what you studied today (or this week).',
-              'Under New words from, For grammar picks the words the grammar lessons use, in lesson order. Each lesson also shows how many of its words you have started, with a button to learn the rest first.',
+              "Each grammar lesson lists its words, with a button to study them as flashcards first.",
             ],
           },
         ],
@@ -313,7 +313,7 @@ export const GUIDE: GuideSection[] = [
           {
             bullets: [
               'Needed first: all 46 hiragana at green belt, then the hiragana with ゛ ゜ and small ゃ ゅ ょ.',
-              `Helps a lot: about ${WORDS_BEFORE_GRAMMAR} words started in the word deck, so the examples aren't all new, and the katakana basics, for words like トイレ.`,
+              `Helps a lot: about ${WORDS_BEFORE_GRAMMAR} words known from the flashcards, so the examples aren't all new, and the katakana basics, for words like トイレ.`,
               'Nothing is locked: the Grammar section shows how far along each is, and you can start whenever you like. Many learners start grammar while finishing katakana.',
             ],
           },

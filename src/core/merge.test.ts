@@ -27,7 +27,8 @@ const phone: Progress = {
     '2': { stability: 3, difficulty: 5, due: 400, last: 300, added: 300, reps: 1, lapses: 0 },
   },
   grammar: { desu: { stability: 3, difficulty: 5, due: 400, last: 300, added: 300, reps: 1, lapses: 0 } },
-  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'], newWords: 10, newWordsTopic: null, voice: null, wordFront: 'japanese' },
+  flashcards: { '1': { known: true, at: 500 }, '2': { known: false, at: 100 } },
+  settings: { onboarded: true, dailyGoal: 3, script: 'hiragana', sound: true, haptics: true, typing: false, gear: ['kasa'], voice: null, wordFront: 'japanese' },
 };
 
 const web: Progress = {
@@ -54,7 +55,8 @@ const web: Progress = {
     '3': { stability: 1, difficulty: 6, due: 800, last: 600, added: 600, reps: 1, lapses: 0 },
   },
   grammar: { desu: { stability: 9, difficulty: 4, due: 2000, last: 900, added: 300, reps: 2, lapses: 0 } },
-  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], newWords: 20, newWordsTopic: 'food', voice: null, wordFront: 'english' },
+  flashcards: { '1': { known: false, at: 700 }, '3': { known: true, at: 50 } },
+  settings: { onboarded: false, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], voice: null, wordFront: 'english' },
 };
 
 describe('mergeProgress', () => {
@@ -123,8 +125,13 @@ describe('mergeProgress', () => {
     expect(mergeProgress(web, phone).words).toEqual(mergeProgress(phone, web).words);
   });
 
+  it('keeps, per flashcard, the one marked most recently', () => {
+    expect(mergeProgress(phone, web).flashcards).toEqual({ '1': web.flashcards['1'], '2': phone.flashcards['2'], '3': web.flashcards['3'] });
+    expect(mergeProgress(web, phone).flashcards).toEqual(mergeProgress(phone, web).flashcards);
+  });
+
   it('keeps the settings of the first copy (the device in hand), onboarded if either is', () => {
-    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], newWords: 20, newWordsTopic: 'food', voice: null, wordFront: 'english' });
+    expect(mergeProgress(web, phone).settings).toEqual({ onboarded: true, dailyGoal: 1, script: 'katakana', sound: false, haptics: false, typing: false, gear: [], voice: null, wordFront: 'english' });
   });
 
   it('gives the same training record whichever order the copies come in', () => {

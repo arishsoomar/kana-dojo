@@ -23,6 +23,7 @@ import { GENKI } from './genki-words.mjs';
 const WORDS = 2500;
 const CACHE = new URL('../.cache/vocab/', import.meta.url);
 const OUT = new URL('../src/content/vocab.json', import.meta.url);
+const GENKI_OUT = new URL('../src/content/genki.json', import.meta.url);
 const KANA_SOURCE = new URL('../src/core/kana.ts', import.meta.url);
 
 const SOURCES = {
@@ -288,6 +289,7 @@ function kanaEntry(word) {
 }
 
 const genkiOf = new Map(); // ent_seq → lesson
+const genkiDecks = Object.fromEntries(Object.keys(GENKI).map((lesson) => [lesson, []])); // lesson → ids, in the lesson's order
 const notFound = [];
 let added = 0;
 for (const [lesson, list] of Object.entries(GENKI)) {
@@ -304,7 +306,10 @@ for (const [lesson, list] of Object.entries(GENKI)) {
         notFound.push(`${item}(${!entry ? 'entry' : senses.length === 0 ? 'senses' : !readable(reading) ? 'kana' : pos.join('/')})`);
         return;
       }
-      if (!genkiOf.has(entry.seq)) genkiOf.set(entry.seq, Number(lesson));
+      if (!genkiOf.has(entry.seq)) {
+        genkiOf.set(entry.seq, Number(lesson));
+        genkiDecks[lesson].push(entry.seq);
+      }
       if (chosen.has(entry.seq)) return;
       added += 1;
       chosen.set(entry.seq, {
@@ -554,5 +559,7 @@ for (const word of chosen.values()) word.topics = topicsFor(word.word, word.mean
 // Most frequent first, GENKI's added words among the rest.
 const words = [...chosen.values()].sort((a, b) => a.rank - b.rank).map((w) => ({ ...w, example: best.get(w.id)?.example ?? null }));
 writeFileSync(OUT, `${JSON.stringify(words, null, 0).replace(/\},\{"id"/g, '},\n{"id"')}\n`);
+// Each GENKI lesson's flashcard deck: its words' ids, in the order the lesson lists them.
+writeFileSync(GENKI_OUT, `${JSON.stringify(genkiDecks)}\n`);
 const withExamples = words.filter((w) => w.example).length;
 console.log(`Wrote ${words.length} words to src/content/vocab.json, ${withExamples} with an example sentence.`);

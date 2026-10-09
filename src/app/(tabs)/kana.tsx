@@ -11,9 +11,7 @@ import { KanaDetailSheet } from '@/components/kana-detail-sheet';
 import { ProgressRing } from '@/components/progress-ring';
 import { PrimaryButton } from '@/components/primary-button';
 import { SegmentedControl } from '@/components/segmented-control';
-import { TopicChips } from '@/components/topic-chips';
 import { colors, fonts, jpRoom } from '@/constants/theme';
-import { sourceName } from '@/content/topics';
 import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
@@ -22,7 +20,7 @@ import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from 
 import { useProgress } from '@/hooks/use-progress';
 import { grammarReadiness } from '@/core/readiness';
 import { useGrammarDue, useGrammarPath } from '@/hooks/use-grammar';
-import { MORE_WORDS, useWordsToday } from '@/hooks/use-words';
+import { useDecks } from '@/hooks/use-words';
 
 const SECTIONS = [
   { value: 'kana', label: 'Kana' },
@@ -30,12 +28,6 @@ const SECTIONS = [
   { value: 'grammar', label: 'Grammar' },
 ] as const;
 type Section = (typeof SECTIONS)[number]['value'];
-
-// Which side of a word card shows first.
-const FRONTS = [
-  { value: 'japanese', label: 'Japanese' },
-  { value: 'english', label: 'English' },
-] as const;
 
 const SCRIPTS = [
   { value: 'hiragana', label: 'Hiragana' },
@@ -58,104 +50,33 @@ export default function StudyScreen() {
   );
 }
 
-// The word deck: what's due today, the new words still to start, how far through the deck,
-// and how many new words a day.
+// Words: GENKI I's flashcard decks, one per lesson, each with how many of its cards you know.
 function WordsSection() {
-  const words = useWordsToday();
-  const ready = words.due + words.fresh;
+  const { decks } = useDecks();
   return (
     <>
-      <View style={[styles.summary, styles.wordsCard]}>
-        <View style={styles.wordCounts}>
-          <Count value={words.due} label="to review" />
-          <Count value={words.fresh} label="new today" />
-          <Count value={words.studied} label={`of ${words.total.toLocaleString('en-US')} started`} />
-        </View>
-        {ready > 0 ? (
-          <PrimaryButton label={words.due > 0 ? 'Review' : 'Learn new words'} onPress={() => router.push('/words/review')} />
-        ) : (
-          <Text style={styles.wordsDone}>All done for today. Want more?</Text>
-        )}
-        {/* More new words whenever you like, not only once the day's are done: if there are more
-            than today's. */}
-        {words.left > words.fresh && (
-          <PrimaryButton
-            label={`Learn ${Math.min(MORE_WORDS, words.left)} more${words.topic ? `: ${sourceName(words.topic)}` : ''}`}
-            tone={ready > 0 ? 'light' : undefined}
-            onPress={() => router.push({ pathname: '/words/review', params: { mode: 'more' } })}
-          />
-        )}
-        {/* Going over words again, any time: it never changes when they come back. */}
-        {words.started > 0 && (
-          <PrimaryButton
-            label={words.topic ? `Practice ${sourceName(words.topic)}` : 'Practice recent words'}
-            tone="light"
-            onPress={() => router.push({ pathname: '/words/review', params: { mode: 'practice' } })}
-          />
-        )}
-      </View>
-
-      <View style={[styles.summary, styles.wordsCard, styles.topicCard]}>
-        <View>
-          <Text style={styles.summaryTitle}>New words from</Text>
-          <Text style={styles.wordsAbout}>Any topic, one you want to work on, or a GENKI I lesson. Reviews always cover every word.</Text>
-        </View>
-        <TopicChips value={words.topic} onChange={words.setTopic} allLabel="Any topic" counts={words.topicLeft} />
-      </View>
-
-      <View style={[styles.summary, styles.perDay]}>
-        <View style={styles.summaryText}>
-          <Text style={styles.summaryTitle}>New words a day</Text>
-          <Text style={styles.wordsAbout}>More means faster, and more reviews later.</Text>
-        </View>
-        <Stepper value={words.newPerDay} onChange={words.setNewPerDay} />
-      </View>
-
-      <View style={[styles.summary, styles.wordsCard]}>
-        <View>
-          <Text style={styles.summaryTitle}>Card front</Text>
-          <Text style={styles.wordsAbout}>
-            {words.front === 'japanese'
-              ? 'Read the Japanese, and say what it means.'
-              : 'See the English and picture, say it in Japanese, then hear it.'}
-          </Text>
-        </View>
-        <SegmentedControl options={FRONTS} value={words.front} onChange={words.setFront} />
-      </View>
-
-      <Pressable role="button" onPress={() => router.push('/words')} style={[styles.summary, styles.perDay]}>
-        <View style={styles.summaryText}>
-          <Text style={styles.summaryTitle}>Browse the deck</Text>
-          <Text style={styles.wordsAbout}>{words.total.toLocaleString('en-US')} words: the most used, and GENKI I&apos;s, most frequent first</Text>
-        </View>
-        <Text style={styles.chevron}>›</Text>
-      </Pressable>
+      <Text style={styles.wordsIntro}>Flashcards for every lesson of GENKI I. Study a deck as often as you like.</Text>
+      {decks.map((deck) => (
+        <Pressable
+          key={deck.id}
+          role="button"
+          aria-label={`${deck.name}, ${deck.title}: ${deck.known} of ${deck.ids.length} known`}
+          onPress={() => router.push({ pathname: '/words/deck', params: { id: deck.id } })}
+          style={[styles.summary, styles.deck]}>
+          <View style={styles.summaryText}>
+            <Text style={styles.deckName}>{deck.name}</Text>
+            <Text style={styles.summaryTitle}>{deck.title}</Text>
+            <View style={styles.deckTrack}>
+              <View style={[styles.deckFill, { width: `${(deck.known / deck.ids.length) * 100}%` }]} />
+            </View>
+            <Text style={styles.wordsAbout}>
+              {deck.known} of {deck.ids.length} known
+            </Text>
+          </View>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+      ))}
     </>
-  );
-}
-
-function Count({ value, label }: { value: number; label: string }) {
-  return (
-    <View style={styles.count}>
-      <Text style={styles.countValue}>{value.toLocaleString('en-US')}</Text>
-      <Text style={styles.countLabel}>{label}</Text>
-    </View>
-  );
-}
-
-// − 10 +, in steps of 5 (then 1 near the bottom).
-function Stepper({ value, onChange }: { value: number; onChange: (value: number) => void }) {
-  const step = (up: boolean) => (value < 5 || (value === 5 && !up) ? 1 : 5);
-  return (
-    <View style={styles.stepper}>
-      <Pressable role="button" aria-label="Fewer new words" onPress={() => onChange(value - step(false))} style={styles.stepButton} hitSlop={6}>
-        <Text style={styles.stepText}>−</Text>
-      </Pressable>
-      <Text style={styles.stepValue}>{value}</Text>
-      <Pressable role="button" aria-label="More new words" onPress={() => onChange(value + step(true))} style={styles.stepButton} hitSlop={6}>
-        <Text style={styles.stepText}>+</Text>
-      </Pressable>
-    </View>
   );
 }
 
@@ -216,7 +137,7 @@ function GrammarSection() {
 const READINESS_TEXT = {
   hiragana: { title: 'All 46 hiragana at green belt', why: 'Particles, endings and every reading are written in hiragana.' },
   hiraganaMore: { title: 'The rest of hiragana: が, ぱ, きゃ and the like', why: 'Readings like がくせい and きょうしつ use them.' },
-  words: { title: 'Some words from the deck', why: "So the examples aren't all new words." },
+  words: { title: 'Some words known from the flashcards', why: "So the examples aren't all new words." },
   katakana: { title: 'Katakana basics', why: 'A few words, like トイレ, are written in katakana.' },
 } as const;
 
@@ -379,6 +300,36 @@ function DetailSheet({ kana, onDrill, onClose }: { kana: Kana; onDrill: () => vo
 }
 
 const styles = StyleSheet.create({
+  wordsIntro: {
+    paddingHorizontal: 2,
+    fontFamily: fonts.uiMedium,
+    fontSize: 14,
+    lineHeight: 20,
+    color: colors.ink2,
+  },
+  deck: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  deckName: {
+    fontFamily: fonts.uiBold,
+    fontSize: 12,
+    color: colors.ink2,
+  },
+  deckTrack: {
+    height: 8,
+    marginTop: 6,
+    marginBottom: 2,
+    overflow: 'hidden',
+    borderRadius: 4,
+    backgroundColor: colors.line,
+  },
+  deckFill: {
+    height: '100%',
+    borderRadius: 4,
+    backgroundColor: colors.pine,
+  },
   screen: {
     flex: 1,
     backgroundColor: colors.paper,
@@ -412,29 +363,6 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     gap: 14,
     padding: 16,
-  },
-  wordCounts: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  count: {
-    alignItems: 'center',
-  },
-  countValue: {
-    fontFamily: fonts.uiBlack,
-    fontSize: 26,
-    color: colors.sumi,
-  },
-  countLabel: {
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 12,
-    color: colors.ink2,
-  },
-  wordsDone: {
-    textAlign: 'center',
-    fontFamily: fonts.uiBold,
-    fontSize: 14,
-    color: colors.pineDark,
   },
   wordsAbout: {
     marginTop: 2,
@@ -522,9 +450,6 @@ const styles = StyleSheet.create({
   lockedText: {
     color: colors.muted,
   },
-  topicCard: {
-    gap: 10,
-  },
   perDay: {
     paddingVertical: 14,
   },
@@ -532,32 +457,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBold,
     fontSize: 22,
     color: colors.muted,
-  },
-  stepper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  stepButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1.5,
-    borderColor: colors.edge,
-  },
-  stepText: {
-    fontFamily: fonts.uiExtraBold,
-    fontSize: 18,
-    color: colors.sumi,
-  },
-  stepValue: {
-    minWidth: 28,
-    textAlign: 'center',
-    fontFamily: fonts.uiBlack,
-    fontSize: 18,
-    color: colors.sumi,
   },
   summaryTitle: {
     fontFamily: fonts.uiExtraBold,

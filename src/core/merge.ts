@@ -1,5 +1,6 @@
 import type { Completion, Confusion, KanaStats, Partnering, Progress, Purchase } from './answers';
 import type { KanaProgress } from './boxes';
+import type { FlashcardMark } from './flashcards';
 import type { WordCard } from './srs';
 
 // Combines two copies of one learner's progress (say, the phone's and the cloud's) so that
@@ -15,6 +16,7 @@ export function mergeProgress(mine: Progress, theirs: Progress): Progress {
     partners: mergePartners(mine.partners, theirs.partners),
     words: mergeRecords(mine.words, theirs.words, laterCard),
     grammar: mergeRecords(mine.grammar, theirs.grammar, laterCard),
+    flashcards: mergeRecords(mine.flashcards, theirs.flashcards, laterMark),
     settings: { ...mine.settings, onboarded: mine.settings.onboarded || theirs.settings.onboarded },
   };
 }
@@ -43,6 +45,12 @@ function laterKana(x: KanaProgress, y: KanaProgress): KanaProgress {
 function laterCard(x: WordCard, y: WordCard): WordCard {
   if (x.last !== y.last) return x.last > y.last ? x : y;
   return x.reps >= y.reps ? x : y;
+}
+
+// The flashcard marked more recently, or on a tie, known.
+function laterMark(x: FlashcardMark, y: FlashcardMark): FlashcardMark {
+  if (x.at !== y.at) return x.at > y.at ? x : y;
+  return x.known ? x : y;
 }
 
 // The stats that have seen more answers. Ties are settled by comparing the whole value,

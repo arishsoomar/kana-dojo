@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS, type Progress } from './answers';
-import { rateWord } from './deck';
+import { markCard } from './flashcards';
 import { KANA, rowKind } from './kana';
 import { grammarReadiness, WORDS_BEFORE_GRAMMAR } from './readiness';
 
@@ -37,9 +37,9 @@ describe('ready for grammar', () => {
     expect(grammarReadiness(withKana(hiragana(true), 4)).ready).toBe(false);
   });
 
-  it('counts words started in the deck, up to its target', () => {
+  it('counts flashcards known, up to its target', () => {
     let progress = EMPTY_PROGRESS;
-    for (let i = 0; i < 60; i++) progress = rateWord(progress, String(i), 3, 1);
+    for (let i = 0; i < 60; i++) progress = markCard(progress, String(i), i !== 0, 1);
     expect(grammarReadiness(progress).items.find((i) => i.id === 'words')?.done).toBe(WORDS_BEFORE_GRAMMAR);
   });
 });

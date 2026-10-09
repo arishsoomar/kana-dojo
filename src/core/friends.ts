@@ -1,5 +1,5 @@
 import type { Completion, Progress } from './answers';
-import { WORDS_REVIEW_ID } from './deck';
+import { WORDS_REVIEW_ID } from './flashcards';
 import { BELTS, type Belt } from './boxes';
 import { dojoRoom, type DojoRoom, type RackGame, type RackRecord, type RoomPlaque, type BonsaiStage } from './dojo';
 import { gearById } from './gear';

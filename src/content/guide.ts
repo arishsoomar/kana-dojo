@@ -301,7 +301,22 @@ export const GUIDE: GuideSection[] = [
               'Or turn the cards around: choose English as the card front on a deck, and each card shows the meaning (and picture) first. Say the word in Japanese, then tap to see it and hear it said right.',
               'Shuffled or in order: your choice, on each deck. A session counts as training for your streak and daily goal.',
               'The back of a card also says who uses the word and how, like Humble, Honorific, Casual or Mostly men. Words like "mother", "I" and "you" have several forms depending on who you are talking to; their cards show the whole family, and when each is used.',
-              "Each grammar lesson lists its words, with a button to study them as flashcards first.",
+              "Each grammar lesson links to its lesson's word deck, so you can learn the words before saying sentences with them.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'grammar',
+        question: 'How do the grammar lessons work?',
+        answer: [
+          'On the Study tab under Grammar: one lesson for each lesson of GENKI I, with its grammar points in the book’s order. Each point has a short explanation and examples (tap one to hear it).',
+          {
+            bullets: [
+              'Then practise saying it. Each card shows an English sentence ("I am a student."). Say it in Japanese, out loud or in your head, then tap to turn the card over: the Japanese, its romaji, and the sentence spoken.',
+              'Say whether you knew it: Know it, or Still learning. Like the word flashcards, a round goes over the ones you are still learning, as often as you like.',
+              "Every sentence uses only words from that lesson's word deck and earlier ones, so learning the lesson's words first makes it easier.",
+              'Some sentences are about you: add your name, and how it is written in katakana, on lesson 1.',
             ],
           },
         ],

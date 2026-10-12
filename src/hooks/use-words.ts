@@ -7,7 +7,6 @@ import { completeLesson, type WordFront } from '@/core/answers';
 import { answerCard, currentCard, knownCards, markCard, nextRound, roundOver, setWordFront, startRound, WORDS_REVIEW_ID } from '@/core/flashcards';
 import type { VocabWord } from '@/core/vocab';
 
-import { lessonById } from './use-grammar';
 import { useHaptics } from './use-haptics';
 import { useProgress } from './use-progress';
 
@@ -25,14 +24,10 @@ export function lessonWordIds(words: readonly string[]): string[] {
   return words.flatMap((w) => ID_BY_WORD.get(w) ?? []);
 }
 
-// A deck to study: a GENKI lesson's (genki-3), or a grammar lesson's words (grammar:<lesson id>).
+// A deck to study: a GENKI lesson's.
 export type Deck = { id: string; name: string; title: string; ids: readonly string[] };
 
 export function deckById(id: string): Deck | null {
-  if (id.startsWith('grammar:')) {
-    const lesson = lessonById(id.slice('grammar:'.length));
-    return lesson ? { id, name: 'Grammar lesson', title: lesson.title, ids: lessonWordIds(lesson.words) } : null;
-  }
   return genkiDeck(id);
 }
 

@@ -1,149 +1,111 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { speakWord } from '@/audio/pronounce';
+import { BackIcon } from '@/components/back-icon';
 import { Furigana } from '@/components/furigana';
-import { GrammarPractice } from '@/components/grammar-practice';
-import { LeaveDialog } from '@/components/leave-dialog';
-import { LessonComplete } from '@/components/lesson-complete';
 import { PrimaryButton } from '@/components/primary-button';
+import { SegmentedControl } from '@/components/segmented-control';
 import { SpeakerIcon } from '@/components/speaker-icon';
-import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
-import { VOCAB } from '@/content/vocab';
-import { parseRuby, rubyText, type Example, type GrammarLesson } from '@/core/grammar';
-import { lessonById, useGrammarLesson } from '@/hooks/use-grammar';
+import { genkiDeck } from '@/content/genki';
+import { knownCards } from '@/core/flashcards';
+import { parseRuby, rubyText, sayCardIds, type Example, type GrammarLesson, type GrammarPoint } from '@/core/grammar';
+import { lessonById, useMyName } from '@/hooks/use-grammar';
 import { useProgress } from '@/hooks/use-progress';
-import { useRank } from '@/hooks/use-rank';
 
-function leave() {
+function goBack() {
   if (router.canGoBack()) router.back();
   else router.replace('/kana');
 }
 
-// A grammar lesson: its explanations and examples, then its exercises.
+const ORDERS = [
+  { value: 'order', label: 'In order' },
+  { value: 'shuffled', label: 'Shuffled' },
+] as const;
+
+// A grammar lesson: each point explained with examples (tap one to hear it), then sentences to
+// practise saying.
 export default function GrammarLessonScreen() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const lesson = typeof id === 'string' ? lessonById(id) : null;
-  const insets = useSafeAreaInsets();
-  if (!lesson) {
-    return (
-      <View style={[styles.screen, styles.empty, { paddingTop: insets.top }]}>
-        <Text style={styles.body}>There&apos;s no lesson here.</Text>
-        <PrimaryButton label="Back" onPress={leave} />
-      </View>
-    );
-  }
-  return <Lesson lesson={lesson} />;
-}
-
-function Lesson({ lesson }: { lesson: GrammarLesson }) {
-  const insets = useSafeAreaInsets();
-  const rank = useRank();
-  const run = useGrammarLesson(lesson);
-  const [leaving, setLeaving] = useState(false);
-  const practising = run.phase === 'practice';
-
-  // Android's back button asks first while practising.
-  useEffect(() => {
-    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (!practising || run.result) return false;
-      setLeaving(true);
-      return true;
-    });
-    return () => subscription.remove();
-  }, [practising, run.result]);
-
-  if (run.result) {
-    return (
-      <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom + 22 }]}>
-        <LessonComplete
-          summary={run.result.summary}
-          onContinue={leave}
-          title="Lesson complete"
-          headline={{ label: 'Right', value: `${run.result.right}/${run.result.total}` }}
-          rank={rank}
-          celebrate={run.result.right === run.result.total}
-        />
-      </View>
-    );
-  }
-
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <View style={styles.bar}>
-        <Pressable role="button" aria-label="Leave lesson" onPress={() => (practising ? setLeaving(true) : leave())} hitSlop={10}>
-          <XIcon color={colors.ink2} />
+      <View style={styles.top}>
+        <Pressable role="button" aria-label="Back" onPress={goBack} hitSlop={10}>
+          <BackIcon color={colors.ink2} />
         </Pressable>
-        {practising ? (
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${run.fraction * 100}%` }]} />
-          </View>
-        ) : (
-          <Text style={styles.barTitle}>Unit {lesson.unit}</Text>
-        )}
+        <Text style={styles.topTitle}>{lesson ? `Lesson ${lesson.lesson}` : ''}</Text>
       </View>
-
-      {practising ? <GrammarPractice run={run} /> : <Learn lesson={lesson} onPractice={run.startPractice} />}
-      <LeaveDialog visible={leaving} onStay={() => setLeaving(false)} onLeave={leave} />
+      {lesson ? <Lesson lesson={lesson} /> : <Text style={styles.body}>There&apos;s no lesson here.</Text>}
     </View>
   );
 }
 
-// The explanations: each section with its examples (tap one to hear it), and the lesson's
-// words, marked new until they're known from the flashcards.
-function Learn({ lesson, onPractice }: { lesson: GrammarLesson; onPractice: () => void }) {
+function Lesson({ lesson }: { lesson: GrammarLesson }) {
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
-  const words = lesson.words.map((w) => VOCAB.find((v) => v.word === w)).filter((w) => w !== undefined);
-  const known = (id: number) => progress.flashcards[String(id)]?.known === true;
-  const started = words.filter((w) => known(w.id)).length;
+  const [order, setOrder] = useState<(typeof ORDERS)[number]['value']>('order');
+  const ids = sayCardIds(lesson);
+  const known = knownCards(progress, ids).length;
+  const learning = ids.length - known;
+  const deck = genkiDeck(lesson.id);
+  const usesName = lesson.points.some((p) => p.say.some((s) => s.ja.includes('{name}')));
+  const practise = (only: boolean) =>
+    router.push({
+      pathname: '/grammar/say',
+      params: { id: lesson.id, shuffle: order === 'shuffled' ? '1' : '0', ...(only ? { only: 'learning' } : {}) },
+    });
+
   return (
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
       <Text style={styles.title}>{lesson.title}</Text>
       <Text style={styles.goal}>{lesson.goal}</Text>
 
-      {lesson.sections.map((section) => (
-        <View key={section.title} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
-          <Text style={styles.body}>{section.text}</Text>
-          {section.examples.map((example) => (
-            <ExampleRow key={example.ja} example={example} />
-          ))}
-        </View>
+      {deck && (
+        <Pressable role="button" onPress={() => router.push({ pathname: '/words/deck', params: { id: deck.id } })} style={styles.wordsRow}>
+          <View style={styles.grow}>
+            <Text style={styles.sectionTitle}>This lesson&apos;s words</Text>
+            <Text style={styles.body}>{deck.ids.length} flashcards. Knowing them makes the sentences easier.</Text>
+          </View>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
+      )}
+
+      {lesson.points.map((point, i) => (
+        <Point key={point.title} point={point} number={i + 1} />
       ))}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Words in this lesson</Text>
-        <Text style={styles.body}>
-          {started === words.length
-            ? 'You know all of them from the flashcards.'
-            : `You know ${started} of ${words.length} from the flashcards. Learning the rest first makes the lesson easier.`}
-        </Text>
-        <View style={styles.words}>
-          {words.map((w) => (
-            <View key={w.id} style={styles.word}>
-              <Furigana furigana={w.furigana} size={17} />
-              <Text style={styles.wordMeaning} numberOfLines={1}>
-                {w.meanings[0]?.split('; ')[0]}
-                {known(w.id) ? '' : ' · new'}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
+      {usesName && <NameCard />}
 
-      {started < words.length && (
-        <PrimaryButton
-          label="Study these words first"
-          tone="light"
-          onPress={() => router.push({ pathname: '/words/flashcards', params: { deck: `grammar:${lesson.id}` } })}
-        />
-      )}
-      <PrimaryButton label="Practice" onPress={onPractice} />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Say it</Text>
+        <Text style={styles.body}>
+          {ids.length} sentences: see the English, say it in Japanese (out loud, or in your head), then turn the card over to check and
+          hear it. {known} known.
+        </Text>
+        <SegmentedControl options={ORDERS} value={order} onChange={setOrder} />
+        <PrimaryButton label={`Practise all ${ids.length}`} onPress={() => practise(false)} />
+        {known > 0 && learning > 0 && <PrimaryButton label={`Practise the ${learning} still learning`} tone="light" onPress={() => practise(true)} />}
+      </View>
     </ScrollView>
+  );
+}
+
+function Point({ point, number }: { point: GrammarPoint; number: number }) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>
+        {number}. {point.title}
+      </Text>
+      <Text style={styles.body}>{point.text}</Text>
+      {point.examples.map((example) => (
+        <ExampleRow key={example.ja} example={example} />
+      ))}
+    </View>
   );
 }
 
@@ -159,40 +121,44 @@ function ExampleRow({ example }: { example: Example }) {
   );
 }
 
+// Your name, for the sentences about you: as it's spelled, and in katakana, the way names from
+// other languages are written in Japanese (Arish is アリシュ).
+function NameCard() {
+  const myName = useMyName();
+  const [en, setEn] = useState(myName.set ? myName.name.en : '');
+  const [ja, setJa] = useState(myName.set ? myName.name.ja : '');
+  const changed = en.trim() !== (myName.set ? myName.name.en : '') || ja.trim() !== (myName.set ? myName.name.ja : '');
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Your name</Text>
+      <Text style={styles.body}>
+        Some sentences are about you. Foreign names are written in katakana, by how they sound: Arish is アリシュ, Emma is エマ.
+        {myName.set ? '' : ' Until you add yours, they use Mary’s (メアリー).'}
+      </Text>
+      <TextInput value={en} onChangeText={setEn} placeholder="Your name, e.g. Arish" style={styles.input} placeholderTextColor={colors.muted} autoCorrect={false} />
+      <TextInput value={ja} onChangeText={setJa} placeholder="In katakana, e.g. アリシュ" style={styles.input} placeholderTextColor={colors.muted} autoCorrect={false} />
+      {changed && <PrimaryButton label="Save" tone="light" onPress={() => myName.save({ en, ja })} />}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.paper,
   },
-  empty: {
-    justifyContent: 'center',
-    gap: 16,
-    paddingHorizontal: 24,
-  },
-  bar: {
+  top: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    paddingTop: 8,
-    paddingBottom: 12,
+    gap: 12,
+    paddingTop: 6,
+    paddingBottom: 10,
     paddingHorizontal: 18,
   },
-  barTitle: {
+  topTitle: {
     fontFamily: fonts.uiBold,
     fontSize: 14,
     color: colors.ink2,
-  },
-  track: {
-    flex: 1,
-    height: 10,
-    overflow: 'hidden',
-    borderRadius: 5,
-    backgroundColor: colors.line,
-  },
-  fill: {
-    height: '100%',
-    borderRadius: 5,
-    backgroundColor: colors.pine,
   },
   content: {
     gap: 14,
@@ -217,6 +183,21 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: colors.card,
   },
+  wordsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.card,
+  },
+  chevron: {
+    fontFamily: fonts.uiBold,
+    fontSize: 24,
+    color: colors.muted,
+  },
   sectionTitle: {
     fontFamily: fonts.uiExtraBold,
     fontSize: 16,
@@ -238,27 +219,22 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
+    gap: 2,
   },
   exampleEn: {
-    fontFamily: fonts.uiSemiBold,
+    fontFamily: fonts.uiMedium,
     fontSize: 13,
     color: colors.ink2,
   },
-  words: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  word: {
-    maxWidth: 150,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+  input: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: colors.paper,
-  },
-  wordMeaning: {
+    borderWidth: 1.5,
+    borderColor: colors.edge,
     fontFamily: fonts.uiSemiBold,
-    fontSize: 11,
-    color: colors.ink2,
+    fontSize: 16,
+    color: colors.sumi,
+    backgroundColor: colors.paper,
   },
 });

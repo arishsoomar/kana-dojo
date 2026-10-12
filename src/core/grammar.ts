@@ -1,43 +1,40 @@
-import type { Progress } from './answers';
-import { adjectiveKind, conjugateAdjective, conjugateVerb, verbKind, type AdjectiveForm, type VerbForm } from './conjugate';
+import { hepburn } from './hepburn';
 import type { Furigana, FuriganaPiece } from './vocab';
 
-// Grammar lessons: short explanations with examples, then exercises, in a Genki-like order.
-// Lesson text is written with readings in brackets after the kanji they go over:
-// 私[わたし]は学生[がくせい]です。 The lessons themselves are in src/content/grammar/.
+// Grammar lessons, one per lesson of GENKI I, each point in the book's order: a short
+// explanation with examples, then sentences to say. A sentence card shows the English; say it
+// in Japanese, then turn it over to check and hear it. The lessons themselves are in
+// src/content/grammar/.
+//
+// Japanese is written with readings in brackets after the kanji they go over:
+// 私[わたし]は学生[がくせい]です。 A sentence to say has a space between its words, so its romaji
+// can be read word by word (は as the particle "wa"); {name} is the learner's name.
 
 // A sentence to show, with its translation.
 export type Example = { ja: string; en: string };
 
-export type Section = {
+// A sentence to say: the English, and how it's said. `note` explains a catch, if there is one.
+export type SayCard = { en: string; ja: string; note?: string };
+
+export type GrammarPoint = {
   title: string;
-  text: string; // English, with Japanese inline in plain kana or kanji
+  text: string; // English, with Japanese inline in kana
   examples: readonly Example[];
+  say: readonly SayCard[];
 };
-
-// A form of a verb, or an adjective's form, plain or polite.
-export type FormAsked = VerbForm | { adjective: AdjectiveForm; polite: boolean };
-
-export type Exercise =
-  // Choose what goes in the gap (＿), from a few: a particle, a word, a form.
-  | { kind: 'choose'; prompt: string; en?: string; options: readonly string[]; answer: string; explain: string }
-  // Put the pieces in order to say the English.
-  | { kind: 'order'; en: string; pieces: readonly string[]; explain: string }
-  // What does this mean?
-  | { kind: 'meaning'; ja: string; options: readonly string[]; answer: string; explain: string }
-  // Choose the right form of a word; the answer comes from the conjugation rules. The options
-  // are in kana (たべます): kanji would need readings, and 来る's 来ます is read きます.
-  | { kind: 'form'; word: string; reading: string; pos: readonly string[]; form: FormAsked; prompt: string; explain: string };
 
 export type GrammarLesson = {
-  id: string;
-  unit: number;
+  id: string; // genki-1
+  lesson: number;
   title: string;
   goal: string; // what you'll be able to say
-  sections: readonly Section[];
-  exercises: readonly Exercise[];
-  words: readonly string[]; // deck words the lesson uses, as written (checked against the deck)
+  points: readonly GrammarPoint[];
 };
+
+// The learner's name, as said in Japanese and as spelled in English. Until it's set, the name
+// of GENKI's Mary.
+export type MyName = { ja: string; en: string };
+export const DEFAULT_NAME: MyName = { ja: 'メアリー', en: 'Mary' };
 
 // --- Readings -----------------------------------------------------------------------------
 
@@ -77,90 +74,47 @@ export function rubyText(text: string): string {
   return text.replace(/\[[^\]]*\]/g, '');
 }
 
-// --- Answers ------------------------------------------------------------------------------
-
-function formOf(word: string, pos: readonly string[], form: FormAsked): string | null {
-  return typeof form === 'string' ? conjugateVerb(word, pos, form) : conjugateAdjective(word, pos, form.adjective, form.polite);
+// Lesson text read aloud, in kana: 私[わたし]は → わたしは.
+function rubyReading(text: string): string {
+  return text.replace(/[㐀-鿿々〆ヶ]+\[([^\]]*)\]/g, '$1');
 }
 
-// The right answer to an exercise: its choice, its pieces in order, or the conjugated form.
-export function exerciseAnswer(exercise: Exercise): string | readonly string[] {
-  if (exercise.kind === 'order') return exercise.pieces;
-  if (exercise.kind === 'form') return formOf(exercise.reading, exercise.pos, exercise.form) ?? '';
-  return exercise.answer;
+// --- Sentences to say ---------------------------------------------------------------------
+
+// A sentence as it's shown and spoken: its words run together, the name filled in.
+export function sayJapanese(ja: string, name: MyName): string {
+  return ja.replaceAll('{name}', name.ja).replace(/ /g, '');
 }
 
-export function checkAnswer(exercise: Exercise, answer: string | readonly string[]): boolean {
-  const right = exerciseAnswer(exercise);
-  if (typeof right === 'string') return answer === right;
-  return Array.isArray(answer) && answer.length === right.length && answer.every((piece, i) => piece === right[i]);
-}
+const PUNCTUATION: Readonly<Record<string, string>> = { '。': '.', '、': ',', '？': '?', '！': '!', '…': '...' };
+// Particles read differently from their kana, and words whose sounds meet inside them (ううん is
+// u-u-n, みずうみ is mizu + umi).
+const SPELLED: Readonly<Record<string, string>> = { は: 'wa', へ: 'e', を: 'o', ううん: 'uun', みずうみ: 'mizuumi' };
 
-const VERB_FORMS: readonly VerbForm[] = ['masu', 'masen', 'mashita', 'masendeshita', 'te', 'ta', 'nai', 'nakatta', 'dictionary'];
-const ADJECTIVE_FORMS: readonly AdjectiveForm[] = ['present', 'negative', 'past', 'pastNegative', 'te'];
-
-// Four options for a form: the right one, then the mistakes a learner makes: the word taken
-// as the wrong kind (帰る as a る-verb: 帰ます; 高い as a な-adjective: 高いでした), then other
-// forms of the same word. The right one is first; they're shuffled when shown.
-export function formOptions(word: string, pos: readonly string[], form: FormAsked): string[] {
-  const right = formOf(word, pos, form);
-  if (!right) return [];
-  const candidates: (string | null)[] = [right];
-
-  if (typeof form === 'string') {
-    // Other kinds of verb it could be mistaken for.
-    const kinds = [['v1'], ['v5r'], ...(pos.includes('v5k-s') ? [['v5k']] : [])];
-    for (const kind of kinds) candidates.push(conjugateVerb(word, kind, form));
-    const stem = word.slice(0, -1);
-    const masuStem = conjugateVerb(word, pos, 'masu')?.slice(0, -2) ?? stem;
-    // The て and た forms: the wrong ending for the verb (よって, よいて for よんで), or て on the
-    // ます stem (よみて).
-    if (form === 'te' || form === 'ta') {
-      const t = form === 'te' ? 'て' : 'た';
-      const d = form === 'te' ? 'で' : 'だ';
-      candidates.push(`${masuStem}${t}`, `${stem}っ${t}`, `${stem}ん${d}`, `${stem}い${t}`, `${stem}し${t}`);
-    }
-    // ない on the ます stem: のみない for のまない.
-    if (form === 'nai' || form === 'nakatta') candidates.push(`${masuStem}${form === 'nai' ? 'ない' : 'なかった'}`);
-    for (const other of VERB_FORMS) if (other !== form) candidates.push(conjugateVerb(word, pos, other));
-  } else {
-    const kind = adjectiveKind(pos);
-    // An い-adjective taken as a な-adjective (高いでした), and the other way (静かかった).
-    if (kind === 'i' || kind === 'ii') candidates.push(conjugateAdjective(word, ['adj-na'], form.adjective, form.polite));
-    if (kind === 'ii') candidates.push(conjugateAdjective(word, ['adj-i'], form.adjective, form.polite));
-    if (kind === 'na') candidates.push(conjugateAdjective(`${word}い`, ['adj-i'], form.adjective, form.polite));
-    for (const other of ADJECTIVE_FORMS) if (other !== form.adjective) candidates.push(conjugateAdjective(word, pos, other, form.polite));
-  }
-  return [...new Set(candidates.filter((c): c is string => c !== null))].slice(0, 4);
-}
-
-// --- The path -----------------------------------------------------------------------------
-
-// A finished lesson, as it's kept: its score is the exercises answered right.
-export function grammarId(lessonId: string): string {
-  return `grammar:${lessonId}`;
-}
-
-export function lessonDone(progress: Progress, lessonId: string): boolean {
-  return progress.completed.some((c) => c.lesson === grammarId(lessonId));
-}
-
-export type LessonState = 'done' | 'current' | 'locked';
-
-// Each lesson with its state: done, the current one (the first not done), or locked. Lessons
-// open in order, each when the one before is done.
-export function grammarPath(progress: Progress, lessons: readonly GrammarLesson[]): { lesson: GrammarLesson; state: LessonState }[] {
-  let open = true;
-  return lessons.map((lesson) => {
-    if (lessonDone(progress, lesson.id)) return { lesson, state: 'done' };
-    const state: LessonState = open ? 'current' : 'locked';
-    open = false;
-    return { lesson, state };
+// A sentence in romaji, word by word: 私[わたし] は {name} です。 is "Watashi wa Arish desu."
+export function sayRomaji(ja: string, name: MyName): string {
+  const words = ja.split(/ |(?<=[、。？！])(?! )/).map((word) => {
+    const end = word.match(/[。、？！…]+$/)?.[0] ?? '';
+    const core = word.slice(0, word.length - end.length);
+    const said = [...end].map((p) => PUNCTUATION[p] ?? '').join('');
+    if (core === '{name}') return name.en + said;
+    // A verb written with kanji and ending in う (思う): its う is a sound of its own.
+    const verbU = /([㐀-鿿]|\])う$/.test(core);
+    return (SPELLED[core] ?? SPELLED[rubyReading(core)] ?? hepburn(rubyReading(core), { verbU }) ?? core) + said;
   });
+  // さん joins the name before it, which is capitalised: Takeshi-san.
+  const joined = words.reduce<string[]>((out, word) => {
+    if (word.startsWith('san') && out.length > 0 && /^san\W*$/.test(word)) {
+      const name = out.pop()!;
+      out.push(`${name.charAt(0).toUpperCase()}${name.slice(1)}-${word}`);
+    } else out.push(word);
+    return out;
+  }, []);
+  // Each sentence starts with a capital.
+  return joined.join(' ').replace(/(^|[.?!] )(\p{Ll})/gu, (_, before: string, letter: string) => before + letter.toUpperCase());
 }
 
-// Whether a word is a verb or adjective the rules can conjugate, for checking lessons' form
-// exercises.
-export function canConjugate(pos: readonly string[]): boolean {
-  return verbKind(pos) !== null || adjectiveKind(pos) !== null;
+// The ids of a lesson's sentence cards, as their flashcards are kept: by point, then place.
+export function sayCardIds(lesson: GrammarLesson): string[] {
+  return lesson.points.flatMap((point, p) => point.say.map((_, i) => `say:${lesson.id}:${p}:${i}`));
 }

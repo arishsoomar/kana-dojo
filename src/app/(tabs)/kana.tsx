@@ -9,9 +9,8 @@ import { KanaCell } from '@/components/kana-cell';
 import { pronounce } from '@/audio/pronounce';
 import { KanaDetailSheet } from '@/components/kana-detail-sheet';
 import { ProgressRing } from '@/components/progress-ring';
-import { PrimaryButton } from '@/components/primary-button';
 import { SegmentedControl } from '@/components/segmented-control';
-import { colors, fonts, jpRoom } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 import type { Belt } from '@/core/boxes';
 import { kanaDetails } from '@/core/details';
 import { pairTipFor } from '@/core/feedback';
@@ -19,7 +18,7 @@ import { masteryGrid } from '@/core/grid';
 import { KANA, lookalikesOf, rowKind, type Kana, type RowId, type Script } from '@/core/kana';
 import { useProgress } from '@/hooks/use-progress';
 import { grammarReadiness } from '@/core/readiness';
-import { useGrammarDue, useGrammarPath } from '@/hooks/use-grammar';
+import { useGrammarLessons } from '@/hooks/use-grammar';
 import { useDecks } from '@/hooks/use-words';
 
 const SECTIONS = [
@@ -80,55 +79,41 @@ function WordsSection() {
   );
 }
 
-// The grammar path: each unit's lessons, in order, each opening when the one before is done.
+// Grammar: GENKI I's lessons, each with its grammar points and sentences to say, and how many
+// of those you know. While nothing is known yet, when to start.
 function GrammarSection() {
-  const grammar = useGrammarPath();
-  const due = useGrammarDue();
+  const lessons = useGrammarLessons();
+  const anyKnown = lessons.some((l) => l.known > 0);
   return (
     <>
-      {due > 0 && (
-        <View style={[styles.summary, styles.wordsCard]}>
-          <View>
-            <Text style={styles.summaryTitle}>
-              {due} grammar {due === 1 ? 'point' : 'points'} to review
-            </Text>
-            <Text style={styles.wordsAbout}>A few exercises from each lesson, just before you&apos;d forget it.</Text>
-          </View>
-          <PrimaryButton label="Review grammar" onPress={() => router.push('/grammar/review')} />
-        </View>
-      )}
-      {grammar.done === 0 && <Readiness />}
-      <Text style={styles.wordsAbout}>
-        Grammar in the order beginners meet it, {grammar.done} of {grammar.total} lessons done. Every example uses words from
-        your deck.
+      {!anyKnown && <Readiness />}
+      <Text style={styles.wordsIntro}>
+        The grammar of every GENKI I lesson. Read how each point works, then practise saying sentences with it: see the English,
+        say it in Japanese, and check.
       </Text>
-      {grammar.units.map(({ unit, name, lessons }) => (
-        <View key={unit} style={[styles.summary, styles.wordsCard, styles.unitCard]}>
-          <Text style={styles.summaryTitle}>
-            Unit {unit}: {name}
-          </Text>
-          {lessons.map(({ lesson, state }) => (
-            <Pressable
-              key={lesson.id}
-              role="button"
-              aria-label={`${lesson.title}. ${state}`}
-              disabled={state === 'locked'}
-              onPress={() => router.push({ pathname: '/grammar/lesson', params: { id: lesson.id } })}
-              style={[styles.lessonRow, state === 'current' && styles.lessonCurrent]}>
-              <View style={[styles.lessonMark, state === 'done' && styles.lessonMarkDone, state === 'locked' && styles.lessonMarkLocked]}>
-                {state === 'done' ? <CheckIcon color={colors.card} /> : <Text style={styles.lessonMarkText}>{state === 'locked' ? '' : '▶'}</Text>}
-              </View>
-              <View style={styles.summaryText}>
-                <Text style={[styles.lessonTitle, state === 'locked' && styles.lockedText]}>{lesson.title}</Text>
-                <Text style={styles.wordsAbout} numberOfLines={2}>
-                  {lesson.goal}
-                </Text>
-              </View>
-            </Pressable>
-          ))}
-        </View>
+      {lessons.map(({ lesson, known, total }) => (
+        <Pressable
+          key={lesson.id}
+          role="button"
+          aria-label={`Lesson ${lesson.lesson}, ${lesson.title}: ${known} of ${total} sentences known`}
+          onPress={() => router.push({ pathname: '/grammar/lesson', params: { id: lesson.id } })}
+          style={[styles.summary, styles.deck]}>
+          <View style={styles.summaryText}>
+            <Text style={styles.deckName}>Lesson {lesson.lesson}</Text>
+            <Text style={styles.summaryTitle}>{lesson.title}</Text>
+            <Text style={styles.wordsAbout} numberOfLines={2}>
+              {lesson.points.map((p) => p.title).join(' · ')}
+            </Text>
+            <View style={styles.deckTrack}>
+              <View style={[styles.deckFill, { width: `${(known / total) * 100}%` }]} />
+            </View>
+            <Text style={styles.wordsAbout}>
+              {known} of {total} sentences known
+            </Text>
+          </View>
+          <Text style={styles.chevron}>›</Text>
+        </Pressable>
       ))}
-      <Text style={styles.wordsAbout}>That covers the grammar of a first-year course. More can follow.</Text>
     </>
   );
 }
@@ -410,45 +395,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.sumi,
   },
-  unitCard: {
-    gap: 8,
-  },
-  lessonRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 8,
-    borderRadius: 8,
-  },
-  lessonCurrent: {
-    backgroundColor: colors.paper,
-  },
-  lessonMark: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.sumi,
-  },
   lessonMarkDone: {
     backgroundColor: colors.pine,
-  },
-  lessonMarkLocked: {
-    backgroundColor: colors.line,
-  },
-  lessonMarkText: {
-    fontSize: 11,
-    color: colors.card,
-  },
-  lessonTitle: {
-    fontFamily: fonts.jp,
-    fontSize: 16,
-    ...jpRoom(16),
-    color: colors.sumi,
-  },
-  lockedText: {
-    color: colors.muted,
   },
   perDay: {
     paddingVertical: 14,

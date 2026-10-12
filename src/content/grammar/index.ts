@@ -1,20 +1,30 @@
 import type { GrammarLesson } from '@/core/grammar';
 
-import { UNIT_1 } from './unit1';
-import { UNIT_2 } from './unit2';
-import { UNIT_3 } from './unit3';
-import { UNIT_4 } from './unit4';
-import { UNIT_5 } from './unit5';
-import { UNIT_6 } from './unit6';
+import { LESSON_1 } from './lesson1';
+import { LESSON_10 } from './lesson10';
+import { LESSON_11 } from './lesson11';
+import { LESSON_12 } from './lesson12';
+import { LESSON_2 } from './lesson2';
+import { LESSON_3 } from './lesson3';
+import { LESSON_4 } from './lesson4';
+import { LESSON_5 } from './lesson5';
+import { LESSON_6 } from './lesson6';
+import { LESSON_7 } from './lesson7';
+import { LESSON_8 } from './lesson8';
+import { LESSON_9 } from './lesson9';
 
-// Every grammar lesson, in order, and the units' names.
-export const GRAMMAR_LESSONS: readonly GrammarLesson[] = [...UNIT_1, ...UNIT_2, ...UNIT_3, ...UNIT_4, ...UNIT_5, ...UNIT_6];
-
-export const UNIT_NAMES: Readonly<Record<number, string>> = {
-  1: 'です and the basics',
-  2: 'Verbs',
-  3: 'あります・います and the past',
-  4: 'Adjectives',
-  5: 'The て-form',
-  6: 'Short forms and casual speech',
-};
+// The grammar of GENKI I, lesson by lesson, each point in the book's order.
+export const GRAMMAR_LESSONS: readonly GrammarLesson[] = [
+  LESSON_1,
+  LESSON_2,
+  LESSON_3,
+  LESSON_4,
+  LESSON_5,
+  LESSON_6,
+  LESSON_7,
+  LESSON_8,
+  LESSON_9,
+  LESSON_10,
+  LESSON_11,
+  LESSON_12,
+];

@@ -8,6 +8,7 @@ import {
   recordAnswer,
   setHaptics,
   setSound,
+  setMyName,
   setSpeaker,
   setTyping,
   type Progress,
@@ -239,6 +240,16 @@ describe('voice', () => {
     expect(male.settings.speaker).toBe('male');
     expect(setSpeaker(male, 'female').settings.speaker).toBe('female');
     expect(EMPTY_PROGRESS.settings.speaker).toBe('female');
+  });
+});
+
+describe('your name', () => {
+  it('starts unset, and setMyName sets it, trimmed, or clears it when either spelling is empty', () => {
+    expect(EMPTY_PROGRESS.settings.myName).toBeNull();
+    const named = setMyName(EMPTY_PROGRESS, { ja: ' アリシュ ', en: 'Arish ' });
+    expect(named.settings.myName).toEqual({ ja: 'アリシュ', en: 'Arish' });
+    expect(setMyName(named, { ja: '', en: 'Arish' }).settings.myName).toBeNull();
+    expect(EMPTY_PROGRESS.settings.myName).toBeNull();
   });
 });
 

@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
+import { RoundDone } from '@/components/round-done';
 import { WordCardFace } from '@/components/word-card';
 import { XIcon } from '@/components/x-icon';
 import { colors, fonts } from '@/constants/theme';
@@ -23,7 +24,7 @@ function leave() {
   else router.replace('/kana');
 }
 
-// Flashcards for a deck (a GENKI lesson, or a grammar lesson's words), shuffled or in order.
+// Flashcards for a GENKI deck, shuffled or in order.
 export default function FlashcardsScreen() {
   const { deck: deckId, shuffle, only } = useLocalSearchParams<{ deck?: string; shuffle?: string; only?: string }>();
   const { progress } = useProgress();
@@ -72,10 +73,9 @@ function Flashcards({ deck, only, shuffled }: { deck: Deck; only: readonly strin
 
       {cards.over || !cards.word ? (
         <RoundDone
-          deck={deck}
           known={cards.known}
           learning={cards.learning}
-          deckKnown={cards.deckKnown}
+          note={`${deck.title}: ${cards.deckKnown} of ${deck.ids.length} known`}
           onAgain={cards.again}
           onDone={close}
           bottom={insets.bottom}
@@ -122,52 +122,6 @@ function FlashCard({
         <WordCardFace word={word} front={front} back={back} onSpeak={onSpeak} />
       </Animated.View>
     </Pressable>
-  );
-}
-
-// The end of a round: how it went, then on with the cards still being learned, or the whole
-// deck again.
-function RoundDone({
-  deck,
-  known,
-  learning,
-  deckKnown,
-  onAgain,
-  onDone,
-  bottom,
-}: {
-  deck: Deck;
-  known: number;
-  learning: number;
-  deckKnown: number;
-  onAgain: () => void;
-  onDone: () => void;
-  bottom: number;
-}) {
-  return (
-    <View style={[styles.done, { paddingBottom: bottom + 22 }]}>
-      <Text style={styles.doneTitle}>{learning === 0 ? 'You know them all!' : 'Round done'}</Text>
-      <View style={styles.tally}>
-        <View style={[styles.tallyItem, styles.tallyKnow]}>
-          <Text style={styles.tallyValue}>{known}</Text>
-          <Text style={styles.tallyLabel}>Know it</Text>
-        </View>
-        <View style={[styles.tallyItem, styles.tallyLearning]}>
-          <Text style={styles.tallyValue}>{learning}</Text>
-          <Text style={styles.tallyLabel}>Still learning</Text>
-        </View>
-      </View>
-      <Text style={styles.doneNote}>
-        {deck.title}: {deckKnown} of {deck.ids.length} known
-      </Text>
-      <View style={styles.doneButtons}>
-        <PrimaryButton
-          label={learning > 0 ? `Keep going: ${learning} still learning` : 'Start the deck again'}
-          onPress={onAgain}
-        />
-        <PrimaryButton label="Done" tone="light" onPress={onDone} />
-      </View>
-    </View>
   );
 }
 
@@ -262,45 +216,5 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBlack,
     fontSize: 26,
     color: colors.sumi,
-  },
-  tally: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  tallyItem: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: 16,
-    borderRadius: 12,
-    borderWidth: 1.5,
-  },
-  tallyKnow: {
-    borderColor: colors.pine,
-    backgroundColor: colors.card,
-  },
-  tallyLearning: {
-    borderColor: colors.vermilion,
-    backgroundColor: colors.card,
-  },
-  tallyValue: {
-    fontFamily: fonts.uiBlack,
-    fontSize: 30,
-    color: colors.sumi,
-  },
-  tallyLabel: {
-    fontFamily: fonts.uiBold,
-    fontSize: 13,
-    color: colors.ink2,
-  },
-  doneNote: {
-    textAlign: 'center',
-    fontFamily: fonts.uiSemiBold,
-    fontSize: 14,
-    color: colors.ink2,
-  },
-  doneButtons: {
-    gap: 10,
-    marginTop: 8,
   },
 });

@@ -2,9 +2,8 @@ import { GENKI_CARDS } from '@/content/genki';
 import { GRAMMAR_LESSONS } from '@/content/grammar';
 import { PHRASES } from '@/content/phrases';
 import { PLACES } from '@/content/signs';
-import { VOCAB } from '@/content/vocab';
 import { WORD_FAMILIES } from '@/content/word-families';
-import { rubyText } from '@/core/grammar';
+import { DEFAULT_NAME, rubyText, sayJapanese } from '@/core/grammar';
 import { KANA, type Kana } from '@/core/kana';
 import { phraseText } from '@/core/reading';
 import { furiganaText } from '@/core/vocab';
@@ -46,16 +45,25 @@ export function voiceLines(): VoiceLine[] {
 
   for (const kana of KANA) add({ key: kanaKey(kana), say: kanaSpoken(kana) });
 
-  // The flashcards' words (GENKI's, and those the grammar lessons list), said from how they're
-  // written (without a suffix's ～); their example sentences; and their word families.
-  const grammarWords = new Set(GRAMMAR_LESSONS.flatMap((l) => l.words));
-  const words = [...GENKI_CARDS, ...VOCAB.filter((w) => grammarWords.has(w.word))];
+  // The flashcards' words, said from how they're written (without a suffix's ～); their example
+  // sentences; and their word families.
+  const words = GENKI_CARDS;
   for (const w of words) add({ key: w.reading, say: w.word.replace(/[～〜]/g, ''), reading: w.reading });
   for (const w of words) if (w.example) add({ key: furiganaText(w.example.ja), say: furiganaText(w.example.ja) });
   for (const family of WORD_FAMILIES) for (const m of family.members) add({ key: m.reading, say: m.word, reading: m.reading });
 
-  for (const lesson of GRAMMAR_LESSONS)
-    for (const section of lesson.sections) for (const example of section.examples) add({ key: rubyText(example.ja), say: rubyText(example.ja) });
+  // Grammar: each point's examples, and its sentences to say. Those with the learner's name in
+  // them can't be recorded ahead; the phone's voice says them.
+  for (const lesson of GRAMMAR_LESSONS) {
+    for (const point of lesson.points) {
+      for (const example of point.examples) add({ key: rubyText(example.ja), say: rubyText(example.ja) });
+      for (const card of point.say) {
+        if (card.ja.includes('{name}')) continue;
+        const text = rubyText(sayJapanese(card.ja, DEFAULT_NAME));
+        add({ key: text, say: text });
+      }
+    }
+  }
 
   for (const place of PLACES) for (const sign of place.signs) add({ key: sign.text, say: sign.text });
   for (const phrase of PHRASES) add({ key: phraseText(phrase), say: phraseText(phrase) });

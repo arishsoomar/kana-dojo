@@ -1,7 +1,7 @@
 import type { Progress } from './answers';
 import { parseProgress, serializeProgress } from './saved';
 
-const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female' }, purchases: [], partners: [], words: {}, grammar: {}, flashcards: {} };
+const EMPTY: Progress = { kana: {}, confusions: [], stats: {}, completed: [], settings: { onboarded: false, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female', myName: null }, purchases: [], partners: [], words: {}, grammar: {}, flashcards: {} };
 
 const sample: Progress = {
   kana: { あ: { box: 3, at: 1_000_000 }, シ: { box: 9, at: 5 } },
@@ -20,7 +20,7 @@ const sample: Progress = {
   words: { '1358280': { stability: 3.2, difficulty: 5.3, due: 7_000_000, last: 6_500_000, added: 6_500_000, reps: 1, lapses: 0 } },
   grammar: { desu: { stability: 3.2, difficulty: 5.3, due: 7_000_000, last: 6_500_000, added: 6_500_000, reps: 1, lapses: 0 } },
   flashcards: { '1358280': { known: true, at: 6_600_000 }, '1002150': { known: false, at: 6_700_000 } },
-  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true, gear: ['kasa'], voice: 'com.apple.voice.premium.ja-JP.O-ren', wordFront: 'english', speaker: 'male' },
+  settings: { onboarded: true, dailyGoal: 3, script: 'katakana', sound: false, haptics: false, typing: true, gear: ['kasa'], voice: 'com.apple.voice.premium.ja-JP.O-ren', wordFront: 'english', speaker: 'male', myName: { ja: 'アリシュ', en: 'Arish' } },
 };
 
 describe('saving progress', () => {
@@ -51,6 +51,15 @@ describe('saving progress', () => {
     expect(read('japanese')).toBe('japanese');
     expect(read('klingon')).toBe('japanese');
     expect(read(undefined)).toBe('japanese');
+  });
+
+  it('reads a name only if both its spellings are there', () => {
+    const read = (myName: unknown) =>
+      parseProgress(JSON.stringify({ version: 4, progress: { ...sample, settings: { ...sample.settings, myName } } })).settings.myName;
+    expect(read({ ja: 'アリシュ', en: 'Arish' })).toEqual({ ja: 'アリシュ', en: 'Arish' });
+    expect(read({ ja: 'アリシュ' })).toBeNull();
+    expect(read({ ja: ' ', en: 'Arish' })).toBeNull();
+    expect(read(undefined)).toBeNull();
   });
 
   it('reads the voice as female unless it was saved as male', () => {
@@ -93,7 +102,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: {},
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female' },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female', myName: null },
       purchases: [],
       partners: [],
       words: {},
@@ -112,7 +121,7 @@ describe('saving progress', () => {
       confusions: [],
       stats: { あ: { seen: 1, correct: 1, recentMs: [900] } },
       completed: [],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female' },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female', myName: null },
       purchases: [],
       partners: [],
       words: {},
@@ -195,7 +204,7 @@ describe('saving progress', () => {
       confusions: [{ shown: 'シ', guessed: 'ツ' }],
       stats: { あ: { seen: 2, correct: 1, recentMs: [900] } },
       completed: [{ lesson: 'hiragana:a:0', at: 5 }],
-      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female' },
+      settings: { onboarded: true, dailyGoal: 2, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female', myName: null },
       purchases: [],
       partners: [],
       words: {},

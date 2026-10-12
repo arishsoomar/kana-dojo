@@ -3,6 +3,7 @@ import { DEFAULT_DAILY_GOAL } from './goal';
 import type { Script } from './kana';
 import type { WordCard } from './srs';
 import type { FlashcardMark } from './flashcards';
+import type { MyName } from './grammar';
 
 export type Confusion = {
   shown: string;
@@ -50,6 +51,7 @@ export type Settings = {
   voice: string | null; // the Japanese voice chosen on this device, or null for the best one
   wordFront: WordFront; // which side of a word card shows first
   speaker: Speaker; // the voice Japanese is spoken in
+  myName: MyName | null; // the learner's name, for grammar sentences about themselves
 };
 
 // The recorded voice (VOICEVOX) words, sentences and kana are spoken in.
@@ -83,7 +85,7 @@ export const EMPTY_PROGRESS: Progress = {
   words: {},
   grammar: {},
   flashcards: {},
-  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female' },
+  settings: { onboarded: false, dailyGoal: DEFAULT_DAILY_GOAL, script: 'hiragana', sound: true, haptics: true, typing: false, gear: [], voice: null, wordFront: 'japanese', speaker: 'female', myName: null },
 };
 
 export type Answer = {
@@ -208,6 +210,13 @@ export function setScript(progress: Progress, script: Script): Progress {
 }
 
 // Turns speaking kana aloud on or off.
+// The learner's name in both spellings, or none when either is left empty.
+export function setMyName(progress: Progress, name: MyName): Progress {
+  const ja = name.ja.trim();
+  const en = name.en.trim();
+  return { ...progress, settings: { ...progress.settings, myName: ja && en ? { ja, en } : null } };
+}
+
 export function setSpeaker(progress: Progress, speaker: Speaker): Progress {
   return { ...progress, settings: { ...progress.settings, speaker } };
 }

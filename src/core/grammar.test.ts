@@ -1,90 +1,46 @@
-import { EMPTY_PROGRESS, completeLesson, type Progress } from './answers';
-import {
-  checkAnswer,
-  exerciseAnswer,
-  formOptions,
-  grammarId,
-  grammarPath,
-  lessonDone,
-  parseRuby,
-  rubyText,
-  type Exercise,
-  type GrammarLesson,
-} from './grammar';
+import { DEFAULT_NAME, parseRuby, rubyText, sayCardIds, sayJapanese, sayRomaji, type GrammarLesson } from './grammar';
 
-describe('lesson text with readings', () => {
+const ARISH = { ja: 'アリシュ', en: 'Arish' };
+
+describe('readings in lesson text', () => {
   it('puts a reading over the kanji just before it', () => {
     expect(parseRuby('私[わたし]は学生[がくせい]です。')).toEqual([['私', 'わたし'], ['は'], ['学生', 'がくせい'], ['です。']]);
-    expect(parseRuby('食[た]べる')).toEqual([['食', 'た'], ['べる']]);
-  });
-
-  it('leaves text without readings as it is', () => {
-    expect(parseRuby('これはペンです。')).toEqual([['これはペンです。']]);
-  });
-
-  it('gives the text back without its readings', () => {
-    expect(rubyText('私[わたし]は学生[がくせい]です。')).toBe('私は学生です。');
+    expect(rubyText('私[わたし]は')).toBe('私は');
   });
 });
 
-describe('answers', () => {
-  const particle: Exercise = { kind: 'choose', prompt: 'わたし＿がくせいです。', options: ['は', 'を', 'に', 'で'], answer: 'は', explain: 'は marks the topic.' };
-  const order: Exercise = { kind: 'order', en: 'I am a student.', pieces: ['私[わたし]は', '学生[がくせい]', 'です。'], explain: '' };
-  const form: Exercise = { kind: 'form', word: '帰る', reading: 'かえる', pos: ['v5r'], form: 'masu', prompt: 'Polite present', explain: '' };
-
-  it('checks a choice', () => {
-    expect(checkAnswer(particle, 'は')).toBe(true);
-    expect(checkAnswer(particle, 'を')).toBe(false);
+describe('a sentence to say', () => {
+  it('is shown without the spaces between its words, with the learner’s name in it', () => {
+    expect(sayJapanese('私[わたし] は {name} です。', ARISH)).toBe('私[わたし]はアリシュです。');
+    expect(sayJapanese('私[わたし] は {name} です。', DEFAULT_NAME)).toBe('私[わたし]はメアリーです。');
   });
 
-  it('checks words put in order, piece by piece', () => {
-    expect(checkAnswer(order, ['私[わたし]は', '学生[がくせい]', 'です。'])).toBe(true);
-    expect(checkAnswer(order, ['学生[がくせい]', '私[わたし]は', 'です。'])).toBe(false);
+  it('is read in romaji word by word, は, へ and を as particles, the name as it is spelled', () => {
+    expect(sayRomaji('私[わたし] は {name} です。', ARISH)).toBe('Watashi wa Arish desu.');
+    expect(sayRomaji('学校[がっこう] へ 行[い]きます か？', ARISH)).toBe('Gakkō e ikimasu ka?');
+    expect(sayRomaji('コーヒー を 飲[の]みます。', ARISH)).toBe('Kōhī o nomimasu.');
+    expect(sayRomaji('はい、そう です。', ARISH)).toBe('Hai, sō desu.');
+    expect(sayRomaji('たけし さん は 学生[がくせい] じゃ ない です。肉[にく] です。', ARISH)).toBe('Takeshi-san wa gakusei ja nai desu. Niku desu.');
+    expect(sayRomaji('ううん、湖[みずうみ]。', ARISH)).toBe('Uun, mizuumi.');
   });
 
-  it('checks a form by the conjugation rules, in kana', () => {
-    expect(exerciseAnswer(form)).toBe('かえります');
-    expect(checkAnswer(form, 'かえります')).toBe(true);
-    expect(checkAnswer(form, 'かえます')).toBe(false);
+  it("keeps a verb's final う a sound of its own", () => {
+    expect(sayRomaji('そう 思[おも]う。', ARISH)).toBe('Sō omou.');
   });
 });
 
-describe('wrong options for a form', () => {
-  it('are the mistakes a learner makes: the wrong kind of verb, or the wrong form', () => {
-    const options = formOptions('帰る', ['v5r'], 'masu');
-    expect(options).toContain('帰ります');
-    expect(options).toContain('帰ます'); // as if it were a る-verb
-    expect(options).toHaveLength(4);
-    expect(new Set(options).size).toBe(4);
-  });
-
-  it('for the て and た forms, are the wrong endings and the ます stem with て', () => {
-    const options = formOptions('よむ', ['v5m'], 'te');
-    expect(options[0]).toBe('よんで');
-    expect(options.slice(1).every((o) => o.endsWith('て') || o.endsWith('で'))).toBe(true);
-    expect(formOptions('のむ', ['v5m'], 'ta').slice(1).every((o) => o.endsWith('た') || o.endsWith('だ'))).toBe(true);
-  });
-
-  it('for ない, include the ます stem with ない: のみない', () => {
-    expect(formOptions('のむ', ['v5m'], 'nai')).toContain('のみない');
-  });
-
-  it('works for adjectives too', () => {
-    const options = formOptions('高い', ['adj-i'], { adjective: 'past', polite: true });
-    expect(options).toContain('高かったです');
-    expect(options).toContain('高いでした'); // a common mistake
-    expect(new Set(options).size).toBe(4);
-  });
-});
-
-describe('the grammar path', () => {
-  const lesson = (id: string, unit: number): GrammarLesson => ({ id, unit, title: id, goal: '', sections: [], exercises: [], words: [] });
-  const lessons = [lesson('a', 1), lesson('b', 1), lesson('c', 2)];
-
-  it('opens the first lesson, and each next one once the one before is done', () => {
-    expect(grammarPath(EMPTY_PROGRESS, lessons).map((l) => l.state)).toEqual(['current', 'locked', 'locked']);
-    const done: Progress = completeLesson(EMPTY_PROGRESS, grammarId('a'), 1, 5);
-    expect(lessonDone(done, 'a')).toBe(true);
-    expect(grammarPath(done, lessons).map((l) => l.state)).toEqual(['done', 'current', 'locked']);
+describe("a lesson's cards", () => {
+  it('each have their own id, by point and place', () => {
+    const lesson = {
+      id: 'genki-1',
+      lesson: 1,
+      title: '',
+      goal: '',
+      points: [
+        { title: 'a', text: '', examples: [], say: [{ en: 'x', ja: 'x' }, { en: 'y', ja: 'y' }] },
+        { title: 'b', text: '', examples: [], say: [{ en: 'z', ja: 'z' }] },
+      ],
+    } satisfies GrammarLesson;
+    expect(sayCardIds(lesson)).toEqual(['say:genki-1:0:0', 'say:genki-1:0:1', 'say:genki-1:1:0']);
   });
 });

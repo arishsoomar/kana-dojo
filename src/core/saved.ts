@@ -63,7 +63,11 @@ export function parseProgress(text: string | null): Progress {
   const wordFront = isObject(settings) && settings.wordFront === 'english' ? 'english' : 'japanese';
   // The voice is female unless it was saved as male.
   const speaker = isObject(settings) && settings.speaker === 'male' ? 'male' : 'female';
-  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, voice, wordFront, speaker } };
+  // A name only with both spellings.
+  const name = isObject(settings) && isObject(settings.myName) ? settings.myName : null;
+  const myName =
+    name && typeof name.ja === 'string' && typeof name.en === 'string' && name.ja.trim() && name.en.trim() ? { ja: name.ja, en: name.en } : null;
+  return { ...progress, settings: { onboarded, dailyGoal, script, sound, haptics, typing, gear, voice, wordFront, speaker, myName } };
 }
 
 // Keeps the entries whose value passes `isValid`.

@@ -1,5 +1,7 @@
 // Builds the word deck: the 2,500 most frequent Japanese words, and the words GENKI I teaches
-// (scripts/genki-words.mjs), with their readings, meanings, furigana and an example sentence. It joins four open sources:
+// (scripts/genki-words.mjs), with their readings, meanings, furigana and an example sentence;
+// and GENKI I's flashcards, lesson by lesson (src/content/genki.json). It joins four open
+// sources:
 //
 //   Jiten's global frequency list (CC BY-SA 4.0, https://jiten.moe/frequency-dictionaries):
 //     which words, and in what order. Made from anime, drama, films, novels, games and more.
@@ -262,10 +264,10 @@ console.log(`Chosen ${chosen.size} words. Skipped:`, skipped);
 
 // --- GENKI's words ------------------------------------------------------------------------
 
-// Each word GENKI I teaches is tagged with its lesson. Words not among the most frequent are
-// added, ranked where the frequency list has them (after every word it lists, if it doesn't).
-// Greetings and set phrases count here (おはようございます), though the frequency deck leaves
-// expressions in kana out; particles, suffixes and the like are still left out.
+// Each word GENKI I teaches that the dictionary has is in the deck: words not among the most
+// frequent are added, ranked where the frequency list has them (after every word it lists, if it
+// doesn't). Greetings and set phrases count here (おはようございます), though the frequency deck
+// leaves expressions in kana out; particles, suffixes and the like are still left out.
 const rankOf = new Map(); // "word|reading" → rank, first listing
 for (const line of frequencyCsv.split('\n').slice(1)) {
   const [word, form, rankText] = line.split(',');
@@ -288,46 +290,78 @@ function kanaEntry(word) {
   return [...(byReading.get(word) ?? [])].sort((a, b) => Number(common(b)) - Number(common(a)) || used(b) - used(a) || a.seq - b.seq)[0] ?? null;
 }
 
-const genkiOf = new Map(); // ent_seq → lesson
-const genkiDecks = Object.fromEntries(Object.keys(GENKI).map((lesson) => [lesson, []])); // lesson → ids, in the lesson's order
-const notFound = [];
+// Furigana for a word the furigana list doesn't have (二時半, たばこを吸う, Tシャツ): its kana
+// stay as they are, and each run of other characters (kanji, or letters like the T of Tシャツ)
+// gets the part of the reading between them. ～ (a suffix or prefix mark) has no reading.
+function alignFurigana(word, reading) {
+  const known = furigana.get(`${word}|${reading}`);
+  if (known) return known;
+  const runs = word.match(/[ぁ-ゖァ-ヺー]+|[～〜]|[^ぁ-ゖァ-ヺー～〜]+/g) ?? [];
+  const escape = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = runs.map((r) => (/^[ぁ-ゖァ-ヺー]+$/.test(r) ? escape(r) : /^[～〜]$/.test(r) ? '' : '(.+?)')).join('');
+  const m = reading.match(new RegExp(`^${pattern}$`));
+  if (!m) return null;
+  let group = 1;
+  return runs.map((r) => (/^[ぁ-ゖァ-ヺー]+$/.test(r) || /^[～〜]$/.test(r) ? [r] : [r, m[group++]]));
+}
+
+// Each lesson's cards, in the book's order: the book's word and English, linked to the
+// dictionary word it is (for its example sentence, its usage labels and the like) when one is
+// found. A word's card keeps the word's id, so what's known carries over between lessons; the
+// same word with another meaning (聞く: to listen, then to ask) gets a card of its own.
+const genkiDecks = {};
+const cardMeaning = new Map(); // card id → its meaning and reading
+const unlinked = [];
 let added = 0;
 for (const [lesson, list] of Object.entries(GENKI)) {
-  list
+  genkiDecks[lesson] = list
     .trim()
-    .split(/\s+/)
-    .forEach((item, place) => {
-      const [word, given] = item.split(':');
-      const reading = given ?? word;
-      const entry = entryFor(word, reading) ?? kanaEntry(word);
-      const senses = entry ? sensesFor(entry, word, reading).filter((s) => !s.misc.includes('arch') && !s.misc.includes('obs')) : [];
+    .split('\n')
+    .map((line, place) => {
+      const [kana, kanjiField, meaning] = line.split(';').map((t) => t.trim());
+      const hint = kanjiField.match(/^\((.+)\)$/)?.[1] ?? null;
+      const shown = (!hint && kanjiField) || kana;
+      const reading = kana.replace(/[～〜]/g, '');
+      const furiganaPieces = alignFurigana(shown, kana.replace(/[～〜]/g, '')) ?? [[shown]];
+      // Affixes (～さん) and words the dictionary lists only as grammar have no word to link.
+      const affix = /[～〜]/.test(kana);
+      const lookup = (hint ?? (kanjiField || kana)).replace(/[～〜]/g, '');
+      // A する verb (勉強する) is in the dictionary as its noun (勉強), marked as taking する.
+      const verb = lookup.endsWith('する') && lookup.length > 2 ? { word: lookup.slice(0, -2), reading: reading.slice(0, -2) } : null;
+      const found = (w, r) => entryFor(w, r) ?? (hasKanji(w) ? null : kanaEntry(w));
+      // With a hint, the entry whose main spelling it is: 家 read うち is "home", not 内.
+      const hinted = hint ? (byKanji.get(hint) ?? []).find((e) => e.kanji[0]?.text === hint && readsAs(e, hint, reading)) : null;
+      const direct = affix || hint === '-' ? null : (hinted ?? found(lookup, reading));
+      const entry = direct ?? (verb && !affix && hint !== '-' ? found(verb.word, verb.reading) : null);
+      const [entryWord, entryReading] = direct || !verb ? [lookup, reading] : [verb.word, verb.reading];
+      const senses = entry ? sensesFor(entry, entryWord, entryReading).filter((s) => !s.misc.includes('arch') && !s.misc.includes('obs')) : [];
       const pos = senses[0]?.pos ?? [];
-      if (!entry || senses.length === 0 || LEFT_OUT.has(pos[0]) || !readable(reading)) {
-        notFound.push(`${item}(${!entry ? 'entry' : senses.length === 0 ? 'senses' : !readable(reading) ? 'kana' : pos.join('/')})`);
-        return;
+      const linked = entry && senses.length > 0 && !LEFT_OUT.has(pos[0]) && readable(entryReading) ? entry : null;
+      if (!linked) unlinked.push(kana);
+      if (linked && !chosen.has(linked.seq)) {
+        added += 1;
+        chosen.set(linked.seq, {
+          id: linked.seq,
+          rank: rankOf.get(`${entryWord}|${entryReading}`) ?? unranked + Number(lesson) * 1000 + place,
+          word: entryWord,
+          reading: entryReading,
+          furigana: furiganaFor(entryWord, entryReading),
+          meanings: senses.slice(0, MEANINGS_MAX).map((s) => s.glosses.slice(0, GLOSSES_MAX).join('; ')),
+          pos,
+          labels: (senses[0]?.misc ?? []).filter((m) => REGISTERS.has(m)),
+          note: senses[0]?.info[0] ?? null,
+        });
       }
-      if (!genkiOf.has(entry.seq)) {
-        genkiOf.set(entry.seq, Number(lesson));
-        genkiDecks[lesson].push(entry.seq);
-      }
-      if (chosen.has(entry.seq)) return;
-      added += 1;
-      chosen.set(entry.seq, {
-        id: entry.seq,
-        // Two words at one rank (neither listed) keep the lessons' order.
-        rank: rankOf.get(`${word}|${reading}`) ?? unranked + Number(lesson) * 1000 + place,
-        word,
-        reading,
-        furigana: furiganaFor(word, reading),
-        meanings: senses.slice(0, MEANINGS_MAX).map((s) => s.glosses.slice(0, GLOSSES_MAX).join('; ')),
-        pos,
-        labels: (senses[0]?.misc ?? []).filter((m) => REGISTERS.has(m)),
-        note: senses[0]?.info[0] ?? null,
-      });
+      // Another reading of the same word (四: よん and し) is a card of its own too.
+      let id = linked ? String(linked.seq) : `genki-${lesson}-${reading}`;
+      const same = cardMeaning.get(id);
+      if (same && (same.meaning !== meaning || same.reading !== reading)) id = `${id}-${reading}-${lesson}`;
+      cardMeaning.set(id, { meaning, reading });
+      return { id, word: shown, reading, furigana: furiganaPieces, meaning, vocab: linked ? linked.seq : null };
     });
 }
-for (const word of chosen.values()) word.genki = genkiOf.get(word.id) ?? null;
-console.log(`GENKI: ${genkiOf.size} words tagged, ${added} of them added. Not found:`, notFound.join(' ') || 'none');
+const cards = Object.values(genkiDecks).flat();
+console.log(`GENKI: ${cards.length} cards, ${cards.length - unlinked.length} linked to a dictionary word (${added} added to the deck). Not linked: ${unlinked.join(' ')}`);
 
 // --- Example sentences --------------------------------------------------------------------
 
@@ -559,7 +593,7 @@ for (const word of chosen.values()) word.topics = topicsFor(word.word, word.mean
 // Most frequent first, GENKI's added words among the rest.
 const words = [...chosen.values()].sort((a, b) => a.rank - b.rank).map((w) => ({ ...w, example: best.get(w.id)?.example ?? null }));
 writeFileSync(OUT, `${JSON.stringify(words, null, 0).replace(/\},\{"id"/g, '},\n{"id"')}\n`);
-// Each GENKI lesson's flashcard deck: its words' ids, in the order the lesson lists them.
-writeFileSync(GENKI_OUT, `${JSON.stringify(genkiDecks)}\n`);
+// Each GENKI lesson's flashcards, in the book's order.
+writeFileSync(GENKI_OUT, `${JSON.stringify(genkiDecks, null, 0).replace(/\},\{"id"/g, '},\n{"id"')}\n`);
 const withExamples = words.filter((w) => w.example).length;
 console.log(`Wrote ${words.length} words to src/content/vocab.json, ${withExamples} with an example sentence.`);

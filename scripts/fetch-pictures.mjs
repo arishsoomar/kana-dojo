@@ -341,11 +341,32 @@ const VOCAB_FOLDERS = {
   八: 'Keycap 8',
   九: 'Keycap 9',
   十: 'Keycap 10',
+  // Built like their kanji: 十一 is ten and one (🔟 with 1️⃣), 二十 is two tens (2️⃣ with 🔟).
+  ...Object.fromEntries(['一', '二', '三', '四', '五', '六', '七', '八', '九'].map((n, i) => [`十${n}`, ['Keycap 10', `Keycap ${i + 1}`]])),
+  ...Object.fromEntries(['二', '三', '四', '五', '六', '七', '八', '九'].map((n, i) => [`${n}十`, [`Keycap ${i + 2}`, 'Keycap 10']])),
+  百: 'Hundred points', // 💯
+  '～です': 'Speaking head', // 🗣️: I am …
   // Lesson 1: new friends.
+  '～年生': ['Student', 'Input numbers'], // 🧑‍🎓 🔢: … year student
+  一年生: ['Student', 'Keycap 1'], // 🧑‍🎓 1️⃣
+  '～さん': 'Bust in silhouette', // 👤: Mr./Ms. …
+  '～人': ['Bust in silhouette', 'Globe showing americas'], // 👤 🌎: … people
+  '～時': 'Alarm clock', // ⏰: o'clock
+  一時: 'One oclock', // 🕐
+  二時半: 'Two-thirty', // 🕝
+  '～語': 'Speech balloon', // 💬: … language
+  '～歳': 'Birthday cake', // 🎂: … years old
+  '～番': 'Keycap hashtag', // #️⃣: number …
+  そうです: 'Thumbs up', // 👍: that's right
+  そうですか: 'Light bulb', // 💡: I see
+  アジア研究: ['Globe showing asia-australia', 'Books'], // 🌏 📚
+  工学: 'Gear', // ⚙️
+  生物学: 'Microscope', // 🔬
+  看護師: 'Syringe', // 💉
   私: 'Person raising hand', // 🙋: me!
   何: 'Red question mark', // ❓
   今: 'Watch', // ⌚
-  あの: 'Thinking face', // 🤔: um…
+  あのう: 'Thinking face', // 🤔: um…
   はい: 'Check mark button', // ✅
   ええ: 'Person gesturing ok', // 🙆
   半: 'Three-thirty', // 🕞: half past
@@ -372,7 +393,6 @@ const VOCAB_FOLDERS = {
   留学生: 'Airplane', // ✈️
   専攻: ['Open book', 'Graduation cap'], // 📖 🎓: what you study at university
   歴史: 'Scroll', // 📜
-  人類学: ['Person', 'Magnifying glass tilted left'], // 🧑 🔍: studying people
   医者: 'Health worker', // 🧑‍⚕️
   番号: 'Input numbers', // 🔢
   英語: 'Input latin letters', // 🔤
@@ -396,7 +416,6 @@ const VOCAB_FOLDERS = {
   エジプト: 'flag:EG',
   インド: 'flag:IN',
   フィリピン: 'flag:PH',
-  スウェーデン: 'flag:SE',
 };
 
 const tree = await (await fetch(`https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`)).json();
@@ -450,7 +469,7 @@ const vocabLines = [];
 const required = async (folder) => `require('../../assets/images/pictures/${await download(folder)}')`;
 for (const [word, folders] of Object.entries(VOCAB_FOLDERS)) {
   const [picture, badge] = Array.isArray(folders) ? folders : [folders];
-  vocabLines.push(`  ${word}: { picture: ${await required(picture)}${badge ? `, badge: ${await required(badge)}` : ''} },`);
+  vocabLines.push(`  ${JSON.stringify(word)}: { picture: ${await required(picture)}${badge ? `, badge: ${await required(badge)}` : ''} },`);
 }
 
 const license = await (await fetch(`https://raw.githubusercontent.com/${REPO}/main/LICENSE`)).text();

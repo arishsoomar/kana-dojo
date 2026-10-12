@@ -1,4 +1,4 @@
-import { GENKI_DECKS } from '@/content/genki';
+import { GENKI_CARDS } from '@/content/genki';
 import { GRAMMAR_LESSONS } from '@/content/grammar';
 import { PHRASES } from '@/content/phrases';
 import { PLACES } from '@/content/signs';
@@ -47,10 +47,10 @@ export function voiceLines(): VoiceLine[] {
   for (const kana of KANA) add({ key: kanaKey(kana), say: kanaSpoken(kana) });
 
   // The flashcards' words (GENKI's, and those the grammar lessons list), said from how they're
-  // written; their example sentences; and their word families.
-  const flashcardWords = new Set([...GENKI_DECKS.flatMap((d) => d.ids), ...GRAMMAR_LESSONS.flatMap((l) => l.words)]);
-  const words = VOCAB.filter((w) => flashcardWords.has(String(w.id)) || flashcardWords.has(w.word));
-  for (const w of words) add({ key: w.reading, say: w.word, reading: w.reading });
+  // written (without a suffix's ～); their example sentences; and their word families.
+  const grammarWords = new Set(GRAMMAR_LESSONS.flatMap((l) => l.words));
+  const words = [...GENKI_CARDS, ...VOCAB.filter((w) => grammarWords.has(w.word))];
+  for (const w of words) add({ key: w.reading, say: w.word.replace(/[～〜]/g, ''), reading: w.reading });
   for (const w of words) if (w.example) add({ key: furiganaText(w.example.ja), say: furiganaText(w.example.ja) });
   for (const family of WORD_FAMILIES) for (const m of family.members) add({ key: m.reading, say: m.word, reading: m.reading });
 

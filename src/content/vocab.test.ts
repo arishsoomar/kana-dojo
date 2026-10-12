@@ -1,6 +1,6 @@
 import { adjectiveKind, conjugateAdjective, conjugateVerb, verbKind } from '@/core/conjugate';
 import { splitWord } from '@/core/forge';
-import { furiganaReading, furiganaText, GENKI_LESSONS, isTopic, TOPIC_IDS, type Furigana } from '@/core/vocab';
+import { furiganaReading, furiganaText, isTopic, TOPIC_IDS, type Furigana } from '@/core/vocab';
 
 import { VOCAB } from './vocab';
 
@@ -49,12 +49,6 @@ describe('the word deck', () => {
     for (const topic of TOPIC_IDS) expect(VOCAB.filter((w) => w.topics.includes(topic)).length).toBeGreaterThan(5);
   });
 
-  it('tags each GENKI I lesson with its words, and those words with a real lesson', () => {
-    expect(VOCAB.filter((w) => w.genki !== null && (!Number.isInteger(w.genki) || w.genki < 0 || w.genki > GENKI_LESSONS))).toEqual([]);
-    for (let lesson = 0; lesson <= GENKI_LESSONS; lesson++) expect(VOCAB.filter((w) => w.genki === lesson).length).toBeGreaterThan(20);
-    const lessonOf = (word: string) => VOCAB.find((w) => w.word === word)?.genki;
-    expect([lessonOf('おはようございます'), lessonOf('留学生'), lessonOf('財布'), lessonOf('痛い')]).toEqual([0, 1, 2, 12]);
-  });
 
   it('can conjugate every verb and adjective, in its writing and its reading', () => {
     const verbs = VOCAB.filter((w) => verbKind(w.pos));

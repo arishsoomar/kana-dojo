@@ -15,10 +15,6 @@ export function isTopic(value: unknown): value is TopicId {
   return typeof value === 'string' && (TOPIC_IDS as readonly string[]).includes(value);
 }
 
-// GENKI I's lessons, whose words are tagged in the deck: 0 is the greetings and numbers before
-// lesson 1, then lessons 1 to 12.
-export const GENKI_LESSONS = 12;
-
 export type VocabWord = {
   id: number; // its JMdict entry number
   rank: number; // where it comes in the frequency list
@@ -31,7 +27,6 @@ export type VocabWord = {
   topics: readonly TopicId[];
   labels: readonly string[]; // who says it and how, as JMdict's codes: "hon", "hum", "male"…
   note: string | null; // a usage note, like "informal, rough, blunt"
-  genki: number | null; // the GENKI I lesson that teaches it (0 is before lesson 1), if one does
 };
 
 // Furigana's text without the readings: 食べる.

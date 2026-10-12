@@ -1,24 +1,30 @@
-import { GENKI_DECKS } from './genki';
+import { GENKI_CARDS } from './genki';
 import { romajiOf } from './romaji';
-import { VOCAB } from './vocab';
 
-const word = (written: string) => VOCAB.find((w) => w.word === written)!;
+const card = (written: string) => GENKI_CARDS.find((w) => w.word === written)!;
 
 describe('how a word is said, in romaji', () => {
-  it('gives every GENKI word one', () => {
-    const ids = new Set(GENKI_DECKS.flatMap((d) => d.ids));
-    expect(VOCAB.filter((w) => ids.has(String(w.id)) && !romajiOf(w)).map((w) => w.word)).toEqual([]);
+  it('gives every GENKI card one', () => {
+    expect(GENKI_CARDS.filter((w) => !romajiOf(w)).map((w) => w.word)).toEqual([]);
   });
 
-  it('spaces the words of a phrase, and reads は as wa', () => {
-    expect(romajiOf(word('おはようございます'))).toBe('ohayō gozaimasu');
-    expect(romajiOf(word('こんにちは'))).toBe('konnichiwa');
-    expect(romajiOf(word('男の人'))).toBe('otoko no hito');
+  it('spaces the words of a phrase, keeps particles apart, and reads は as wa', () => {
+    expect(romajiOf(card('おはようございます'))).toBe('ohayō gozaimasu');
+    expect(romajiOf(card('こんにちは'))).toBe('konnichiwa');
+    expect(romajiOf(card('男の人'))).toBe('otoko no hito');
+    expect(romajiOf(card('たばこを吸う'))).toBe('tabako o suu');
+    expect(romajiOf(card('そうですか'))).toBe('sō desu ka');
+    expect(romajiOf(card('勉強する'))).toBe('benkyō suru');
+  });
+
+  it('hyphens a suffix', () => {
+    expect(romajiOf(card('～さん'))).toBe('-san');
+    expect(romajiOf(card('～をください'))).toBe('-o kudasai');
   });
 
   it("works the rest out from the reading, keeping a verb's final う", () => {
-    expect(romajiOf(word('高校'))).toBe('kōkō');
-    expect(romajiOf(word('思う'))).toBe('omou');
-    expect(romajiOf(word('湖'))).toBe('mizuumi');
+    expect(romajiOf(card('高校'))).toBe('kōkō');
+    expect(romajiOf(card('思う'))).toBe('omou');
+    expect(romajiOf(card('湖'))).toBe('mizuumi');
   });
 });

@@ -1,16 +1,16 @@
-import { VOCAB } from '@/content/vocab';
+import { GENKI_CARDS, genkiCard, genkiDeck } from '@/content/genki';
 
 import { VOCAB_PICTURES } from './vocab-pictures';
 
-describe('word deck pictures', () => {
+describe('flashcard pictures', () => {
   // By how a word is written, so both readings of 何 (なに, なん) get its picture.
-  it('pictures only words in the deck', () => {
-    const notInDeck = Object.keys(VOCAB_PICTURES).filter((word) => !VOCAB.some((w) => w.word === word));
-    expect(notInDeck).toEqual([]);
+  it('pictures only words on the cards', () => {
+    const words = new Set(GENKI_CARDS.map((w) => w.word));
+    expect(Object.keys(VOCAB_PICTURES).filter((word) => !words.has(word))).toEqual([]);
   });
 
-  it('pictures every word of GENKI I before lesson 1 and lesson 1', () => {
-    const first = VOCAB.filter((w) => w.genki === 0 || w.genki === 1);
-    expect(first.filter((w) => !VOCAB_PICTURES[w.word]).map((w) => w.word)).toEqual([]);
+  it('pictures every card before lesson 1 and in lesson 1', () => {
+    const first = ['genki-0', 'genki-1'].flatMap((d) => genkiDeck(d)!.ids.map((id) => genkiCard(id)!.word));
+    expect(first.filter((word) => !VOCAB_PICTURES[word])).toEqual([]);
   });
 });

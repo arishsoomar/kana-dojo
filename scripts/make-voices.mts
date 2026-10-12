@@ -12,7 +12,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 
 import { voiceLines, type VoiceLine } from '@/audio/voice-lines';
 import { KANA } from '@/core/kana';
@@ -134,5 +134,13 @@ ${tables.male!.join('\n')}
 };
 `,
 );
+// Recordings of lines no longer said (a word taken out of a deck) are deleted.
+if (!only) {
+  for (const voice of Object.keys(VOICES)) {
+    const used = new Set(lines.map((line) => fileName(line.key)));
+    const dir = new URL(`${voice}/`, OUT);
+    for (const file of readdirSync(dir)) if (!used.has(file)) rmSync(new URL(file, dir));
+  }
+}
 console.log(`Recorded ${lines.length} lines in each voice.`);
 if (fellBack.size > 0) console.log(`Said from the reading, as the written form was read differently: ${[...fellBack].join(', ')}`);

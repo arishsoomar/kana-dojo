@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { speakWord } from '@/audio/pronounce';
-import { genkiDeck, GENKI_DECKS } from '@/content/genki';
+import { genkiCard, genkiDeck, GENKI_DECKS } from '@/content/genki';
 import { VOCAB } from '@/content/vocab';
 import { completeLesson, type WordFront } from '@/core/answers';
 import { answerCard, currentCard, knownCards, markCard, nextRound, roundOver, setWordFront, startRound, WORDS_REVIEW_ID } from '@/core/flashcards';
@@ -13,8 +13,9 @@ import { useProgress } from './use-progress';
 
 const BY_ID = new Map(VOCAB.map((w) => [String(w.id), w]));
 
+// A GENKI card, or a word of the deck (a grammar lesson's words are those).
 export function wordById(id: string): VocabWord | null {
-  return BY_ID.get(id) ?? null;
+  return genkiCard(id) ?? BY_ID.get(id) ?? null;
 }
 
 const ID_BY_WORD = new Map(VOCAB.map((w) => [w.word, String(w.id)]));

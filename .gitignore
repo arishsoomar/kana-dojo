@@ -44,3 +44,6 @@ example
 
 # downloads for scripts/build-vocab.mjs
 .cache/
+
+# Textbooks and other reference PDFs kept beside the project, never committed.
+*.pdf

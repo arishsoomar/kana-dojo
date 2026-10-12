@@ -1,32 +1,9 @@
-import { GENKI_DECKS, genkiCard } from '@/content/genki';
+import { taughtBy } from '@/content/genki';
 import { DEFAULT_NAME, parseRuby, sayJapanese, sayRomaji } from '@/core/grammar';
 
 import { GRAMMAR_LESSONS } from './index';
 
 const hasKanji = (text: string) => /[㐀-鿿々〆ヶ]/.test(text);
-
-// Every kanji word and reading the GENKI decks have taught by a lesson, and any run of them in
-// a word: 大学生 teaches 大学, 学生 and 大学生, each with its reading.
-function taughtBy(lesson: number): Set<string> {
-  const taught = new Set<string>();
-  for (const deck of GENKI_DECKS.filter((d) => d.lesson <= lesson)) {
-    for (const id of deck.ids) {
-      const pieces = genkiCard(id)!.furigana;
-      for (let from = 0; from < pieces.length; from++) {
-        let base = '';
-        let reading = '';
-        for (let to = from; to < pieces.length && pieces[to]![1] !== undefined; to++) {
-          base += pieces[to]![0];
-          reading += pieces[to]![1];
-          taught.add(`${base}|${reading}`);
-        }
-      }
-    }
-  }
-  // 来る's other readings, in its conjugations: 来ます (き), 来ない (こ).
-  for (const reading of ['き', 'こ']) taught.add(`来|${reading}`);
-  return taught;
-}
 
 const sentencesOf = (l: (typeof GRAMMAR_LESSONS)[number]) => l.points.flatMap((p) => [...p.examples.map((e) => e.ja), ...p.say.map((s) => s.ja)]);
 

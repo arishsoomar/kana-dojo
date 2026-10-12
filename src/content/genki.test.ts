@@ -36,3 +36,24 @@ describe('the GENKI decks', () => {
     expect(genkiDeck('genki-0')!.ids.filter((id) => genkiCard(id)!.word === '四')).toHaveLength(2);
   });
 });
+
+describe("the cards' example sentences", () => {
+  const card = (deck: string, word: string) => genkiCard(genkiDeck(deck)!.ids.find((id) => genkiCard(id)!.word === word)!)!;
+
+  it("come from the grammar lessons when one uses the word, with the lesson's English", () => {
+    expect(furiganaText(card('genki-2', 'この').example!.ja)).toBe('この時計はいくらですか。');
+    expect(card('genki-2', 'この').example!.en).toBe('How much is this watch?');
+    expect(furiganaText(card('genki-3', '食べる').example!.ja)).toMatch(/食べ/);
+    // A noun that can take する isn't matched by its verb: 買い物 (shopping) is not 買いました.
+    expect(furiganaText(card('genki-4', '買い物').example?.ja ?? [])).not.toMatch(/買いました/);
+  });
+
+  it("drop the dictionary's note, which the book's English covers", () => {
+    expect(card('genki-2', 'この').note).toBeNull();
+  });
+
+  it("are only the dictionary's when every kanji word in it is taught by then", () => {
+    const hard = GENKI_CARDS.filter((w) => w.example && furiganaText(w.example.ja).includes('暑さには全く'));
+    expect(hard).toEqual([]);
+  });
+});

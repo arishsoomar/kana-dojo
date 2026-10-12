@@ -10,6 +10,8 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
+import { GENKI_PICTURES } from './genki-pictures.mjs';
+
 const REPO = 'microsoft/fluentui-emoji';
 const NOTO = 'googlefonts/noto-emoji';
 const OUT = new URL('../assets/images/pictures/', import.meta.url);
@@ -418,8 +420,17 @@ const VOCAB_FOLDERS = {
   フィリピン: 'flag:PH',
 };
 
+// The rest of the GENKI cards' pictures, from lesson 2 on.
+Object.assign(VOCAB_FOLDERS, GENKI_PICTURES);
+
 const tree = await (await fetch(`https://api.github.com/repos/${REPO}/git/trees/main?recursive=1`)).json();
 const paths = tree.tree.map((entry) => entry.path);
+
+// Every folder named, checked before anything is downloaded, so all typos show at once.
+const folderNames = new Set(paths.map((p) => p.split('/')[1]));
+const named = [...Object.values(FOLDERS), ...Object.values(KANA_FOLDERS), ...Object.values(VOCAB_FOLDERS).flat()];
+const unknown = [...new Set(named.filter((f) => !f.startsWith('flag:') && !folderNames.has(f)))];
+if (unknown.length > 0) throw new Error(`No such Fluent Emoji folders: ${unknown.join(', ')}`);
 
 mkdirSync(OUT, { recursive: true });
 

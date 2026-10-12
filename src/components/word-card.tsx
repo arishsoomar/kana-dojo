@@ -83,7 +83,8 @@ function Labels({ word, note = false }: { word: VocabWord; note?: boolean }) {
 
 // A picture of it, for words a picture shows well (src/constants/vocab-pictures.ts).
 export function WordPicture({ word, size = PICTURE }: { word: VocabWord; size?: number }) {
-  const picture = VOCAB_PICTURES[word.word];
+  // By word#id first, for one of two cards written alike (いる: to be, いる: to need).
+  const picture = VOCAB_PICTURES[`${word.word}#${word.id}`] ?? VOCAB_PICTURES[word.word];
   if (!picture) return null;
   // The badge and its circle keep their size relative to the picture.
   const scale = size / PICTURE;

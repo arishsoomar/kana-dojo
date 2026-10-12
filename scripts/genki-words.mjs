@@ -98,8 +98,8 @@ export const GENKI = {
 ～ばん ; ～番 ; number ...
 ばんごう ; 番号 ; number
 なまえ ; 名前 ; name
-なん ; 何 ; what
-なに ; 何 ; what
+なん ; 何 ; what (before d, t and n sounds, and counters: what is it, what time)
+なに ; 何 ; what (everywhere else: before を and が, and on its own)
 あのう ; ; um ...
 はい ; ; yes
 そうです ; ; That's right.
@@ -137,18 +137,18 @@ export const GENKI = {
 おとうと ; 弟 ; younger brother
 `,
   2: `
-これ ; ; this one
-それ ; ; that one
-あれ ; ; that one (over there)
-どれ ; ; which one
-この ; ; this ...
-その ; ; that ...
-あの ; ; that ... (over there)
-どの ; ; which ...
-ここ ; ; here
-そこ ; ; there
-あそこ ; ; over there
-どこ ; ; where
+これ ; ; this one, near me. Stands on its own, with no noun after it ("How much is this?"). Not for people
+それ ; ; that one, near you. Stands on its own, with no noun after it. Not for people
+あれ ; ; that one over there, far from us both. Stands on its own, with no noun after it. Not for people
+どれ ; ; which one? (of three or more). Stands on its own; takes が, not は
+この ; ; this ..., near me. Always followed by a noun ("this watch"). Fine for people too
+その ; ; that ..., near you. Always followed by a noun ("that bag")
+あの ; ; that ... over there, far from us both. Always followed by a noun ("that student")
+どの ; ; which ...? Always followed by a noun ("which student?"); takes が, not は
+ここ ; ; here: this place, near me
+そこ ; ; there: that place, near you
+あそこ ; ; over there: that place, far from us both
+どこ ; ; where? (which place)
 だれ ; 誰 ; who
 おいしい ; ; delicious
 さかな ; 魚 ; fish
@@ -638,8 +638,8 @@ export const GENKI = {
 りょこうする ; 旅行する ; to travel
 れんしゅうする ; 練習する ; to practice (～を)
 いちばん ; 一番 ; best
-どっち ; ; which
-どちら ; ; which
+どっち ; ; which (of two), casual
+どちら ; ; which (of two), more polite
 はやく ; 早く ; (do something) early; fast
 あるいて ; 歩いて ; on foot
 ～で ; ; by (means of transportation); with (a tool)

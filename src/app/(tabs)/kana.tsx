@@ -49,13 +49,30 @@ export default function StudyScreen() {
   );
 }
 
-// Words: GENKI I's flashcard decks, one per lesson, each with how many of its cards you know.
+const WORD_KINDS = [
+  { value: 'genki', label: 'GENKI I' },
+  { value: 'numbers', label: 'Numbers' },
+  { value: 'time', label: 'Time' },
+  { value: 'homework', label: 'HW' },
+] as const;
+
+const WORD_INTROS = {
+  genki: 'Flashcards for every lesson of GENKI I. Study a deck as often as you like.',
+  numbers: "Every number from 1 to 100, so you know 21 on sight instead of working it out, ten at a time. Then GENKI's big numbers: hundreds, thousands and ten thousands, and the sounds that change in them, like さんびゃく and はっせん.",
+  time: "The hours, the minutes and the two together, so 3:15 reads as さんじじゅうごふん on sight. Watch for 4, 7 and 9 o'clock, and ふん or ぷん.",
+  homework: 'Words from class homework, a deck for each set.',
+} as const;
+
+// Words: GENKI I's flashcard decks, one per lesson; the numbers 1 to 100, ten at a time, and the big ones; and
+// telling the time; and homework. Each deck with how many of its cards you know.
 function WordsSection() {
-  const { decks } = useDecks();
+  const { decks, numbers, time, homework } = useDecks();
+  const [kind, setKind] = useState<(typeof WORD_KINDS)[number]['value']>('genki');
   return (
     <>
-      <Text style={styles.wordsIntro}>Flashcards for every lesson of GENKI I. Study a deck as often as you like.</Text>
-      {decks.map((deck) => (
+      <SegmentedControl options={WORD_KINDS} value={kind} onChange={setKind} />
+      <Text style={styles.wordsIntro}>{WORD_INTROS[kind]}</Text>
+      {{ genki: decks, numbers, time, homework }[kind].map((deck) => (
         <Pressable
           key={deck.id}
           role="button"

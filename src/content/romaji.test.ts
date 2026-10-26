@@ -1,3 +1,5 @@
+import { clockWord, hourWord } from '@/core/time';
+
 import { GENKI_CARDS } from './genki';
 import { romajiOf } from './romaji';
 
@@ -26,5 +28,11 @@ describe('how a word is said, in romaji', () => {
     expect(romajiOf(card('高校'))).toBe('kōkō');
     expect(romajiOf(card('思う'))).toBe('omou');
     expect(romajiOf(card('湖'))).toBe('mizuumi');
+  });
+
+  it('spaces a time between its hour and its minutes', () => {
+    expect(romajiOf(clockWord(3, 15))).toBe('sanji jūgofun');
+    expect(romajiOf(clockWord(4, 30))).toBe('yoji han');
+    expect(romajiOf(hourWord(9))).toBe('kuji');
   });
 });

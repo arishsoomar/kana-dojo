@@ -1,7 +1,10 @@
 import { GENKI_CARDS } from '@/content/genki';
 import { GRAMMAR_LESSONS } from '@/content/grammar';
+import { HOMEWORK_CARDS } from '@/content/homework';
+import { NUMBER_CARDS } from '@/content/numbers';
 import { PHRASES } from '@/content/phrases';
 import { PLACES } from '@/content/signs';
+import { TIME_CARDS } from '@/content/time';
 import { WORD_FAMILIES } from '@/content/word-families';
 import { DEFAULT_NAME, rubyText, sayJapanese } from '@/core/grammar';
 import { KANA, type Kana } from '@/core/kana';
@@ -9,10 +12,10 @@ import { phraseText } from '@/core/reading';
 import { furiganaText } from '@/core/vocab';
 import { WORDS } from '@/core/words';
 
-// Everything the app says aloud, each line once: kana, the flashcards' words, their example
-// sentences and word families, grammar examples, the reading room's signs and phrases, Word
-// Forge's words, and the sample in Settings. scripts/make-voices.ts records each line in
-// VOICEVOX's voices, and the app plays the recording (see pronounce.ts).
+// Everything the app says aloud, each line once: kana, the flashcards' words, numbers, times and
+// homework, their example sentences and word families, grammar examples, the reading room's signs
+// and phrases, Word Forge's words, and the sample in Settings. scripts/make-voices.ts records each
+// line in VOICEVOX's voices, and the app plays the recording (see pronounce.ts).
 //
 // `key` is what the app asks to hear: the text passed to speakWord (a word's reading, a
 // sentence), or kana:<romaji> for a kana. `say` is what the voice is given: a word's written
@@ -47,7 +50,7 @@ export function voiceLines(): VoiceLine[] {
 
   // The flashcards' words, said from how they're written (without a suffix's ～); their example
   // sentences; and their word families.
-  const words = GENKI_CARDS;
+  const words = [...GENKI_CARDS, ...NUMBER_CARDS, ...TIME_CARDS, ...HOMEWORK_CARDS];
   for (const w of words) add({ key: w.reading, say: w.word.replace(/[～〜]/g, ''), reading: w.reading });
   for (const w of words) if (w.example) add({ key: furiganaText(w.example.ja), say: furiganaText(w.example.ja) });
   for (const family of WORD_FAMILIES) for (const m of family.members) add({ key: m.reading, say: m.word, reading: m.reading });

@@ -24,7 +24,7 @@ function leave() {
   else router.replace('/kana');
 }
 
-// Flashcards for a GENKI deck, shuffled or in order.
+// Flashcards for a deck (a GENKI lesson's, or numbers), shuffled or in order.
 export default function FlashcardsScreen() {
   const { deck: deckId, shuffle, only } = useLocalSearchParams<{ deck?: string; shuffle?: string; only?: string }>();
   const { progress } = useProgress();

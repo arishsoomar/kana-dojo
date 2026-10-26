@@ -1,5 +1,5 @@
 import { hepburn } from '@/core/hepburn';
-import type { VocabWord } from '@/core/vocab';
+import { furiganaReading, type VocabWord } from '@/core/vocab';
 
 // How a word is said, in romaji, for English readers: おはようございます is "ohayō gozaimasu".
 // Worked out from the reading (src/core/hepburn.ts), except where that can't know: phrases,
@@ -74,10 +74,18 @@ function said(reading: string, verbU: boolean): string {
   return hepburn(reading, { verbU }) ?? '';
 }
 
+// A time with minutes or 半 after its hour (三時十五分, 四時半): the hour's reading, and the rest.
+function clockParts(word: VocabWord): [string, string] | null {
+  const hour = word.furigana.findIndex((p) => p[0] === '時');
+  if (hour <= 0 || hour === word.furigana.length - 1 || !/[分半]$/.test(word.word)) return null;
+  return [furiganaReading(word.furigana.slice(0, hour + 1)), furiganaReading(word.furigana.slice(hour + 1))];
+}
+
 export function romajiOf(word: VocabWord): string {
   // A verb ending in う (思う, omou): its う is a sound of its own.
   const verbU = word.pos.some((p) => p === 'v5u' || p === 'v5u-s');
-  const romaji = said(word.reading, verbU);
+  const clock = clockParts(word);
+  const romaji = clock ? clock.map((part) => said(part, false)).join(' ') : said(word.reading, verbU);
   // A suffix or prefix (～さん) is written with a hyphen: -san.
   const before = /^[～〜]/.test(word.word) ? '-' : '';
   const after = /[～〜]$/.test(word.word) && word.word.length > 1 ? '-' : '';

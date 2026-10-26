@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { speakWord } from '@/audio/pronounce';
 import { genkiCard, genkiDeck, GENKI_DECKS } from '@/content/genki';
+import { homeworkCard, homeworkDeck, HOMEWORK_DECKS } from '@/content/homework';
+import { numberCard, numberDeck, NUMBER_DECKS } from '@/content/numbers';
+import { timeCard, timeDeck, TIME_DECKS } from '@/content/time';
 import { VOCAB } from '@/content/vocab';
 import { completeLesson, type WordFront } from '@/core/answers';
 import { answerCard, currentCard, knownCards, markCard, nextRound, roundOver, setWordFront, startRound, WORDS_REVIEW_ID } from '@/core/flashcards';
@@ -12,9 +15,10 @@ import { useProgress } from './use-progress';
 
 const BY_ID = new Map(VOCAB.map((w) => [String(w.id), w]));
 
-// A GENKI card, or a word of the deck (a grammar lesson's words are those).
+// A GENKI card, a number, a time, a homework word, or a word of the deck (a grammar lesson's
+// words are those).
 export function wordById(id: string): VocabWord | null {
-  return genkiCard(id) ?? BY_ID.get(id) ?? null;
+  return genkiCard(id) ?? numberCard(id) ?? timeCard(id) ?? homeworkCard(id) ?? BY_ID.get(id) ?? null;
 }
 
 const ID_BY_WORD = new Map(VOCAB.map((w) => [w.word, String(w.id)]));
@@ -24,19 +28,22 @@ export function lessonWordIds(words: readonly string[]): string[] {
   return words.flatMap((w) => ID_BY_WORD.get(w) ?? []);
 }
 
-// A deck to study: a GENKI lesson's.
+// A deck to study: a GENKI lesson's, numbers, telling the time, or homework.
 export type Deck = { id: string; name: string; title: string; ids: readonly string[] };
 
 export function deckById(id: string): Deck | null {
-  return genkiDeck(id);
+  return genkiDeck(id) ?? numberDeck(id) ?? timeDeck(id) ?? homeworkDeck(id);
 }
 
-// The GENKI decks, with how many of each one's cards are known; and which side of a card shows
-// first.
+// The GENKI decks, the number decks, the time decks and the homework decks, with how many of
+// each one's cards are known; and which side of a card shows first.
 export function useDecks() {
   const { progress, updateProgress } = useProgress();
   return {
     decks: GENKI_DECKS.map((deck) => ({ ...deck, known: knownCards(progress, deck.ids).length })),
+    numbers: NUMBER_DECKS.map((deck) => ({ ...deck, known: knownCards(progress, deck.ids).length })),
+    time: TIME_DECKS.map((deck) => ({ ...deck, known: knownCards(progress, deck.ids).length })),
+    homework: HOMEWORK_DECKS.map((deck) => ({ ...deck, known: knownCards(progress, deck.ids).length })),
     front: progress.settings.wordFront,
     setFront: (front: WordFront) => updateProgress(setWordFront(progress, front)),
   };

@@ -3,7 +3,9 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { speakWord } from '@/audio/pronounce';
 import { colors, fonts, jpRoom } from '@/constants/theme';
+import type { MnemonicPicture } from '@/constants/mnemonic-pictures';
 import { VOCAB_PICTURES } from '@/constants/vocab-pictures';
+import type { WordMnemonic } from '@/content/mnemonics';
 import { REGISTERS } from '@/content/registers';
 import { romajiOf } from '@/content/romaji';
 import { WORD_FAMILIES, type WordFamily } from '@/content/word-families';
@@ -15,15 +17,18 @@ import { SpeakerIcon } from './speaker-icon';
 
 type Props = {
   word: VocabWord;
+  mnemonic?: WordMnemonic | null; // a memory tip, shown on the back (src/content/mnemonics.ts)
+  mnemonicPicture?: MnemonicPicture;
   front: WordFront; // which side is the front: the Japanese, or the English and picture
   back: boolean; // whether the back is showing
   onSpeak: () => void;
 };
 
 // What a word's flashcard shows. With the Japanese in front: the word with furigana, and on
-// the back its reading, picture, meanings, example sentence and word families. With the
-// English in front: its picture and meanings (say it in Japanese), and on the back everything.
-export function WordCardFace({ word, front, back, onSpeak }: Props) {
+// the back its reading, picture, meanings, memory tip, example sentence and word families. With
+// the English in front: its picture and meanings (say it in Japanese), and on the back
+// everything. The memory tip is only ever on the back: it would give the answer away in front.
+export function WordCardFace({ word, mnemonic, mnemonicPicture, front, back, onSpeak }: Props) {
   if (front === 'english' && !back) {
     return (
       <>
@@ -36,7 +41,7 @@ export function WordCardFace({ word, front, back, onSpeak }: Props) {
     <>
       <Furigana furigana={word.furigana} size={48} align="center" />
       {back ? (
-        <Back word={word} onSpeak={onSpeak} />
+        <Back word={word} mnemonic={mnemonic} mnemonicPicture={mnemonicPicture} onSpeak={onSpeak} />
       ) : (
         <>
           {/* Hear it again: say what it means in your head, then turn it over. */}
@@ -119,8 +124,18 @@ function Meanings({ word }: { word: VocabWord }) {
 }
 
 // The back of the card: its reading (for words with kanji), a picture if it has one, meanings,
-// and an example sentence.
-function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
+// a memory tip, and an example sentence.
+function Back({
+  word,
+  mnemonic,
+  mnemonicPicture,
+  onSpeak,
+}: {
+  word: VocabWord;
+  mnemonic?: WordMnemonic | null;
+  mnemonicPicture?: MnemonicPicture;
+  onSpeak: () => void;
+}) {
   return (
     <View style={styles.back}>
       {/* Its reading and how it's said in romaji: tap either to hear it. */}
@@ -134,6 +149,7 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
       <Labels word={word} note />
       <WordPicture word={word} />
       <Meanings word={word} />
+      {mnemonic && <Mnemonic mnemonic={mnemonic} picture={mnemonicPicture} />}
       {/* The example sentence: tap it (or its speaker) to hear it. */}
       {word.example && (
         <Pressable
@@ -151,6 +167,25 @@ function Back({ word, onSpeak }: { word: VocabWord; onSpeak: () => void }) {
       {familiesOf(word).map((family) => (
         <Family key={family.id} family={family} word={word} />
       ))}
+    </View>
+  );
+}
+
+// A word's memory tip: its scene, the keyword it sounds like, and the tip. The scene's two
+// pictures overlap, the keyword's and what it's doing, so they read as one scene.
+function Mnemonic({ mnemonic, picture }: { mnemonic: WordMnemonic; picture?: MnemonicPicture }) {
+  return (
+    <View style={styles.mnemonic}>
+      {picture && (
+        <View style={styles.scene}>
+          <Image source={picture.picture} style={styles.sceneMain} accessibilityIgnoresInvertColors />
+          <Image source={picture.badge} style={styles.sceneWith} accessibilityIgnoresInvertColors />
+        </View>
+      )}
+      <View style={styles.mnemonicText}>
+        <Text style={styles.mnemonicTitle}>{mnemonic.keyword ? `Sounds like “${mnemonic.keyword}”` : 'Memory tip'}</Text>
+        <Text style={styles.mnemonicTip}>{mnemonic.tip}</Text>
+      </View>
     </View>
   );
 }
@@ -271,6 +306,45 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     borderTopWidth: 1.5,
     borderTopColor: colors.line,
+  },
+  mnemonic: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    gap: 12,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: colors.goldLight,
+  },
+  scene: {
+    width: 64,
+    height: 64,
+  },
+  sceneMain: {
+    width: 52,
+    height: 52,
+  },
+  sceneWith: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: 36,
+    height: 36,
+  },
+  mnemonicText: {
+    flex: 1,
+    gap: 3,
+  },
+  mnemonicTitle: {
+    fontFamily: fonts.uiExtraBold,
+    fontSize: 13,
+    color: colors.goldDark,
+  },
+  mnemonicTip: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 14,
+    lineHeight: 19,
+    color: colors.sumi,
   },
   labels: {
     flexDirection: 'row',

@@ -162,6 +162,40 @@ All of these return new objects. Nothing mutates its input.
 Note: a working reference implementation exists but is deliberately not in
 the repo. The learner is rebuilding it from the tests as a spec.
 
+## Word mnemonics
+
+HW1 and GENKI I's cards (`src/content/mnemonics.json`). A word gets a
+keyword where a good one exists: an English sound-alike shown in one scene
+with the meaning ("own a jeep": twins each own the same jeep, おなじ).
+Otherwise its tip builds it from parts the learner knows (大学: 大 big, 学
+learning), or it gets none: numbers, counters, bare grammar and katakana
+words, which already sound like English. What the research says, and what
+the cards do about it:
+
+- Keywords give a large boost on tests soon after studying, mostly when
+  recalling the English from the Japanese (Atkinson & Raugh 1975: 72% vs
+  46%). They can fade faster than rote learning within days (Wang & Thomas
+  1995), though Carney & Levin (1998) mostly found the gain held. Dunlosky
+  et al. (2013) rate the method "low utility" next to self-testing. So the
+  mnemonic is an extra layer on top of the normal reviews, not a
+  replacement.
+- Recalling first beats looking first (Kang et al. 2013), so the tip is
+  only on the back of the card, never in front.
+- Keywords only help saying the Japanese when they sound very close (Ellis
+  & Beaton 1993). Each tip says where the keyword's sound is wrong (long
+  vowels, っ, vowel quality), and the recording is the real sound.
+- Concrete noun keywords work, verb keywords don't. No two words share one.
+  A word with no good sound-alike gets no keyword (先月 is built from 先
+  and 月 instead).
+- A picture helps only when the keyword and the meaning interact: two
+  things side by side did worse than no picture (Wollen et al. 1972). The
+  scene's two pictures overlap, which only approximates this. A drawn scene
+  would be truer to the research. Each scene looks unlike the others.
+
+To see if it works: compare HW1 words' review results a day and a week
+later with words learned without a tip, not how they feel in the same
+session, which always flatters keywords.
+
 ## Non-negotiables
 
 - No lives or hearts in lessons. A wrong answer gets a memory tip.

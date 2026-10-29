@@ -4,11 +4,12 @@
 // (the mnemonic pictures), and for some of the word deck's words, with Google's Noto Emoji for
 // country flags (Apache licence). This saves them to assets/images/pictures/ with the licences,
 // and writes src/constants/word-pictures.ts, src/constants/kana-pictures.ts and
-// src/constants/vocab-pictures.ts.
+// src/constants/vocab-pictures.ts, and the word mnemonics' pictures (src/content/mnemonics.ts) to
+// src/constants/mnemonic-pictures.ts.
 // Run it with `node scripts/fetch-pictures.mjs` after adding a word or changing a picture.
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 import { GENKI_PICTURES } from './genki-pictures.mjs';
 
@@ -18,6 +19,12 @@ const OUT = new URL('../assets/images/pictures/', import.meta.url);
 const WORD_TABLE = new URL('../src/constants/word-pictures.ts', import.meta.url);
 const KANA_TABLE = new URL('../src/constants/kana-pictures.ts', import.meta.url);
 const VOCAB_TABLE = new URL('../src/constants/vocab-pictures.ts', import.meta.url);
+const MNEMONIC_TABLE = new URL('../src/constants/mnemonic-pictures.ts', import.meta.url);
+
+// The word mnemonics' pictures, by card id: [the keyword, what it's doing with the meaning].
+const MNEMONIC_PICTURES = Object.fromEntries(
+  Object.entries(JSON.parse(readFileSync(new URL('../src/content/mnemonics.json', import.meta.url), 'utf8'))).map(([id, m]) => [id, [m.picture, m.badge]]),
+);
 
 // Word Forge: emoji → Fluent Emoji folder. Most folders are the emoji's everyday name. The set has no
 // country flags, so the countries use something they're known for (🗽 for America).
@@ -428,7 +435,7 @@ const paths = tree.tree.map((entry) => entry.path);
 
 // Every folder named, checked before anything is downloaded, so all typos show at once.
 const folderNames = new Set(paths.map((p) => p.split('/')[1]));
-const named = [...Object.values(FOLDERS), ...Object.values(KANA_FOLDERS), ...Object.values(VOCAB_FOLDERS).flat()];
+const named = [...Object.values(FOLDERS), ...Object.values(KANA_FOLDERS), ...Object.values(VOCAB_FOLDERS).flat(), ...Object.values(MNEMONIC_PICTURES).flat()];
 const unknown = [...new Set(named.filter((f) => !f.startsWith('flag:') && !folderNames.has(f)))];
 if (unknown.length > 0) throw new Error(`No such Fluent Emoji folders: ${unknown.join(', ')}`);
 
@@ -483,6 +490,11 @@ for (const [word, folders] of Object.entries(VOCAB_FOLDERS)) {
   vocabLines.push(`  ${JSON.stringify(word)}: { picture: ${await required(picture)}${badge ? `, badge: ${await required(badge)}` : ''} },`);
 }
 
+const mnemonicLines = [];
+for (const [id, [picture, badge]] of Object.entries(MNEMONIC_PICTURES)) {
+  mnemonicLines.push(`  ${JSON.stringify(id)}: { picture: ${await required(picture)}, badge: ${await required(badge)} },`);
+}
+
 const license = await (await fetch(`https://raw.githubusercontent.com/${REPO}/main/LICENSE`)).text();
 writeFileSync(new URL('LICENSE', OUT), `Fluent Emoji, by Microsoft: https://github.com/${REPO}\n\n${license}`);
 const notoLicense = await (await fetch(`https://raw.githubusercontent.com/${NOTO}/main/LICENSE`)).text();
@@ -530,3 +542,18 @@ ${vocabLines.join('\n')}
 `,
 );
 console.log(`Saved ${saved.size} pictures.`);
+writeFileSync(
+  MNEMONIC_TABLE,
+  `// Written by scripts/fetch-pictures.mjs: don't edit by hand.
+// The picture for each word mnemonic (src/content/mnemonics.ts), by card id: the keyword and
+// what it's doing with the meaning, drawn overlapping as one scene.
+// Microsoft's Fluent Emoji, MIT licence: see assets/images/pictures/LICENSE.
+import type { ImageSourcePropType } from 'react-native';
+
+export type MnemonicPicture = { picture: ImageSourcePropType; badge: ImageSourcePropType };
+
+export const MNEMONIC_PICTURES: Readonly<Record<string, MnemonicPicture>> = {
+${mnemonicLines.join('\n')}
+};
+`,
+);

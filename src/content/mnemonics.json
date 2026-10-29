@@ -1,0 +1,3014 @@
+{
+  "hw1:atarashii": {
+    "keyword": "otter, a sheet",
+    "tip": "An otter rips open a crisp, brand-new sheet. Start on 'ah', not 'oh', and hold the shii long: atarashii.",
+    "picture": "Otter",
+    "badge": "New button"
+  },
+  "hw1:shoukai-shimasu": {
+    "keyword": "show kite",
+    "tip": "At the kite show, you hold up your kite and introduce it to the crowd. A long, pure shō, and no t: shōkaishimasu.",
+    "picture": "Kite",
+    "badge": "Microphone"
+  },
+  "hw1:jikoshoukai": {
+    "keyword": null,
+    "tip": "自己 jiko means 'self'. Then the show kite from 紹介します: you introduce yourself at the kite show: jikoshōkai.",
+    "picture": "Name badge",
+    "badge": "Kite"
+  },
+  "hw1:onegaishimasu": {
+    "keyword": "oh, neigh, guy",
+    "tip": "A horse nudges the stable guy for one more carrot: \"Oh, neigh, guy… please!\" A short 'neh', not 'nay': onegaishimasu.",
+    "picture": "Horse face",
+    "badge": "Folded hands"
+  },
+  "hw1:sengetsu": {
+    "keyword": null,
+    "tip": "先 sen is 'before', as in sensei, and 月 getsu is 'month', as in getsuyōbi. The month before: sengetsu.",
+    "picture": "Tear-off calendar",
+    "badge": "Last track button"
+  },
+  "hw1:kimashita": {
+    "keyword": "key",
+    "tip": "Your friend came home: their key turns in the front door. A short ki, then mashita with the i almost silent: kimashita.",
+    "picture": "Door",
+    "badge": "Locked with key"
+  },
+  "hw1:madamada-desu": {
+    "keyword": "madam, madam",
+    "tip": "A grand madam praises your Japanese, and you bow: \"Madam, madam, I'm still learning.\" Open 'ah' sounds, and no m at the end: madamada desu.",
+    "picture": "Old woman",
+    "badge": "Japanese symbol for beginner"
+  },
+  "hw1:onaji": {
+    "keyword": "own a jeep",
+    "tip": "Twins each own a jeep: the same model, the same colour, the same dent. A short, pure o, and a short ji with no p: onaji.",
+    "picture": "Sport utility vehicle",
+    "badge": "Heavy equals sign"
+  },
+  "hw1:wakarimashita": {
+    "keyword": "wok curry",
+    "tip": "A chef tosses curry in a wok, shows you once, and you nod: got it! An open 'kah', not 'kuh': wakarimashita.",
+    "picture": "Shallow pan of food",
+    "badge": "Light bulb"
+  },
+  "hw1:goshusshin": {
+    "keyword": "shoe, shin",
+    "tip": "Your hometown's red dirt still cakes your shoe and shin, showing where you're from. Polite go first, a short shu, and hold the sh a beat: goshusshin.",
+    "picture": "House with garden",
+    "badge": "Hiking boot"
+  },
+  "hw1:yuumei": {
+    "keyword": "ewe May",
+    "tip": "Cameras flash at May the ewe, the most famous sheep in town. Hold the yū long, and say mei almost like 'meh': yūmei.",
+    "picture": "Ewe",
+    "badge": "Camera with flash"
+  },
+  "hw1:goyukkuri": {
+    "keyword": "go, you cook rice",
+    "tip": "At the hot-spring inn, your host hands you a rice pot: \"Go, you cook rice, take your time.\" A short yu, hold the k, and 'ree', not 'rice': goyukkuri.",
+    "picture": "Hot springs",
+    "badge": "Cook"
+  },
+  "1361490": {
+    "keyword": "otter, a sheet",
+    "tip": "An otter rips open a crisp, brand-new sheet. Start on 'ah', not 'oh', and hold the shii long: atarashii.",
+    "picture": "Otter",
+    "badge": "New button"
+  },
+  "1541620": {
+    "keyword": "ewe May",
+    "tip": "Cameras flash at May the ewe, the most famous sheep in town. Hold the yū long, and say mei almost like 'meh': yūmei.",
+    "picture": "Ewe",
+    "badge": "Camera with flash"
+  },
+  "1387500": {
+    "keyword": null,
+    "tip": "先 sen is 'before', as in sensei, and 月 getsu is 'month', as in getsuyōbi. The month before: sengetsu.",
+    "picture": "Tear-off calendar",
+    "badge": "Last track button"
+  },
+  "1451750": {
+    "keyword": "own a jeep",
+    "tip": "Twins each own a jeep: the same model, the same colour, the same dent. A short, pure o, and a short ji with no p: onaji.",
+    "picture": "Sport utility vehicle",
+    "badge": "Heavy equals sign"
+  },
+  "1612820": {
+    "keyword": "Ohio",
+    "tip": "An Ohio farmer greets the sunrise over his cornfields: good morning! Say ha, not 'high', and hold the yō long: ohayō.",
+    "picture": "Ear of corn",
+    "badge": "Rooster"
+  },
+  "1002340": {
+    "keyword": null,
+    "tip": "This is ohayō plus gozaimasu, the polite add-on you use with teachers and strangers. The final u is almost silent: ohayō gozaimasu.",
+    "picture": "Teacher",
+    "badge": "Hot beverage"
+  },
+  "1289400": {
+    "keyword": null,
+    "tip": "こんにち is 今日, 'today', and は is the topic marker, written ha but said wa: 'as for today...'. Say both n's, kon-ni-chi-wa: konnichiwa.",
+    "picture": "Sun with face",
+    "badge": "Speech balloon"
+  },
+  "1289480": {
+    "keyword": null,
+    "tip": "こんばん is 今晩, 'this evening', and は is written ha but said wa: 'as for this evening...'. The ん before b sounds like m, kom-ban: konbanwa.",
+    "picture": "Sunset",
+    "badge": "Crescent moon"
+  },
+  "1612680": {
+    "keyword": null,
+    "tip": "休み yasumi means 'rest', and the polite お softens it: you're wishing someone a good rest. Three light, even beats, ya-su-mi: oyasumi.",
+    "picture": "Bed",
+    "badge": "Zzz"
+  },
+  "1001780": {
+    "keyword": null,
+    "tip": "This is oyasumi plus nasai, a polite tail meaning 'please do', what a child says to their parents at bedtime. Na-sa-i is three beats: oyasumi nasai.",
+    "picture": "Teddy bear",
+    "badge": "Night with stars"
+  },
+  "1586820": {
+    "keyword": "alligator",
+    "tip": "An alligator holds the door for you, and you say thank you. The r is a quick tap, close to a d, and tō is long with no 'r': arigatō.",
+    "picture": "Crocodile",
+    "badge": "Door"
+  },
+  "1541040": {
+    "keyword": null,
+    "tip": "This is arigatō plus the polite gozaimasu, for teachers, shopkeepers and anyone older. The final u is almost silent: arigatō gozaimasu.",
+    "picture": "Wrapped gift",
+    "badge": "Folded hands"
+  },
+  "1295060": {
+    "keyword": null,
+    "tip": "すみ comes from 済む, 'to be settled', and ません means 'not': it isn't settled, I owe you. Five even beats, ending in a hummed n: sumimasen.",
+    "picture": "Person bowing",
+    "badge": "Person raising hand"
+  },
+  "2020140": {
+    "keyword": null,
+    "tip": "行って itte is 'go' and 来ます kimasu is 'come': I'll go and come back. The small っ is a short pause before te: itte kimasu.",
+    "picture": "Backpack",
+    "badge": "School"
+  },
+  "2088750": {
+    "keyword": null,
+    "tip": "Itte is 'go' again, and rasshai is irasshai, 'come', which shopkeepers call out. Pause briefly at both small っ, it-te ras-shai: itte rasshai.",
+    "picture": "Waving hand",
+    "badge": "Bus stop"
+  },
+  "1538960": {
+    "keyword": null,
+    "tip": "ただ tada means 'just' and 今 ima means 'now': I'm back just now! Four even beats, ta-da-i-ma, with no stress on da: tadaima.",
+    "picture": "House",
+    "badge": "Party popper"
+  },
+  "1612780": {
+    "keyword": null,
+    "tip": "帰り kaeri means 'coming home', and the warm お goes in front. You say it to whoever walks in. Give it three beats, ka-e-ri, with a tapped r: okaeri.",
+    "picture": "People hugging",
+    "badge": "Red heart"
+  },
+  "1001740": {
+    "keyword": null,
+    "tip": "This is okaeri plus nasai, the same polite tail as in oyasumi nasai: a parent's full welcome home. Say ka-e-ri, not 'carry': okaeri nasai.",
+    "picture": "Woman cook",
+    "badge": "Pot of food"
+  },
+  "1410800": {
+    "keyword": null,
+    "tip": "いただき is from いただく, 'to humbly receive', plus ます: hands together, I gratefully receive this food. A short i, then even beats ta-da-ki: itadakimasu.",
+    "picture": "Steaming bowl",
+    "badge": "Chopsticks"
+  },
+  "1270520": {
+    "keyword": null,
+    "tip": "ご馳走 gochisō means 'a feast', and さま is the very polite sama: what a feast that was! Hold the sō long and keep ma short: gochisōsama.",
+    "picture": "Shallow pan of food",
+    "badge": "Face savoring food"
+  },
+  "1005080": {
+    "keyword": null,
+    "tip": "ご馳走 gochisō is 'a feast', and さま is the polite 'Mr.' Bowl empty, you thank Mr. Feast himself. Hold the sō long; the i in shi is nearly silent: gochisōsama deshita.",
+    "picture": "Steaming bowl",
+    "badge": "Folded hands"
+  },
+  "1625780": {
+    "keyword": null,
+    "tip": "初め hajime means 'the first time'. You wave at someone the first time you meet them. The i in shi is almost silent, 'hajimemash-te': hajimemashite.",
+    "picture": "Waving hand",
+    "badge": "Seedling"
+  },
+  "2133750": {
+    "keyword": null,
+    "tip": "よろしく yoroshiku is 'kindly', and お願いします onegai shimasu is 'please'. Bowing, you ask them to treat you kindly. The final u is almost silent, 'shimas': yoroshiku onegai shimasu.",
+    "picture": "Person bowing",
+    "badge": "Handshake"
+  },
+  "1413240": {
+    "keyword": null,
+    "tip": "大 dai means 'big', as in daikon, the big radish, and 学 gaku means 'learning'. The big place of learning: daigaku.",
+    "picture": "Classical building",
+    "badge": "Books"
+  },
+  "1283500": {
+    "keyword": "cocoa",
+    "tip": "High school kids crowd the school cafeteria for cocoa between classes. Hold both o's long and pure, with no 'w' glide at the end: kōkō.",
+    "picture": "Hot beverage",
+    "badge": "School"
+  },
+  "1206900": {
+    "keyword": null,
+    "tip": "学 gaku is 'study', as in daigaku, and 生 sei is 'life', as in sensei. Someone whose life is study. The ku is often whispered: gakusei.",
+    "picture": "Backpack",
+    "badge": "Pencil"
+  },
+  "1413260": {
+    "keyword": null,
+    "tip": "大学 daigaku is 'college', and 生 sei makes it a person, as in gakusei. A college's student, said as one smooth word: daigakusei.",
+    "picture": "Student",
+    "badge": "Graduation cap"
+  },
+  "1552750": {
+    "keyword": null,
+    "tip": "留 ryū means 'stay', and gakusei is 'student'. A student who stays in another country to study. Say ryū as one long 'ryoo', not 'ree-oo': ryūgakusei.",
+    "picture": "Airplane departure",
+    "badge": "Open book"
+  },
+  "1311110": {
+    "keyword": "water ski",
+    "tip": "Gliding past on a water ski, I wave at the shore: 'That's me!' Say wah-tah, not 'waw-ter', and end on a soft shi with no k: watashi.",
+    "picture": "Skis",
+    "badge": "Person raising hand"
+  },
+  "1540170": {
+    "keyword": "Tom, a dachshund",
+    "tip": "Tom the tomcat and a dachshund shake paws, best friends. Two short, pure o's in tomo, then dachi with chi as in 'cheese', not 'dax': tomodachi.",
+    "picture": "Dog",
+    "badge": "Handshake"
+  },
+  "1464700": {
+    "keyword": null,
+    "tip": "日本 nihon is 'Japan', and 人 jin is 'person', as in any ～じん nationality. Japan's people, with both n's a full beat: nihonjin.",
+    "picture": "Map of japan",
+    "badge": "People hugging"
+  },
+  "1288850": {
+    "keyword": "email",
+    "tip": "An email pings: open it now! Drop the 'ay' and the l, just two short beats, ee-mah: ima.",
+    "picture": "E-mail",
+    "badge": "Bell"
+  },
+  "1269060": {
+    "keyword": null,
+    "tip": "Like A.M., 'before midday': 午 go is 'noon' and 前 zen is 'before'. Before noon, a short go and ending on ん: gozen.",
+    "picture": "Sunrise",
+    "badge": "Rooster"
+  },
+  "1268990": {
+    "keyword": null,
+    "tip": "Like P.M., 'after midday': 午 go is 'noon' and 後 go is 'after'. After noon the sun heads down. Two short o's: gogo.",
+    "picture": "Sun",
+    "badge": "Down arrow"
+  },
+  "1478750": {
+    "keyword": null,
+    "tip": "Look at 半: one stroke runs straight down the middle, cutting it in half. Say 'hahn', ending on ん, not 'hand': han.",
+    "picture": "Avocado",
+    "badge": "Kitchen knife"
+  },
+  "genki-1-にじはん": {
+    "keyword": null,
+    "tip": "二 ni is 'two', 時 ji is 'o'clock', and 半 han is 'half': two o'clock and a half. Say 'hahn', not 'han' as in 'hand', and give the ん a full beat: niji han.",
+    "picture": "Two-thirty",
+    "badge": "Bell"
+  },
+  "1582710": {
+    "keyword": null,
+    "tip": "日 ni is 'sun' and 本 hon is 'origin': where the sun comes from, the land of the rising sun. A short ho, and the ん takes a full beat: nihon.",
+    "picture": "Sunrise",
+    "badge": "Map of japan"
+  },
+  "1464530": {
+    "keyword": null,
+    "tip": "日本 nihon is 'Japan' and 語 go is 'language': Japan's language. Keep the go short and pure, not 'gow': nihongo.",
+    "picture": "Speaking head",
+    "badge": "Speech balloon"
+  },
+  "1443840": {
+    "keyword": null,
+    "tip": "電 den is 'electric' and 話 wa is 'talk': electric talk down the wire, the telephone. A short e, and the ん takes its own beat: denwa.",
+    "picture": "Telephone",
+    "badge": "High voltage"
+  },
+  "1482290": {
+    "keyword": null,
+    "tip": "番 ban is the 'number ...' you put after a seat or a player, and 号 gō is a number sign too: a phone or room number. Hold the gō long: bangō.",
+    "picture": "Input numbers",
+    "badge": "Mobile phone"
+  },
+  "1531710": {
+    "keyword": null,
+    "tip": "名 na is 'name', the kanji read mei in yūmei, and 前 mae is 'front': the name tag pinned to your front. Three even beats, na-ma-e: namae.",
+    "picture": "Name badge",
+    "badge": "Safety pin"
+  },
+  "2846738": {
+    "keyword": "naan",
+    "tip": "A puzzled diner holds up a naan and asks what it is. Keep the a short, unlike 'naan', and let the ん take a full beat: nan.",
+    "picture": "Flatbread",
+    "badge": "Red question mark"
+  },
+  "1577100": {
+    "keyword": "nanny",
+    "tip": "A nanny bends down to a crying baby and asks what's wrong. Say 'nah-nee' with an open a, not the a in 'nanny': nani.",
+    "picture": "Woman feeding baby",
+    "badge": "Exclamation question mark"
+  },
+  "1010080": {
+    "keyword": "high five",
+    "tip": "Asked to come along, your friend answers with a high five: yes! Only the 'high' counts, and it is already a close match: hai.",
+    "picture": "Raising hands",
+    "badge": "Check mark button"
+  },
+  "2837492": {
+    "keyword": null,
+    "tip": "そう sō means 'so, that way', and です is 'is': 'It is so', that's right. Hold the ō long, and the u of desu is nearly silent: sō desu.",
+    "picture": "Thumbs up",
+    "badge": "Hundred points"
+  },
+  "genki-1-そうですか": {
+    "keyword": null,
+    "tip": "Add the question か to sō desu and you get 'Is that so?', the Japanese way to say 'I see.' Let it fall, not rise, when you're just acknowledging: sō desu ka.",
+    "picture": "Face with monocle",
+    "badge": "Light bulb"
+  },
+  "1216170": {
+    "keyword": null,
+    "tip": "韓 kan is the Han in Hanguk, Korea's own name for itself, and 国 koku is 'country', as in chūgoku. Say 'kahn', not 'can', with a full-beat ん: kankoku.",
+    "picture": "World map",
+    "badge": "Round pushpin"
+  },
+  "1424270": {
+    "keyword": null,
+    "tip": "中 chū is 'middle' and 国 koku, softened to goku, is 'country': China's old name for itself, the Middle Country. Hold the chū long: chūgoku.",
+    "picture": "Globe showing asia-australia",
+    "badge": "Bullseye"
+  },
+  "genki-1-アジアけんきゅう": {
+    "keyword": null,
+    "tip": "アジア is just 'Asia' said the Japanese way, and 研究 kenkyū is 'research', the word for a field of study. A full-beat ん, then a long kyū: ajia kenkyū.",
+    "picture": "Books",
+    "badge": "Magnifying glass tilted left"
+  },
+  "1278010": {
+    "keyword": null,
+    "tip": "工 kō looks like a steel I-beam, and 学 gaku is 'study', as in daigaku and gakusei. The study of building things: engineering. Hold the kō long: kōgaku.",
+    "picture": "Building construction",
+    "badge": "Gear"
+  },
+  "1286430": {
+    "keyword": null,
+    "tip": "Two words joined: kokusai, 'international' (国 koku is 'country'), and kankei, 'relations'. Countries shaking hands; give kan's n a full beat: kokusaikankei.",
+    "picture": "Globe showing europe-africa",
+    "badge": "Handshake"
+  },
+  "1375970": {
+    "keyword": "sage",
+    "tip": "A wise old sage drops his vote in the ballot box and lectures everyone on politics. Say sei like 'say', and finish with a clear ji, not just 'j': seiji.",
+    "picture": "Man mage",
+    "badge": "Ballot box with ballot"
+  },
+  "1379450": {
+    "keyword": null,
+    "tip": "生物 seibutsu is 'living thing' (生 sei 'life', 物 butsu 'thing'), and 学 gaku is 'study', as in daigaku. The study of living things: seibutsugaku.",
+    "picture": "Seedling",
+    "badge": "Microscope"
+  },
+  "1505190": {
+    "keyword": null,
+    "tip": "文 bun is 'writing', as in bunpō, 'grammar', and 学 gaku is 'study', as in daigaku. The study of writing is literature. The u is short, as in 'put': bungaku.",
+    "picture": "Open book",
+    "badge": "Fountain pen"
+  },
+  "1558050": {
+    "keyword": "wreck, she",
+    "tip": "She dives to an old shipwreck, a piece of history on the seabed. The i of ki is almost whispered, so 'wreck-she' is close; the r is a light tap: rekishi.",
+    "picture": "Ship",
+    "badge": "Scroll"
+  },
+  "1159980": {
+    "keyword": null,
+    "tip": "医 i means 'medicine' and 者 sha means 'person': the medicine person is the doctor. A short i, then sha in one beat: isha.",
+    "picture": "Health worker",
+    "badge": "Pill"
+  },
+  "1198560": {
+    "keyword": null,
+    "tip": "会社 kaisha is 'company' and 員 in means 'member': a company member is an office worker. Kai rhymes with 'sky', and the final n is its own beat: kaishain.",
+    "picture": "Office building",
+    "badge": "Briefcase"
+  },
+  "1928100": {
+    "keyword": "kangaroo",
+    "tip": "A nurse bandages a kangaroo's sore paw. Keep the 'kang', then say go, not 'ga', with no 'roo', and end on shi: kangoshi.",
+    "picture": "Kangaroo",
+    "badge": "Adhesive bandage"
+  },
+  "1283510": {
+    "keyword": null,
+    "tip": "高 kō is 'high' and 校 kō is 'school', both a long ō, then 生 sei is 'student', as in gakusei. High school student: kōkōsei.",
+    "picture": "School",
+    "badge": "Backpack"
+  },
+  "1326160": {
+    "keyword": null,
+    "tip": "主 shu means 'main' and 婦 fu means 'woman': the woman who runs the home. Both vowels short; the fu is soft, lips barely touching, almost 'hoo': shufu.",
+    "picture": "House with garden",
+    "badge": "Broom"
+  },
+  "2077500": {
+    "keyword": null,
+    "tip": "Daigaku, 'university', plus 院 in, 'institute', makes graduate school. Add sei, 'student', as in gakusei: daigakuinsei.",
+    "picture": "Graduation cap",
+    "badge": "Books"
+  },
+  "1512850": {
+    "keyword": "Bengal tiger",
+    "tip": "A Bengal tiger in a suit defends his client in court. Keep the 'ben', say go, not 'gal', then shi: bengoshi.",
+    "picture": "Tiger",
+    "badge": "Balance scale"
+  },
+  "1002650": {
+    "keyword": "car",
+    "tip": "Mum honks the car horn to pick you up from school. Kā is a long 'kaa' with no r, between the polite o and san: okāsan.",
+    "picture": "Automobile",
+    "badge": "Woman"
+  },
+  "1002590": {
+    "keyword": "toe",
+    "tip": "Dad counts the baby's toes one by one. Hold the tō long, a pure 'oh' with no w glide, between o and san: otōsan.",
+    "picture": "Foot",
+    "badge": "Man beard"
+  },
+  "1001990": {
+    "keyword": "nest",
+    "tip": "Big sister guards the nest while the little ones sleep. Drop the st and hold the e long, 'neh-eh', between o and san: onēsan.",
+    "picture": "Nest with eggs",
+    "badge": "Woman red hair"
+  },
+  "1001830": {
+    "keyword": "knee",
+    "tip": "Big brother drops to one knee to tie your shoe. The nii is just 'knee', held long, between o and san: oniisan.",
+    "picture": "Man kneeling",
+    "badge": "Mans shoe"
+  },
+  "1524590": {
+    "keyword": "remote",
+    "tip": "Your little sister grabs the TV remote and won't let go. Drop the r, hold the mō long with no w glide, and end on a short to: imōto.",
+    "picture": "Television",
+    "badge": "Girl"
+  },
+  "1581930": {
+    "keyword": null,
+    "tip": "Little brother wears Dad's tie and copies him. His word sounds like Dad's too: otō as in otōsan, then a short to in place of san: otōto.",
+    "picture": "Boy",
+    "badge": "Necktie"
+  },
+  "1628530": {
+    "keyword": null,
+    "tip": "こ ko means near me, and れ re is 'the thing', standing on its own. Hold up the gift in your own hands: kore.",
+    "picture": "Wrapped gift",
+    "badge": "Backhand index pointing down"
+  },
+  "1006970": {
+    "keyword": null,
+    "tip": "そ so means near you, and れ re is 'the thing' on its own. Point at the cup in your friend's hands. Say 'soh-reh', not English 'sore': sore.",
+    "picture": "Teacup without handle",
+    "badge": "Backhand index pointing right"
+  },
+  "1000580": {
+    "keyword": null,
+    "tip": "あ a means far from us both, and れ re is 'the thing' on its own. Point at the mountain way over there. Say 'ah-reh', not the English 'are': are.",
+    "picture": "Mountain",
+    "badge": "Backhand index pointing up"
+  },
+  "1009290": {
+    "keyword": null,
+    "tip": "ど do asks 'which?', and れ re is 'the thing' on its own. Three cakes on the counter, and you ask which one: dore.",
+    "picture": "Shortcake",
+    "badge": "Red question mark"
+  },
+  "1582920": {
+    "keyword": null,
+    "tip": "こ ko means near me, and の no always takes a noun after it. Tap the watch on your own wrist, this watch: kono.",
+    "picture": "Watch",
+    "badge": "Backhand index pointing down"
+  },
+  "1006830": {
+    "keyword": null,
+    "tip": "そ so means near you, and の no always takes a noun after it. Point at the bag on your friend's arm, that bag: sono.",
+    "picture": "Handbag",
+    "badge": "Backhand index pointing right"
+  },
+  "1000420": {
+    "keyword": null,
+    "tip": "あ a means far from us both, and の no always takes a noun after it. Nod at the student across the hall, that student: ano.",
+    "picture": "Student",
+    "badge": "Backhand index pointing up"
+  },
+  "1920240": {
+    "keyword": null,
+    "tip": "ど do asks 'which?', and の no always takes a noun after it. Students line up in graduation caps, and you ask which student: dono.",
+    "picture": "Graduation cap",
+    "badge": "White question mark"
+  },
+  "1288810": {
+    "keyword": null,
+    "tip": "こ ko means near me, and the second こ ko stands for 'place'. Drop a pin right where you stand: koko.",
+    "picture": "Round pushpin",
+    "badge": "Backhand index pointing down"
+  },
+  "1006670": {
+    "keyword": null,
+    "tip": "そ so means near you, and こ ko stands for 'place'. Point at the chair beside your friend, that spot there: soko.",
+    "picture": "Chair",
+    "badge": "Backhand index pointing right"
+  },
+  "1000320": {
+    "keyword": null,
+    "tip": "あそ aso means far from us both, and こ ko stands for 'place'. You need a telescope to see it, way over there. Not 'ako': asoko.",
+    "picture": "Telescope",
+    "badge": "Backhand index pointing up"
+  },
+  "1577140": {
+    "keyword": null,
+    "tip": "ど do asks 'which?', and こ ko stands for 'place'. You stare at the map and ask which place, where: doko.",
+    "picture": "World map",
+    "badge": "Red question mark"
+  },
+  "1416830": {
+    "keyword": "Darren",
+    "tip": "Someone knocks on the door: who is it? Darren, again. Drop the n, tap the r lightly, and end on 'eh': dare.",
+    "picture": "Door",
+    "badge": "White question mark"
+  },
+  "1486650": {
+    "keyword": "oyster, she",
+    "tip": "She slurps an oyster and sighs: delicious! Skip the 'ter'. Say o and i as two quick vowels, then hold the shii long: oishii.",
+    "picture": "Oyster",
+    "badge": "Face savoring food"
+  },
+  "1578010": {
+    "keyword": "sock on a",
+    "tip": "Put a sock on a fish and it wriggles straight back out. Open 'ah' in every syllable, so the middle is 'kah', not 'kon': sakana.",
+    "picture": "Socks",
+    "badge": "Fish"
+  },
+  "1457410": {
+    "keyword": "ton, cats",
+    "tip": "A ton of cats crowd round one crispy pork cutlet. A pure 'o' and a full ん in ton, then 'kah', not the 'a' of cats, and a whispered u: tonkatsu.",
+    "picture": "Cat",
+    "badge": "Pig face"
+  },
+  "1463520": {
+    "keyword": "knee, coo",
+    "tip": "A dove on your knee coos over the meat on your plate. Keep 'nee' and 'coo' short, with the u barely there: niku.",
+    "picture": "Dove",
+    "badge": "Cut of meat"
+  },
+  "1537370": {
+    "keyword": "yah, sigh",
+    "tip": "A kid pushes the plate of vegetables away with a 'yah' and a big sigh. A short 'yah', then 'sigh' exactly: yasai.",
+    "picture": "Broccoli",
+    "badge": "Face exhaling"
+  },
+  "1301940": {
+    "keyword": "car, sir",
+    "tip": "It's pouring, and the driver holds an umbrella over you at the car door: \"Car, sir?\" No r sounds, just 'kah-sah': kasa.",
+    "picture": "Automobile",
+    "badge": "Umbrella with rain drops"
+  },
+  "1208910": {
+    "keyword": "cabin",
+    "tip": "You pack your bag for a weekend at the cabin. Say 'kah', not 'cab', and end on 'bahn' with a full ん, not 'bin': kaban.",
+    "picture": "Hut",
+    "badge": "Backpack"
+  },
+  "1246700": {
+    "keyword": "coots",
+    "tip": "Two coots, little black water birds, waddle ashore and step into shoes. Say a short ku, and end on a soft, whispered tsu: kutsu.",
+    "picture": "Bird",
+    "badge": "Running shoe"
+  },
+  "1296970": {
+    "keyword": "sci-fi",
+    "tip": "A sci-fi alien climbs out of its saucer clutching a fat wallet of space cash. Sai is 'sigh', but fu is a soft, breathy fu, not 'fi': saifu.",
+    "picture": "Alien",
+    "badge": "Purse"
+  },
+  "1318290": {
+    "keyword": null,
+    "tip": "自 ji is 'self', 転 ten is 'turn', and 車 sha is 'vehicle', as in densha: a vehicle you turn yourself. Keep each vowel short: jitensha.",
+    "picture": "Bicycle",
+    "badge": "Clockwise vertical arrows"
+  },
+  "1362360": {
+    "keyword": null,
+    "tip": "新 shin is 'new', as in Shinkansen, and 聞 bun is 'hear': new things heard, printed every day. The n before b comes out like m: shinbun.",
+    "picture": "Newspaper",
+    "badge": "Sparkles"
+  },
+  "1316140": {
+    "keyword": "toe, Kay",
+    "tip": "Kay straps her watch round her big toe to time her swim. Keep to short and pure, with no 'toe-w' glide, then kei like 'Kay': tokei.",
+    "picture": "Foot",
+    "badge": "Watch"
+  },
+  "1519170": {
+    "keyword": "bow, she",
+    "tip": "She ties a big bow round the brim of her new hat. Hold the bō long and pure, with no 'w' glide, then a short shi: bōshi.",
+    "picture": "Ribbon",
+    "badge": "Womans hat"
+  },
+  "1522150": {
+    "keyword": null,
+    "tip": "本 is the hon in Nihon, Japan. Picture a thick book called Nihon lying open on your desk. A short, round o, not 'hun' or 'hone': hon.",
+    "picture": "Open book",
+    "badge": "Map of japan"
+  },
+  "1243490": {
+    "keyword": null,
+    "tip": "銀 gin is 'silver', as in Tokyo's Ginza, and 行 kō is 'firm': the silver firm that keeps your coins. A hard g, not 'gin' the drink, and hold kō long: ginkō.",
+    "picture": "Bank",
+    "badge": "Coin"
+  },
+  "1370420": {
+    "keyword": null,
+    "tip": "図 to is 'drawing', 書 sho is 'writing', and 館 kan is 'hall': a hall full of drawings and writings. Keep to and sho short, and kan is 'kahn', not 'can': toshokan.",
+    "picture": "Books",
+    "badge": "Classical building"
+  },
+  "1542430": {
+    "keyword": "you bin",
+    "tip": "You drop your letters into the red bin outside the post office. Hold the yū long, then add kyoku, with kyo as one beat: yūbinkyoku.",
+    "picture": "Postbox",
+    "badge": "Japanese post office"
+  },
+  "1174420": {
+    "keyword": null,
+    "tip": "英 ei is 'England' and 語 go is 'language', as in nihongo: England's language. Say ei like 'ay' in 'day': eigo.",
+    "picture": "Guard",
+    "badge": "Speech balloon"
+  },
+  "1219980": {
+    "keyword": "ikura (salmon roe)",
+    "tip": "At the sushi bar you point at the orange salmon roe, ikura, and ask its price: how much? Same sounds; tap the r lightly, near an l: ikura.",
+    "picture": "Sushi",
+    "badge": "Label"
+  },
+  "1283190": {
+    "keyword": "taco, eye",
+    "tip": "A plain taco with a fifty-dollar price tag makes your eye water: expensive! Say ka like 'kah', not 'co', and run it straight into the eye: takai.",
+    "picture": "Taco",
+    "badge": "Money with wings"
+  },
+  "genki-2-をください": {
+    "keyword": "could a side",
+    "tip": "'Could a side of fries come with that?' you ask the cashier: please give me. Drop the d of 'side' and keep the ku light: -o kudasai.",
+    "picture": "French fries",
+    "badge": "Palms up together"
+  },
+  "1005900": {
+    "keyword": "jar",
+    "tip": "'Well then, I'll take the jar,' you say, finally picking one off the shelf. Like 'jar' with no r, the a held long: jā.",
+    "picture": "Jar",
+    "badge": "Right arrow"
+  },
+  "1189130": {
+    "keyword": "dozer",
+    "tip": "A dozer driver halts and waves you across the site: please, go ahead. Hold the dō long and end on a clear o, not '-er': dōzo.",
+    "picture": "Construction worker",
+    "badge": "Backhand index pointing right"
+  },
+  "1009000": {
+    "keyword": null,
+    "tip": "A robot bows and sings 'Domo arigato, Mr. Roboto', from the Styx song: thank you. Hold the dō long: dōmo.",
+    "picture": "Robot",
+    "badge": "Person bowing"
+  },
+  "1173720": {
+    "keyword": null,
+    "tip": "映 ei is 'project' and 画 ga is 'picture', as in manga. Pictures projected on a big screen. Say ei like 'ay' and ga with an open 'ah': eiga.",
+    "picture": "Film projector",
+    "badge": "Clapper board"
+  },
+  "1183720": {
+    "keyword": "gong, a cook",
+    "tip": "A cook bangs out music on a gong. Drop the g at the front, give ga an open 'ah', and end on a short ku, not 'cook': ongaku.",
+    "picture": "Cook",
+    "badge": "Musical notes"
+  },
+  "1002430": {
+    "keyword": null,
+    "tip": "茶 cha is 'tea', the same word that gave English 'chai' and 'a cup of char'. With the polite o in front: ocha.",
+    "picture": "Teacup without handle",
+    "badge": "Leafy green"
+  },
+  "1371260": {
+    "keyword": "me, zoo",
+    "tip": "At the zoo, an elephant sprays water all over me. A short mi, then a short zu with unrounded lips, not a long 'zoo': mizu.",
+    "picture": "Elephant",
+    "badge": "Droplet"
+  },
+  "1586330": {
+    "keyword": null,
+    "tip": "朝 asa is 'morning' and ご飯 gohan is 'rice, a meal'. The morning meal: asagohan.",
+    "picture": "Pancakes",
+    "badge": "Rooster"
+  },
+  "1602340": {
+    "keyword": null,
+    "tip": "昼 hiru is 'noon' and ご飯 gohan is 'a meal'. The midday meal in your bento box: hirugohan.",
+    "picture": "Bento box",
+    "badge": "Sun"
+  },
+  "1601340": {
+    "keyword": null,
+    "tip": "晩 ban is 'evening', as in konban wa, and ご飯 gohan is 'a meal'. The evening meal: bangohan.",
+    "picture": "Spaghetti",
+    "badge": "Crescent moon"
+  },
+  "1206730": {
+    "keyword": null,
+    "tip": "学 gaku is 'study', as in gakusei and daigaku, and 校 kō is 'school', as in kōkō. Squeeze gaku to gak, hold the k a beat, and the ō long: gakkō.",
+    "picture": "School",
+    "badge": "Graduation cap"
+  },
+  "1579110": {
+    "keyword": null,
+    "tip": "今 'now' plus 日 'day' make today, with a special reading: the kyō at the end of Tōkyō. One syllable, not 'key-oh', held long: kyō.",
+    "picture": "Tokyo tower",
+    "badge": "Calendar"
+  },
+  "1428280": {
+    "keyword": "a saw",
+    "tip": "The first morning sun glints on a saw as the carpenter starts work. Both vowels are an open 'ah', not 'uh' or 'aw': asa.",
+    "picture": "Carpentry saw",
+    "badge": "Sunrise over mountains"
+  },
+  "1289470": {
+    "keyword": null,
+    "tip": "It's the start of konban wa, 'good evening': 今 kon is 'this' and 晩 ban is 'evening'. This evening, tonight: konban.",
+    "picture": "Night with stars",
+    "badge": "Waving hand"
+  },
+  "1524720": {
+    "keyword": null,
+    "tip": "毎 mai is 'every' and 日 nichi is 'day', as in nichiyōbi. Every day: mainichi.",
+    "picture": "Tear-off calendar",
+    "badge": "Repeat button"
+  },
+  "1524730": {
+    "keyword": null,
+    "tip": "毎 mai is 'every', as in mainichi, and 晩 ban is 'evening', as in konban wa. Every evening, every night: maiban.",
+    "picture": "Bed",
+    "badge": "Clockwise vertical arrows"
+  },
+  "1333520": {
+    "keyword": null,
+    "tip": "週 shū is 'week' and 末 matsu is 'end': week-end, word for word, just like English. Hold the shū long and keep the final tsu light: shūmatsu.",
+    "picture": "Camping",
+    "badge": "Party popper"
+  },
+  "1445590": {
+    "keyword": null,
+    "tip": "土 do is 'earth', and 土星 dosei is Saturn: Saturday is Saturn's day in both languages. Hold the yō long: doyōbi.",
+    "picture": "Ringed planet",
+    "badge": "Seedling"
+  },
+  "1464900": {
+    "keyword": null,
+    "tip": "日 nichi is 'sun', so Sunday is the sun's day in both languages. Then 曜日 yōbi, 'day of the week', with a long yō: nichiyōbi.",
+    "picture": "Sun with face",
+    "badge": "Beach with umbrella"
+  },
+  "1221270": {
+    "keyword": "car roo",
+    "tip": "A roo drives the car back home after work. Add the eh 'car roo' skips, three beats kah-eh-roo, with a light tapped r: kaeru.",
+    "picture": "Kangaroo",
+    "badge": "House"
+  },
+  "1591110": {
+    "keyword": null,
+    "tip": "聞 is an ear 耳 inside a gate 門: someone listening at the door. Two short beats, kee-koo, the u faint: kiku.",
+    "picture": "Ear",
+    "badge": "Door"
+  },
+  "1169870": {
+    "keyword": null,
+    "tip": "飲 is 食 'eat' plus 欠, a person with a wide-open mouth, gulping a drink down. Two short beats, a pure o: nomu.",
+    "picture": "Glass of milk",
+    "badge": "Face with open mouth"
+  },
+  "1562350": {
+    "keyword": null,
+    "tip": "話 is 言 'words' plus 舌 'tongue': words rolling off the tongue as you speak. Three short beats, ha-na-s, the last u almost silent: hanasu.",
+    "picture": "Speaking head",
+    "badge": "Tongue"
+  },
+  "1358280": {
+    "keyword": "table",
+    "tip": "The family sits down at the table to eat. Say a short ta, not 'tay', then beh-roo with a tapped r and no l: taberu.",
+    "picture": "Fork and knife with plate",
+    "badge": "Chair"
+  },
+  "1259290": {
+    "keyword": "mirror",
+    "tip": "You see yourself in the mirror. Two short beats, mee-roo, with a pure ee and a light tapped r: miru.",
+    "picture": "Mirror",
+    "badge": "Eyes"
+  },
+  "1547720": {
+    "keyword": "crew",
+    "tip": "The ship's crew comes running down the gangway to you. Two beats, koo-roo, not one 'crew': kuru.",
+    "picture": "Ship",
+    "badge": "Person running"
+  },
+  "1512670": {
+    "keyword": null,
+    "tip": "勉 ben is 'make an effort' and 強 kyō is 'strong': studying is working hard at it. Hold the kyō long, then add suru: benkyō suru.",
+    "picture": "Books",
+    "badge": "Flexed biceps"
+  },
+  "1404975": {
+    "keyword": null,
+    "tip": "おはよう ohayō, 'good morning', grew out of this word: you're up early! Drop the o, keep haya, and end on a short i: hayai.",
+    "picture": "Rooster",
+    "badge": "Sunrise"
+  },
+  "1584930": {
+    "keyword": "calamari",
+    "tip": "Your friends ate the calamari, so there's not much left, just a ring or two. Drop the cal, keep each beat short, tap the r: amari.",
+    "picture": "Squid",
+    "badge": "Chart decreasing"
+  },
+  "1395620": {
+    "keyword": "Zen monk",
+    "tip": "Rain pours on two calm Zen monks, and it bothers them not at all. Say zen twice, each n full: zenzen.",
+    "picture": "Person in lotus position",
+    "badge": "Cross mark"
+  },
+  "1414580": {
+    "keyword": "Thai tea",
+    "tip": "At the cafe she usually orders a Thai tea. End on a long 'tay', not 'tee': taitei.",
+    "picture": "Bubble tea",
+    "badge": "Spiral calendar"
+  },
+  "1163940": {
+    "keyword": "espresso shot",
+    "tip": "The barista pours you just a little shot of espresso. Start with ch, not sh, pause a beat before to, and end on o: chotto.",
+    "picture": "Hot beverage",
+    "badge": "Pinching hand"
+  },
+  "1598680": {
+    "keyword": null,
+    "tip": "時 toki is 'time', and 々 repeats it, with the t softening to d: time and time again, sometimes: tokidoki.",
+    "picture": "Hourglass not done",
+    "badge": "Counterclockwise arrows button"
+  },
+  "1605870": {
+    "keyword": "yolk",
+    "tip": "He often dips his toast in an egg yolk. A short, pure yo, not 'yohk', then a faint ku: yoku.",
+    "picture": "Cooking",
+    "badge": "Repeat button"
+  },
+  "1008460": {
+    "keyword": "demo",
+    "tip": "The demo went perfectly, but then the computer crashed. Say deh-moh, both vowels short and pure: demo.",
+    "picture": "Desktop computer",
+    "badge": "Warning"
+  },
+  "genki-3-どうですか": {
+    "keyword": null,
+    "tip": "どう dō is 'how', and desu ka makes it a polite question. Hold out a cup of tea and ask: how about some? Hold the dō long: dō desu ka.",
+    "picture": "Hot beverage",
+    "badge": "White question mark"
+  },
+  "1589730": {
+    "keyword": null,
+    "tip": "You know kaimasu, 'to buy': 買い kai is that buy, and 物 mono is 'thing'. Buying things is shopping: kaimono.",
+    "picture": "Shopping bags",
+    "badge": "Shopping cart"
+  },
+  "1258330": {
+    "keyword": "gnu",
+    "tip": "A dog chases a gnu across the grass. Put a clear, short 'ee' before the gnu, ee-noo: inu.",
+    "picture": "Bison",
+    "badge": "Dog"
+  },
+  "1467640": {
+    "keyword": "neck",
+    "tip": "A cat jingles the bell round its neck. Keep the e as in 'neck', then add a short, pure o: neko.",
+    "picture": "Cat",
+    "badge": "Bell"
+  },
+  "1580640": {
+    "keyword": null,
+    "tip": "人 is a person striding on two legs. You know it as jin in Amerikajin; on its own it's read hito, short and crisp: hito.",
+    "picture": "Person walking",
+    "badge": "Footprints"
+  },
+  "1307850": {
+    "keyword": null,
+    "tip": "子 ko means 'child', the ko at the end of girls' names like Hanako. Add domo, like dōmo but with both o's short: kodomo.",
+    "picture": "Child",
+    "badge": "Teddy bear"
+  },
+  "1223615": {
+    "keyword": "a gnat",
+    "tip": "A gnat lands right on your nose: yes, you. Every a is a pure 'ah', and add a final ah, ah-nah-tah: anata.",
+    "picture": "Fly",
+    "badge": "Index pointing at the viewer"
+  },
+  "1157070": {
+    "keyword": "easy chair",
+    "tip": "Flop down into an easy chair. Use an s, not a z, and let the final u almost vanish, ee-su: isu.",
+    "picture": "Chair",
+    "badge": "Sleeping face"
+  },
+  "1220210": {
+    "keyword": null,
+    "tip": "机 has 木 'tree' on its left: a desk made of wood. Start with tsu as in tsunami, then ku-e, three short beats: tsukue.",
+    "picture": "Wood",
+    "badge": "Writing hand"
+  },
+  "1321900": {
+    "keyword": null,
+    "tip": "写 sha is 'copy' and 真 shin is 'true': a true copy of the world is a photo. Both start with 'sh', and it ends on ん: shashin.",
+    "picture": "Framed picture",
+    "badge": "Camera"
+  },
+  "1194500": {
+    "keyword": "Hannah",
+    "tip": "Hannah sniffs a flower from her garden. Open both a's to 'ah', not the a of 'hat', with no stressed beat, hah-nah: hana.",
+    "picture": "Woman",
+    "badge": "Tulip"
+  },
+  "1270590": {
+    "keyword": null,
+    "tip": "You've met it in asagohan, hirugohan and bangohan. ご is the polite go; on its own it means cooked rice, or a whole meal: gohan.",
+    "picture": "Cooked rice",
+    "badge": "Chopsticks"
+  },
+  "2271230": {
+    "keyword": "terracotta",
+    "tip": "Terracotta tiles cover the temple roof. Put the polite o first, and make the r a light tap, oh-teh-rah: otera.",
+    "picture": "Brick",
+    "badge": "Folded hands"
+  },
+  "1273270": {
+    "keyword": "cone",
+    "tip": "Kids drip ice-cream cones all over the park. Hold the kō long, then say en as its own beat, koh-oh-en: kōen.",
+    "picture": "Soft ice cream",
+    "badge": "National park"
+  },
+  "1098580": {
+    "keyword": null,
+    "tip": "バス is 'bus', and 停 tei means 'stop', which is what a bus does there. Say ba-su, then tei like 'tay': basutei.",
+    "picture": "Bus stop",
+    "badge": "Stop sign"
+  },
+  "1490220": {
+    "keyword": "boy in",
+    "tip": "A boy in a hospital bed waves from the window. Not 'boy': say b-yo as one beat, hold the ō long, then in: byōin.",
+    "picture": "Boy",
+    "badge": "Hospital"
+  },
+  "1522240": {
+    "keyword": null,
+    "tip": "本 hon is 'book' and 屋 ya is 'shop'. Give the ん its own beat before ya, hon-ya, not ho-nya: hon'ya.",
+    "picture": "Books",
+    "badge": "Convenience store"
+  },
+  "1603990": {
+    "keyword": null,
+    "tip": "町 is 田 'rice field' beside a street: where the fields meet the road, a town grows. Say mah-chee, two short beats: machi.",
+    "picture": "Houses",
+    "badge": "Sheaf of rice"
+  },
+  "genki-4-じかん": {
+    "keyword": null,
+    "tip": "時 ji is 'o'clock', as in ichiji, and 間 kan is 'between'. The span between o'clocks is hours. Without kan, two hours becomes two o'clock: -jikan.",
+    "picture": "Stopwatch",
+    "badge": "Left-right arrow"
+  },
+  "1387870": {
+    "keyword": null,
+    "tip": "先 sen is 'before', as in sensei, and 週 shū is 'week', as in shūmatsu. The week before, with the shū held long: senshū.",
+    "picture": "Spiral calendar",
+    "badge": "Last track button"
+  },
+  "1315840": {
+    "keyword": null,
+    "tip": "時 is the ji of ichiji, 'one o'clock'. On its own it reads toki, the time when something happens: kodomo no toki, 'when I was a child': toki.",
+    "picture": "Mantelpiece clock",
+    "badge": "Child"
+  },
+  "1255890": {
+    "keyword": null,
+    "tip": "月 getsu is 'moon', so Monday is moon day, just as in English. 曜日 yōbi means 'day of the week'. Hold the yō long: getsuyōbi.",
+    "picture": "Crescent moon",
+    "badge": "Calendar"
+  },
+  "1194290": {
+    "keyword": null,
+    "tip": "火 ka is 'fire', so Tuesday is fire day, named for red Mars. A short ka, then hold the yō long: kayōbi.",
+    "picture": "Fire",
+    "badge": "Calendar"
+  },
+  "1372190": {
+    "keyword": null,
+    "tip": "水 sui is 'water', so Wednesday is water day. Say sui quickly, close to 'swee', then hold the yō long: suiyōbi.",
+    "picture": "Droplet",
+    "badge": "Calendar"
+  },
+  "1534890": {
+    "keyword": null,
+    "tip": "木 moku is 'tree' or 'wood', so Thursday is tree day. A short, pure o in mo, then hold the yō long: mokuyōbi.",
+    "picture": "Deciduous tree",
+    "badge": "Calendar"
+  },
+  "1243320": {
+    "keyword": null,
+    "tip": "金 kin is 'gold' or 'money', so Friday is gold day, like payday. Keep kin and yō apart, kin-yō, not ki-nyō: kin'yōbi.",
+    "picture": "Coin",
+    "badge": "Calendar"
+  },
+  "1198180": {
+    "keyword": "owl",
+    "tip": "Two owls meet on a branch and hoot hello. Drop the l and say both vowels, a then u, in one quick breath: au.",
+    "picture": "Owl",
+    "badge": "Handshake"
+  },
+  "1296400": {
+    "keyword": "Aruba",
+    "tip": "There is a palm tree on Aruba, there is a beach: aru says a thing is there. Drop the ba, say a as 'ah', tap the r, and end on a short u: aru.",
+    "picture": "Desert island",
+    "badge": "Round pushpin"
+  },
+  "1473740": {
+    "keyword": "cowbell",
+    "tip": "At the farm shop you buy a cowbell and ring it all the way to the till. Keep only the 'cow', said as two quick beats, ka then u: kau.",
+    "picture": "Bell",
+    "badge": "Shopping cart"
+  },
+  "1343950": {
+    "keyword": "cuckoo",
+    "tip": "A cuckoo grips a pen in its beak and writes a letter. The first part is 'kah', not 'koo', and the ku is short: kaku.",
+    "picture": "Bird",
+    "badge": "Writing hand"
+  },
+  "1298790": {
+    "keyword": "tour",
+    "tip": "Tourists on a tour bus take pictures out of every window. Say a short, pure 'toe', not 'too-er', then a tapped r and a short u: toru.",
+    "picture": "Bus",
+    "badge": "Camera"
+  },
+  "1410590": {
+    "keyword": "mats",
+    "tip": "At the dojo you kneel on the mats and wait for your turn. Say 'mah', not the a of 'cat', and end with a faint u: matsu.",
+    "picture": "Martial arts uniform",
+    "badge": "Hourglass not done"
+  },
+  "1606560": {
+    "keyword": null,
+    "tip": "わかる is written 分かる, with the 分 of gofun, meaning 'to divide'. Once you can split a problem into parts, you understand it: wakaru.",
+    "picture": "Light bulb",
+    "badge": "Scissors"
+  },
+  "1577980": {
+    "keyword": "ear, roo",
+    "tip": "A big-eared kangaroo is in the house: iru is for people and animals. Say a short 'ee', not 'ear', and a short ru, not 'roo': iru.",
+    "picture": "Kangaroo",
+    "badge": "House"
+  },
+  "1006980": {
+    "keyword": null,
+    "tip": "それ sore is 'that' and から kara is 'from'. From that point on, the next thing happens: and then. Light r's, short vowels: sorekara.",
+    "picture": "Footprints",
+    "badge": "Chains"
+  },
+  "1007310": {
+    "keyword": null,
+    "tip": "だ is casual です, 'it is', and から is 'because'. It's raining, dakara, so you grab the umbrella. Every a is a short 'ah': dakara.",
+    "picture": "Cloud with rain",
+    "badge": "Closed umbrella"
+  },
+  "1415870": {
+    "keyword": "taco sun",
+    "tip": "So many tacos bake under the sun that you can't count them. The ku is barely voiced, 'tahk', not 'taco', and san is 'sahn': takusan.",
+    "picture": "Taco",
+    "badge": "Infinity"
+  },
+  "1466940": {
+    "keyword": "dough shed",
+    "tip": "Why is the shed full of dough? You stare at it, baffled. Hold a pure, long dō, squeeze shi to 'sh', and end on 'teh', not 'd': dōshite.",
+    "picture": "Bread",
+    "badge": "Red question mark"
+  },
+  "1163700": {
+    "keyword": null,
+    "tip": "一 is 'one' and 人 is 'person': hitori, one person on their own. で means 'by', so by oneself, alone: hitori de.",
+    "picture": "Person in lotus position",
+    "badge": "Keycap 1"
+  },
+  "1171010": {
+    "keyword": "MiG jet",
+    "tip": "A MiG jet banks hard to the right. Both i's are 'ee', not the short i of 'MiG', and add a final gi: migi.",
+    "picture": "Airplane",
+    "badge": "Right arrow"
+  },
+  "1392580": {
+    "keyword": null,
+    "tip": "You know 名前 namae, 'name': its 前 is mae. Your name badge goes on the front of your shirt. Two vowels, 'mah-eh': mae.",
+    "picture": "T-shirt",
+    "badge": "Name badge"
+  },
+  "1269410": {
+    "keyword": "usher row",
+    "tip": "The usher leads you all the way to the back row. Start with 'oo', not 'uh', say 'shee', not 'sher', and a light r: ushiro.",
+    "picture": "Man in tuxedo",
+    "badge": "Seat"
+  },
+  "1423310": {
+    "keyword": "knocker",
+    "tip": "Bang the door knocker and you're let inside, out of the rain. Both vowels are 'ah' and there's no r: naka.",
+    "picture": "Door",
+    "badge": "Couch and lamp"
+  },
+  "1352130": {
+    "keyword": null,
+    "tip": "上 is a mark standing on top of a line, like a strawberry sitting on a cake. Two vowels, 'oo' then 'eh': ue.",
+    "picture": "Shortcake",
+    "badge": "Up arrow"
+  },
+  "1184140": {
+    "keyword": null,
+    "tip": "下 hangs down below its line, like a fish swimming under the water's surface. The i is barely voiced, almost 'shtah': shita.",
+    "picture": "Tropical fish",
+    "badge": "Down arrow"
+  },
+  "1242160": {
+    "keyword": "chick, a cook",
+    "tip": "A chick hops near a cook, close enough to peck her apron. Say 'chee', not 'chick', 'kah', not 'uh', and end on 'koo', no final k: chikaku.",
+    "picture": "Baby chick",
+    "badge": "Cook"
+  },
+  "1555830": {
+    "keyword": null,
+    "tip": "Ghibli's My Neighbor Totoro is Tonari no Totoro: the neighbour lives right next door. Short o, a light r: tonari.",
+    "picture": "Houses",
+    "badge": "Waving hand"
+  },
+  "1215230": {
+    "keyword": null,
+    "tip": "間 is the sun 日, as in nichiyōbi, shining between the two doors of a gate 門. Three vowels, 'ah-ee-dah': aida.",
+    "picture": "Shinto shrine",
+    "badge": "Sun"
+  },
+  "1358340": {
+    "keyword": null,
+    "tip": "食べ tabe is from taberu, 'to eat', and 物 mono is 'thing'. Things you eat: tabemono.",
+    "picture": "Bento box",
+    "badge": "Fork and knife"
+  },
+  "1600430": {
+    "keyword": null,
+    "tip": "飲み nomi is from nomu, 'to drink', and 物 mono is 'thing', as in tabemono. Things you drink: nomimono.",
+    "picture": "Bubble tea",
+    "badge": "Hot beverage"
+  },
+  "1193060": {
+    "keyword": "barracuda",
+    "tip": "A barracuda snaps a bunch of fruit off a branch hanging over the water. Keep only the cuda, a short 'koo-dah', then 物 mono 'thing', as in tabemono: kudamono.",
+    "picture": "Fish",
+    "badge": "Grapes"
+  },
+  "1227500": {
+    "keyword": null,
+    "tip": "休 is a person 亻 leaning against a tree 木, taking a rest: a day off. Three short beats, ya-su-mi: yasumi.",
+    "picture": "Beach with umbrella",
+    "badge": "Deciduous tree"
+  },
+  "1553170": {
+    "keyword": "Leo coach",
+    "tip": "Leo the lion boards a coach to travel the country. Ryo is one quick syllable with a light r, not 'lee-oh'. Hold the kō long and drop the ch: ryokō.",
+    "picture": "Lion",
+    "badge": "Bus"
+  },
+  "1002500": {
+    "keyword": null,
+    "tip": "お is the polite o, 土 is 'earth' and 産 is 'produce': something made in the local land, carried home for friends. Say mi-ya-ge, ge like 'geh': omiyage.",
+    "picture": "Wrapped gift",
+    "badge": "Mount fuji"
+  },
+  "1438690": {
+    "keyword": null,
+    "tip": "天 ten is 'sky' and 気 ki is 'spirit, mood', as in genki. The sky's mood: tenki.",
+    "picture": "Sun behind cloud",
+    "badge": "Thermometer"
+  },
+  "1337270": {
+    "keyword": null,
+    "tip": "宿 shuku is 'lodging', the place you stay, and 題 dai is 'topic'. A topic you take home with you: shukudai.",
+    "picture": "Notebook",
+    "badge": "House"
+  },
+  "1419110": {
+    "keyword": "tan Joe",
+    "tip": "Sun-tanned Joe blows out the candles on his birthday cake, and 日 bi is 'day', as in getsuyōbi. Say tan as 'tahn', and hold the jō long: tanjōbi.",
+    "picture": "Birthday cake",
+    "badge": "Party popper"
+  },
+  "1499320": {
+    "keyword": "hay",
+    "tip": "Someone has stuffed your room with hay, floor to ceiling. Say he as a short 'heh', not 'hay', then ya: heya.",
+    "picture": "Sheaf of rice",
+    "badge": "Bed"
+  },
+  "1521400": {
+    "keyword": "bok choy",
+    "tip": "A boy holds up the bok choy he grew and points to himself: 'I grew this!' Keep only the bok, with a pure o, not 'bahk', and a light u: boku.",
+    "picture": "Leafy green",
+    "badge": "Boy"
+  },
+  "1265070": {
+    "keyword": "furry teddy",
+    "tip": "An old furry teddy bear sits in the attic, its fur worn thin with age. Say fu-ru-i, three short beats, with u not 'er': furui.",
+    "picture": "Teddy bear",
+    "badge": "Spider web"
+  },
+  "1343460": {
+    "keyword": null,
+    "tip": "暑 has the sun 日 on top: hot weather, the air itself. Three short beats, with tsu as in tsunami: atsui.",
+    "picture": "Desert",
+    "badge": "Hot face"
+  },
+  "1210360": {
+    "keyword": null,
+    "tip": "寒 has two little ice dots at the bottom, under a roof: cold weather. Three short beats, sa-mu-i: samui.",
+    "picture": "Snowman",
+    "badge": "Cold face"
+  },
+  "1467720": {
+    "keyword": null,
+    "tip": "熱 has four fire dots 灬 along the bottom: hot to the touch, like a kettle or a bath. Same sound as 暑い for hot weather: atsui.",
+    "picture": "Teapot",
+    "badge": "Fire"
+  },
+  "1519290": {
+    "keyword": null,
+    "tip": "忙 is a heart 忄 beside 亡 'lost': so busy you've lost your heart. Say i-so-ga, then hold the shii long: isogashii.",
+    "picture": "Person running",
+    "badge": "Broken heart"
+  },
+  "1588880": {
+    "keyword": null,
+    "tip": "大 is a person stretching their arms out wide: big, as in daigaku. Hold both long vowels, the ō and the kii: ōkii.",
+    "picture": "Elephant",
+    "badge": "Up arrow"
+  },
+  "1347750": {
+    "keyword": "cheese, sigh",
+    "tip": "A mouse sighs over a cheese so small it fits on a fingertip. Hold the chii long, with no z, and sai rhymes with 'sigh': chiisai.",
+    "picture": "Cheese wedge",
+    "badge": "Mouse face"
+  },
+  "1533580": {
+    "keyword": null,
+    "tip": "面 is 'face' and 白 is 'white': a face lit up bright with interest. Five short beats, o-mo-shi-ro-i: omoshiroi.",
+    "picture": "Open book",
+    "badge": "Star-struck"
+  },
+  "1157000": {
+    "keyword": "sashimi",
+    "tip": "Making sashimi is easy: just slice the fish, no cooking. Put ya in front, drop the mi, and hold the shii: yasashii.",
+    "picture": "Sushi",
+    "badge": "Check mark button"
+  },
+  "1460850": {
+    "keyword": "moose cash",
+    "tip": "A moose tries counting a mountain of cash and gives up: too difficult. Short mu-zu with a z, 'kah' not 'cash', and a long shii: muzukashii.",
+    "picture": "Moose",
+    "badge": "Money bag"
+  },
+  "1577490": {
+    "keyword": "car koi",
+    "tip": "A koi in sunglasses drives a sports car, looking so good. Say car as 'kah' with no r, pause on the っ, then ko and a long ii: kakkoii.",
+    "picture": "Racing car",
+    "badge": "Smiling face with sunglasses"
+  },
+  "1593480": {
+    "keyword": "cow, why",
+    "tip": "A ghost leaps out at a cow, who moos 'Why?!' It's frightening. Say ko with a pure o, not 'cow', then wa-i as two quick beats: kowai.",
+    "picture": "Cow face",
+    "badge": "Ghost"
+  },
+  "1207240": {
+    "keyword": "tan on a sheet",
+    "tip": "You lie on a sheet getting a tan at the beach: such fun! Say ta as 'tah', skip the 'a', drop the t, and hold shii long: tanoshii.",
+    "picture": "Beach with umbrella",
+    "badge": "Partying face"
+  },
+  "1153670": {
+    "keyword": "chop suey",
+    "tip": "The sign says chop suey for one coin: so inexpensive! Swap 'chop' for a short ya, then say su-i as two quick beats, not 'sooey': yasui.",
+    "picture": "Takeout box",
+    "badge": "Coin"
+  },
+  "1277450": {
+    "keyword": "skis",
+    "tip": "Sue is so fond of her skis that she hugs them. The u is nearly silent, so say 'ski' with no s at the end: suki.",
+    "picture": "Skis",
+    "badge": "Red heart"
+  },
+  "1413660": {
+    "keyword": null,
+    "tip": "大 dai is 'big', as in daigaku, and 好き suki is 'fond of'. A big fondness means you love it: daisuki.",
+    "picture": "Smiling face with hearts",
+    "badge": "Sparkling heart"
+  },
+  "1413610": {
+    "keyword": null,
+    "tip": "大 dai is 'big', as in daigaku, and 嫌い kirai is 'dislike'. A big dislike means you hate it: daikirai.",
+    "picture": "Pouting face",
+    "badge": "Broken heart"
+  },
+  "1260720": {
+    "keyword": null,
+    "tip": "Your textbook GENKI is named for it: full of health and energy. 気 ki is 'spirit', as in 天気 tenki. A hard g, and e as in 'get': genki.",
+    "picture": "Flexed biceps",
+    "badge": "Sparkles"
+  },
+  "1381820": {
+    "keyword": "shh, zoo car",
+    "tip": "'Shh!' The zoo car creeps quietly past the sleeping lion. Shi is like 'she', and zu and ka are short, with no r: shizuka.",
+    "picture": "Tram car",
+    "badge": "Shushing face"
+  },
+  "1463480": {
+    "keyword": "nigiri yacht",
+    "tip": "A yacht serves nigiri to a lively, noisy party on deck. Drop the ri from nigiri, and say yacht as a short 'yah-kah', not 'yot': nigiyaka.",
+    "picture": "Sailboat",
+    "badge": "Party popper"
+  },
+  "1577280": {
+    "keyword": "Himalayas",
+    "tip": "Not busy at last, you have time to trek the Himalayas. Keep only hi-ma: hi as 'hee', not 'him', and a short 'mah': hima.",
+    "picture": "Snow-capped mountain",
+    "badge": "Relieved face"
+  },
+  "1174340": {
+    "keyword": "oh, yogurt",
+    "tip": "You dive in to swim and the pool is full of yogurt: 'Oh, yogurt!' Keep three short beats, o-yo-gu, with no 'rt' at the end: oyogu.",
+    "picture": "Bowl with spoon",
+    "badge": "Person swimming"
+  },
+  "1591110-きく-5": {
+    "keyword": null,
+    "tip": "聞 is an ear 耳 inside a gate 門: you lean in at the gate to ask, then listen for the answer. Two short beats, ki-ku: kiku.",
+    "picture": "Ear",
+    "badge": "Red question mark"
+  },
+  "1355120": {
+    "keyword": "no, roo",
+    "tip": "You try to ride a kangaroo and it bounces you off: 'No, roo!' Say no with a pure o, then a light, flapped r and a short u: noru.",
+    "picture": "Kangaroo",
+    "badge": "Horse racing"
+  },
+  "1598550": {
+    "keyword": null,
+    "tip": "出 de is 'out', as in 出口 deguchi, the exit sign. You step out through the exit door. Four even beats with a light r, de-ka-ke-ru: dekakeru.",
+    "picture": "Door",
+    "badge": "Person walking"
+  },
+  "1163420": {
+    "keyword": null,
+    "tip": "一 is 'one', as in ichi: everyone moving as one, together. Hold the っ as a short pause before sho: issho ni.",
+    "picture": "People hugging",
+    "badge": "Keycap 1"
+  },
+  "2272830": {
+    "keyword": null,
+    "tip": "It's すごい sugoi, 'amazing', with the final い swapped for く so it can boost another word: amazingly, extremely. A short u in su: sugoku.",
+    "picture": "Star-struck",
+    "badge": "High voltage"
+  },
+  "1414150": {
+    "keyword": "dye, Jo, boot",
+    "tip": "Jo drips dye on her boot, shrugs and says it's okay. Hold the jō long and drop the t: dai-jō-bu: daijōbu.",
+    "picture": "Womans boot",
+    "badge": "Ok hand"
+  },
+  "1009330": {
+    "keyword": null,
+    "tip": "It's the ど question word, like どれ and どこ, in the こんな/そんな/あんな set: what kind of ice cream? Hold the ん a full beat: donna.",
+    "picture": "Soft ice cream",
+    "badge": "Thinking face"
+  },
+  "1237020": {
+    "keyword": null,
+    "tip": "教 kyō is 'teach', 科 ka is 'subject' and 書 sho is 'writing'. Writing that teaches a subject is a textbook. Hold the kyō long: kyōkasho.",
+    "picture": "Green book",
+    "badge": "School"
+  },
+  "1001820": {
+    "keyword": "tin can",
+    "tip": "Grandma stuffs her money into an old tin can. Say kah-neh, two short beats, not 'can', with the polite o in front: okane.",
+    "picture": "Canned food",
+    "badge": "Dollar banknote"
+  },
+  "1195430": {
+    "keyword": null,
+    "tip": "荷 ni is a 'load' and 物 is 'thing', the mono of tabemono. Loaded-up things are your baggage; here 物 reads motsu, with a light tsu: nimotsu.",
+    "picture": "Luggage",
+    "badge": "Package"
+  },
+  "1443000": {
+    "keyword": null,
+    "tip": "電 den is 'electric', as in denwa, the phone, and 気 ki is 'energy', as in genki. Electric energy is electricity: denki.",
+    "picture": "Light bulb",
+    "badge": "Electric plug"
+  },
+  "1401400": {
+    "keyword": "mad dog",
+    "tip": "A mad dog presses its nose against the window, barking. Say mah, not 'mad', drop the g, and keep a pure short o: mado.",
+    "picture": "Dog face",
+    "badge": "Window"
+  },
+  "1443530": {
+    "keyword": null,
+    "tip": "電 den is 'electric', as in denki, and 車 sha is 'vehicle', as in jitensha, the bicycle. An electric vehicle on rails is a train: densha.",
+    "picture": "Train",
+    "badge": "High voltage"
+  },
+  "1592250": {
+    "keyword": null,
+    "tip": "国 is a border box with 玉, a jewel, inside: a treasure guarded inside borders is a country. Short koo, short nee: kuni.",
+    "picture": "World map",
+    "badge": "Gem stone"
+  },
+  "1289220": {
+    "keyword": null,
+    "tip": "今 kon is 'now', as in konban wa, and 週 shū is 'week', as in senshū. The week we're in now is this week. Hold the shū long: konshū.",
+    "picture": "Spiral calendar",
+    "badge": "Round pushpin"
+  },
+  "1548010": {
+    "keyword": null,
+    "tip": "来 rai is 'coming', the same kanji as kimasu, and 週 shū is 'week'. The coming week is next week. Hold the shū long: raishū.",
+    "picture": "Next track button",
+    "badge": "Keycap 7"
+  },
+  "1548220": {
+    "keyword": null,
+    "tip": "来 rai is 'coming', as in kimasu, and 年 nen is 'year', as in ichinensei. The coming year is next year: rainen.",
+    "picture": "Fireworks",
+    "badge": "Right arrow"
+  },
+  "1536350": {
+    "keyword": "your roof",
+    "tip": "Night falls and the moon settles on your roof. Say yo-roo, two short beats, with a light tapped r and no f: yoru.",
+    "picture": "House",
+    "badge": "Crescent moon"
+  },
+  "1415000": {
+    "keyword": "tie hen",
+    "tip": "A hen in a necktie is having a tough day at the office, feathers everywhere. Tai like 'tie', then a clear hen: taihen.",
+    "picture": "Chicken",
+    "badge": "Downcast face with sweat"
+  },
+  "1350110": {
+    "keyword": null,
+    "tip": "It's the kesu of keshigomu, the eraser: it wipes things out, like a candle you put out or a light you turn off. Say 'kess', the u almost silent: kesu.",
+    "picture": "Candle",
+    "badge": "Wind face"
+  },
+  "1310730": {
+    "keyword": null,
+    "tip": "死 shi means 'death', which is why 4 is usually read yon rather than shi. Add nu to make it a verb, to die. Two short beats: shinu.",
+    "picture": "Wilted flower",
+    "badge": "Keycap 4"
+  },
+  "1597040": {
+    "keyword": "tattoo",
+    "tip": "A sailor stands up to show off his anchor tattoo. Keep both a's short, and make the second sound tsu, t-s as in 'cats', the u almost silent: tatsu.",
+    "picture": "Person standing",
+    "badge": "Anchor"
+  },
+  "genki-6-たばこをすう": {
+    "keyword": null,
+    "tip": "Tabako is just 'tobacco', and 吸う suu means 'to breathe in', a long soo like drawing in smoke. To breathe in tobacco is to smoke: tabako o suu.",
+    "picture": "Cigarette",
+    "badge": "Face exhaling"
+  },
+  "1305990": {
+    "keyword": "cats, cow",
+    "tip": "Two cats use a sleepy cow as a ladder up to the hayloft. Say tsu like the 'ts' in 'cats' with a faint u, and kau rhymes with 'cow': tsukau.",
+    "picture": "Cow",
+    "badge": "Cat"
+  },
+  "1328190": {
+    "keyword": "tent's down",
+    "tip": "The tent's down in the wind, so the whole campsite rushes to help put it back up. Drop the n of 'tent', and dau has no n either: tetsudau.",
+    "picture": "Tent",
+    "badge": "Handshake"
+  },
+  "1465590": {
+    "keyword": "high roo",
+    "tip": "A roo leaps high to enter the house through an open window. Say hai like 'high', then a short, light ru, not a long 'roo': hairu.",
+    "picture": "Kangaroo",
+    "badge": "Window"
+  },
+  "1315720": {
+    "keyword": "moats",
+    "tip": "A soldier carries heavy buckets of water to fill the castle moats. Keep mo short, not 'moh-oh', and tsu is the 'ts' of 'moats' with a faint u: motsu.",
+    "picture": "Castle",
+    "badge": "Bucket"
+  },
+  "1227560": {
+    "keyword": null,
+    "tip": "休 is the same kanji as 休み yasumi, a day off. Yasumu is the verb: you take the day off and are absent from class: yasumu.",
+    "picture": "Bed",
+    "badge": "Zzz"
+  },
+  "1589500": {
+    "keyword": "oriole",
+    "tip": "An oriole hops down and gets off the bus at its stop. Start with a short, pure o, not 'or', and end on a light ru instead of 'ole': oriru.",
+    "picture": "Bird",
+    "badge": "Bus stop"
+  },
+  "1323560": {
+    "keyword": "caribou",
+    "tip": "A caribou borrows a library book, promising to bring it back next week. Keep ka as 'kah', not 'care', and swap the bou for a short ru: kariru.",
+    "picture": "Deer",
+    "badge": "Books"
+  },
+  "2836288": {
+    "keyword": "a bee",
+    "tip": "シャワー is just 'shower'. Picture a bee taking a shower under a dripping tap. Say a as 'ah', not 'uh', keep bi short, and add a light ru: shawā o abiru.",
+    "picture": "Honeybee",
+    "badge": "Shower"
+  },
+  "1443840-でんわする-6": {
+    "keyword": null,
+    "tip": "電話 denwa is the 'telephone' you already know, and する turns it into a verb: to call someone. Keep the n before wa: denwa suru.",
+    "picture": "Telephone",
+    "badge": "Speech balloon"
+  },
+  "1610460": {
+    "keyword": null,
+    "tip": "くる is 'come', and つれて is from tsureru, 'take someone along'. You come with a person in tow; for things, say motte kuru instead: tsurete kuru.",
+    "picture": "Person walking facing right",
+    "badge": "House"
+  },
+  "1315710": {
+    "keyword": null,
+    "tip": "もって comes from motsu, 'carry', and くる is 'come': carry it and come, so you bring a thing. Pause on the small っ: motte kuru.",
+    "picture": "Wrapped gift",
+    "badge": "Right arrow"
+  },
+  "1269350": {
+    "keyword": "a toad",
+    "tip": "A toad yawns on its lily pad and promises to catch flies later on. Say a as 'ah', keep to short, not 'toe', and finish the d with a short e: ato de.",
+    "picture": "Frog",
+    "badge": "Hourglass not done"
+  },
+  "1430610": {
+    "keyword": "sugar",
+    "tip": "Drop sugar into hot tea and it melts right away. Start with a plain s, not the 'sh' of sugar, barely say the u, and end on a short gu, not 'gar': sugu.",
+    "picture": "Hot beverage",
+    "badge": "High voltage"
+  },
+  "genki-6-けっこうです": {
+    "keyword": "gecko",
+    "tip": "A waiter offers a gecko a fly, and the gecko gives a thumbs up: that would be fine. Start with k, not g, pause on the っ, and stretch the ō: kekkō desu.",
+    "picture": "Lizard",
+    "badge": "Thumbs up"
+  },
+  "genki-6-ほんとうですか": {
+    "keyword": null,
+    "tip": "本 hon is 'book', but also 'real', and 当 tō is 'on the mark'. Is that real and on the mark? Really? Stretch the tō: hontō desu ka.",
+    "picture": "Astonished face",
+    "badge": "Exclamation question mark"
+  },
+  "1192150": {
+    "keyword": "kazoo",
+    "tip": "The whole family marches round the house, each blowing a kazoo. Say ka as 'kah', not 'kuh', keep zo short, not 'zoo', then add a light ku: kazoku.",
+    "picture": "People hugging",
+    "badge": "Postal horn"
+  },
+  "1002320": {
+    "keyword": "G",
+    "tip": "Grandpa wears a cap with a big gold G on it. Hold the jii long like the letter G; a short ji gives ojisan, 'uncle': ojiisan.",
+    "picture": "Old man",
+    "badge": "Billed cap"
+  },
+  "1002330": {
+    "keyword": "bar",
+    "tip": "Grandma always pulls a chocolate bar from her handbag for you. Say bā as a long open 'ah' with no r; a short ba gives obasan, 'aunt': obāsan.",
+    "picture": "Old woman",
+    "badge": "Chocolate bar"
+  },
+  "1497610": {
+    "keyword": "cheek, cheek",
+    "tip": "Dad plants a kiss on each cheek, cheek, then the other. Drop the k sounds and keep both 'chee' beats short. Used for your own father: chichi.",
+    "picture": "Man beard",
+    "badge": "Kiss mark"
+  },
+  "1514990": {
+    "keyword": "ha ha",
+    "tip": "Mum laughs 'ha ha' at every joke you tell her. Two short, breathy 'hah' beats, not drawn out. Used for your own mother: haha.",
+    "picture": "Woman",
+    "badge": "Face with tears of joy"
+  },
+  "1249900": {
+    "keyword": "a knee",
+    "tip": "Your big brother crashes his skateboard and scrapes a knee. Start on an open 'ah', not 'uh', and keep the nee short: ani.",
+    "picture": "Leg",
+    "badge": "Adhesive bandage"
+  },
+  "1307630": {
+    "keyword": "a net",
+    "tip": "Your big sister plays goalie and guards a net. Open 'ah', drop the t, end on a short 'eh'; ani with 'ee' is brother: ane.",
+    "picture": "Goal net",
+    "badge": "Soccer ball"
+  },
+  "1249960": {
+    "keyword": null,
+    "tip": "兄 is ani, 'older brother', and 弟 is 'younger brother': put them together for all the siblings. Kyō is long, as in Kyōto; dai as in daigaku: kyōdai.",
+    "picture": "Busts in silhouette",
+    "badge": "Plus"
+  },
+  "1420020": {
+    "keyword": null,
+    "tip": "男 is 田 'rice field' over 力 'power': the one putting his strength into the field. Three short o's, then の人 'person': otoko no hito.",
+    "picture": "Man farmer",
+    "badge": "Flexed biceps"
+  },
+  "1344980": {
+    "keyword": "owner",
+    "tip": "The woman behind the counter is the owner of the shop, keys in hand. Short o, hold the n an extra beat (on-na), end on 'nah', then の人: onna no hito.",
+    "picture": "Convenience store",
+    "badge": "Old key"
+  },
+  "1198550": {
+    "keyword": null,
+    "tip": "You met 会社員 kaishain, 'office worker', in lesson 1. Drop the 員 'member' and you're left with the company itself: kaisha.",
+    "picture": "Office building",
+    "badge": "Briefcase"
+  },
+  "1358550": {
+    "keyword": null,
+    "tip": "食 is the 'eat' of 食べる, and 堂 means 'hall': an eating hall. Say sho-ku with a short ku, then a long dō: shokudō.",
+    "picture": "Steaming bowl",
+    "badge": "Fork and knife with plate"
+  },
+  "1275640": {
+    "keyword": "cookie",
+    "tip": "A cookie goes into a wide-open mouth, square like the kanji 口. Swap the 'kie' for a short 'chee', and keep ku short: kuchi.",
+    "picture": "Cookie",
+    "badge": "Mouth"
+  },
+  "1604890": {
+    "keyword": null,
+    "tip": "目 is an eye drawn upright: the frame of the lids with the eye inside. Say it 'meh', never 'me': me.",
+    "picture": "Eye",
+    "badge": "Magnifying glass tilted left"
+  },
+  "1577670": {
+    "keyword": null,
+    "tip": "Glasses are 'eye metal': 目 me 'eye' plus kane 'metal', as in okane, money. The k softens to g, and ne is 'neh', not 'nee': megane.",
+    "picture": "Glasses",
+    "badge": "Coin"
+  },
+  "1193180": {
+    "keyword": "scooter",
+    "tip": "A girl hums a happy song as her scooter rolls downhill. Drop the 'sc', and end on a clean, short ta, not 'ter': uta.",
+    "picture": "Kick scooter",
+    "badge": "Musical notes"
+  },
+  "1323080": {
+    "keyword": null,
+    "tip": "車 is a cart seen from above: a box on an axle with a wheel at each end. Three short beats, the r a light tap: kuruma.",
+    "picture": "Automobile",
+    "badge": "Wheel"
+  },
+  "1429750": {
+    "keyword": "nag",
+    "tip": "The old nag grows a mane so long it sweeps the ground. Use an open 'ah' in na, not the a of 'nag', then ga-i: nagai.",
+    "picture": "Horse",
+    "badge": "Straight ruler"
+  },
+  "1404975-はやい-7": {
+    "keyword": "hiyah",
+    "tip": "With a sharp 'Hiyah!' the karate master's chop is too fast to see. Open with 'hah', not 'hi', and add a short ee at the end: hayai.",
+    "picture": "Martial arts uniform",
+    "badge": "High voltage"
+  },
+  "1472660": {
+    "keyword": null,
+    "tip": "高い takai is 'high' from lesson 2, and 背が puts 'height' in front: your height is high. Se is a short 'seh': se ga takai.",
+    "picture": "Giraffe",
+    "badge": "Up arrow"
+  },
+  "1472670": {
+    "keyword": null,
+    "tip": "The same 背が 'height' as se ga takai, with 低い hikui, 'low', the opposite of takai: your height is low. Hee-koo-ee, all short: se ga hikui.",
+    "picture": "Mouse",
+    "badge": "Down arrow"
+  },
+  "2146840": {
+    "keyword": "a tomato",
+    "tip": "A bright kid balances a tomato on her head, 頭 atama, and gets a good idea. Every vowel is 'ah', a-ta-ma, with no 'toe' at the end: atama ga ii.",
+    "picture": "Tomato",
+    "badge": "Light bulb"
+  },
+  "1365250": {
+    "keyword": null,
+    "tip": "親 is 'parent' and 切 is 'cut': a kind parent cuts your food into small bites. Shin as in your shin, then setsu with a quick, soft u: shinsetsu.",
+    "picture": "Fork and knife with plate",
+    "badge": "Red heart"
+  },
+  "1512610": {
+    "keyword": "bendy straw",
+    "tip": "A bendy straw is so convenient: you sip without lifting the cup. Say ben, then ri with a light tapped r, close to the d in 'bendy': benri.",
+    "picture": "Cup with straw",
+    "badge": "Check mark button"
+  },
+  "1588120": {
+    "keyword": null,
+    "tip": "歌 uta is 'song', and the verb ending う turns it into an action: song + u, to sing. Two short, plain u sounds, never 'yoo': utau.",
+    "picture": "Singer",
+    "badge": "Microphone"
+  },
+  "1484330": {
+    "keyword": "cab roof",
+    "tip": "Before every shift, the cab driver puts on the cap he keeps on the cab roof. Say kah, a short bu, a light tapped ru and no f: kaburu.",
+    "picture": "Taxi",
+    "badge": "Billed cap"
+  },
+  "1607260": {
+    "keyword": "hack",
+    "tip": "You hack the legs off old jeans with scissors, then put on your new shorts. Open the a to 'hah', and add a short ku that 'hack' doesn't have: haku.",
+    "picture": "Scissors",
+    "badge": "Jeans"
+  },
+  "1420470": {
+    "keyword": "shrew",
+    "tip": "A shrew gets to know its new burrow, sniffing out every corner. Slip a short i in after the sh, then a light tapped ru: shiru.",
+    "picture": "Mouse",
+    "badge": "Magnifying glass tilted left"
+  },
+  "genki-7-しっています": {
+    "keyword": null,
+    "tip": "From 知る shiru, 'get to know'. Once you've got to know something, you're in that state: 'I know'. Hold the っ as a short pause before te: shitte imasu.",
+    "picture": "Brain",
+    "badge": "Light bulb"
+  },
+  "genki-7-しりません": {
+    "keyword": null,
+    "tip": "知り from shiru, 'get to know', plus the polite negative ません: 'I don't know'. No っ here, and end on a clean n: shirimasen.",
+    "picture": "Person shrugging",
+    "badge": "Cross mark"
+  },
+  "1334040": {
+    "keyword": "Sue moo",
+    "tip": "Sue lives in a little cottage with her cow, and it moos at her from the garden every morning. Two short u's, no long 'oo': sumu.",
+    "picture": "Cow",
+    "badge": "House with garden"
+  },
+  "1451150": {
+    "keyword": "hat rack",
+    "tip": "Office workers hang their hats on the hat rack, then get to work. Add an a between hat and rack, tap the r lightly, and end on ku: hataraku.",
+    "picture": "Top hat",
+    "badge": "Briefcase"
+  },
+  "1408220": {
+    "keyword": "futon",
+    "tip": "Lounging on a futon eating cake all winter, you gain weight. Drop futon's n and add a light tapped ru: futoru.",
+    "picture": "Bed",
+    "badge": "Shortcake"
+  },
+  "genki-7-ふとっています": {
+    "keyword": null,
+    "tip": "From 太る futoru, 'gain weight'. Having gained it, you're in that state: on the heavy side. Hold the っ as a short pause before te: futotte imasu.",
+    "picture": "Balance scale",
+    "badge": "Up arrow"
+  },
+  "1911810": {
+    "keyword": null,
+    "tip": "めがね megane is 'glasses', and かける kakeru is 'hang': you hang your glasses on your ears. Glasses take their own verb: megane o kakeru.",
+    "picture": "Glasses",
+    "badge": "Ear"
+  },
+  "1423000": {
+    "keyword": null,
+    "tip": "着 is the ki in kimono 着物, a 'wear-thing'. You put on a kimono, shirt or coat with this verb, a short ki and a light ru: kiru.",
+    "picture": "Kimono",
+    "badge": "T-shirt"
+  },
+  "genki-7-やせています": {
+    "keyword": null,
+    "tip": "From やせる yaseru, 'lose weight'. Having lost it, you're in that state: thin. Unlike futotte, there's no っ here: yasete imasu.",
+    "picture": "Pencil",
+    "badge": "Down arrow"
+  },
+  "1254790": {
+    "keyword": "cake cone",
+    "tip": "The bride and groom share one cake cone at the altar. Say keh, not 'cake', pause on the っ, and a short kon, not 'cone': kekkon suru.",
+    "picture": "Soft ice cream",
+    "badge": "Ring"
+  },
+  "1188490": {
+    "keyword": null,
+    "tip": "何 nani is 'what', and も is 'even': with a negative, not even a 'what', so nothing at all: nanimo.",
+    "picture": "Empty nest",
+    "badge": "Prohibited"
+  },
+  "1576150": {
+    "keyword": null,
+    "tip": "Like hitotsu, 'one thing', it starts with hito, and ri counts people: one person, an irregular form, not ichinin: hitori.",
+    "picture": "Bust in silhouette",
+    "badge": "Keycap 1"
+  },
+  "1582670": {
+    "keyword": null,
+    "tip": "Like futatsu, 'two things', it starts with futa, and ri counts people: two people, an irregular form, not ninin: futari.",
+    "picture": "People hugging",
+    "badge": "Keycap 2"
+  },
+  "1535780": {
+    "keyword": "mochi",
+    "tip": "Offered a plate of sweet mochi, of course you grab one! A short mo, then ron with a tapped r and a clean n: mochiron.",
+    "picture": "Dango",
+    "badge": "Thumbs up"
+  },
+  "1554530": {
+    "keyword": null,
+    "tip": "よかった yokatta is 'it was good', and ら adds 'if': if it's good for you, so 'if you like'. Hold the っ as a short pause: yokattara.",
+    "picture": "Teacup without handle",
+    "badge": "Open hands"
+  },
+  "1376460": {
+    "keyword": "hare",
+    "tip": "A hare stretches out on the grass, basking in the sunny weather. Say hah-reh, two short beats with a light tapped r, not 'hair': hare.",
+    "picture": "Rabbit",
+    "badge": "Sun"
+  },
+  "1171900": {
+    "keyword": "a mare",
+    "tip": "A mare stands out in the rain, her mane dripping. Say ah-meh: two short beats, an open ah, and no r: ame.",
+    "picture": "Horse",
+    "badge": "Cloud with rain"
+  },
+  "1592340": {
+    "keyword": null,
+    "tip": "曇 puts 日, the sun, over 雲 kumo, 'cloud': the sun lost in cloud. Add ri for three short beats: kumori.",
+    "picture": "Sun behind cloud",
+    "badge": "Cloud"
+  },
+  "1386500": {
+    "keyword": "Yukon",
+    "tip": "Snow buries a log cabin in the Yukon. Keep the yu short, then end on a short kee instead of 'kon': yuki.",
+    "picture": "Snow-capped mountain",
+    "badge": "Snowman"
+  },
+  "1438770": {
+    "keyword": null,
+    "tip": "天気 tenki is 'weather' and 予報 yohō is 'forecast': the weather forecast on TV. Hold the final hō long: tenkiyohō.",
+    "picture": "Television",
+    "badge": "Satellite antenna"
+  },
+  "1221950": {
+    "keyword": null,
+    "tip": "気 ki is the air, as in tenki, and 温 on means 'warm'. How warm the air is: the temperature. Two beats, ki then on: kion.",
+    "picture": "Thermometer",
+    "badge": "Hot face"
+  },
+  "1191320": {
+    "keyword": "gnats",
+    "tip": "Gnats swarm around your head on a hot summer evening. Say nah, not the 'a' in gnat, and end with a soft, whispered tsu: natsu.",
+    "picture": "Fly",
+    "badge": "Sun with face"
+  },
+  "1446070": {
+    "keyword": "fuel",
+    "tip": "In winter you pump fuel to heat the house. Split it into two short beats, foo-yoo, with a soft breathy f and no l: fuyu.",
+    "picture": "Fuel pump",
+    "badge": "Snowflake"
+  },
+  "1579100": {
+    "keyword": null,
+    "tip": "今 is 'this' and 朝 asa is 'morning', but together they take a special short reading, keh-sah, not kon-asa: kesa.",
+    "picture": "Sunrise",
+    "badge": "Hot beverage"
+  },
+  "1584640": {
+    "keyword": "a satay",
+    "tip": "You'll grill a satay the day after tomorrow, at the weekend party. Say ah-sat-teh, with a catch on the っ and a short teh, not 'tay': asatte.",
+    "picture": "Oden",
+    "badge": "Fast-forward button"
+  },
+  "1524690": {
+    "keyword": null,
+    "tip": "毎 mai is 'every', as in mainichi, and 週 shū is 'week', as in raishū. Every week, with the shū held long: maishū.",
+    "picture": "Spiral calendar",
+    "badge": "Repeat button"
+  },
+  "1289100": {
+    "keyword": null,
+    "tip": "今 kon is 'now' or 'this', as in konbanwa, and 月 getsu is 'month', as in getsuyōbi. This month: kongetsu.",
+    "picture": "Crescent moon",
+    "badge": "Backhand index pointing down"
+  },
+  "1547900": {
+    "keyword": null,
+    "tip": "来 rai is 'coming', as in raishū, and 月 getsu is 'month', as in getsuyōbi. The coming month: raigetsu.",
+    "picture": "Full moon",
+    "badge": "Next track button"
+  },
+  "1304970": {
+    "keyword": "she-goat",
+    "tip": "A she-goat trots off to her job with a briefcase in her mouth. Keep shi short, then go-to with two pure, short o's, not 'goat': shigoto.",
+    "picture": "Goat",
+    "badge": "Briefcase"
+  },
+  "1343100": {
+    "keyword": "toe crow",
+    "tip": "A crow lands on your toe: it has found its place. Give it three even beats, to-ko-ro, short pure o's and a light tapped r: tokoro.",
+    "picture": "Bird",
+    "badge": "Round pushpin"
+  },
+  "1476410": {
+    "keyword": "hash",
+    "tip": "You scoop up crispy potato hash with your chopsticks. Say hah-shee: an open ah, not the 'a' in hash, plus a short ee: hashi.",
+    "picture": "Chopsticks",
+    "badge": "Potato"
+  },
+  "2220600": {
+    "keyword": "furrow",
+    "tip": "A farmer floods a furrow and lies back in it for a warm bath. お is the polite prefix, then fu-ro, two short beats with no 'er': ofuro.",
+    "picture": "Tractor",
+    "badge": "Bathtub"
+  },
+  "1188270": {
+    "keyword": null,
+    "tip": "何 nani is 'what'. Add か and 'what?' becomes a thing you can't name: something. Nani plus ka: nanika.",
+    "picture": "Wrapped gift",
+    "badge": "Red question mark"
+  },
+  "1353320": {
+    "keyword": null,
+    "tip": "上 is 'up' and 手 is 'hand': someone with the upper hand is skillful. Hold the jō long and end on a short zu: jōzu.",
+    "picture": "Person juggling",
+    "badge": "Up arrow"
+  },
+  "1185200": {
+    "keyword": null,
+    "tip": "下 is 'down' and 手 is 'hand': a hand that keeps letting you down is clumsy. Two short beats, heh-tah: heta.",
+    "picture": "Adhesive bandage",
+    "badge": "Down arrow"
+  },
+  "1390930": {
+    "keyword": "a raccoon",
+    "tip": "A raccoon washes its food in the stream before eating. Keep 'a ra', swap the coon for a short u, and tap the r: three quick beats: arau.",
+    "picture": "Raccoon",
+    "badge": "Soap"
+  },
+  "1587040": {
+    "keyword": null,
+    "tip": "言 is a 口 mouth with lines of words rising above it: to say. Written iu, but said like one long 'yoo', yū: iu.",
+    "picture": "Speaking head",
+    "badge": "Speech balloon"
+  },
+  "1546640": {
+    "keyword": "ear",
+    "tip": "To hear the teacher, you need your ear. Then add a quick tapped r and a short u, ee-roo: iru.",
+    "picture": "Ear",
+    "badge": "Red exclamation mark"
+  },
+  "genki-8-おそくなる": {
+    "keyword": "oh, sock",
+    "tip": "You'll be late again because you can't find your other sock. Say o-so-ku with pure short vowels, then naru, 'become': osoku naru.",
+    "picture": "Socks",
+    "badge": "Alarm clock"
+  },
+  "1002600": {
+    "keyword": "hairy roo",
+    "tip": "A hairy roo hops into a steaming bathtub. お風呂 ofuro is 'bath' and に ni 'into'; hairu is hai-ru, short, with a flicked r: ofuro ni hairu.",
+    "picture": "Kangaroo",
+    "badge": "Bathtub"
+  },
+  "1589350": {
+    "keyword": "a mower",
+    "tip": "A farmer stops a mower mid-field to sit and think. Three short beats, o-mo-u, pure o's with no 'er', and a light u: omou.",
+    "picture": "Tractor",
+    "badge": "Thinking face"
+  },
+  "1384830": {
+    "keyword": "keel",
+    "tip": "A boat's sharp keel cuts the waves like scissors. Two short beats, ki-ru, ending in a flicked r and a light u, not an English l: kiru.",
+    "picture": "Sailboat",
+    "badge": "Scissors"
+  },
+  "1597890": {
+    "keyword": "two crews",
+    "tip": "Two crews work side by side to make a house. Start with tsu, a t pressed into s, keep every u short, and no z at the end: tsukuru.",
+    "picture": "Construction worker",
+    "badge": "Hammer and wrench"
+  },
+  "1282790": {
+    "keyword": "fruit",
+    "tip": "Rain falls on the fruit stall, drumming on every apple. Drop the t, and give fu and ru two short, equal beats: furu.",
+    "picture": "Red apple",
+    "badge": "Cloud with rain"
+  },
+  "1315700": {
+    "keyword": null,
+    "tip": "持って motte is 'holding' and いく iku is 'go': go holding it, so take it along. Hold the っ, a short pause before te: motte iku.",
+    "picture": "Backpack",
+    "badge": "Right arrow"
+  },
+  "1322320": {
+    "keyword": "stereo",
+    "tip": "He throws a broken old stereo into the bin. The su is barely voiced, so it's s-teh-ru, ending in ru, not 'ree-oh': suteru.",
+    "picture": "Radio",
+    "badge": "Wastebasket"
+  },
+  "1307550": {
+    "keyword": null,
+    "tip": "You already know はじめまして, said when you first meet, as things begin. Same root, verb form: hajimeru.",
+    "picture": "Handshake",
+    "badge": "Play button"
+  },
+  "1172830": {
+    "keyword": "tent",
+    "tip": "You drive to the campsite with a tent strapped to the roof. Put a short un, like 'oon', before ten, and drop the final t: unten suru.",
+    "picture": "Tent",
+    "badge": "Automobile"
+  },
+  "1390980": {
+    "keyword": "centaur",
+    "tip": "A centaur scrubs his laundry in the river with soap. Sen like 'send', a short ta with no r, then a light ku: sentaku suru.",
+    "picture": "Horse",
+    "badge": "Soap"
+  },
+  "1399790": {
+    "keyword": "soldier",
+    "tip": "A soldier sweeps the barracks clean for inspection. No l: hold the sō long, then a short ji like 'jee', not 'jer': sōji suru.",
+    "picture": "Guard",
+    "badge": "Broom"
+  },
+  "1554310": {
+    "keyword": null,
+    "tip": "料理 ryōri is 'cuisine', and する suru is 'to do'. Doing cuisine means cooking: ryōri suru.",
+    "picture": "Woman cook",
+    "badge": "Cooking"
+  },
+  "1188890": {
+    "keyword": null,
+    "tip": "いつ itsu is 'when', and も mo turns it into 'every when': any time you ask, it's so. The i is short and the su almost silent: itsumo.",
+    "picture": "Sunrise",
+    "badge": "Infinity"
+  },
+  "1421980": {
+    "keyword": "a sock",
+    "tip": "He's out late again, still hunting for a sock. Pure o at the front, not 'uh', and end on a light ku, not 'k': osoku.",
+    "picture": "Socks",
+    "badge": "Hourglass done"
+  },
+  "1590950": {
+    "keyword": null,
+    "tip": "乾 kan is 'dry' and 杯 pai is 'cup': raise your glass and drain the cup dry. The n comes out like m before p: kanpai.",
+    "picture": "Sake",
+    "badge": "Clinking glasses"
+  },
+  "genki-8-みんなで": {
+    "keyword": "minnows",
+    "tip": "A school of minnows swims all together, every fish in step. Say min-na with a doubled n and a final a, not 'nose', then de: minna de.",
+    "picture": "Tropical fish",
+    "badge": "People hugging"
+  },
+  "genki-8-ざんねんですね": {
+    "keyword": null,
+    "tip": "残 zan is 'left over' and 念 nen is 'feeling': the feeling left over when plans fall through. Hold both n's, zan-nen: zannen desu ne.",
+    "picture": "Disappointed face",
+    "badge": "Cloud with rain"
+  },
+  "1008910": {
+    "keyword": "doe",
+    "tip": "A doe stops at the edge of a stream and tilts her head: how do I get across? Hold the ō long and pure, with no 'w' glide at the end: dō.",
+    "picture": "Deer",
+    "badge": "Red question mark"
+  },
+  "1417330": {
+    "keyword": "tango",
+    "tip": "Two tango dancers spell out a word with their steps across the floor. Say ta with a pure 'ah', give the n its own beat, and keep go short: tango.",
+    "picture": "Woman dancing",
+    "badge": "Input latin letters"
+  },
+  "1297960": {
+    "keyword": "sack, bun",
+    "tip": "A student writes her whole essay on a bakery sack, a bun still inside. Sa is 'sah', ku is light, and bun is a short 'boon', not 'bun': sakubun.",
+    "picture": "Bread",
+    "badge": "Memo"
+  },
+  "1312350": {
+    "keyword": "chicken",
+    "tip": "A chicken sits the exam with a pencil in its beak. Start with sh, not ch, and say ken, not 'kin': shiken.",
+    "picture": "Chicken",
+    "badge": "Pencil"
+  },
+  "1327720": {
+    "keyword": null,
+    "tip": "手 te is 'hand' and 紙 kami is 'paper', as in origami, with the k softened to g. Paper written by hand is a letter: tegami.",
+    "picture": "Envelope",
+    "badge": "Writing hand"
+  },
+  "1490230": {
+    "keyword": null,
+    "tip": "病気 ends in the same 気 ki as genki. Genki is well; put 病 byō, 'sick', in front and you're ill. Byo is one sound, not 'bee-oh', with the ō held long: byōki.",
+    "picture": "Face with thermometer",
+    "badge": "Hospital"
+  },
+  "1835640": {
+    "keyword": null,
+    "tip": "いい ii is 'good' and 子 ko is 'child', as in kodomo. Hold the ii long. A good child: iiko.",
+    "picture": "Child",
+    "badge": "Smiling face with halo"
+  },
+  "1357600": {
+    "keyword": "euro",
+    "tip": "Euro notes come in every colour: green, blue, orange, purple. Drop the 'y' and start on a clear 'ee', then a quick tapped ro with a short, pure o: iro.",
+    "picture": "Euro banknote",
+    "badge": "Rainbow"
+  },
+  "1289370": {
+    "keyword": "condo",
+    "tip": "Cranes are building your new condo, and you'll move in soon, in the near future. Kon has a pure o and a full n beat, and do is short: kondo.",
+    "picture": "Building construction",
+    "badge": "Soon arrow"
+  },
+  "1231690": {
+    "keyword": null,
+    "tip": "年 nen is 'year', as in ichinensei, and 去 kyo means 'gone'. The year that's gone: last year. Kyo is one short beat, not 'key-oh': kyonen.",
+    "picture": "Spiral calendar",
+    "badge": "Reverse button"
+  },
+  "1381390": {
+    "keyword": "ahoy",
+    "tip": "A sailor shouts 'Ahoy!' from his boat across the deep blue sea. There's no h, just three short, pure vowels, a-o-i: aoi.",
+    "picture": "Sailboat",
+    "badge": "Blue circle"
+  },
+  "1383240": {
+    "keyword": "a kayak",
+    "tip": "You paddle a bright red kayak down the river. Stop before the last 'yak': three short beats, a-ka-i, with a pure 'ah': akai.",
+    "picture": "Canoe",
+    "badge": "Red circle"
+  },
+  "1287420": {
+    "keyword": "crow",
+    "tip": "A crow dips its feathers in ink and comes out black. Put a quick u after the k, ku-ro, with a pure o, then a short i: kuroi.",
+    "picture": "Blackbird",
+    "badge": "Black nib"
+  },
+  "1579720": {
+    "keyword": "sob, bee",
+    "tip": "A lonely bee sits by itself on a flower and lets out a sob. Sob-bee gives sa-bi, with a pure 'ah'; end with a long shii: sabishii.",
+    "picture": "Honeybee",
+    "badge": "Pensive face"
+  },
+  "1538440": {
+    "keyword": "doe, roo",
+    "tip": "A doe and a kangaroo dance cheek to cheek under the lights. Put a short o in front, keep both o's pure, and make ru a quick tap, not 'roo': odoru.",
+    "picture": "Kangaroo",
+    "badge": "Mirror ball"
+  },
+  "genki-9-くすりをのむ": {
+    "keyword": null,
+    "tip": "飲む nomu is 'to drink', as in nomimasu. In Japanese you drink medicine, even a pill: kusuri o nomu.",
+    "picture": "Pill",
+    "badge": "Potable water"
+  },
+  "2847376": {
+    "keyword": null,
+    "tip": "人 nin is 'people' and 気 ki is the feeling in genki. When people's warm feeling is there (ga aru), it's popular. The n is its own beat: ninki ga aru.",
+    "picture": "Busts in silhouette",
+    "badge": "Star-struck"
+  },
+  "1307500": {
+    "keyword": null,
+    "tip": "It starts with the same hajim- as hajimemashite, which you say when a meeting first begins. The clapper snaps and the film begins: hajimaru.",
+    "picture": "Clapper board",
+    "badge": "Play button"
+  },
+  "1419370": {
+    "keyword": "hiccup",
+    "tip": "A hiccup jolts your hands as you play the piano. Say hee-koo, both short, 'koo' not 'kuh', with no 'p' on the end: hiku.",
+    "picture": "Musical keyboard",
+    "badge": "Face with hand over mouth"
+  },
+  "1535910": {
+    "keyword": "more owl",
+    "tip": "A friend hands you one more owl, and you get it for your collection. Three short beats, mo-ra-u, the r a light tap: morau.",
+    "picture": "Owl",
+    "badge": "Wrapped gift"
+  },
+  "1206050": {
+    "keyword": "oboe",
+    "tip": "An oboe player memorizes her part, then plays with the music shut. Say oh-boh-eh, all short with no glide, then a light ru: oboeru.",
+    "picture": "Flute",
+    "badge": "Brain"
+  },
+  "1338240": {
+    "keyword": "dairy cow",
+    "tip": "A dairy cow appears in the barn doorway, poking her head out. Keep the 'deh' of dairy, then a light ru, not 'ree': deru.",
+    "picture": "Cow",
+    "badge": "Door"
+  },
+  "1172910": {
+    "keyword": "undo button",
+    "tip": "Exercise is the undo button for last night's cake: you work it off. Say oon, not 'un', and a long doh, not 'doo': undō suru.",
+    "picture": "Counterclockwise arrows button",
+    "badge": "Person lifting weights"
+  },
+  "1303620": {
+    "keyword": "Sam's pony",
+    "tip": "Sam takes his pony for a slow walk round the park. Say sahm-po: 'ah', not Sam's 'a', ん sounds like m before p, and no 'ny': sanpo suru.",
+    "picture": "Horse",
+    "badge": "Person walking"
+  },
+  "1374530": {
+    "keyword": null,
+    "tip": "是 means 'right' and 非 'wrong': right or wrong, come anyway, by all means! Ze as in 'zen', then a short hee: zehi.",
+    "picture": "Check mark button",
+    "badge": "Cross mark"
+  },
+  "1343110": {
+    "keyword": null,
+    "tip": "ところ is 'place' and で is 'at': at this place in the chat, you turn to a new topic. By the way: tokorode.",
+    "picture": "Speech balloon",
+    "badge": "Right arrow curving left"
+  },
+  "1202150": {
+    "keyword": "minnow",
+    "tip": "A whole school of minnows swims off together, all of them at once. Hold the n for an extra beat and end on 'nah', not 'no': minna.",
+    "picture": "Fish",
+    "badge": "Hundred points"
+  },
+  "1012480": {
+    "keyword": "mower",
+    "tip": "The ride-on mower has already cut the whole lawn before you wake up. Say 'mow', held long, with no 'er': mō.",
+    "picture": "Tractor",
+    "badge": "Hourglass done"
+  },
+  "1341000": {
+    "keyword": "harrow",
+    "tip": "Every spring a farmer drags a harrow across the field, ready for planting. Say a flat 'hah', and end on a short ru, not 'oh': haru.",
+    "picture": "Tractor",
+    "badge": "Seedling"
+  },
+  "1332650": {
+    "keyword": "Akita",
+    "tip": "An Akita dog bounds through a heap of fall leaves. Akita, 秋田, really means 'autumn field'. Drop the -ta, open 'ah', then a short ki: aki.",
+    "picture": "Dog",
+    "badge": "Fallen leaf"
+  },
+  "1231590": {
+    "keyword": null,
+    "tip": "牛 gyū is 'cow', as in gyūdon, and 乳 nyū is 'milk': cow's milk. Both halves are long: gyū rhymes with 'cue', nyū with 'new': gyūnyū.",
+    "picture": "Glass of milk",
+    "badge": "Ox"
+  },
+  "1555480": {
+    "keyword": "ring",
+    "tip": "At the fair you toss a ring and it drops neatly round a shiny red apple. Add a short go, and tap the r lightly, near a soft d: ringo.",
+    "picture": "Ring",
+    "badge": "Red apple"
+  },
+  "1554310-りょうり-10": {
+    "keyword": "Rory",
+    "tip": "Rory the lion travels the world tasting every country's cuisine. Glide the r and y into one beat, hold the ō long, and tap the r lightly: ryōri.",
+    "picture": "Lion",
+    "badge": "Globe showing europe-africa"
+  },
+  "1537300": {
+    "keyword": "yak, cue",
+    "tip": "A yak swings a pool cue like a bat and smacks a baseball. Say 'yah', not the flat a of yak, and kyū as one long 'cue': yakyū.",
+    "picture": "Bison",
+    "badge": "Baseball"
+  },
+  "2429350": {
+    "keyword": null,
+    "tip": "お金 okane is 'money', and 持ち mochi, like the rice cake, comes from 持つ motsu, 'to have': someone who has money. All vowels short: okanemochi.",
+    "picture": "Money bag",
+    "badge": "Gem stone"
+  },
+  "1541630": {
+    "keyword": null,
+    "tip": "有名 yūmei is 'famous', and 人 jin is 'person', as in nihonjin: a famous person. Hold the yū long: yūmeijin.",
+    "picture": "Woman singer",
+    "badge": "Glowing star"
+  },
+  "1217730": {
+    "keyword": "cacao",
+    "tip": "A toddler drinks hot cacao and grins with chocolate all over his face. Use only the end of cacao, 'kah-oh', two clear vowels, not 'cow': kao.",
+    "picture": "Chocolate bar",
+    "badge": "Face savoring food"
+  },
+  "1468870": {
+    "keyword": null,
+    "tip": "年 toshi is 'year' or 'age', and 上 ue is 'above', as in つくえの上: above you in years. Say u-e as two short vowels: toshiue.",
+    "picture": "Older person",
+    "badge": "Up arrow"
+  },
+  "1420900": {
+    "keyword": null,
+    "tip": "地 chi is 'ground', 下 ka is 'under' (the した in つくえの下), and 鉄 tetsu is 'iron', for the rails: the iron road underground. All short: chikatetsu.",
+    "picture": "Metro",
+    "badge": "Down arrow"
+  },
+  "1602800": {
+    "keyword": "funnel",
+    "tip": "A big ship puffs smoke from its tall funnel as it leaves port. Say fu like 'food', not 'fun', and end on 'neh' with no l: fune.",
+    "picture": "Ship",
+    "badge": "Cloud"
+  },
+  "1485470": {
+    "keyword": null,
+    "tip": "飛 hi is 'fly', 行 kō is the 'go' of 行く and ginkō, and 機 ki is 'machine': a fly-and-go machine. Hold the kō long: hikōki.",
+    "picture": "Airplane",
+    "badge": "Wing"
+  },
+  "1543750": {
+    "keyword": "yak",
+    "tip": "A yak phones a restaurant: 'Yo! A table for one yak.' Its reservation is made. Say yo once, then two light beats ya-ku, not 'yack': yoyaku.",
+    "picture": "Bison",
+    "badge": "Telephone receiver"
+  },
+  "1451490": {
+    "keyword": null,
+    "tip": "動 'move' plus 物 'thing' makes dōbutsu, 'animal', and 園 en is 'garden'. A garden of animals. Hold the dō long and end on n: dōbutsuen.",
+    "picture": "Elephant",
+    "badge": "Deciduous tree"
+  },
+  "1315920": {
+    "keyword": null,
+    "tip": "時 ji is 'o'clock', as in ichiji, and 間 kan is 'between'. The stretch between the hours is time. Say kan with 'ah', not 'can': jikan.",
+    "picture": "Hourglass done",
+    "badge": "Left-right arrow"
+  },
+  "1373860": {
+    "keyword": "sea kayak",
+    "tip": "A sea kayak paddles all the way around the world. Say se as a short 'seh', not 'see', and drop the final 'ak': sekai.",
+    "picture": "Canoe",
+    "badge": "Globe showing americas"
+  },
+  "1486680": {
+    "keyword": null,
+    "tip": "美容 biyō is 'beauty care', and 院 in is a place, as in byōin 'hospital'. Keep the extra i, or you're at the hospital: biyōin.",
+    "picture": "Woman getting haircut",
+    "badge": "Sparkles"
+  },
+  "1328090": {
+    "keyword": null,
+    "tip": "手 te is 'hand', and 袋 fukuro is 'bag', softened to bukuro. A bag for your hand: tebukuro.",
+    "picture": "Gloves",
+    "badge": "Shopping bags"
+  },
+  "1378860": {
+    "keyword": null,
+    "tip": "生 sei is 'life', as in gakusei, and 活 katsu is 'lively'. Lively living, your daily life. Say sei like 'say', and katsu's u is barely there: seikatsu.",
+    "picture": "House",
+    "badge": "Fork and knife"
+  },
+  "1579130": {
+    "keyword": null,
+    "tip": "今 is 'this', as in konban and konshū, and 年 toshi is 'year'. This year, but say ko with no n: kotoshi.",
+    "picture": "Fireworks",
+    "badge": "Round pushpin"
+  },
+  "1586420": {
+    "keyword": "a tot",
+    "tip": "A tot warms up by the fire: 'a tot' plus takai, the word you know for 'expensive'. Every a is a short 'ah': atatakai.",
+    "picture": "Baby",
+    "badge": "Fire"
+  },
+  "1554370": {
+    "keyword": "Sue's sheep",
+    "tip": "A cool autumn breeze ruffles Sue's sheep on the hill. Add a short u after the z, zu, and hold shii long like 'sheep': suzushii.",
+    "picture": "Ram",
+    "badge": "Leaf fluttering in wind"
+  },
+  "1556730": {
+    "keyword": "sumo tie",
+    "tip": "A sumo wrestler puts on a tie straight from the freezer and shivers. Start with tsu, not su, and say me as 'meh', not 'mo': tsumetai.",
+    "picture": "Necktie",
+    "badge": "Ice"
+  },
+  "1421970": {
+    "keyword": "oh, soy",
+    "tip": "A snail inches toward the soy sauce by the sushi, so slow you sigh, 'Oh, soy...'. Pure o's, and soi rhymes with 'boy': osoi.",
+    "picture": "Snail",
+    "badge": "Sushi"
+  },
+  "1214330": {
+    "keyword": "canned tan",
+    "tip": "Tan from a can is easy: one spray and you're done. Both a's are 'ah', not the a in 'can', and there's no d: kantan.",
+    "picture": "Lotion bottle",
+    "badge": "Thumbs up"
+  },
+  "1474850": {
+    "keyword": "Tom, a roo",
+    "tip": "Tom, a roo from the outback, stays the night at a hotel. Say to with a pure o, not 'tom', ma as 'mah', and a light, flicked ru: tomaru.",
+    "picture": "Kangaroo",
+    "badge": "Hotel"
+  },
+  "1005020": {
+    "keyword": null,
+    "tip": "ごろごろ is the sound of something heavy rolling. Picture yourself rolling from one end of the sofa to the other all day. Use a light, flicked r and keep every o short: gorogoro suru.",
+    "picture": "Couch and lamp",
+    "badge": "Sloth"
+  },
+  "1553170-りょこうする-10": {
+    "keyword": null,
+    "tip": "旅 ryo means 'journey', and 行 kō is the 行 of 行きます, 'go'. Add する, 'do', and you get 'to go on a journey'. Ryo is one beat, and the kō is long: ryokō suru.",
+    "picture": "Luggage",
+    "badge": "Airplane departure"
+  },
+  "1559160": {
+    "keyword": "wren chute",
+    "tip": "A wren practises sliding down a chute, over and over. Drop the t of 'chute' and hold the shū long. The n is a beat of its own: renshū suru.",
+    "picture": "Bird",
+    "badge": "Playground slide"
+  },
+  "1165970": {
+    "keyword": null,
+    "tip": "一 ichi is 'one' and 番 ban is 'number', as in でんわばんごう. Number one is the best. Say ban as 'bahn', not 'ban': ichiban.",
+    "picture": "1st place medal",
+    "badge": "Glowing star"
+  },
+  "1189360": {
+    "keyword": null,
+    "tip": "Like どこ and どれ, ど asks a question. どっち is the casual way to pick between two. Pause on the small っ before chi: dotchi.",
+    "picture": "Balance scale",
+    "badge": "Thinking face"
+  },
+  "1189360-どちら-10": {
+    "keyword": null,
+    "tip": "This is the polite twin of どっち. It has the same ど question, no っ pause, and a ra on the end. Use it with teachers and shop staff: dochira.",
+    "picture": "Person tipping hand",
+    "badge": "Left-right arrow"
+  },
+  "1400150": {
+    "keyword": null,
+    "tip": "早い hayai is 'early'. Swap its final い for く and it says how you do something: get up early. Say ha as 'hah', not 'hay': hayaku.",
+    "picture": "Rooster",
+    "badge": "Sunrise"
+  },
+  "genki-10-あるいて": {
+    "keyword": "a roo",
+    "tip": "A roo stops hopping and travels on foot, one step at a time. Keep ru short with a light flicked r, then say 'ee-teh': aruite.",
+    "picture": "Kangaroo",
+    "badge": "Footprints"
+  },
+  "1009010": {
+    "keyword": "doe yacht",
+    "tip": "A doe stands at a yacht's wheel, wondering how to steer it. Hold the dō long, say ya as 'yah', and pause on the っ before te: dōyatte.",
+    "picture": "Deer",
+    "badge": "Sailboat"
+  },
+  "1009250": {
+    "keyword": null,
+    "tip": "どの dono is 'which', as in この and その, and ぐらい gurai is 'about'. 'About which amount' means how much or how long: donogurai.",
+    "picture": "Straight ruler",
+    "badge": "Red question mark"
+  },
+  "genki-10-しゅうかん": {
+    "keyword": null,
+    "tip": "週 shū is 'week', as in 来週 raishū, and 間 kan is a span of time, as in 時間 jikan. A span of weeks. Hold the shū long: -shūkan.",
+    "picture": "Spiral calendar",
+    "badge": "Stopwatch"
+  },
+  "genki-10-かげつ": {
+    "keyword": null,
+    "tip": "月 is 'month' and 'moon', read getsu as in getsuyōbi, and the small か counts them: 3か月 is three months. Say ka as 'kah': -kagetsu.",
+    "picture": "Crescent moon",
+    "badge": "Full moon"
+  },
+  "1004710": {
+    "keyword": null,
+    "tip": "この kono is 'this' and ごろ goro is 'around', as in 三時ごろ. 'Around this time' means these days. Keep every o short: konogoro.",
+    "picture": "Newspaper",
+    "badge": "Sparkles"
+  },
+  "genki-10-ご": {
+    "keyword": null,
+    "tip": "後 go means 'after', as in 午後 gogo, 'after noon'. 一時間後 is an hour after now, so 'in an hour'. Use a short, pure o: -go.",
+    "picture": "Hourglass done",
+    "badge": "Fast-forward button"
+  },
+  "1203620": {
+    "keyword": null,
+    "tip": "外 gai is 'outside', and 国 koku is 'country', as in 中国 chūgoku and 韓国 kankoku. The country outside yours: gaikoku.",
+    "picture": "Globe showing americas",
+    "badge": "Passport control"
+  },
+  "1390020": {
+    "keyword": "car wash",
+    "tip": "A car drives straight into the river for a free car wash. Drop the 'sh' and keep both vowels a short 'ah': kawa.",
+    "picture": "Automobile",
+    "badge": "Water wave"
+  },
+  "1183450": {
+    "keyword": null,
+    "tip": "温 is 'warm' and 泉 is 'spring': a warm spring, Japan's famous hot spring baths. Give each ん its own full beat, o-n-se-n: onsen.",
+    "picture": "Hot springs",
+    "badge": "Bathtub"
+  },
+  "1434040": {
+    "keyword": "two reels",
+    "tip": "An eager angler goes fishing with two reels at once. Start with 'ts', keep the u short, make ri a light tap with no 'l', and drop the final s: tsuri.",
+    "picture": "Fishing pole",
+    "badge": "Tropical fish"
+  },
+  "1267280": {
+    "keyword": null,
+    "tip": "水 mizu is 'water' and 海 umi is 'sea'. A sea of fresh water, sitting inland, is a lake. Say both u's, held a little: mizuumi.",
+    "picture": "Canoe",
+    "badge": "Droplet"
+  },
+  "1302680": {
+    "keyword": "llama",
+    "tip": "A llama climbs to the top of the mountain. Swap the 'l' for a 'y', and keep both vowels a short 'ah': yama.",
+    "picture": "Llama",
+    "badge": "Snow-capped mountain"
+  },
+  "1364670": {
+    "keyword": "ginger",
+    "tip": "A knob of ginger is left as an offering at the shrine's gate. Keep jin short, and end on a clear 'jah', not 'jer': jinja.",
+    "picture": "Ginger root",
+    "badge": "Shinto shrine"
+  },
+  "1486460": {
+    "keyword": "bee juice can",
+    "tip": "A bee sips from a juice can in front of a famous painting at the art museum. Short bi and ju, a light tsu, and kan like 'kahn': bijutsukan.",
+    "picture": "Honeybee",
+    "badge": "Framed picture"
+  },
+  "1322920": {
+    "keyword": null,
+    "tip": "社 sha is from 会社 kaisha, 'company', and 長 chō means the head or chief. The company's chief is its president. Hold the ō long: shachō.",
+    "picture": "Office building",
+    "badge": "Crown"
+  },
+  "1193290": {
+    "keyword": "cashew",
+    "tip": "A singer snacks on cashews between songs, a bowl balanced on the mic stand. Say ka as 'kah', not 'cash', and keep shu short: kashu.",
+    "picture": "Microphone",
+    "badge": "Peanuts"
+  },
+  "1347710": {
+    "keyword": null,
+    "tip": "来 rai means 'coming', as in 来年 rainen, next year. 将来 is the time still coming: the future. Hold the shō long: shōrai.",
+    "picture": "Crystal ball",
+    "badge": "Fast-forward button"
+  },
+  "1604135": {
+    "keyword": "Ma's tree",
+    "tip": "Ma's tree is hung with lanterns for the town festival. Make tsu a 'ts' sound and ri a light tap, with the polite お in front: omatsuri.",
+    "picture": "Deciduous tree",
+    "badge": "Red paper lantern"
+  },
+  "2826498": {
+    "keyword": null,
+    "tip": "月 gatsu is 'month', as in 一月 ichigatsu, and 正 shō means 'proper'. The proper first month is New Year's, with the polite お. Hold the shō long: oshōgatsu.",
+    "picture": "Pine decoration",
+    "badge": "Sunrise"
+  },
+  "1001710": {
+    "keyword": "cashier",
+    "tip": "The cashier slips you a free snack with your change. Say ka as a short 'kah', and end on a clean shi with no 'r', after the polite お: okashi.",
+    "picture": "Yen banknote",
+    "badge": "Chocolate bar"
+  },
+  "1217070": {
+    "keyword": "mocha",
+    "tip": "A wind-up toy carries a tiny mocha across the table. End on 'cha' as in 'chat', not 'kah', with a short o in front: omocha.",
+    "picture": "Hot beverage",
+    "badge": "Teddy bear"
+  },
+  "genki-11-こんがっき": {
+    "keyword": null,
+    "tip": "今 kon is 'this', as in 今晩 konban, and 学期 gakki is a school term, 学 as in 学生 gakusei. Pause on the っ, gak-ki: kongakki.",
+    "picture": "Backpack",
+    "badge": "School"
+  },
+  "1547810": {
+    "keyword": null,
+    "tip": "来 rai is 'next', as in 来週 raishū, plus 学期 gakki, the school term. Pause on the っ before ki: raigakki.",
+    "picture": "Graduation cap",
+    "badge": "Next track button"
+  },
+  "1330290": {
+    "keyword": "jug yo-yo",
+    "tip": "To start class, the teacher drops a yo-yo into a jug. Say ju as 'joo', not 'juh', and just one long yō: jugyō.",
+    "picture": "Yo-yo",
+    "badge": "School"
+  },
+  "1004500": {
+    "keyword": null,
+    "tip": "こ is the 'near me' of これ, この and ここ. こちら is its polite form, for the person right beside you: 'This is Ms Tanaka.' Short, even beats: kochira.",
+    "picture": "Person tipping hand",
+    "badge": "Backhand index pointing right"
+  },
+  "1172440": {
+    "keyword": "you sew a sock",
+    "tip": "'You sew a sock?' 'Yes!' says the boy, telling a lie: grandma sewed it. No y on the u, two o's in so-o, and tsu-ku, not 'sock': uso o tsuku.",
+    "picture": "Socks",
+    "badge": "Lying face"
+  },
+  "2021520": {
+    "keyword": null,
+    "tip": "おなか is your stomach, が marks it, and すく means 'gets empty'. Staring at an empty plate, your stomach is empty, so you're hungry: onaka ga suku.",
+    "picture": "Fork and knife with plate",
+    "badge": "Drooling face"
+  },
+  "1312970": {
+    "keyword": null,
+    "tip": "飼 has 食 'eat' on its left: the pet you keep is the one you feed every day. Same sound as 買う 'to buy', two short beats: kau.",
+    "picture": "Hamster",
+    "badge": "Bowl with spoon"
+  },
+  "1057580": {
+    "keyword": null,
+    "tip": "サボる comes from 'sabotage': you sabotage your own timetable by slipping out the door and cutting class. Sa-bo-ru, a short o and a flicked r: saboru.",
+    "picture": "Door",
+    "badge": "Person running"
+  },
+  "1326980": {
+    "keyword": "tow truck",
+    "tip": "A tow truck hauls your textbooks to the lecture hall: you're taking the class. A short, pure o, not 'tow', then a light flicked ru, no 'truck': toru.",
+    "picture": "Pickup truck",
+    "badge": "Books"
+  },
+  "1333070": {
+    "keyword": "narwhal",
+    "tip": "A narwhal learns to write, gripping a pencil with its tusk. Three short beats, na-ra-u, a flicked r between the a's, ending on u, not 'whal': narau.",
+    "picture": "Whale",
+    "badge": "Pencil"
+  },
+  "1352570": {
+    "keyword": "no boar",
+    "tip": "'No, boar!' shout the hikers as a wild boar climbs the mountain path after them. Three short beats: bo, not 'bore', then a flicked ru: noboru.",
+    "picture": "Boar",
+    "badge": "Mountain"
+  },
+  "1402540": {
+    "keyword": null,
+    "tip": "Hashi is Japanese for chopsticks: picture a pair running across the table like two legs, then add ru. A light shi, three short beats: hashiru.",
+    "picture": "Chopsticks",
+    "badge": "Running shoe"
+  },
+  "1483740": {
+    "keyword": "soccer roo",
+    "tip": "A soccer roo plays ninety minutes, gets tired and flops on the grass. A hissed tsu, not 'so', ka like 'kah', re like 'reh', a short ru: tsukareru.",
+    "picture": "Kangaroo",
+    "badge": "Tired face"
+  },
+  "1318950": {
+    "keyword": "yam",
+    "tip": "Fed up with peeling, the cook drops the yam and quits on the spot. Ya-me-ru, three short beats, with me said like 'meh': yameru.",
+    "picture": "Roasted sweet potato",
+    "badge": "Stop sign"
+  },
+  "1257040": {
+    "keyword": "Ken's car",
+    "tip": "Two boys have a fight over Ken's toy car. No z sound: the n is a beat of its own, then a crisp 'kah': kenka suru.",
+    "picture": "Automobile",
+    "badge": "Anger symbol"
+  },
+  "1351430": {
+    "keyword": "showcase",
+    "tip": "You lift your new friend up beside the trophy showcase to introduce her to everyone. Hold the shō long, and kai rhymes with 'sky', not 'case': shōkai suru.",
+    "picture": "Trophy",
+    "badge": "Handshake"
+  },
+  "1422050": {
+    "keyword": "cheeky cuckoo",
+    "tip": "The cheeky cuckoo is late again, popping out of its clock long after the hour. Drop the 'ky': just chi, then a short ko-ku: chikoku suru.",
+    "picture": "Bird",
+    "badge": "Hourglass done"
+  },
+  "1552740": {
+    "keyword": null,
+    "tip": "留 ryū is 'stay', and 学 gaku is 'study', as in daigaku and gakusei. You fly off to stay somewhere and study: ryūgaku suru.",
+    "picture": "Airplane",
+    "badge": "Graduation cap"
+  },
+  "1339260": {
+    "keyword": null,
+    "tip": "出 is the 'come out' of 出る, and 身 is 'body': the place your body came out from, your hometown. Hold the っ as a short pause before shin: shusshin.",
+    "picture": "Map of japan",
+    "badge": "Round pushpin"
+  },
+  "1227370": {
+    "keyword": "his ashy brie",
+    "tip": "An old friend turns up holding his ashy brie under a spider web: it's been ages. Say hi-sa, not 'hiz', and bu-ri as two beats, not 'bree': hisashiburi.",
+    "picture": "Cheese wedge",
+    "badge": "Spider web"
+  },
+  "1012070": {
+    "keyword": "mama",
+    "tip": "Mama tastes your first curry and tilts her hand: okay, not bad. Hold both a's long and flat, maa-maa, not a quick 'mama': māmā.",
+    "picture": "Woman",
+    "badge": "Face with diagonal mouth"
+  },
+  "1012620": {
+    "keyword": "motto",
+    "tip": "The gym's motto, painted on an old scroll, is one word: more. Pause on the っ before to, and keep both o's short and pure, not 'mah-toe': motto.",
+    "picture": "Scroll",
+    "badge": "Plus"
+  },
+  "1269320": {
+    "keyword": "a toe",
+    "tip": "After the race, a runner soaks a sore toe. Say a clear 'ah', not 'uh', and a short pure to, not 'toe': ato.",
+    "picture": "Foot",
+    "badge": "Chequered flag"
+  },
+  "1297510": {
+    "keyword": "soccer",
+    "tip": "A writer signs her novel's last line on a soccer ball. Say sa, not 'so', pause at the っ, and end on a clear 'kah', not 'ker': sakka.",
+    "picture": "Soccer ball",
+    "badge": "Writing hand"
+  },
+  "1471970": {
+    "keyword": "high yew",
+    "tip": "An actor plays Romeo from a high yew tree, calling down to Juliet. Hai is one quick beat, and hold the yū long: haiyū.",
+    "picture": "Evergreen tree",
+    "badge": "Performing arts"
+  },
+  "1252400": {
+    "keyword": "Kay's satsuma can",
+    "tip": "A police officer stops Kay and inspects her satsuma can. No z after kei, drop the 'ma', and kan rhymes with 'khan', not 'can': keisatsukan.",
+    "picture": "Tangerine",
+    "badge": "Police officer"
+  },
+  "1350350": {
+    "keyword": "showboat",
+    "tip": "Firefighters spray water on a burning showboat. Drop the t, add a quick shi, and hold both o's long and pure: shōbōshi.",
+    "picture": "Passenger ship",
+    "badge": "Firefighter"
+  },
+  "1811920": {
+    "keyword": null,
+    "tip": "漫画 manga, plus 家 ka, a professional, as in sakka the writer. The one who draws manga: mangaka.",
+    "picture": "Artist",
+    "badge": "Open book"
+  },
+  "1237130": {
+    "keyword": null,
+    "tip": "教 kyō is 'teach', as in kyōkasho, the textbook, and 師 shi is a master of a craft. Hold the kyō long: kyōshi.",
+    "picture": "Teacher",
+    "badge": "School"
+  },
+  "1258590": {
+    "keyword": null,
+    "tip": "研究 kenkyū is 'research', and 者 sha is 'person', as in isha, the doctor. Hold the kyū long, in one beat: kenkyūsha.",
+    "picture": "Microscope",
+    "badge": "Test tube"
+  },
+  "1171400": {
+    "keyword": null,
+    "tip": "宇宙 uchū is 'space', 飛行 hikō is 'flight', as in hikōki, and 士 shi is a professional, as in bengoshi. A space-flight professional: uchū hikōshi.",
+    "picture": "Rocket",
+    "badge": "Astronaut"
+  },
+  "2403340": {
+    "keyword": null,
+    "tip": "スポーツ is just 'sports'. 選 sen is 'chosen', and 手 is 'hand', the te of tegami, read shu here: a chosen hand, a player. Together: supōtsu senshu.",
+    "picture": "Person running",
+    "badge": "Sports medal"
+  },
+  "1414650": {
+    "keyword": null,
+    "tip": "大 dai is 'big', as in daigaku, and 統領 tōryō is 'chief': the big chief. Hold both o's long, and ryo is one syllable, not 'ree-oh': daitōryō.",
+    "picture": "Classical building",
+    "badge": "Ballot box with ballot"
+  },
+  "1002610": {
+    "keyword": "on a car",
+    "tip": "He lies belly-up on a car, patting his full stomach in the sun. A pure o, not 'on', and a short, open ka with no r: onaka.",
+    "picture": "Automobile",
+    "badge": "Face savoring food"
+  },
+  "1404630": {
+    "keyword": "ash",
+    "tip": "Campfire ash falls and coats his bare leg grey. Say a as in 'ah', not the a of 'ash', then add a short i: ashi.",
+    "picture": "Leg",
+    "badge": "Fire"
+  },
+  "1600280": {
+    "keyword": "no dough",
+    "tip": "A dry lump of dough sticks in his throat, and he croaks 'No dough!' Two short, pure o's, not the gliding 'doh' of dough: nodo.",
+    "picture": "Bread",
+    "badge": "Face with open mouth"
+  },
+  "1313000": {
+    "keyword": "ha",
+    "tip": "'Ha!' A big laugh shows off every tooth. Keep it short and open, like 'hah': ha.",
+    "picture": "Tooth",
+    "badge": "Grinning squinting face"
+  },
+  "1583720": {
+    "keyword": null,
+    "tip": "風 kaze is 'wind', as in kamikaze, 'divine wind', and 邪 means 'evil'. An evil wind blows in a cold: kaze.",
+    "picture": "Wind face",
+    "badge": "Sneezing face"
+  },
+  "1602760": {
+    "keyword": null,
+    "tip": "二日 futsuka is 'two days', as in the 2nd of the month, and 酔い yoi is 'drunkenness'. Still drunk on day two: futsukayoi.",
+    "picture": "Woozy face",
+    "badge": "Beer mug"
+  },
+  "1549140": {
+    "keyword": "Tamagotchi",
+    "tip": "The egg-shaped Tamagotchi pet takes its name from tamago, 'egg'. Drop the -tchi and say three short beats, ta-ma-go: tamago.",
+    "picture": "Egg",
+    "badge": "Hatching chick"
+  },
+  "1502390": {
+    "keyword": "monocle",
+    "tip": "Through his monocle, the collector squints at a strange little thing. Two short, pure o's, 'moh-noh': mono.",
+    "picture": "Face with monocle",
+    "badge": "Package"
+  },
+  "1385170": {
+    "keyword": "kipper",
+    "tip": "The conductor punches a hole in a kipper instead of your train ticket. Pause on the っ between kip and pu, and end on a short u, not 'er': kippu.",
+    "picture": "Fish",
+    "badge": "Ticket"
+  },
+  "1546300": {
+    "keyword": "yogi",
+    "tip": "The yogi rolls up his mat: he has business to take care of in town. Hold the yō long, and say ji as in 'jeep', not yogi's hard g: yōji.",
+    "picture": "Person in lotus position",
+    "badge": "Memo"
+  },
+  "1002100": {
+    "keyword": null,
+    "tip": "お is polite, 手 te is 'hand' and 洗い arai is 'washing', from 洗う arau. The polite hand-washing place: otearai.",
+    "picture": "Soap",
+    "badge": "Restroom"
+  },
+  "1312420": {
+    "keyword": null,
+    "tip": "試 shi is 'try', as in 試験 shiken, 'exam', and 合 ai is 'together'. Trying your strength against each other is a match, in three beats, shi-a-i: shiai.",
+    "picture": "Soccer ball",
+    "badge": "Trophy"
+  },
+  "1483150": {
+    "keyword": "can o' joe",
+    "tip": "She cracks open a can o' joe, her morning coffee. Say ka as 'kah', not 'can', then two short o's, no-jo: kanojo.",
+    "picture": "Hot beverage",
+    "badge": "Woman"
+  },
+  "1483070": {
+    "keyword": null,
+    "tip": "彼 means 'that person over there'. Alone it is kare, 'he'; add 女 'woman' and it is kanojo, 'she'. Short a, tapped r, short e, not 'curry': kare.",
+    "picture": "Man",
+    "badge": "Backhand index pointing right"
+  },
+  "1483140": {
+    "keyword": null,
+    "tip": "彼 kare 'he' plus 氏 shi, a polite word for a man. Your own special 'he' is your boyfriend: kareshi.",
+    "picture": "Rose",
+    "badge": "Two hearts"
+  },
+  "1237680": {
+    "keyword": "semi truck",
+    "tip": "A semi truck squeezes down a narrow alley, its mirrors scraping the walls. Say it 'sem-eye', with a short e and an open ma: semai.",
+    "picture": "Articulated lorry",
+    "badge": "Brick"
+  },
+  "1278410": {
+    "keyword": "heron",
+    "tip": "A heron spreads its wings wide across the whole lake. Say hi as 'hee', not 'heh', tap a short ro with no n, then add a short i: hiroi.",
+    "picture": "Bird",
+    "badge": "Left-right arrow"
+  },
+  "1432680": {
+    "keyword": "a tie",
+    "tip": "A tie knotted far too tight hurts your neck. Start with a short ee, not 'uh', and say tai just like 'tie': itai.",
+    "picture": "Necktie",
+    "badge": "Persevering face"
+  },
+  "1213400": {
+    "keyword": "a mime",
+    "tip": "A mime pretends to lick a giant lollipop: so sweet! Say ah, not 'uh', and drop the final m: amai.",
+    "picture": "Performing arts",
+    "badge": "Lollipop"
+  },
+  "1397350": {
+    "keyword": "steak",
+    "tip": "A sizzling steak arrives at the table: how nice! The su is barely voiced, te is short as in 'ten', not 'stay', and end on ki: suteki.",
+    "picture": "Cut of meat",
+    "badge": "Sparkles"
+  },
+  "1514320": {
+    "keyword": "our cook",
+    "tip": "Our cook walks to the market every morning. Say ah, tap the r like a quick d, and end on a short ku, not 'cook': aruku.",
+    "picture": "Cook",
+    "badge": "Person walking"
+  },
+  "1499880": {
+    "keyword": null,
+    "tip": "風邪 kaze is written 'wind' plus 'evil': a bad wind blows in and you catch (hiku) a cold. Short a, and zeh, not 'zee': kaze o hiku.",
+    "picture": "Wind face",
+    "badge": "Sneezing face"
+  },
+  "genki-12-ねつがある": {
+    "keyword": "nets",
+    "tip": "A goalie with a fever lies limp in the nets. Netsu is 'nets' with a faint u, and ga aru is 'there is': netsu ga aru.",
+    "picture": "Goal net",
+    "badge": "Face with thermometer"
+  },
+  "1277350": {
+    "keyword": null,
+    "tip": "のど nodo is 'throat'. Kawaku, 'to dry out', starts like kawa, 'river': picture a river gone dry, and your throat with it: nodo ga kawaku.",
+    "picture": "Desert",
+    "badge": "Cup with straw"
+  },
+  "1606590": {
+    "keyword": null,
+    "tip": "Don't mix it up with wakaru, 'understand': this one adds re. Couples who stop understanding each other break up: wakareru.",
+    "picture": "Broken heart",
+    "badge": "Crying face"
+  },
+  "1241880": {
+    "keyword": "king's show",
+    "tip": "A king trembles before his big show on stage. Say kin, not 'king', use ch, not sh, and hold the chō long: kinchō suru.",
+    "picture": "Crown",
+    "badge": "Anxious face with sweat"
+  },
+  "1360930": {
+    "keyword": "chimp pie",
+    "tip": "A chimp frets over his pie, checking it again and again. Start with sh, not ch, and the ん sounds like m before p: shinpai suru.",
+    "picture": "Monkey",
+    "badge": "Worried face"
+  },
+  "1002390": {
+    "keyword": null,
+    "tip": "Polite お plus 大事 daiji, 'precious', with the same 大 dai as daijōbu: 'treat yourself as precious', said to someone who's ill: odaiji ni.",
+    "picture": "Bouquet",
+    "badge": "Face with head-bandage"
+  },
+  "genki-12-げんきがない": {
+    "keyword": null,
+    "tip": "You know genki from o-genki desu ka, and ga nai means 'there isn't any'. No genki left at all: genki ga nai.",
+    "picture": "Low battery",
+    "badge": "Pensive face"
+  },
+  "1340460": {
+    "keyword": null,
+    "tip": "できる dekiru is 'can do' and だけ dake is 'just': just as much as you can do. Keep every syllable short: dekiru dake.",
+    "picture": "Person lifting weights",
+    "badge": "Flexed biceps"
+  },
+  "2015610": {
+    "keyword": null,
+    "tip": "もう mō is 'already' and すぐ sugu is 'right away': it's practically already here. Hold the mō long: mōsugu.",
+    "picture": "Hourglass not done",
+    "badge": "Person running"
+  },
+  "1342550": {
+    "keyword": null,
+    "tip": "Shorten hajimemashite, 'nice to meet you', which you say when meeting someone for the first time. Drop the mashi: hajimete.",
+    "picture": "Handshake",
+    "badge": "1st place medal"
+  },
+  "1007040": {
+    "keyword": null,
+    "tip": "それ sore is 'that' and に ni adds 'to': to that, add one more thing. Say it as one smooth word: soreni.",
+    "picture": "Pancakes",
+    "badge": "Plus"
+  }
+}

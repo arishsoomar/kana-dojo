@@ -1,5 +1,5 @@
 import { EMPTY_PROGRESS } from './answers';
-import { answerCard, currentCard, knownCards, markCard, nextRound, roundOver, setWordFront, startRound } from './flashcards';
+import { answerCard, currentCard, knownCards, markCard, nextCard, nextRound, roundOver, setWordFront, startRound } from './flashcards';
 
 const DECK = ['a', 'b', 'c', 'd'];
 const NOW = Date.UTC(2026, 9, 9, 9);
@@ -55,6 +55,17 @@ describe('a round of flashcards', () => {
     expect(round.learning).toEqual(['b', 'd']);
     // Answering after the end changes nothing.
     expect(answerCard(round, true)).toEqual(round);
+  });
+
+  it('knows the card after the one showing, for drawing it ahead of time', () => {
+    let round = startRound(DECK, false, turned);
+    expect(nextCard(round)).toBe('b');
+    round = answerCard(answerCard(round, true), true);
+    expect(nextCard(round)).toBe('d');
+    round = answerCard(round, true);
+    expect(currentCard(round)).toBe('d');
+    expect(nextCard(round)).toBeNull();
+    expect(nextCard(answerCard(round, true))).toBeNull();
   });
 
   it('carries on with the cards still being learned, then starts the whole deck again', () => {

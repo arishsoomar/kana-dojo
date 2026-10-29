@@ -1,4 +1,6 @@
-import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
+import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
+
+import { setAppAudioMode } from './mode';
 
 // The app's sound effects. They're made by scripts/make-sounds.mjs (plain maths, no
 // recordings), so there's no licence to worry about.
@@ -11,15 +13,9 @@ export type SoundEffect = keyof typeof SOUNDS;
 
 // One player per sound, made the first time it's needed and kept, so a replay starts at once.
 const players = new Map<SoundEffect, AudioPlayer>();
-let modeSet = false;
 
 export function playEffect(name: SoundEffect) {
-  if (!modeSet) {
-    modeSet = true;
-    // Like any sound effect: quiet when the phone is on silent, and played over music from
-    // other apps instead of stopping it.
-    void setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' });
-  }
+  setAppAudioMode();
 
   const existing = players.get(name);
   if (existing) {

@@ -7,7 +7,7 @@ import { numberCard, numberDeck, NUMBER_DECKS } from '@/content/numbers';
 import { timeCard, timeDeck, TIME_DECKS } from '@/content/time';
 import { VOCAB } from '@/content/vocab';
 import { completeLesson, type WordFront } from '@/core/answers';
-import { answerCard, currentCard, knownCards, markCard, nextRound, roundOver, setWordFront, startRound, WORDS_REVIEW_ID } from '@/core/flashcards';
+import { answerCard, currentCard, knownCards, markCard, nextCard, nextRound, roundOver, setWordFront, startRound, WORDS_REVIEW_ID } from '@/core/flashcards';
 import type { VocabWord } from '@/core/vocab';
 
 import { useHaptics } from './use-haptics';
@@ -75,11 +75,12 @@ export function useFlashcards(deck: Deck, only: readonly string[] | null, shuffl
     if (reading && japaneseFront && sound) speakWord(reading);
   }, [round, reading, japaneseFront, sound]);
 
+  // English in front: turned over, hear the word at once. (Japanese in front, it was heard
+  // already.) The card's turn runs on its own, so the sound can't hold it up.
   function flip() {
     if (!word) return;
     const next = !flipped;
     setFlipped(next);
-    // English in front: turned over, hear the word. (Japanese in front, it was heard already.)
     if (next && !japaneseFront && sound) speakWord(word.reading);
   }
 
@@ -105,8 +106,14 @@ export function useFlashcards(deck: Deck, only: readonly string[] | null, shuffl
     changeProgress((p) => completeLesson(p, WORDS_REVIEW_ID, Date.now(), answered));
   }
 
+  // The card after it, drawn ahead of time under this one.
+  const nextId = nextCard(round);
+
   return {
+    id,
     word,
+    nextId,
+    nextWord: nextId ? wordById(nextId) : null,
     flipped,
     front: progress.settings.wordFront,
     // How far through this round.

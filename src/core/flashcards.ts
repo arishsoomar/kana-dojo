@@ -49,6 +49,11 @@ export function currentCard(r: FlashRound): string | null {
   return r.cards[r.at] ?? null;
 }
 
+// The card after it, or null if it's the last (so the screen can draw it ahead of time).
+export function nextCard(r: FlashRound): string | null {
+  return r.cards[r.at + 1] ?? null;
+}
+
 export function roundOver(r: FlashRound): boolean {
   return r.at >= r.cards.length;
 }

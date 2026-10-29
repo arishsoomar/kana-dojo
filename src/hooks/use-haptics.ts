@@ -14,6 +14,10 @@ export function useHaptics() {
     right() {
       if (on) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     },
+    // A small click: a dragged card crossing the line where letting go counts.
+    tick() {
+      if (on) void Haptics.selectionAsync();
+    },
     // A wrong answer: a short double buzz.
     miss() {
       if (on) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

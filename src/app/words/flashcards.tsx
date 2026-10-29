@@ -1,23 +1,26 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FlipCard } from '@/components/flip-card';
 import { PrimaryButton } from '@/components/primary-button';
 import { RoundDone } from '@/components/round-done';
+import { Pile, riseFromPile, SwipeCard, type SwipeCardHandle } from '@/components/swipe-card';
 import { WordCardFace } from '@/components/word-card';
 import { XIcon } from '@/components/x-icon';
+import { MNEMONIC_PICTURES, type MnemonicPicture } from '@/constants/mnemonic-pictures';
 import { colors, fonts } from '@/constants/theme';
+import { mnemonicFor, type WordMnemonic } from '@/content/mnemonics';
+import { useBenchAutopilot } from '@/dev/use-bench-autopilot';
 import type { WordFront } from '@/core/answers';
 import type { VocabWord } from '@/core/vocab';
 import { knownCards } from '@/core/flashcards';
+import { useHaptics } from '@/hooks/use-haptics';
 import { useProgress } from '@/hooks/use-progress';
-import { useTurnOver } from '@/hooks/use-turn-over';
-import { deckById, useFlashcards, type Deck } from '@/hooks/use-words';
-
-// Half a turn of the card: edge-on, then flat with the other side up.
-const HALF_TURN_MS = 120;
+import { whenQuiet } from '@/hooks/quiet-time';
+import { deckById, useDecks, useFlashcards, type Deck } from '@/hooks/use-words';
 
 function leave() {
   if (router.canGoBack()) router.back();
@@ -42,6 +45,33 @@ function Flashcards({ deck, only, shuffled }: { deck: Deck; only: readonly strin
   const insets = useSafeAreaInsets();
   const cards = useFlashcards(deck, only, shuffled);
   const { finish } = cards;
+  const haptics = useHaptics();
+  // The buttons send the card off the way a swipe would.
+  const card = useRef<SwipeCardHandle>(null);
+  const { setFront } = useDecks();
+  // The next card, drawn under this one once nothing's moving, so it comes up with both sides
+  // ready: no drawing in the middle of its first turn. It's kept out of sight (the plain pile
+  // shows) until this card starts to go, or it would show through as this one turns edge-on.
+  const [nextDrawnFor, setNextDrawnFor] = useState(-1);
+  const [revealedFor, setRevealedFor] = useState(-1);
+  useEffect(() => {
+    // Not on the end-of-round screen, so a new round starts with just its first card.
+    if (cards.over) return;
+    return whenQuiet(300, () => setNextDrawnFor(cards.answered));
+  }, [cards.answered, cards.over]);
+  const drawNext = nextDrawnFor === cards.answered && cards.nextId !== null && cards.nextWord !== null;
+
+  // Back to the top for each card, as the last one goes, so the next is seen whole.
+  const scroll = useRef<ScrollView>(null);
+  function leaving() {
+    setRevealedFor(cards.answered);
+    scroll.current?.scrollTo({ y: 0, animated: true });
+  }
+  useLayoutEffect(() => {
+    scroll.current?.scrollTo({ y: 0, animated: false });
+  }, [cards.answered]);
+
+  useBenchAutopilot({ cardsLeft: cards.total, setEnglishFront: () => setFront('english'), fling: (know) => card.current?.fling(know) });
 
   function close() {
     finish();
@@ -82,16 +112,51 @@ function Flashcards({ deck, only, shuffled }: { deck: Deck; only: readonly strin
         />
       ) : (
         <>
-          <ScrollView contentContainerStyle={styles.body}>
-            {/* A new card each answer, so the next word never shows its back while turning. */}
-            <FlashCard key={cards.answered} word={cards.word} front={cards.front} flipped={cards.flipped} onFlip={cards.flip} onSpeak={cards.speak} />
+          <ScrollView ref={scroll} contentContainerStyle={styles.body}>
+            {/* The rest of the round, as a pile under this card: the next card itself once it's
+                drawn. Each card keeps its key from the pile to the top (the answer count it'll
+                be shown at), so it comes up as it is, not drawn again. And each has its own edge
+                of the pile peeking out under it, its own size: going, a card takes its edge with
+                it, so a long card (turned over, with its memory tip) doesn't leave a long pile. */}
+            <View>
+              {drawNext && cards.nextWord && (
+                <CardSlot key={cards.answered + 1} behind hidden={revealedFor !== cards.answered} pile={cards.at + 2 < cards.total} pileHidden={false}>
+                  <SwipeCard onSwipe={cards.answer} active={false}>
+                    <FlashCard
+                      word={cards.nextWord}
+                      mnemonic={mnemonicFor(cards.nextId)}
+                      mnemonicPicture={cards.nextId ? MNEMONIC_PICTURES[cards.nextId] : undefined}
+                      front={cards.front}
+                      flipped={false}
+                      onFlip={() => {}}
+                      onSpeak={() => {}}
+                      active={false}
+                    />
+                  </SwipeCard>
+                </CardSlot>
+              )}
+              <CardSlot key={cards.answered} behind={false} hidden={false} pile={cards.nextId !== null} pileHidden={revealedFor === cards.answered}>
+                <SwipeCard ref={card} onSwipe={cards.answer} onThreshold={haptics.tick} onLeave={leaving}>
+                  <FlashCard
+                    word={cards.word}
+                    mnemonic={mnemonicFor(cards.id)}
+                    mnemonicPicture={cards.id ? MNEMONIC_PICTURES[cards.id] : undefined}
+                    front={cards.front}
+                    flipped={cards.flipped}
+                    onFlip={cards.flip}
+                    onSpeak={cards.speak}
+                  />
+                </SwipeCard>
+              </CardSlot>
+            </View>
           </ScrollView>
+          {/* Swipe the card, or tap: left if you're still learning it, right if you know it. */}
           <View style={[styles.answers, { paddingBottom: insets.bottom + 12 }]}>
-            <Pressable role="button" onPress={() => cards.answer(false)} style={[styles.answer, styles.learning]}>
-              <Text style={styles.answerLabel}>Still learning</Text>
+            <Pressable role="button" aria-label="Still learning" onPress={() => card.current?.fling(false)} style={[styles.answer, styles.learning]}>
+              <Text style={styles.answerLabel}>← Still learning</Text>
             </Pressable>
-            <Pressable role="button" onPress={() => cards.answer(true)} style={[styles.answer, styles.know]}>
-              <Text style={styles.answerLabel}>Know it</Text>
+            <Pressable role="button" aria-label="Know it" onPress={() => card.current?.fling(true)} style={[styles.answer, styles.know]}>
+              <Text style={styles.answerLabel}>Know it →</Text>
             </Pressable>
           </View>
         </>
@@ -100,28 +165,72 @@ function Flashcards({ deck, only, shuffled }: { deck: Deck; only: readonly strin
   );
 }
 
-// One card: tap to turn it over, and back again.
+// Where a card sits: on top, or under it in the pile (a little smaller and lower, out of reach,
+// and out of sight until the card on top starts to go). One drawn in the pile slides up when its
+// turn comes; one that wasn't (the cards went by too fast) rises into place as it's drawn. With
+// `pile`, the edge of the pile peeks out under it, sized to it.
+function CardSlot({
+  behind,
+  hidden,
+  pile,
+  pileHidden,
+  children,
+}: {
+  behind: boolean;
+  hidden: boolean;
+  pile: boolean;
+  pileHidden: boolean;
+  children: ReactNode;
+}) {
+  const lift = useSharedValue(behind ? 1 : 0);
+  useEffect(() => {
+    lift.set(withTiming(behind ? 1 : 0, { duration: 200 }));
+  }, [behind, lift]);
+  const placed = useAnimatedStyle(() => ({ transform: [{ translateY: lift.get() * 10 }, { scale: 1 - lift.get() * 0.05 }] }));
+  return (
+    <Animated.View
+      entering={behind ? undefined : riseFromPile}
+      style={[behind && styles.behind, hidden && styles.hidden, placed]}
+      pointerEvents={behind ? 'none' : 'auto'}
+      aria-hidden={behind}>
+      {pile && !pileHidden && <Pile />}
+      {children}
+    </Animated.View>
+  );
+}
+
+// One card: tap to turn it over, and back again. Both sides are drawn from the start (see
+// FlipCard), so turning it is only ever an animation.
 function FlashCard({
   word,
+  mnemonic,
+  mnemonicPicture,
   front,
   flipped,
   onFlip,
   onSpeak,
+  active = true,
 }: {
   word: VocabWord;
+  mnemonic: WordMnemonic | null;
+  mnemonicPicture: MnemonicPicture | undefined;
   front: WordFront;
   flipped: boolean;
   onFlip: () => void;
   onSpeak: () => void;
+  active?: boolean; // on top, rather than waiting in the pile
 }) {
-  const { shown: back, style: turning } = useTurnOver(flipped, HALF_TURN_MS);
   const shownFront = front === 'english' ? word.meanings[0] : word.word;
   return (
-    <Pressable role="button" aria-label={`${back ? word.word : shownFront}. Tap to turn over`} onPress={onFlip}>
-      <Animated.View style={[styles.card, turning]}>
-        <WordCardFace word={word} front={front} back={back} onSpeak={onSpeak} />
-      </Animated.View>
-    </Pressable>
+    <FlipCard
+      flipped={flipped}
+      onTap={onFlip}
+      label={`${flipped ? word.word : shownFront}. Tap to turn over`}
+      faceStyle={styles.card}
+      active={active}
+      front={<WordCardFace word={word} front={front} back={false} onSpeak={onSpeak} />}
+      back={<WordCardFace word={word} mnemonic={mnemonic} mnemonicPicture={mnemonicPicture} front={front} back onSpeak={onSpeak} />}
+    />
   );
 }
 
@@ -169,6 +278,17 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 18,
     paddingBottom: 18,
+  },
+  // A card waiting in the pile, under the one on top, at its own height (not stretched to a
+  // long card's on top, which it would show as it's revealed).
+  behind: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  hidden: {
+    opacity: 0,
   },
   card: {
     alignItems: 'center',
